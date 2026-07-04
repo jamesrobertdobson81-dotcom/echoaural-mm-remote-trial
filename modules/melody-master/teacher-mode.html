@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Mode | Melody Master | EchoAural</title>
+  <link rel="stylesheet" href="teacher-mode.css" />
+</head>
+<body>
+  <div class="teacher-shell">
+    <header class="teacher-topbar">
+      <a class="brand refined-logo" href="index.html" aria-label="Back to Melody Master">
+        <span class="brand-wave refined-wave" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+      </a>
+
+      <div class="teacher-title-lockup">
+        <span class="mode-pill">Live Classroom MVP</span>
+        <h1>Melody Master Teacher Mode</h1>
+      </div>
+
+      <nav class="teacher-actions" aria-label="Teacher Mode navigation">
+        <a class="ghost-link" href="index.html">Solo Mode</a>
+      </nav>
+    </header>
+
+    <main class="teacher-grid">
+      <section class="panel session-panel">
+        <div class="panel-heading">
+          <p class="eyebrow">CLASS SESSION</p>
+          <h2>Join room</h2>
+        </div>
+
+        <button id="createSessionButton" class="primary-button" type="button">Create Class Session</button>
+
+        <div id="sessionCard" class="session-card is-muted" aria-live="polite">
+          <p class="status-line" id="connectionStatus">Connect to the local classroom server to create a room.</p>
+          <div class="join-instructions">
+            <span class="join-step-number">1</span>
+            <div>
+              <strong>Students type the short link</strong>
+              <p>Use this on student laptops connected to the same Wi-Fi network.</p>
+            </div>
+          </div>
+
+          <label class="join-link-label" for="joinLink">Short student link</label>
+          <input id="joinLink" class="join-link short-link" type="text" readonly value="Create a session first" />
+          <button id="copyLinkButton" class="secondary-button" type="button" disabled>Copy Student Link</button>
+
+          <div class="join-instructions code-step">
+            <span class="join-step-number">2</span>
+            <div>
+              <strong>Then students enter this join code</strong>
+              <p>Project this code clearly. Students enter their name and the code on the join page.</p>
+            </div>
+          </div>
+
+          <div class="room-code-wrap">
+            <span>Join code</span>
+            <strong id="roomCode">—</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel control-panel">
+        <div class="panel-heading teacher-control-heading">
+          <p class="eyebrow">TEACHER CONTROLS</p>
+        </div>
+
+        <h2 id="activeQuestionTitle" class="teacher-track-slot" aria-live="polite"></h2>
+        <audio id="teacherAudio" preload="auto"></audio>
+        <div id="teacherNotice" class="notice good teacher-status-tile">Create a Class Session</div>
+
+        <div class="control-row teacher-primary-row">
+          <button id="primaryQuizButton" class="primary-button large-control-button" type="button" disabled>Settings</button>
+          <button id="closeSubmissionsButton" class="secondary-button" type="button" disabled>Close Submissions</button>
+          <button id="endQuizButton" class="ghost-button danger-button" type="button" disabled>End Quiz</button>
+        </div>
+      </section>
+
+      <section class="panel students-panel">
+        <div class="panel-heading split-heading">
+          <div>
+            <p class="eyebrow">LIVE CLASS</p>
+            <h2>Joined students</h2>
+          </div>
+          <span class="count-pill" id="studentCount">0 joined</span>
+        </div>
+
+        <div id="studentList" class="student-list empty-state">
+          No students joined yet.
+        </div>
+      </section>
+
+      <section class="panel leaderboard-panel">
+        <div class="panel-heading split-heading">
+          <div>
+            <p class="eyebrow">CLASS RESULTS</p>
+            <h2>Leaderboard</h2>
+          </div>
+          <span class="average-pill" id="classAverage">Average —</span>
+        </div>
+
+        <div class="summary-grid">
+          <div><span>Submitted</span><strong id="submittedSummary">0 / 0</strong></div>
+          <div><span>Accuracy</span><strong id="accuracySummary">—</strong></div>
+          <div><span>Status</span><strong id="submissionsStatus">Waiting</strong></div>
+        </div>
+
+        <div id="leaderboardList" class="leaderboard-list empty-state">
+          Scores appear after students submit.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="quizSettingsModal" class="modal-backdrop" hidden>
+    <section class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="quizSettingsTitle">
+      <button id="closeSettingsModalButton" class="modal-close" type="button" aria-label="Close settings">×</button>
+      <div class="modal-brand">
+        <span class="brand-wave refined-wave" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <div>
+          <p class="eyebrow">MELODY MASTER</p>
+          <h2 id="quizSettingsTitle">Class quiz settings</h2>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Number of questions</h3>
+        <p>Choose how many Melody Master questions this live quiz will include.</p>
+        <div class="option-grid" id="quizLengthOptions">
+          <button class="option-button is-selected" type="button" data-value="3">3</button>
+          <button class="option-button" type="button" data-value="5">5</button>
+          <button class="option-button" type="button" data-value="10">10</button>
+          <button class="option-button" type="button" data-value="15">15</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>Plays allowed per question</h3>
+        <p>This controls how many times the teacher can play each excerpt before moving on.</p>
+        <div class="option-grid" id="playLimitOptions">
+          <button class="option-button" type="button" data-value="1">1</button>
+          <button class="option-button" type="button" data-value="2">2</button>
+          <button class="option-button" type="button" data-value="3">3</button>
+          <button class="option-button is-selected" type="button" data-value="4">4</button>
+        </div>
+      </div>
+
+      <div class="settings-summary" id="settingsSummary">3 questions · 4 plays per question</div>
+      <button id="saveSettingsButton" class="primary-button modal-save-button" type="button">Save Settings</button>
+    </section>
+  </div>
+
+  <script src="teacher-mode.js"></script>
+</body>
+</html>

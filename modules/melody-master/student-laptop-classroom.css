@@ -1,0 +1,295 @@
+/* =========================
+   Melody Master Classroom Student
+   Clean rebase: real desktop Melody Master UI + thin classroom layer.
+   Does not alter the solo app.
+========================= */
+
+body.classroom-student {
+  min-height: 100vh;
+}
+
+.classroom-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(56, 189, 248, .18), transparent 28%),
+    radial-gradient(circle at 82% 28%, rgba(168, 85, 247, .20), transparent 30%),
+    radial-gradient(circle at 52% 94%, rgba(236, 72, 153, .13), transparent 34%),
+    #050b16;
+}
+
+.classroom-bg-orb {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 999px;
+  filter: blur(18px);
+  opacity: .56;
+  pointer-events: none;
+}
+
+.classroom-bg-orb-a {
+  left: -100px;
+  top: -80px;
+  background: rgba(56, 189, 248, .16);
+}
+
+.classroom-bg-orb-b {
+  right: -100px;
+  bottom: -110px;
+  background: rgba(168, 85, 247, .17);
+}
+
+.classroom-card {
+  position: relative;
+  width: min(560px, calc(100vw - 42px));
+  border: 1px solid rgba(148, 163, 184, .22);
+  border-radius: 28px;
+  padding: 30px;
+  background:
+    linear-gradient(145deg, rgba(15, 23, 42, .92), rgba(8, 13, 27, .80)),
+    rgba(15, 23, 42, .70);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .42);
+  backdrop-filter: blur(18px);
+  color: #f8fafc;
+}
+
+.classroom-card h1 {
+  margin: 8px 0 10px;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  line-height: .98;
+  letter-spacing: -.06em;
+}
+
+.classroom-muted {
+  margin: 0 0 22px;
+  color: rgba(226, 232, 240, .74);
+  line-height: 1.55;
+}
+
+.classroom-brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.classroom-brand-lockup strong {
+  font-size: 1.55rem;
+  letter-spacing: -.06em;
+}
+
+.classroom-brand-lockup strong span { color: #f8fafc; }
+.classroom-brand-lockup strong em {
+  font-style: normal;
+  background: linear-gradient(135deg, #38bdf8, #a855f7, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.classroom-brand-centred {
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.classroom-wave {
+  display: inline-flex;
+  align-items: end;
+  gap: 3px;
+  height: 34px;
+}
+
+.classroom-wave span {
+  width: 5px;
+  min-height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #38bdf8, #a855f7, #ec4899);
+  box-shadow: 0 0 18px rgba(56, 189, 248, .22);
+  animation: classroomWave 1.25s ease-in-out infinite;
+}
+
+.classroom-wave span:nth-child(2) { height: 22px; animation-delay: .08s; }
+.classroom-wave span:nth-child(3) { height: 30px; animation-delay: .16s; }
+.classroom-wave span:nth-child(4) { height: 18px; animation-delay: .24s; }
+.classroom-wave span:nth-child(5) { height: 28px; animation-delay: .32s; }
+.classroom-wave span:nth-child(6) { height: 16px; animation-delay: .40s; }
+.classroom-wave span:nth-child(7) { height: 24px; animation-delay: .48s; }
+
+.classroom-wave-large {
+  height: 58px;
+  transform: scale(1.25);
+  transform-origin: center;
+}
+
+@keyframes classroomWave {
+  0%, 100% { transform: scaleY(.72); opacity: .78; }
+  50% { transform: scaleY(1.18); opacity: 1; }
+}
+
+.classroom-join-form {
+  display: grid;
+  gap: 16px;
+}
+
+.classroom-join-form label {
+  display: grid;
+  gap: 7px;
+  color: rgba(226, 232, 240, .78);
+  font-size: .86rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.classroom-join-form input {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, .28);
+  border-radius: 18px;
+  padding: 15px 16px;
+  outline: none;
+  background: rgba(2, 6, 23, .46);
+  color: #f8fafc;
+  font-size: 1.05rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+.classroom-join-form input:focus {
+  border-color: rgba(56, 189, 248, .62);
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, .12);
+}
+
+.classroom-join-button {
+  justify-content: center;
+  min-height: 50px;
+  margin-top: 6px;
+}
+
+.classroom-message {
+  min-height: 1.4em;
+  margin: 14px 0 0;
+  color: rgba(226, 232, 240, .78);
+}
+
+.classroom-message.is-bad { color: #fca5a5; }
+.classroom-message.is-good { color: #86efac; }
+
+.classroom-audio-button {
+  justify-content: center;
+  width: 100%;
+  margin-top: 18px;
+}
+
+.classroom-audio-button.is-enabled {
+  opacity: .72;
+}
+
+.classroom-audio-status {
+  min-height: 1.35em;
+  margin: 12px 0 0;
+  color: rgba(226, 232, 240, .72);
+  font-size: .9rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.classroom-audio-status.is-good { color: #86efac; }
+.classroom-audio-status.is-bad { color: #fca5a5; }
+
+.classroom-phase-join #classroomWaitCard,
+.classroom-phase-waiting #classroomJoinCard,
+.classroom-phase-active #classroomGate {
+  display: none;
+}
+
+.classroom-phase-join .classroom-app-shell,
+.classroom-phase-waiting .classroom-app-shell {
+  display: none;
+}
+
+.classroom-phase-active .classroom-gate {
+  display: none;
+}
+
+body.classroom-student #startButton,
+body.classroom-student #playButton,
+body.classroom-student #checkAnswerButton,
+body.classroom-student #showAnswerButton,
+body.classroom-student #restartButton,
+body.classroom-student #settingsToggle,
+body.classroom-student #advancedSettings,
+body.classroom-student .score-close-button {
+  display: none !important;
+}
+
+body.classroom-student .classroom-submit-button {
+  display: inline-flex;
+}
+
+body.classroom-student .classroom-submit-button:disabled {
+  opacity: .48;
+  cursor: not-allowed;
+}
+
+body.classroom-student .setup-panel .melody-mode-grid,
+body.classroom-student .setup-panel .settings-popover-wrap {
+  pointer-events: none;
+  opacity: .78;
+}
+
+body.classroom-student .setup-panel #setupMessage::before {
+  content: "Live classroom session. Teacher controls playback. ";
+}
+
+.classroom-status-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.classroom-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 7px 11px;
+  border: 1px solid rgba(56, 189, 248, .24);
+  background: rgba(56, 189, 248, .10);
+  color: rgba(226, 232, 240, .86);
+  font-size: .76rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.classroom-status-panel h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  letter-spacing: -.04em;
+}
+
+.classroom-status-panel p {
+  margin: 0;
+  color: rgba(226, 232, 240, .74);
+  line-height: 1.48;
+}
+
+.classroom-status-panel.is-submitted {
+  border-color: rgba(110, 231, 183, .35);
+}
+
+body.classroom-student .dictation-instructions span:last-child {
+  color: rgba(110, 231, 183, .94);
+}
+
+/* Classroom safety: students should not see or use the Teacher Mode shortcut after joining. */
+body.classroom-student .teacher-mode-topbar-link {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
