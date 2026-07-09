@@ -109,7 +109,6 @@ function getMp3DurationSeconds(filePath) {
       const bitrateIndex = (header >> 12) & 0xf;
       const sampleRateIndex = (header >> 10) & 0x3;
       const padding = (header >> 9) & 0x1;
-
       if (versionBits === 1 || layerBits === 0 || bitrateIndex === 0 || bitrateIndex === 15 || sampleRateIndex === 3) {
         offset += 1;
         continue;
@@ -120,7 +119,6 @@ function getMp3DurationSeconds(filePath) {
       const tableKey = `${version === 'MPEG1' ? 'V1' : 'V2'}L${layer}`;
       const bitrateKbps = bitrateTable[tableKey][bitrateIndex];
       const sampleRate = sampleRateTable[version][sampleRateIndex];
-
       if (!bitrateKbps || !sampleRate) {
         offset += 1;
         continue;
@@ -128,7 +126,6 @@ function getMp3DurationSeconds(filePath) {
 
       let samplesPerFrame = 1152;
       let frameLength = Math.floor((144 * bitrateKbps * 1000) / sampleRate + padding);
-
       if (layer === 1) {
         samplesPerFrame = 384;
         frameLength = Math.floor(((12 * bitrateKbps * 1000) / sampleRate + padding) * 4);
@@ -141,7 +138,6 @@ function getMp3DurationSeconds(filePath) {
         offset += 1;
         continue;
       }
-
       duration += samplesPerFrame / sampleRate;
       frames += 1;
       offset += frameLength;
@@ -182,7 +178,6 @@ function sendJson(res, statusCode, payload) {
 function readJsonBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
-
     req.on('data', (chunk) => {
       body += chunk;
       if (body.length > 1_000_000) {
@@ -190,16 +185,11 @@ function readJsonBody(req) {
         req.destroy();
       }
     });
-
     req.on('end', () => {
       if (!body) return resolve({});
-      try {
-        resolve(JSON.parse(body));
-      } catch (_error) {
-        reject(new Error('Invalid JSON.'));
-      }
+      try { resolve(JSON.parse(body)); }
+      catch (_error) { reject(new Error('Invalid JSON.')); }
     });
-
     req.on('error', reject);
   });
 }
@@ -208,12 +198,10 @@ function resolveQuestionAudioForBrowser(room, audioPath = '') {
   const raw = String(audioPath || '').trim();
   if (!raw) return '';
   if (/^(https?:)?\/\//i.test(raw) || raw.startsWith('/')) return raw;
-
   if (room.moduleId === 'melody-master') return `/modules/melody-master/${raw.replace(/^\.\//, '')}`;
   if (room.moduleId === 'instrument-identifier') return `/modules/instrument-identifier/${raw.replace(/^\.\//, '')}`;
   if (room.moduleId === 'texture-trainer') return `/modules/texture-trainer/${raw.replace(/^\.\//, '')}`;
   if (room.moduleId === 'melodic-intervals') return `/modules/melodic-intervals/${raw.replace(/^\.\//, '')}`;
-
   return raw;
 }
 
@@ -224,22 +212,18 @@ function resolveQuestionAudioSequenceForBrowser(room, question = {}) {
 
 function startPlayback(room, body = {}) {
   if (!room.activeQuestion) throw new Error('No question active yet.');
-
   const maxListens = Number(room.maxListens || DEFAULT_MAX_LISTENS);
   if (room.listens >= maxListens) {
     throw new Error(`The class has already used all ${maxListens} ${maxListens === 1 ? 'play' : 'plays'} for this question.`);
   }
 
   room.listens += 1;
-
   const now = Date.now();
   const question = room.activeQuestion || {};
   const guidedPlayback = question.guidedPlayback || {};
-
   const requestedLeadInSeconds = Object.prototype.hasOwnProperty.call(body, 'leadInSeconds')
     ? Number(body.leadInSeconds)
     : Number(guidedPlayback.leadInSeconds || 1);
-
   const leadInMs = Math.max(0, Math.round((Number.isFinite(requestedLeadInSeconds) ? requestedLeadInSeconds : 1) * 1000));
   const audioDurationSeconds = Number(question.audioDurationSeconds || 10);
   const durationSeconds = Number(guidedPlayback.visualDurationSeconds || audioDurationSeconds || 10);
@@ -275,7 +259,6 @@ function createClassroomServer(options = {}) {
   const projectRoot = options.projectRoot || path.resolve(__dirname, '..');
   const port = Number(options.port || process.env.PORT || 3000);
   const getBaseUrl = createBaseUrlResolver({ port });
-
   const roomManager = options.roomManager || new RoomManager({
     adapters: createAdapters(projectRoot),
     defaultModuleId: 'melody-master'
@@ -284,7 +267,6 @@ function createClassroomServer(options = {}) {
   async function handleApi(req, res, parsedUrl) {
     try {
       const pathname = parsedUrl.pathname;
-
       if (req.method === 'OPTIONS') {
         res.writeHead(204, {
           'Access-Control-Allow-Origin': '*',
@@ -308,39 +290,30 @@ function createClassroomServer(options = {}) {
       }
 
       if (req.method === 'GET' && pathname === '/api/classroom/modules') {
-        return sendJson(res, 200, {
-          ok: true,
-          modules: roomManager.getModules()
-        });
+        return sendJson(res, 200, { ok: true, modules: roomManager.getModules() });
       }
 
       if (req.method === 'GET' && pathname === '/api/classroom/state') {
         const room = roomManager.getRoom(parsedUrl.searchParams.get('roomCode'));
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         const studentId = String(parsedUrl.searchParams.get('studentId') || '').trim();
         roomManager.touchStudent(room, studentId);
-
         return sendJson(res, 200, roomManager.createRoomState(room, studentId));
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/create') {
         const body = await readJsonBody(req);
-
-        const frontendBase = normalizePublicBaseUrl(body.frontendBase)
+        const frontendBase = normalizePublicBaseUrl(process.env.PUBLIC_SITE_URL)
+          || normalizePublicBaseUrl(body.frontendBase)
           || normalizePublicBaseUrl(body.publicSiteUrl)
-          || normalizePublicBaseUrl(process.env.PUBLIC_SITE_URL)
           || getBaseUrl(req);
-
-        const apiBase = normalizePublicBaseUrl(body.apiBase)
-          || normalizePublicBaseUrl(process.env.PUBLIC_API_URL);
-
+        const apiBase = normalizePublicBaseUrl(process.env.PUBLIC_API_URL)
+          || normalizePublicBaseUrl(body.apiBase);
         const room = roomManager.createRoom({
           moduleId: body.moduleId || body.module || 'melody-master',
           baseUrl: frontendBase,
           apiBase
         });
-
         return sendJson(res, 200, {
           ok: true,
           roomCode: room.code,
@@ -358,95 +331,60 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         roomManager.setRoomModule(room, body.moduleId);
-
-        return sendJson(res, 200, {
-          ok: true,
-          state: roomManager.createRoomState(room)
-        });
+        return sendJson(res, 200, { ok: true, state: roomManager.createRoomState(room) });
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/settings') {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         if (body.moduleId && body.moduleId !== room.moduleId) roomManager.setRoomModule(room, body.moduleId);
-
         const questionCount = roomManager.getQuestions(room.moduleId).length || 1;
         const quizLength = Math.max(1, Math.min(Number(body.quizLength) || room.quizTotal || 3, questionCount));
         const maxListens = Math.max(1, Math.min(Number(body.maxListens) || room.maxListens || DEFAULT_MAX_LISTENS, 8));
-
         room.quizTotal = quizLength;
         room.maxListens = maxListens;
         if (!room.quizStarted) room.quizQuestionNumber = 0;
-
-        return sendJson(res, 200, {
-          ok: true,
-          state: roomManager.createRoomState(room)
-        });
+        return sendJson(res, 200, { ok: true, state: roomManager.createRoomState(room) });
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/start') {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         if (body.moduleId && body.moduleId !== room.moduleId) roomManager.setRoomModule(room, body.moduleId);
-
         const question = roomManager.startQuestion(room, body.questionIndex || 0, {
           resetQuiz: Boolean(body.resetQuiz),
           quizLength: body.quizLength,
           maxListens: body.maxListens
         });
-
-        return sendJson(res, 200, {
-          ok: true,
-          question,
-          state: roomManager.createRoomState(room)
-        });
+        return sendJson(res, 200, { ok: true, question, state: roomManager.createRoomState(room) });
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/next') {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         if (room.quizStarted && Number(room.quizQuestionNumber || 0) >= Number(room.quizTotal || 1)) {
           roomManager.endQuiz(room);
-          return sendJson(res, 400, {
-            ok: false,
-            error: 'Quiz complete. End the quiz or adjust settings for a new one.',
-            state: roomManager.createRoomState(room)
-          });
+          return sendJson(res, 400, { ok: false, error: 'Quiz complete. End the quiz or adjust settings for a new one.', state: roomManager.createRoomState(room) });
         }
-
         const nextOrderPosition = Math.max(0, Number(room.questionOrderPosition || 0) + 1);
         const questions = roomManager.getQuestions(room.moduleId);
-
         const nextIndex = Array.isArray(room.questionOrder) && room.questionOrder.length
           ? (room.questionOrder[nextOrderPosition] ?? (room.questionIndex || 0))
           : Math.min((room.questionIndex || 0) + 1, questions.length - 1);
-
         const question = roomManager.startQuestion(room, nextIndex, { advanceQuiz: true });
-
-        return sendJson(res, 200, {
-          ok: true,
-          question,
-          state: roomManager.createRoomState(room)
-        });
+        return sendJson(res, 200, { ok: true, question, state: roomManager.createRoomState(room) });
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/play') {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         if (!room.activeQuestion) roomManager.startQuestion(room, room.questionIndex || 0);
-
         const playback = startPlayback(room, body);
-
         return sendJson(res, 200, {
           ok: true,
           audio: playback.audio,
@@ -463,80 +401,50 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         roomManager.closeSubmissions(room);
-
-        return sendJson(res, 200, {
-          ok: true,
-          state: roomManager.createRoomState(room)
-        });
+        return sendJson(res, 200, { ok: true, state: roomManager.createRoomState(room) });
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/reset') {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         const question = roomManager.resetQuestion(room);
-
-        return sendJson(res, 200, {
-          ok: true,
-          question,
-          state: roomManager.createRoomState(room)
-        });
+        return sendJson(res, 200, { ok: true, question, state: roomManager.createRoomState(room) });
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/end') {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         roomManager.endQuiz(room);
-
-        return sendJson(res, 200, {
-          ok: true,
-          state: roomManager.createRoomState(room)
-        });
+        return sendJson(res, 200, { ok: true, state: roomManager.createRoomState(room) });
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/next-round') {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         roomManager.prepareNextRound(room);
-
-        return sendJson(res, 200, {
-          ok: true,
-          state: roomManager.createRoomState(room)
-        });
+        return sendJson(res, 200, { ok: true, state: roomManager.createRoomState(room) });
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/dismiss') {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         roomManager.dismiss(room);
-
-        return sendJson(res, 200, {
-          ok: true,
-          state: roomManager.createRoomState(room)
-        });
+        return sendJson(res, 200, { ok: true, state: roomManager.createRoomState(room) });
       }
 
       if (req.method === 'POST' && pathname === '/api/classroom/join') {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code. Check the teacher screen.' });
-
         const studentId = safeStudentId(body.studentId);
         const joined = roomManager.joinRoom(room, studentId, body.name);
-
         if (!joined.ok) return sendJson(res, 400, { ok: false, error: joined.error });
-
         const submission = room.submissions.get(studentId) || null;
-
         return sendJson(res, 200, {
           ok: true,
           studentId,
@@ -558,25 +466,13 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
-
         const studentId = String(body.studentId || '').trim();
-
         try {
           const submission = roomManager.submitAnswer(room, studentId, body);
-
-          return sendJson(res, 200, {
-            ok: true,
-            submission,
-            state: roomManager.createRoomState(room, studentId)
-          });
+          return sendJson(res, 200, { ok: true, submission, state: roomManager.createRoomState(room, studentId) });
         } catch (error) {
           const status = error.code === 'ALREADY_SUBMITTED' || error.code === 'SUBMISSIONS_CLOSED' ? 400 : 404;
-
-          return sendJson(res, status, {
-            ok: false,
-            error: error.message,
-            state: roomManager.createRoomState(room, studentId)
-          });
+          return sendJson(res, status, { ok: false, error: error.message, state: roomManager.createRoomState(room, studentId) });
         }
       }
 
@@ -595,13 +491,10 @@ function createClassroomServer(options = {}) {
 
   function serveStatic(req, res, parsedUrl) {
     let pathname = decodeURIComponent(parsedUrl.pathname);
-
     if (pathname === '/') pathname = '/index.html';
     if (pathname === '/join' || pathname === '/join/') pathname = '/student/join.html';
     if (pathname === '/teacher' || pathname === '/teacher/') pathname = '/teacher/index.html';
-
     const requestedPath = path.normalize(path.join(projectRoot, pathname));
-
     if (!requestedPath.startsWith(projectRoot)) {
       res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
       res.end('Forbidden');
@@ -614,11 +507,8 @@ function createClassroomServer(options = {}) {
 
       if (!statError && stat.isDirectory()) {
         filePath = path.join(requestedPath, 'index.html');
-        try {
-          fileStat = fs.statSync(filePath);
-        } catch (_error) {
-          fileStat = null;
-        }
+        try { fileStat = fs.statSync(filePath); }
+        catch (_error) { fileStat = null; }
       }
 
       if (statError || !fileStat || !fileStat.isFile()) {
@@ -628,12 +518,10 @@ function createClassroomServer(options = {}) {
       }
 
       const ext = path.extname(filePath).toLowerCase();
-
       res.writeHead(200, {
         'Content-Type': MIME_TYPES[ext] || 'application/octet-stream',
         'Cache-Control': ext === '.html' || ext === '.js' || ext === '.css' ? 'no-cache' : 'public, max-age=3600'
       });
-
       fs.createReadStream(filePath).pipe(res);
     });
   }
@@ -642,16 +530,13 @@ function createClassroomServer(options = {}) {
     const networkIp = getLocalNetworkIp();
     const publicServer = process.env.PUBLIC_HOST ? createBaseUrlResolver({ port })(process.env.PUBLIC_HOST) : '';
     const publicSite = normalizePublicBaseUrl(process.env.PUBLIC_SITE_URL) || '';
-
     console.log('');
     console.log('EchoAural shared classroom server is running.');
     console.log(`Teacher on this laptop: http://localhost:${port}/teacher/`);
     console.log(`Teacher on same Wi-Fi: http://${networkIp}:${port}/teacher/`);
     console.log(`Student short join link: http://${networkIp}:${port}/join`);
-
     if (publicServer) console.log(`Online API/server URL: ${publicServer}`);
     if (publicSite) console.log(`Public EchoAural site URL: ${publicSite}`);
-
     console.log('Students enter the room code shown on the teacher screen.');
     console.log('Keep this Terminal window open while using local Teacher Mode.');
     console.log('');
