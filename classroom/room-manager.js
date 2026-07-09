@@ -226,13 +226,9 @@ class RoomManager {
     const code = this.makeRoomCode();
     const sharedUrlParams = apiBase ? { classroomApi: apiBase } : {};
 
-    // Short public student link shown on the teacher screen.
-    // This must open the student class session join screen.
-    // Final format:
-    // https://echoaural.com/join/ABCDE
-    const shortJoinUrl = buildClassroomUrl(baseUrl, `/join/${code}`);
+    const cleanBaseUrl = String(baseUrl || '').replace(/\/+$/, '');
+    const shortJoinUrl = `${cleanBaseUrl}/join/#${code}`;
 
-    // Full fallback join link for debugging.
     const joinUrl = buildClassroomUrl(baseUrl, '/student/join.html', { room: code, ...sharedUrlParams });
 
     const studentShellUrl = buildClassroomUrl(baseUrl, '/student/student-shell.html', { room: code, ...sharedUrlParams });
