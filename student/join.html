@@ -39,7 +39,8 @@
     const codeInput = document.getElementById('codeInput');
     const message = document.getElementById('joinMessage');
     const params = new URLSearchParams(window.location.search);
-    const roomFromUrl = String(params.get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const pathRoomMatch = window.location.pathname.match(/\/j\/([A-Z0-9]+)/i);
+    const roomFromUrl = String(params.get('room') || (pathRoomMatch ? pathRoomMatch[1] : '') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
     const storedName = window.localStorage.getItem('ea_classroom_student_name') || window.localStorage.getItem('ea_mm_classroom_student_name') || '';
     const storedStudentId = window.sessionStorage.getItem('ea_classroom_student_tab_id') || window.sessionStorage.getItem('ea_mm_classroom_student_tab_id') || '';
 

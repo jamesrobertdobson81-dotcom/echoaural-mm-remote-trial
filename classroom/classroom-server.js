@@ -598,6 +598,7 @@ function createClassroomServer(options = {}) {
 
     if (pathname === '/') pathname = '/index.html';
     if (pathname === '/join' || pathname === '/join/') pathname = '/student/join.html';
+    if (/^\/j\/[A-Z0-9]+\/?$/i.test(pathname)) pathname = '/student/join.html';
     if (pathname === '/teacher' || pathname === '/teacher/') pathname = '/teacher/index.html';
 
     const requestedPath = path.normalize(path.join(projectRoot, pathname));

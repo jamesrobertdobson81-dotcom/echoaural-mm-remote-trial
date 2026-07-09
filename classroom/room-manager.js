@@ -226,11 +226,13 @@ class RoomManager {
     const code = this.makeRoomCode();
     const sharedUrlParams = apiBase ? { classroomApi: apiBase } : {};
 
-    // Cloudflare Pages can sometimes treat /join as a static-site fallback and send
-    // students to the EchoAural homepage. Generate the real student join page URL
-    // directly so the teacher's displayed link always opens the correct page.
-    const shortJoinUrl = buildClassroomUrl(baseUrl, '/student/join.html', sharedUrlParams);
-    const joinUrl = shortJoinUrl;
+    // Short public student link shown on the teacher screen.
+    // Final format once echoaural.com is attached:
+    // https://echoaural.com/j/ABCDE
+    const shortJoinUrl = buildClassroomUrl(baseUrl, `/j/${code}`);
+
+    // Full fallback join link, useful for debugging and non-default API testing.
+    const joinUrl = buildClassroomUrl(baseUrl, '/student/join.html', { room: code, ...sharedUrlParams });
 
     const studentShellUrl = buildClassroomUrl(baseUrl, '/student/student-shell.html', { room: code, ...sharedUrlParams });
     const melodyStudentUrl = buildClassroomUrl(baseUrl, '/modules/melody-master/student-laptop.html', { room: code, ...sharedUrlParams });
