@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join Classroom | EchoAural</title>
+  <link rel="stylesheet" href="/student/student.css" />
+</head>
+<body>
+  <main class="student-shell">
+    <section class="student-card">
+      <div class="brand-lockup" aria-hidden="true">
+        <span class="wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+        <strong class="wordmark"><span>Echo</span><em>Aural</em></strong>
+      </div>
+      <p class="eyebrow">LIVE CLASSROOM</p>
+      <h1>Join the session</h1>
+      <p class="student-muted">Enter your name and the join code shown on the teacher screen.</p>
+
+      <form id="joinForm" class="join-form">
+        <label>
+          <span>Your name</span>
+          <input id="nameInput" type="text" autocomplete="name" placeholder="e.g. James" required />
+        </label>
+        <label>
+          <span>Join code</span>
+          <input id="codeInput" type="text" inputmode="text" autocomplete="off" placeholder="ABCDE" maxlength="8" required />
+        </label>
+        <button class="primary-button" type="submit">Join session</button>
+      </form>
+      <p id="joinMessage" class="status-message" role="status"></p>
+    </section>
+  </main>
+
+  <script src="/shared/js/classroom-client.js"></script>
+  <script>
+    const form = document.getElementById('joinForm');
+    const nameInput = document.getElementById('nameInput');
+    const codeInput = document.getElementById('codeInput');
+    const message = document.getElementById('joinMessage');
+    const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = String(params.get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const storedName = window.localStorage.getItem('ea_classroom_student_name') || window.localStorage.getItem('ea_mm_classroom_student_name') || '';
+    const storedStudentId = window.sessionStorage.getItem('ea_classroom_student_tab_id') || window.sessionStorage.getItem('ea_mm_classroom_student_tab_id') || '';
+
+    if (roomFromUrl) codeInput.value = roomFromUrl;
+    if (storedName) nameInput.value = storedName;
+
+    function setMessage(text, state = '') {
+      message.textContent = text || '';
+      message.className = `status-message ${state ? `is-${state}` : ''}`.trim();
+    }
+
+    function ensureStudentId() {
+      let id = storedStudentId || window.sessionStorage.getItem('ea_classroom_student_tab_id') || '';
+      if (!id) id = `student-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+      window.sessionStorage.setItem('ea_classroom_student_tab_id', id);
+      window.sessionStorage.setItem('ea_mm_classroom_student_tab_id', id);
+      return id;
+    }
+
+    async function api(path, body = null) {
+      const response = await fetch(window.EchoAuralClassroom.buildApiUrl(path), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(body || {})
+      });
+      const text = await response.text();
+      let data = {};
+      try { data = text ? JSON.parse(text) : {}; }
+      catch (_error) { throw new Error('The classroom server returned an unreadable response.'); }
+      if (!response.ok || data.ok === false) throw new Error(data.error || `Request failed (${response.status}).`);
+      return data;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const name = String(nameInput.value || '').trim();
+      const roomCode = String(codeInput.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (!name) return setMessage('Enter your name.', 'bad');
+      if (!roomCode) return setMessage('Enter the join code.', 'bad');
+
+      setMessage('Joining room…');
+      const studentId = ensureStudentId();
+      try {
+        const response = await api('/api/classroom/join', { roomCode, studentId, name });
+        window.localStorage.setItem('ea_classroom_student_name', name);
+        window.localStorage.setItem('ea_classroom_last_room', response.roomCode || roomCode);
+        window.localStorage.setItem('ea_mm_classroom_student_name', name);
+        window.localStorage.setItem('ea_mm_classroom_last_room', response.roomCode || roomCode);
+
+        if (response.moduleId === 'melody-master') {
+          const target = `/modules/melody-master/student-laptop.html?room=${encodeURIComponent(response.roomCode || roomCode)}&name=${encodeURIComponent(name)}&student=${encodeURIComponent(studentId)}`;
+          window.location.href = target;
+          return;
+        }
+
+        if (response.moduleId === 'instrument-identifier') {
+          const target = `/modules/instrument-identifier/student-classroom.html?room=${encodeURIComponent(response.roomCode || roomCode)}&name=${encodeURIComponent(name)}&student=${encodeURIComponent(studentId)}`;
+          window.location.href = target;
+          return;
+        }
+
+        if (response.moduleId === 'melodic-intervals') {
+          const target = `/modules/melodic-intervals/student-classroom.html?room=${encodeURIComponent(response.roomCode || roomCode)}&name=${encodeURIComponent(name)}&student=${encodeURIComponent(studentId)}`;
+          window.location.href = target;
+          return;
+        }
+
+        window.location.href = `/student/student-shell.html?room=${encodeURIComponent(response.roomCode || roomCode)}&student=${encodeURIComponent(studentId)}&name=${encodeURIComponent(name)}`;
+      } catch (error) {
+        setMessage(error.message || 'Could not join this room.', 'bad');
+      }
+    });
+  </script>
+</body>
+</html>

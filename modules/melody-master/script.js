@@ -2,7 +2,7 @@ const SOURCE_MELODY_CLIPS = (typeof melodyClips !== "undefined" && Array.isArray
   ? melodyClips
   : [];
 
-const ALL_MELODY_CLIPS = SOURCE_MELODY_CLIPS.slice().reverse();
+const ALL_MELODY_CLIPS = SOURCE_MELODY_CLIPS.slice();
 
 let currentQuestionIndex = 0;
 let MM001_SOURCE = {};
@@ -12,9 +12,9 @@ let MM001_DICTATION = {};
 const DEFAULT_DICTATION_LAYOUT = {
   noteImage: "assets/icons/notes/semiquaver-sibelius.png",
   noteImageFallback: "assets/icons/notes/semiquaver-sibelis.png",
-  topLinePitch: "E5",
-  staffTopY: 31.5,
-  staffStepY: 4.95,
+  topLinePitch: "F5",
+  staffTopY: 30.05,
+  staffStepY: 5.05,
   homeY: 2.0,
   snapToleranceY: 10,
   // Display size is based on the score image itself, not viewport pixels.
@@ -63,6 +63,9 @@ function buildQuestionData(source = {}) {
     composer: source.composer || "W. A. Mozart",
     work: source.work || "Sonata facile, K.545",
     movement: source.movement || "2nd movement",
+    performer: source.performer || source.hiddenMetadata?.rights?.performer || "",
+    instrumentation: source.instrumentation || source.hiddenMetadata?.source?.instrumentation || "",
+    rights: source.rights || source.licence || source.license || source.hiddenMetadata?.rights?.licenceType || "",
     source: source.source || source.work || "",
     task: source.task || source.question || "Complete the melody."
   };
@@ -105,6 +108,25 @@ let dictationSlots = [];
 let dragState = null;
 let lastAttemptDiagnostic = null;
 
+const DEFAULT_QUIZ_SETTINGS = {
+  questionCount: 3,
+  playLimit: 3
+};
+
+let quizSettings = { ...DEFAULT_QUIZ_SETTINGS };
+let roundQuestionIndices = [];
+let roundQuestionPosition = 0;
+let isRoundActive = false;
+let playsUsedThisQuestion = 0;
+let isAudioPlaying = false;
+let playRemainingAtStartOfCurrentPlayback = null;
+let roundResults = [];
+let hasSubmittedCurrentQuestion = false;
+let isRoundFeedbackOpen = false;
+let roundFeedbackOverlay = null;
+
+
+const appShell = document.querySelector(".app-shell");
 const quizPanel = document.getElementById("gameScreen");
 const settingsToggle = document.getElementById("settingsToggle");
 const advancedSettings = document.getElementById("advancedSettings");
@@ -125,12 +147,157 @@ const progressInner = document.getElementById("progressInner");
 const answerCard = document.getElementById("answerCard");
 const scoreShell = document.getElementById("scoreShell");
 const scoreImage = document.getElementById("scoreImage");
+const scoreTrackInfo = document.getElementById("scoreTrackInfo");
 const scoreCloseButton = document.getElementById("scoreCloseButton");
 const scoreOverlay = document.getElementById("scoreOverlay");
 const scoreImageFrame = document.querySelector(".score-image-frame");
 const dictationWorkspace = document.getElementById("answers");
 let noteScaleResizeObserver = null;
 let noteScaleFrameId = null;
+
+function getSelectedRadioValue(name, fallback) {
+  const selected = document.querySelector(`input[name="${name}"]:checked`);
+  return selected ? selected.value : fallback;
+}
+
+function getQuizSettingsFromControls() {
+  const selectedQuestionCount = Number(getSelectedRadioValue("questionCount", DEFAULT_QUIZ_SETTINGS.questionCount));
+  const selectedPlayLimit = Number(getSelectedRadioValue("playLimit", DEFAULT_QUIZ_SETTINGS.playLimit));
+  const availableQuestions = Math.max(ALL_MELODY_CLIPS.length || 1, 1);
+
+  return {
+    questionCount: Math.max(1, Math.min(Number.isFinite(selectedQuestionCount) ? selectedQuestionCount : DEFAULT_QUIZ_SETTINGS.questionCount, availableQuestions)),
+    playLimit: Math.max(1, Number.isFinite(selectedPlayLimit) ? selectedPlayLimit : DEFAULT_QUIZ_SETTINGS.playLimit)
+  };
+}
+
+function shuffleArray(items = []) {
+  const shuffled = items.slice();
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function buildRoundQuestionIndices(questionCount = DEFAULT_QUIZ_SETTINGS.questionCount) {
+  const totalQuestions = ALL_MELODY_CLIPS.length || 1;
+  const count = Math.max(1, Math.min(Number(questionCount) || DEFAULT_QUIZ_SETTINGS.questionCount, totalQuestions));
+  return shuffleArray(Array.from({ length: totalQuestions }, (_, index) => index)).slice(0, count);
+}
+
+function getRoundTotal() {
+  return roundQuestionIndices.length || quizSettings.questionCount || DEFAULT_QUIZ_SETTINGS.questionCount;
+}
+
+function getRoundLabel() {
+  if (isRoundActive) {
+    return `Question ${roundQuestionPosition + 1} of ${getRoundTotal()}`;
+  }
+
+  return "Ready";
+}
+
+function resetPlayCounterForQuestion() {
+  playsUsedThisQuestion = 0;
+}
+
+function getRemainingPlays() {
+  return Math.max(0, (quizSettings.playLimit || DEFAULT_QUIZ_SETTINGS.playLimit) - playsUsedThisQuestion);
+}
+
+function getPlayLimitLabel() {
+  const playLimit = quizSettings.playLimit || DEFAULT_QUIZ_SETTINGS.playLimit;
+  return `${playLimit} ${playLimit === 1 ? "play" : "plays"}`;
+}
+
+function getSelectedQuizMode() {
+  return getSelectedRadioValue("quizMode", "dictation");
+}
+
+function updateSettingsAvailability() {
+  const selectedMode = getSelectedQuizMode();
+  const hasSettings = selectedMode === "dictation" || selectedMode === "intervals";
+
+  if (settingsToggle) settingsToggle.disabled = !hasSettings;
+  if (!advancedSettings) return;
+
+  advancedSettings.classList.toggle("is-disabled", !hasSettings);
+  advancedSettings.querySelectorAll("[data-mode-settings]").forEach((group) => {
+    const groupMode = group.getAttribute("data-mode-settings");
+    group.hidden = groupMode !== selectedMode;
+  });
+
+  if (!hasSettings) {
+    advancedSettings.style.display = "none";
+    advancedSettings.classList.remove("is-open");
+    advancedSettings.setAttribute("aria-hidden", "true");
+    if (settingsToggle) settingsToggle.setAttribute("aria-expanded", "false");
+  }
+}
+
+function isFinalRoundQuestion() {
+  return isRoundActive && roundQuestionPosition >= getRoundTotal() - 1;
+}
+
+function getProgressionButtonLabel() {
+  return isFinalRoundQuestion() ? "See Feedback" : "Next Question";
+}
+
+function getPlayRemainingText(remaining) {
+  return `${remaining} ${remaining === 1 ? "play" : "plays"} left`;
+}
+
+function setAnswerRevealButtonVisible(isVisible = false) {
+  if (!showAnswerButton || window.MELODY_MASTER_CLASSROOM_MODE) return;
+
+  const shouldShow = Boolean(isVisible);
+  showAnswerButton.classList.toggle("is-visible", shouldShow);
+  showAnswerButton.style.display = shouldShow ? "inline-flex" : "none";
+  showAnswerButton.setAttribute("aria-hidden", shouldShow ? "false" : "true");
+
+  if (shouldShow) {
+    showAnswerButton.removeAttribute("tabindex");
+    showAnswerButton.textContent = isShowingAnswer ? "Show Question" : "Reveal Answer";
+    if (quizPanel) quizPanel.classList.add("is-answer-submitted");
+  } else {
+    showAnswerButton.setAttribute("tabindex", "-1");
+    showAnswerButton.textContent = "Reveal Answer";
+    if (quizPanel) quizPanel.classList.remove("is-answer-submitted");
+  }
+}
+
+function syncSubmissionButtonLabel() {
+  if (!checkAnswerButton || window.MELODY_MASTER_CLASSROOM_MODE) return;
+  checkAnswerButton.textContent = hasSubmittedCurrentQuestion ? "Check again" : "Submit your answers";
+}
+
+function syncPlayButtonLabel() {
+  if (!playButton || playButton.dataset.mode === "next") return;
+
+  if (isAudioPlaying) {
+    const remainingDuringPlayback = Number.isFinite(playRemainingAtStartOfCurrentPlayback)
+      ? playRemainingAtStartOfCurrentPlayback
+      : getRemainingPlays();
+    playButton.textContent = getPlayRemainingText(remainingDuringPlayback);
+    playButton.disabled = true;
+    return;
+  }
+
+  const remaining = getRemainingPlays();
+
+  if (remaining <= 0 && hasPlayedAudio) {
+    playButton.textContent = getPlayRemainingText(0);
+    playButton.disabled = true;
+    return;
+  }
+
+  const remainingText = getPlayRemainingText(remaining);
+  playButton.textContent = hasPlayedAudio
+    ? `Replay Excerpt (${remainingText})`
+    : `Play Excerpt (${remainingText})`;
+  playButton.disabled = remaining <= 0;
+}
 
 function setQuizVisualState(state) {
   if (!quizPanel) return;
@@ -145,6 +312,40 @@ function escapeHTML(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function getTrackInfoTitle() {
+  const title = MM001.title && MM001.title !== MM001.id ? MM001.title : "";
+  if (title) return title;
+
+  const parts = [MM001.composer, MM001.work, MM001.movement]
+    .map((part) => String(part || "").trim())
+    .filter(Boolean);
+
+  return parts.length ? parts.join(" – ") : "Melody Master Dictation";
+}
+
+function renderScoreTrackInfo() {
+  if (!scoreTrackInfo) return;
+
+  const title = getTrackInfoTitle();
+  const details = [MM001.performer, MM001.source, MM001.rights]
+    .map((part) => String(part || "").trim())
+    .filter(Boolean);
+
+  scoreTrackInfo.innerHTML = `
+    <span class="score-track-info-kicker">Track information</span>
+    <strong>${escapeHTML(title)}</strong>
+    ${details.length ? `<small>${escapeHTML(details.join(" · "))}</small>` : ""}
+  `;
+
+  scoreTrackInfo.removeAttribute("aria-hidden");
+}
+
+function clearScoreTrackInfo() {
+  if (!scoreTrackInfo) return;
+  scoreTrackInfo.innerHTML = "";
+  scoreTrackInfo.setAttribute("aria-hidden", "true");
 }
 
 function setFeedback(message, state = "") {
@@ -360,10 +561,11 @@ function getStaffPitchOptions() {
     ? MM001_DICTATION.staffPitches
     : DEFAULT_DICTATION_LAYOUT.staffPitches;
 
-  // Keep existing question data unchanged, but make the first two ledger-line
-  // positions above the treble stave available across the deck for future questions.
+  // Keep existing question data unchanged, but make treble ledger-line
+  // positions above and below the stave available across the deck for future questions.
   const upperLedgerPitches = ["C6", "B5", "A5", "G5"];
-  const uniquePitches = [...new Set([...configuredPitches, ...upperLedgerPitches])]
+  const lowerLedgerPitches = ["D4", "C4", "B3", "A3", "G3"];
+  const uniquePitches = [...new Set([...configuredPitches, ...upperLedgerPitches, ...lowerLedgerPitches])]
     .sort((a, b) => pitchToDiatonicNumber(b) - pitchToDiatonicNumber(a));
 
   return uniquePitches.map((pitch) => ({
@@ -372,20 +574,27 @@ function getStaffPitchOptions() {
   }));
 }
 
-function getUpperLedgerLinePitchesForPitch(pitch) {
+function getLedgerLinePitchesForPitch(pitch) {
   const pitchNumber = pitchToDiatonicNumber(pitch);
-  const firstLedgerNumber = pitchToDiatonicNumber("A5");
-  const secondLedgerNumber = pitchToDiatonicNumber("C6");
 
-  if (pitchNumber >= secondLedgerNumber) return ["A5", "C6"];
-  if (pitchNumber >= firstLedgerNumber) return ["A5"];
+  const firstUpperLedgerNumber = pitchToDiatonicNumber("A5");
+  const secondUpperLedgerNumber = pitchToDiatonicNumber("C6");
+  const firstLowerLedgerNumber = pitchToDiatonicNumber("C4");
+  const secondLowerLedgerNumber = pitchToDiatonicNumber("A3");
+
+  if (pitchNumber >= secondUpperLedgerNumber) return ["A5", "C6"];
+  if (pitchNumber >= firstUpperLedgerNumber) return ["A5"];
+
+  if (pitchNumber <= secondLowerLedgerNumber) return ["C4", "A3"];
+  if (pitchNumber <= firstLowerLedgerNumber) return ["C4"];
+
   return [];
 }
 
 function updateSlotLedgerLines(slot, pitch) {
   if (!slot || !slot.ledgerLines) return;
 
-  const requiredLines = getUpperLedgerLinePitchesForPitch(pitch);
+  const requiredLines = getLedgerLinePitchesForPitch(pitch);
 
   Object.entries(slot.ledgerLines).forEach(([linePitch, lineElement]) => {
     if (!lineElement) return;
@@ -448,6 +657,17 @@ function getDefaultVisualAnchorY(iconPath = "") {
   return Number(MM001_DICTATION.visualAnchorY || DEFAULT_DICTATION_LAYOUT.visualAnchorY || 79.55);
 }
 
+function getSlotVisualAnchorY(slot = {}) {
+  const iconPath = slot.icon || MM001_DICTATION.noteImage;
+
+  // Keep notehead alignment derived from the note-art type, not from per-question
+  // calibration values. This makes solo Melody Master and Teacher Mode student
+  // view use the same pitch grid for every question. Question-specific visual
+  // anchors can make the note look correct while recording the wrong pitch, which
+  // is what broke MM013 after its PNG canvas was normalised.
+  return getDefaultVisualAnchorY(iconPath);
+}
+
 function getLedgerLineOffsetX(iconPath = "") {
   const iconName = String(iconPath || "").split("/").pop().toLowerCase();
 
@@ -486,7 +706,7 @@ function getPreparedSlots() {
       icon: slot.icon || MM001_DICTATION.noteImage,
       iconFallback: slot.iconFallback || MM001_DICTATION.noteImageFallback,
       acceptedPitches: Array.isArray(slot.acceptedPitches) ? slot.acceptedPitches : [pitch],
-      visualAnchorY: slot.visualAnchorY !== undefined ? Number(slot.visualAnchorY) : getDefaultVisualAnchorY(slot.icon || MM001_DICTATION.noteImage),
+      visualAnchorY: getSlotVisualAnchorY(slot),
       noteName,
       placed: false,
       snapYOffset: Number(slot.snapYOffset || 0),
@@ -531,7 +751,7 @@ function renderDictationNotes() {
 
   dictationSlots.forEach((slot) => {
     const ledgerLines = {};
-    ["A5", "C6"].forEach((linePitch) => {
+    ["A5", "C6", "C4", "A3"].forEach((linePitch) => {
       const line = document.createElement("span");
       line.className = "dictation-ledger-line";
       line.dataset.slotIndex = String(slot.index);
@@ -648,8 +868,14 @@ function startNoteDrag(event) {
   };
 
   slot.token.setPointerCapture(event.pointerId);
-  isQuestionComplete = false;
-  setPlayButtonMode(hasPlayedAudio ? "replay" : "play");
+  if (hasSubmittedCurrentQuestion) {
+    isQuestionComplete = true;
+    setPlayButtonMode("next");
+    setAnswerRevealButtonVisible(true);
+  } else {
+    isQuestionComplete = false;
+    setPlayButtonMode(hasPlayedAudio ? "replay" : "play");
+  }
   slot.token.classList.add("is-dragging");
   slot.token.classList.remove("correct", "wrong", "answer-flash-correct", "answer-flash-wrong", "perfect-answer-notehead-flash");
   if (slot.hotspot) slot.hotspot.classList.remove("is-filled");
@@ -868,39 +1094,88 @@ function updateDictationProgress() {
   if (scoreText) scoreText.textContent = isLoaded ? `Placed: ${placedCount} / ${total}` : "Score: 0 / 6";
   if (streakText) streakText.textContent = placedCount === total ? "Ready to check" : "Pitch snap";
   if (xpText) xpText.textContent = isLoaded ? getNoteCountLabel(total) : "6 semiquavers";
-  if (checkAnswerButton) checkAnswerButton.disabled = placedCount !== total;
+  if (checkAnswerButton) {
+    checkAnswerButton.disabled = placedCount !== total;
+    syncSubmissionButtonLabel();
+  }
 }
 
 function setPlayButtonMode(mode) {
   if (!playButton) return;
 
+  playButton.disabled = false;
+
   if (mode === "next") {
-    playButton.textContent = "Next Question";
+    const label = getProgressionButtonLabel();
+    playButton.textContent = label;
     playButton.dataset.mode = "next";
-    playButton.setAttribute("aria-label", "Next question");
+    playButton.setAttribute("aria-label", label === "See Feedback" ? "See round feedback" : "Next question");
     return;
   }
 
-  playButton.dataset.mode = "play";
+  playButton.dataset.mode = mode === "replay" ? "replay" : "play";
   playButton.removeAttribute("aria-label");
-  playButton.textContent = mode === "replay" ? "Replay Excerpt" : "Play Excerpt";
+  syncPlayButtonLabel();
+}
+
+function removeRoundFeedbackOverlay() {
+  if (roundFeedbackOverlay && roundFeedbackOverlay.parentNode) {
+    roundFeedbackOverlay.parentNode.removeChild(roundFeedbackOverlay);
+  }
+  roundFeedbackOverlay = null;
+}
+
+function closeRoundFeedbackWindow() {
+  isRoundFeedbackOpen = false;
+  removeRoundFeedbackOverlay();
+  if (appShell) appShell.classList.remove("is-round-feedback-open");
+  if (quizPanel) quizPanel.classList.remove("is-round-feedback-open");
+  document.body.classList.remove("mm-round-review-open");
+}
+
+function finishRound() {
+  clearPerfectAnswerRevealTimer();
+  clearQuestionHandoffTimer();
+  clearScoreFocus();
+  closeRoundFeedbackWindow();
+
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
+
+  window.location.href = "index.html";
 }
 
 function goToNextQuestion() {
   clearPerfectAnswerRevealTimer();
   clearQuestionHandoffTimer();
 
+  if (isRoundActive && roundQuestionPosition >= getRoundTotal() - 1) {
+    showRoundFeedbackWindow();
+    return;
+  }
+
   if (audio) {
     audio.pause();
     audio.currentTime = 0;
   }
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
+
+  if (isRoundActive) {
+    roundQuestionPosition += 1;
+  }
 
   const totalQuestions = ALL_MELODY_CLIPS.length || 1;
-  const nextIndex = (currentQuestionIndex + 1) % totalQuestions;
+  const nextIndex = isRoundActive
+    ? (roundQuestionIndices[roundQuestionPosition] || 0)
+    : ((currentQuestionIndex + 1) % totalQuestions);
 
   if (quizPanel) quizPanel.classList.add("is-question-handoff-out");
   clearScoreFocus();
-  collapseScoreExpansion();
 
   questionHandoffTimer = window.setTimeout(() => {
     questionHandoffTimer = null;
@@ -911,7 +1186,7 @@ function goToNextQuestion() {
     }
 
     setActiveQuestion(nextIndex);
-    loadQuestion({ autoPlay: true, transitionIn: true });
+    loadQuestion({ autoPlay: true, transitionIn: true, expandOnLoad: true });
 
     window.setTimeout(() => {
       if (quizPanel) quizPanel.classList.remove("is-question-handoff-in");
@@ -931,27 +1206,36 @@ function loadQuestion(options = {}) {
 
   const shouldAutoPlay = Boolean(options && options.autoPlay === true);
   const isTransitionIn = Boolean(options && options.transitionIn === true);
+  const shouldExpandOnLoad = Boolean(options && options.expandOnLoad === true);
+
+  closeRoundFeedbackWindow();
 
   isLoaded = true;
   isShowingAnswer = false;
   hasPlayedAudio = false;
   isQuestionComplete = false;
+  hasSubmittedCurrentQuestion = false;
   lastAttemptDiagnostic = null;
-  lastAttemptDiagnostic = null;
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
+  resetPlayCounterForQuestion();
 
   setQuizVisualState("active");
 
   if (quizPanel && !isTransitionIn) quizPanel.classList.remove("is-question-handoff-out", "is-question-handoff-in");
 
+  const totalSlots = MM001_DICTATION.slots.length || dictationSlots.length || 6;
+
   questionText.textContent = "Complete the melody.";
-  roundText.textContent = `${MM001.id} active`;
-  scoreText.textContent = "Placed: 0 / 6";
+  roundText.textContent = isRoundActive ? getRoundLabel() : "Ready";
+  scoreText.textContent = `Placed: 0 / ${totalSlots}`;
   streakText.textContent = "Pitch snap";
-  xpText.textContent = getNoteCountLabel(MM001_DICTATION.slots.length);
+  xpText.textContent = `${getNoteCountLabel(totalSlots)} · ${getPlayLimitLabel()}`;
   progressInner.style.width = "0%";
 
   scoreImage.src = MM001.questionImage;
   scoreImage.alt = `${MM001.id} question score with missing notes`;
+  renderScoreTrackInfo();
 
   audio = new Audio(MM001.audio);
   audio.volume = 1;
@@ -960,31 +1244,72 @@ function loadQuestion(options = {}) {
   playButton.style.display = "inline-flex";
   setPlayButtonMode("play");
   checkAnswerButton.disabled = true;
-  if (showAnswerButton) showAnswerButton.textContent = "Show Answer";
+  syncSubmissionButtonLabel();
+  setAnswerRevealButtonVisible(false);
 
   scoreShell.classList.remove("showing-answer", "is-drop-target", "is-note-focus", "is-score-expanded");
-  collapseScoreExpansion();
+  if (!shouldExpandOnLoad) {
+    collapseScoreExpansion();
+  }
 
   renderDictationNotes();
-  setFeedback(shouldAutoPlay ? "Next question loading — listen for the new missing notes." : "");
+
+  if (shouldExpandOnLoad) {
+    expandScoreForPlay();
+  }
+
+  setFeedback(shouldAutoPlay ? "First play starting. Listen for the missing notes, then use Replay Excerpt if needed." : "");
   renderAnswerPanelIntro();
 
   if (shouldAutoPlay) {
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        playAudio({ autoStarted: true });
-      });
-    });
+    playAudio({ autoStarted: true });
+  } else {
+    syncPlayButtonLabel();
   }
 }
 
-function playAudio() {
-  if (isQuestionComplete || (playButton && playButton.dataset.mode === "next")) {
+function handleAudioFinished() {
+  clearScoreFocus();
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
+
+  if (isQuestionComplete) {
+    setPlayButtonMode("next");
+    return;
+  }
+
+  setPlayButtonMode("replay");
+
+  const remaining = getRemainingPlays();
+  if (remaining > 0) {
+    setFeedback(`${getPlayRemainingText(remaining)}. You may replay the excerpt, or submit your answers when ready.`);
+  } else {
+    setFeedback(`0 plays left. Complete your answer, then press Submit your answers.`, "bad");
+  }
+}
+
+function playAudio(options = {}) {
+  if (playButton && playButton.dataset.mode === "next") {
     goToNextQuestion();
     return;
   }
 
-  if (!isLoaded) loadQuestion();
+  if (isQuestionComplete) {
+    goToNextQuestion();
+    return;
+  }
+
+  if (isAudioPlaying) return;
+
+  const autoStarted = Boolean(options && options.autoStarted === true);
+
+  if (!isLoaded) loadQuestion({ expandOnLoad: true });
+
+  if (playsUsedThisQuestion >= (quizSettings.playLimit || DEFAULT_QUIZ_SETTINGS.playLimit)) {
+    syncPlayButtonLabel();
+    setFeedback(`0 plays left. Complete your answer, then press Submit your answers.`, "bad");
+    return;
+  }
 
   if (!audio) {
     audio = new Audio(MM001.audio);
@@ -993,29 +1318,43 @@ function playAudio() {
   audio.pause();
   audio.currentTime = 0;
   audio.volume = 1;
-  audio.onended = clearScoreFocus;
+
+  playRemainingAtStartOfCurrentPlayback = getRemainingPlays();
+  isAudioPlaying = true;
+  syncPlayButtonLabel();
+
+  audio.onended = handleAudioFinished;
 
   let playAttempt;
 
   try {
-    // Keep the audio call as the first action after the button press so browsers
+    // Keep the audio call as the first media action after Start Quiz/Replay so browsers
     // still treat it as user-initiated playback.
     playAttempt = audio.play();
   } catch (error) {
+    isAudioPlaying = false;
+    playRemainingAtStartOfCurrentPlayback = null;
     clearScoreFocus();
+    syncPlayButtonLabel();
     setFeedback(`Audio could not play. Check that the audio file is available at ${MM001.audio}.`, "bad");
     return;
   }
 
   hasPlayedAudio = true;
+  playsUsedThisQuestion += 1;
   if (scoreOverlay) scoreOverlay.classList.remove("is-notes-hidden-before-play");
   expandScoreForPlay();
   startScoreFocus();
-  setPlayButtonMode("replay");
-  setFeedback("Listen for the missing notes, then drag each note onto the line or space you think is correct.");
+
+  const playMessage = autoStarted ? "First play" : "Replay";
+  setFeedback(`${playMessage} ${playsUsedThisQuestion} of ${quizSettings.playLimit}. Listen carefully. The replay control will unlock when the audio finishes.`);
 
   if (playAttempt && typeof playAttempt.catch === "function") {
     playAttempt.catch(() => {
+      playsUsedThisQuestion = Math.max(0, playsUsedThisQuestion - 1);
+      isAudioPlaying = false;
+      playRemainingAtStartOfCurrentPlayback = null;
+      syncPlayButtonLabel();
       clearScoreFocus();
       setFeedback(`Audio could not play. Check that the audio file is available at ${MM001.audio}.`, "bad");
     });
@@ -1025,7 +1364,12 @@ function playAudio() {
 function showAnswer() {
   clearPerfectAnswerRevealTimer();
 
-  if (!isLoaded) loadQuestion();
+  if (!isLoaded) loadQuestion({ expandOnLoad: true });
+
+  if (!hasSubmittedCurrentQuestion && !window.MELODY_MASTER_CLASSROOM_MODE) {
+    setFeedback("Submit your answers first, then reveal the model answer.", "bad");
+    return;
+  }
 
   clearScoreFocus();
   isShowingAnswer = !isShowingAnswer;
@@ -1040,7 +1384,7 @@ function showAnswer() {
     }
     if (showAnswerButton) showAnswerButton.textContent = "Show Question";
     progressInner.style.width = "100%";
-    setFeedback("Showing the answer score. Tap Show Question to return to your draggable notes.", "good");
+    setFeedback("Showing the model answer. Press Show Question to return to your notes.", "good");
     renderAnswerPanelAnswer();
   } else {
     scoreImage.src = MM001.questionImage;
@@ -1050,10 +1394,18 @@ function showAnswer() {
       scoreOverlay.classList.remove("is-answer-visible", "is-perfect-answer-reveal");
       scoreOverlay.classList.toggle("is-notes-hidden-before-play", !hasPlayedAudio);
     }
-    if (showAnswerButton) showAnswerButton.textContent = "Show Answer";
+    if (showAnswerButton) showAnswerButton.textContent = hasSubmittedCurrentQuestion ? "Reveal Answer" : "Show Answer";
     updateDictationProgress();
-    setFeedback("Back to the question score. Your draggable notes are still in place.");
-    renderAnswerPanelIntro();
+    setFeedback(hasSubmittedCurrentQuestion ? "Back to your notes. You can adjust them, press Check again, or move to the next question." : "Back to the question score. Your draggable notes are still in place.");
+    if (hasSubmittedCurrentQuestion && lastAttemptDiagnostic && !window.MELODY_MASTER_CLASSROOM_MODE) {
+      const total = dictationSlots.length || 6;
+      const correctCount = lastAttemptDiagnostic.noteDetails.filter((note) => note.isCorrect).length;
+      renderAnswerPanelSubmitted(correctCount, total);
+      setPlayButtonMode("next");
+      setAnswerRevealButtonVisible(true);
+    } else {
+      renderAnswerPanelIntro();
+    }
   }
 }
 
@@ -1062,7 +1414,7 @@ function resetDictation() {
   clearQuestionHandoffTimer();
 
   if (!isLoaded) {
-    loadQuestion();
+    loadQuestion({ expandOnLoad: true });
     return;
   }
 
@@ -1076,19 +1428,26 @@ function resetDictation() {
   isShowingAnswer = false;
   hasPlayedAudio = false;
   isQuestionComplete = false;
+  hasSubmittedCurrentQuestion = false;
   scoreImage.src = MM001.questionImage;
   scoreImage.alt = `${MM001.id} question score with missing notes`;
+  renderScoreTrackInfo();
   scoreShell.classList.remove("showing-answer", "is-drop-target", "is-note-focus", "is-score-expanded");
   collapseScoreExpansion();
   if (scoreOverlay) {
     scoreOverlay.classList.remove("is-answer-visible", "is-perfect-answer-reveal");
     scoreOverlay.classList.add("is-notes-hidden-before-play");
   }
-  if (showAnswerButton) showAnswerButton.textContent = "Show Answer";
+  syncSubmissionButtonLabel();
+  setAnswerRevealButtonVisible(false);
+  resetPlayCounterForQuestion();
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
   setPlayButtonMode("play");
   progressInner.style.width = "0%";
   resetDictationNotes();
-  setFeedback("Reset. Press Play Excerpt to show the draggable notes again.");
+  expandScoreForPlay();
+  setFeedback("Reset. The question remains expanded. Press Replay Excerpt when you are ready to hear it again.");
   renderAnswerPanelIntro();
 }
 
@@ -1099,9 +1458,19 @@ function checkAnswer() {
   const placedCount = getPlacedCount();
 
   if (placedCount !== total) {
-    setFeedback(`Place all ${total} notes onto the stave before checking.`, "bad");
+    const actionLabel = hasSubmittedCurrentQuestion ? "checking again" : "submitting";
+    setFeedback(`Place all ${total} notes onto the stave before ${actionLabel}.`, "bad");
     return;
   }
+
+  const isFirstSubmissionForQuestion = !hasSubmittedCurrentQuestion;
+
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
 
   let correctCount = 0;
   const correctFlags = [];
@@ -1125,24 +1494,51 @@ function checkAnswer() {
   });
 
   lastAttemptDiagnostic = buildAttemptDiagnostic(correctFlags);
+  lastAttemptDiagnostic.gcseMarking = buildGCSEMarkingEvaluation(correctFlags, lastAttemptDiagnostic);
 
-  progressInner.style.width = "100%";
-  scoreText.textContent = `Correct: ${correctCount} / ${total}`;
-  streakText.textContent = correctCount === total ? "Complete" : "Try again";
-  xpText.textContent = "Checked";
+  const gcseMarking = lastAttemptDiagnostic.gcseMarking;
 
-  if (correctCount === total) {
-    isQuestionComplete = true;
-    setPlayButtonMode("next");
-    setFeedback("Excellent — all the notes are correct. The full answer score will appear in a moment.", "good");
-    revealAnswerScoreAfterPerfectCheck();
-  } else {
-    isQuestionComplete = false;
-    setPlayButtonMode(hasPlayedAudio ? "replay" : "play");
-    setFeedback(`${correctCount} / ${total} correct. Green notes are correct; red notes need moving.`, "bad");
+  if (isRoundActive && isFirstSubmissionForQuestion) {
+    roundResults[roundQuestionPosition] = {
+      questionId: MM001.id,
+      awardedMarks: gcseMarking.awardedMarks,
+      maxMarks: gcseMarking.maxMarks,
+      pitchMarksAwarded: gcseMarking.pitchMarksAwarded,
+      pitchMarksAvailable: gcseMarking.pitchMarksAvailable,
+      shapeMarksAwarded: gcseMarking.shapeMarksAwarded,
+      shapeMarksAvailable: gcseMarking.shapeMarksAvailable,
+      firstWrongNote: gcseMarking.firstWrongNote ? gcseMarking.firstWrongNote.noteNumber : null,
+      firstContourError: gcseMarking.firstContourError || "",
+      firstIntervalSizeError: gcseMarking.firstIntervalSizeError || "",
+      shortComment: gcseMarking.shortComment || ""
+    };
   }
 
-  renderAnswerPanelChecked(correctCount, total);
+  progressInner.style.width = "100%";
+  scoreText.textContent = `Mark: ${gcseMarking.awardedMarks} / ${gcseMarking.maxMarks}`;
+  streakText.textContent = correctCount === total ? "Complete" : `${correctCount}/${total} pitches`;
+  xpText.textContent = gcseMarking.shapeCreditAvailable
+    ? (gcseMarking.shapeMarkAwarded ? "Shape credited" : "Shape not credited")
+    : "Submitted";
+
+  hasSubmittedCurrentQuestion = true;
+  isQuestionComplete = true;
+  syncSubmissionButtonLabel();
+  setAnswerRevealButtonVisible(true);
+  setPlayButtonMode("next");
+
+  const scoreStatusText = isFirstSubmissionForQuestion
+    ? "This score has been entered for the round."
+    : "Practice check only: your round score has not changed.";
+  const nextActionText = `You can adjust the notes and press Check again, reveal the answer, or press ${getProgressionButtonLabel()}.`;
+
+  if (correctCount === total) {
+    setFeedback(`Full credit: ${gcseMarking.awardedMarks} / ${gcseMarking.maxMarks}. ${scoreStatusText} ${nextActionText}`, "good");
+  } else {
+    setFeedback(`Mark: ${gcseMarking.awardedMarks} / ${gcseMarking.maxMarks}. ${gcseMarking.shortComment} ${scoreStatusText} ${nextActionText}`, "bad");
+  }
+
+  renderAnswerPanelSubmitted(correctCount, total);
 }
 
 
@@ -1356,6 +1752,521 @@ function buildAttemptDiagnostic(correctFlags = []) {
   };
 }
 
+
+function getQuestionMarkScheme(totalNotes = dictationSlots.length || 0) {
+  const configuredScheme = (MM001_SOURCE && MM001_SOURCE.markScheme) || {};
+  const pitchMarks = Number.isFinite(Number(configuredScheme.pitchMarks))
+    ? Number(configuredScheme.pitchMarks)
+    : totalNotes;
+  const shapeMarks = Number.isFinite(Number(configuredScheme.shapeMarks))
+    ? Number(configuredScheme.shapeMarks)
+    : (totalNotes > 1 ? 1 : 0);
+
+  return {
+    name: configuredScheme.name || "GCSE best-fit melodic dictation",
+    pitchMarks,
+    shapeMarks,
+    pitchMarkPerNote: configuredScheme.pitchMarkPerNote !== false,
+    shapeCreditAvailable: shapeMarks > 0,
+    description: configuredScheme.description || "1 mark per correct pitch, with a best-fit contour/shape mark where the melodic shape is secure."
+  };
+}
+
+function getOrdinalNoteLabel(noteNumber = 1) {
+  const safeNumber = Number(noteNumber) || 1;
+  const suffix = safeNumber % 10 === 1 && safeNumber % 100 !== 11
+    ? "st"
+    : safeNumber % 10 === 2 && safeNumber % 100 !== 12
+      ? "nd"
+      : safeNumber % 10 === 3 && safeNumber % 100 !== 13
+        ? "rd"
+        : "th";
+  return `${safeNumber}${suffix} note`;
+}
+
+function getIntervalNumberName(stepDistance = 0) {
+  const intervalNumber = Math.abs(Number(stepDistance) || 0) + 1;
+  const labels = {
+    1: "a repeated note",
+    2: "a step",
+    3: "a third",
+    4: "a fourth",
+    5: "a fifth",
+    6: "a sixth",
+    7: "a seventh",
+    8: "an octave"
+  };
+  return labels[intervalNumber] || "a large leap";
+}
+
+function getDirectedIntervalLabel(delta = 0) {
+  const numericDelta = Number(delta) || 0;
+  if (numericDelta === 0) return "a repeated note";
+  return `${numericDelta > 0 ? "up" : "down"} ${getIntervalNumberName(numericDelta)}`;
+}
+
+function getPitchHeightComment(selectedPitch = "", correctPitch = "") {
+  if (!selectedPitch || !correctPitch) return "not placed accurately";
+  const difference = pitchToDiatonicNumber(selectedPitch) - pitchToDiatonicNumber(correctPitch);
+  if (difference > 0) return "placed too high";
+  if (difference < 0) return "placed too low";
+  return "correct";
+}
+
+function getPreviousIntervalFeedback(index = 0) {
+  if (index <= 0) return "Check the starting pitch against the printed stave position.";
+
+  const previousSlot = dictationSlots[index - 1];
+  const slot = dictationSlots[index];
+  if (!previousSlot || !slot || !previousSlot.selectedPitch || !slot.selectedPitch) {
+    return "Check the melodic movement into this note.";
+  }
+
+  const correctDelta = pitchToDiatonicNumber(slot.pitch) - pitchToDiatonicNumber(previousSlot.pitch);
+  const selectedDelta = pitchToDiatonicNumber(slot.selectedPitch) - pitchToDiatonicNumber(previousSlot.selectedPitch);
+  const correctDirection = Math.sign(correctDelta);
+  const selectedDirection = Math.sign(selectedDelta);
+  const correctSize = Math.abs(correctDelta);
+  const selectedSize = Math.abs(selectedDelta);
+
+  if (correctDirection !== selectedDirection) {
+    return `From note ${index} to note ${index + 1}, the melody should move ${getDirectedIntervalLabel(correctDelta)}, but your answer moves ${getDirectedIntervalLabel(selectedDelta)}.`;
+  }
+
+  if (correctSize !== selectedSize) {
+    const sizeComment = selectedSize < correctSize ? "too small" : "too large";
+    return `The direction into note ${index + 1} is right, but the interval is ${sizeComment}: it should be ${getDirectedIntervalLabel(correctDelta)}.`;
+  }
+
+  return `The interval into note ${index + 1} is right; check whether an earlier anchor pitch has shifted the answer.`;
+}
+
+function buildGCSEMarkingEvaluation(correctFlags = [], diagnostic = null) {
+  const totalNotes = dictationSlots.length || 0;
+  const markScheme = getQuestionMarkScheme(totalNotes);
+  const pitchMarksAwarded = correctFlags.filter(Boolean).length;
+  const intervalResults = [];
+  let contourCorrectCount = 0;
+  let intervalExactCount = 0;
+  let firstContourError = null;
+  let firstIntervalSizeError = null;
+  let relativeIntervalPatternExact = totalNotes > 1;
+  let contourPatternExact = totalNotes > 1;
+
+  for (let index = 1; index < totalNotes; index += 1) {
+    const previousSlot = dictationSlots[index - 1];
+    const slot = dictationSlots[index];
+    const correctDelta = pitchToDiatonicNumber(slot.pitch) - pitchToDiatonicNumber(previousSlot.pitch);
+    const selectedDelta = pitchToDiatonicNumber(slot.selectedPitch) - pitchToDiatonicNumber(previousSlot.selectedPitch);
+    const contourCorrect = Math.sign(correctDelta) === Math.sign(selectedDelta);
+    const intervalExact = correctDelta === selectedDelta;
+    const intervalSizeCorrect = Math.abs(correctDelta) === Math.abs(selectedDelta);
+
+    if (contourCorrect) contourCorrectCount += 1;
+    if (intervalExact) intervalExactCount += 1;
+    if (!contourCorrect) contourPatternExact = false;
+    if (!intervalExact) relativeIntervalPatternExact = false;
+
+    if (!contourCorrect && !firstContourError) {
+      firstContourError = `note ${index + 1}: expected ${getDirectedIntervalLabel(correctDelta)}, heard ${getDirectedIntervalLabel(selectedDelta)}`;
+    }
+
+    if (!intervalSizeCorrect && !firstIntervalSizeError) {
+      const sizeWord = Math.abs(selectedDelta) < Math.abs(correctDelta) ? "too small" : "too large";
+      firstIntervalSizeError = `note ${index + 1}: interval ${sizeWord}; expected ${getDirectedIntervalLabel(correctDelta)}`;
+    }
+
+    intervalResults.push({
+      noteNumber: index + 1,
+      correctDelta,
+      selectedDelta,
+      contourCorrect,
+      intervalExact,
+      intervalSizeCorrect
+    });
+  }
+
+  const shapeCreditAvailable = Boolean(markScheme.shapeCreditAvailable && totalNotes > 1);
+  const shapeMarkAwarded = shapeCreditAvailable ? contourPatternExact : false;
+  const shapeMarksAwarded = shapeMarkAwarded ? markScheme.shapeMarks : 0;
+  const awardedMarks = pitchMarksAwarded + shapeMarksAwarded;
+  const maxMarks = markScheme.pitchMarks + (shapeCreditAvailable ? markScheme.shapeMarks : 0);
+  const startingPitchCorrect = Boolean(correctFlags[0]);
+  const exactPitchPerfect = pitchMarksAwarded === totalNotes;
+
+  const wrongNotes = dictationSlots
+    .map((slot, index) => ({
+      noteNumber: index + 1,
+      selectedPitch: slot.selectedPitch || "—",
+      correctPitch: slot.pitch || "—",
+      isCorrect: Boolean(correctFlags[index]),
+      pitchComment: getPitchHeightComment(slot.selectedPitch, slot.pitch),
+      intervalComment: getPreviousIntervalFeedback(index)
+    }))
+    .filter((note) => !note.isCorrect);
+
+  let shortComment = "Pitch accuracy and melodic shape have been marked separately.";
+  let examinerComment = "Award 1 mark for each exact pitch. Award the shape mark only where the contour is secure across the missing melody.";
+
+  if (exactPitchPerfect && shapeMarkAwarded) {
+    shortComment = "All pitch marks and the melodic shape credit have been awarded.";
+    examinerComment = "Full credit: every pitch is accurate and the melodic contour is secure.";
+  } else if (!startingPitchCorrect && relativeIntervalPatternExact) {
+    shortComment = "The answer is transposed: the starting pitch is wrong, but the interval pattern is secure.";
+    examinerComment = "Credit is given for shape because the melody keeps the correct interval pattern after the first note, but pitch marks are lost where exact notes are incorrect.";
+  } else if (!startingPitchCorrect && shapeMarkAwarded) {
+    shortComment = "The starting pitch is incorrect, but the overall contour is strong enough for shape credit.";
+    examinerComment = "This is a typical best-fit GCSE case: the answer does not earn every pitch mark, but the melodic shape is recognisable.";
+  } else if (shapeMarkAwarded) {
+    shortComment = "The contour is secure, but some exact pitches or interval sizes need correction.";
+    examinerComment = "Shape credit is awarded because the up/down/same outline is correct. Lost marks come from exact pitch placement.";
+  } else if (contourCorrectCount > 0) {
+    shortComment = "Some melodic direction is correct, but the contour is not secure enough for the shape mark.";
+    examinerComment = `No shape mark: the contour breaks at ${firstContourError || "one or more notes"}.`;
+  } else {
+    shortComment = "The exact pitches and melodic contour both need further work.";
+    examinerComment = "No shape mark: the missing melody does not yet show a secure outline.";
+  }
+
+  return {
+    markScheme,
+    totalNotes,
+    pitchMarksAwarded,
+    pitchMarksAvailable: markScheme.pitchMarks,
+    shapeCreditAvailable,
+    shapeMarksAvailable: shapeCreditAvailable ? markScheme.shapeMarks : 0,
+    shapeMarkAwarded,
+    shapeMarksAwarded,
+    awardedMarks,
+    maxMarks,
+    startingPitchCorrect,
+    exactPitchPerfect,
+    contourCorrectCount,
+    contourTotal: Math.max(totalNotes - 1, 0),
+    intervalExactCount,
+    intervalResults,
+    relativeIntervalPatternExact,
+    contourPatternExact,
+    firstContourError,
+    firstIntervalSizeError,
+    wrongNotes,
+    shortComment,
+    examinerComment,
+    diagnostic
+  };
+}
+
+function getGCSEMarkingForPanel(correctCount = 0, total = dictationSlots.length || 0, diagnostic = lastAttemptDiagnostic) {
+  if (diagnostic && diagnostic.gcseMarking) return diagnostic.gcseMarking;
+  const fallbackFlags = dictationSlots.map((slot) => {
+    const acceptedPitches = Array.isArray(slot.acceptedPitches) && slot.acceptedPitches.length
+      ? slot.acceptedPitches
+      : [slot.pitch];
+    return Boolean(slot.selectedPitch && acceptedPitches.includes(slot.selectedPitch));
+  });
+  return buildGCSEMarkingEvaluation(fallbackFlags, diagnostic);
+}
+
+function getMarkStateClass(awarded = 0, available = 0) {
+  if (!available) return "";
+  if (awarded >= available) return "is-secure";
+  if (awarded >= Math.ceil(available / 2)) return "is-nearly";
+  return "is-focus";
+}
+
+function formatGCSEMarkSchemeSummary(marking) {
+  if (!marking) return "";
+
+  const contourText = marking.shapeCreditAvailable
+    ? `${marking.shapeMarksAwarded}/${marking.shapeMarksAvailable}`
+    : "—";
+
+  return `
+    <div class="diagnostic-metrics gcse-mark-metrics mm-two-mark-metrics" aria-label="Melody Master mark breakdown">
+      <div class="diagnostic-metric ${getMarkStateClass(marking.pitchMarksAwarded, marking.pitchMarksAvailable)}">
+        <span>Pitch mark</span>
+        <strong>${marking.pitchMarksAwarded}/${marking.pitchMarksAvailable}</strong>
+      </div>
+      <div class="diagnostic-metric ${marking.shapeMarkAwarded ? "is-secure" : "is-focus"}">
+        <span>Contour mark</span>
+        <strong>${contourText}</strong>
+      </div>
+    </div>
+  `;
+}
+
+function getQuestionMaxMarksFromSource(source = {}) {
+  const layoutSlots = source && source.dictationLayout && Array.isArray(source.dictationLayout.slots)
+    ? source.dictationLayout.slots.length
+    : 0;
+  const answerPitchCount = Array.isArray(source.answerPitches) ? source.answerPitches.length : 0;
+  const totalNotes = layoutSlots || answerPitchCount || 0;
+  const configuredScheme = source.markScheme || {};
+  const pitchMarks = Number.isFinite(Number(configuredScheme.pitchMarks))
+    ? Number(configuredScheme.pitchMarks)
+    : totalNotes;
+  const shapeMarks = Number.isFinite(Number(configuredScheme.shapeMarks))
+    ? Number(configuredScheme.shapeMarks)
+    : (totalNotes > 1 ? 1 : 0);
+
+  return pitchMarks + (shapeMarks > 0 ? shapeMarks : 0);
+}
+
+function getRoundTotalPossibleMarks() {
+  const indices = roundQuestionIndices && roundQuestionIndices.length
+    ? roundQuestionIndices
+    : [currentQuestionIndex];
+  return indices.reduce((sum, index) => sum + getQuestionMaxMarksFromSource(ALL_MELODY_CLIPS[index] || MM001_SOURCE), 0);
+}
+
+function getRoundScoreSummary() {
+  const markedResults = roundResults.filter(Boolean);
+  const awarded = markedResults.reduce((sum, result) => sum + (Number(result.awardedMarks) || 0), 0);
+  const possibleSoFar = markedResults.reduce((sum, result) => sum + (Number(result.maxMarks) || 0), 0);
+  const totalPossible = isRoundActive ? getRoundTotalPossibleMarks() : possibleSoFar;
+  const totalQuestions = getRoundTotal();
+  const attempted = markedResults.length;
+  const isFinal = isRoundActive && attempted >= totalQuestions && totalQuestions > 0;
+  const percentageBase = isFinal ? totalPossible : possibleSoFar;
+  const percentage = percentageBase > 0 ? Math.round((awarded / percentageBase) * 100) : 0;
+
+  return {
+    awarded,
+    possibleSoFar,
+    totalPossible,
+    totalQuestions,
+    attempted,
+    isFinal,
+    percentage
+  };
+}
+
+function getRoundFeedbackText(summary) {
+  if (!summary || summary.attempted <= 0) {
+    return "Your round score will update after each checked answer.";
+  }
+
+  if (!summary.isFinal) {
+    return `${summary.attempted}/${summary.totalQuestions} ${summary.attempted === 1 ? "question" : "questions"} marked. Keep using the feedback above before moving on.`;
+  }
+
+  if (summary.percentage >= 90) {
+    return "Excellent round. Pitch accuracy and melodic contour are secure.";
+  }
+
+  if (summary.percentage >= 70) {
+    return "Strong round. Most of the dictation is accurate; review the marked points before moving on.";
+  }
+
+  if (summary.percentage >= 50) {
+    return "Developing round. The melody shape is partly secure; focus on exact pitch placement and interval size.";
+  }
+
+  return "Keep practising. Start with the first note and the direction of each movement before refining exact pitch.";
+}
+
+function renderRoundScoreTracker() {
+  const summary = getRoundScoreSummary();
+  const title = summary.isFinal ? "Final score" : "Round score";
+  const scoreTextValue = summary.isFinal
+    ? `${summary.awarded}/${summary.totalPossible}`
+    : `${summary.awarded}/${summary.totalPossible}`;
+  const markedText = `${summary.attempted}/${summary.totalQuestions} ${summary.totalQuestions === 1 ? "question" : "questions"} marked`;
+
+  return `
+    <div class="diagnostic-card mm-round-score-tile ${summary.isFinal ? "is-final" : ""}">
+      <span>${escapeHTML(title)}</span>
+      <strong>${escapeHTML(scoreTextValue)}</strong>
+      <small>${escapeHTML(markedText)}${summary.attempted ? ` · ${summary.percentage}%` : ""}</small>
+      <p>${escapeHTML(getRoundFeedbackText(summary))}</p>
+    </div>
+  `;
+}
+
+function getRoundAggregateMarks() {
+  const markedResults = roundResults.filter(Boolean);
+  return markedResults.reduce((totals, result) => {
+    totals.pitchAwarded += Number(result.pitchMarksAwarded) || 0;
+    totals.pitchAvailable += Number(result.pitchMarksAvailable) || 0;
+    totals.shapeAwarded += Number(result.shapeMarksAwarded) || 0;
+    totals.shapeAvailable += Number(result.shapeMarksAvailable) || 0;
+    return totals;
+  }, {
+    pitchAwarded: 0,
+    pitchAvailable: 0,
+    shapeAwarded: 0,
+    shapeAvailable: 0
+  });
+}
+
+function getCompiledRoundFeedback(summary = getRoundScoreSummary()) {
+  const totals = getRoundAggregateMarks();
+  const pitchPercent = totals.pitchAvailable > 0 ? Math.round((totals.pitchAwarded / totals.pitchAvailable) * 100) : 0;
+  const contourPercent = totals.shapeAvailable > 0 ? Math.round((totals.shapeAwarded / totals.shapeAvailable) * 100) : 0;
+
+  if (!summary || summary.attempted <= 0) {
+    return "No submitted answers were found for this round.";
+  }
+
+  if (summary.percentage >= 90) {
+    return "Excellent round. Your pitch accuracy and melodic contour are secure across the dictation questions.";
+  }
+
+  if (contourPercent >= 80 && pitchPercent < 70) {
+    return "Your overall melodic shape is secure, but exact pitch placement needs refining. Keep using the first note as an anchor, then check each interval size.";
+  }
+
+  if (pitchPercent >= 70 && contourPercent < 70) {
+    return "Several exact pitches are accurate, but the direction of the melody is not yet consistent. Focus on whether each note moves up, down, or repeats before refining the final pitch.";
+  }
+
+  if (summary.percentage >= 70) {
+    return "Strong round. Most of the dictation is accurate; review any marked notes and listen again for the size of steps and leaps.";
+  }
+
+  if (summary.percentage >= 50) {
+    return "Developing round. The melody is partly secure; the next step is to stabilise the starting pitch and track the contour before checking exact notes.";
+  }
+
+  return "Keep practising. Start by identifying the first missing note and the direction of each movement, then refine whether each movement is a step, repeat, or leap.";
+}
+
+function renderRoundQuestionRows() {
+  const totalQuestions = getRoundTotal();
+  const rows = Array.from({ length: totalQuestions }, (_, index) => {
+    const result = roundResults[index];
+    if (!result) {
+      return `
+        <div class="mm-round-review-row">
+          <span>Q${index + 1}</span>
+          <strong>Not submitted</strong>
+          <small>—</small>
+        </div>
+      `;
+    }
+
+    const noteText = result.firstWrongNote
+      ? `First pitch to review: note ${result.firstWrongNote}`
+      : (result.firstContourError || result.firstIntervalSizeError || "Secure response");
+
+    return `
+      <div class="mm-round-review-row">
+        <span>Question ${index + 1}</span>
+        <strong>${escapeHTML(`${result.awardedMarks}/${result.maxMarks}`)}</strong>
+        <small>Pitch ${escapeHTML(`${result.pitchMarksAwarded}/${result.pitchMarksAvailable}`)} · Contour ${escapeHTML(`${result.shapeMarksAwarded}/${result.shapeMarksAvailable}`)} · ${escapeHTML(noteText)}</small>
+      </div>
+    `;
+  });
+
+  return rows.join("");
+}
+
+function renderRoundReviewPanel() {
+  const summary = getRoundScoreSummary();
+  const totals = getRoundAggregateMarks();
+  const markedText = `${summary.attempted}/${summary.totalQuestions} ${summary.totalQuestions === 1 ? "question" : "questions"} submitted`;
+
+  return `
+    <div class="mm-round-review-panel mm-source-panel mm-diagnostic-panel mm-gcse-feedback-panel mm-main-quiz-feedback-panel">
+      <p class="eyebrow">ROUND FEEDBACK</p>
+      <div class="mm-round-review-hero">
+        <span>Final score</span>
+        <strong>${escapeHTML(`${summary.awarded}/${summary.totalPossible}`)}</strong>
+        <small>${escapeHTML(markedText)} · ${escapeHTML(`${summary.percentage}%`)}</small>
+      </div>
+
+      <div class="diagnostic-metrics gcse-mark-metrics mm-two-mark-metrics" aria-label="Round mark breakdown">
+        <div class="diagnostic-metric ${totals.pitchAwarded === totals.pitchAvailable && totals.pitchAvailable ? "is-secure" : "is-focus"}">
+          <span>Pitch total</span>
+          <strong>${escapeHTML(`${totals.pitchAwarded}/${totals.pitchAvailable}`)}</strong>
+        </div>
+        <div class="diagnostic-metric ${totals.shapeAwarded === totals.shapeAvailable && totals.shapeAvailable ? "is-secure" : "is-focus"}">
+          <span>Contour total</span>
+          <strong>${escapeHTML(`${totals.shapeAwarded}/${totals.shapeAvailable}`)}</strong>
+        </div>
+      </div>
+
+      <div class="diagnostic-card diagnostic-feedback-tile mm-compiled-feedback-tile">
+        <span>Compiled feedback</span>
+        <strong>${escapeHTML(getCompiledRoundFeedback(summary))}</strong>
+      </div>
+
+      <div class="mm-round-review-list" aria-label="Question-by-question round results">
+        ${renderRoundQuestionRows()}
+      </div>
+
+      <button id="roundFinishButton" class="primary-button mm-final-finish-button" type="button">Finish Quiz</button>
+    </div>
+  `;
+}
+
+function showRoundFeedbackWindow() {
+  if (!answerCard || !isRoundActive) {
+    finishRound();
+    return;
+  }
+
+  clearPerfectAnswerRevealTimer();
+  clearQuestionHandoffTimer();
+  clearScoreFocus();
+
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
+  isRoundFeedbackOpen = true;
+  isShowingAnswer = false;
+
+  if (scoreImage) {
+    scoreImage.src = MM001.questionImage;
+    scoreImage.alt = `${MM001.id} question score with missing notes`;
+  }
+  if (scoreShell) scoreShell.classList.remove("showing-answer", "is-audio-focus", "is-note-focus");
+  if (scoreOverlay) scoreOverlay.classList.remove("is-answer-visible", "is-perfect-answer-reveal");
+
+  if (appShell) appShell.classList.add("is-round-feedback-open");
+  if (quizPanel) quizPanel.classList.add("is-round-feedback-open");
+  document.body.classList.add("mm-round-review-open");
+
+  removeRoundFeedbackOverlay();
+  roundFeedbackOverlay = document.createElement("div");
+  roundFeedbackOverlay.className = "mm-round-feedback-overlay";
+  roundFeedbackOverlay.setAttribute("role", "dialog");
+  roundFeedbackOverlay.setAttribute("aria-modal", "true");
+  roundFeedbackOverlay.setAttribute("aria-label", "Melody Master round feedback");
+  roundFeedbackOverlay.innerHTML = renderRoundReviewPanel();
+  document.body.appendChild(roundFeedbackOverlay);
+
+  const finishButton = roundFeedbackOverlay.querySelector("#roundFinishButton");
+  if (finishButton) finishButton.addEventListener("click", finishRound);
+
+  setFeedback("Round complete. Review your final score and feedback, then press Finish Quiz.", "good");
+  if (playButton) {
+    playButton.textContent = "See Feedback";
+    playButton.disabled = true;
+  }
+}
+
+function formatGCSEErrorList(marking) {
+  if (!marking || !marking.wrongNotes || !marking.wrongNotes.length) {
+    return "<p class=\"gcse-error-list-empty\">No pitch errors: every missing note is accurately placed.</p>";
+  }
+
+  return `
+    <ul class="gcse-error-list" aria-label="GCSE melodic dictation error feedback">
+      ${marking.wrongNotes.slice(0, 4).map((note) => `
+        <li>
+          <strong>${escapeHTML(getOrdinalNoteLabel(note.noteNumber))}</strong>
+          <span>${escapeHTML(note.pitchComment)}. ${escapeHTML(note.intervalComment)}</span>
+        </li>
+      `).join("")}
+    </ul>
+  `;
+}
+
 function formatDiagnosticStrengths(diagnostic) {
   if (!diagnostic || !diagnostic.strengths || !diagnostic.strengths.length) {
     return "No clear strength yet — check another attempt after moving the red notes.";
@@ -1416,7 +2327,7 @@ function getDiagnosticInsight(diagnostic, isPerfect = false) {
   }
 
   if (!diagnostic) {
-    return "Check an attempt to receive contour and interval-size feedback.";
+    return "Submit an attempt to receive contour and interval-size feedback.";
   }
 
   if (diagnostic.anchorShiftIssues && diagnostic.anchorShiftIssues.length) {
@@ -1464,31 +2375,48 @@ function getDiagnosticNextStep(diagnostic, isPerfect = false) {
 }
 
 
+function getCompactGCSEFeedback(marking, diagnostic, isFullCredit = false) {
+  if (!marking) {
+    return "Submit an attempt to receive feedback.";
+  }
+
+  if (isFullCredit) {
+    return "Full credit. All pitches are accurate and the melodic contour is secure.";
+  }
+
+  const firstWrongNote = marking.wrongNotes && marking.wrongNotes.length ? marking.wrongNotes[0] : null;
+  const firstWrongNoteText = firstWrongNote ? ` Start by correcting ${getOrdinalNoteLabel(firstWrongNote.noteNumber).toLowerCase()}.` : "";
+
+  if (marking.shapeMarkAwarded && !marking.exactPitchPerfect) {
+    return `The melodic contour is secure, so the contour mark is awarded. Lost marks are for exact pitch placement.${firstWrongNoteText}`;
+  }
+
+  if (marking.firstContourError) {
+    return `No contour mark yet: the melodic direction breaks at ${marking.firstContourError}. Fix that point first, then re-check the following notes.`;
+  }
+
+  if (marking.firstIntervalSizeError) {
+    return `The direction is partly secure, but an interval size is inaccurate at ${marking.firstIntervalSizeError}. Listen again for step or leap size.`;
+  }
+
+  return `${marking.shortComment}${firstWrongNoteText}`;
+}
+
 function renderDiagnosticPanel(correctCount = 0, total = dictationSlots.length || 6, diagnostic = lastAttemptDiagnostic) {
-  const isPerfect = correctCount === total;
-  const panelClass = isPerfect ? "is-correct" : "is-wrong";
-  const headline = isPerfect ? "Secure melodic dictation" : "Attempt diagnosis";
+  const marking = getGCSEMarkingForPanel(correctCount, total, diagnostic);
+  const isFullCredit = marking.awardedMarks === marking.maxMarks;
+  const panelClass = isFullCredit ? "is-correct" : "is-wrong";
 
   return `
-    <div class="answer-reveal mm-source-panel ${panelClass} mm-diagnostic-panel">
-      <p class="eyebrow">SKILL FEEDBACK</p>
-      <h2>${correctCount} / ${total} correct</h2>
-      <p class="diagnostic-headline">${headline}</p>
+    <div class="answer-reveal mm-source-panel ${panelClass} mm-diagnostic-panel mm-gcse-feedback-panel mm-main-quiz-feedback-panel">
+      ${formatGCSEMarkSchemeSummary(marking)}
 
-      ${formatContourIntervalMetrics(diagnostic)}
-
-      <div class="diagnostic-grid">
-        <div class="diagnostic-card diagnostic-strength">
-          <span>Strong</span>
-          <strong>${formatDiagnosticStrengths(diagnostic)}</strong>
-        </div>
-        <div class="diagnostic-card diagnostic-focus">
-          <span>Needs work</span>
-          <strong>${formatDiagnosticNeedsWork(diagnostic)}</strong>
-        </div>
+      <div class="diagnostic-card diagnostic-feedback-tile">
+        <span>Feedback</span>
+        <strong>${escapeHTML(getCompactGCSEFeedback(marking, diagnostic, isFullCredit))}</strong>
       </div>
 
-      <p class="diagnostic-next-step">${escapeHTML(getDiagnosticNextStep(diagnostic, isPerfect))}</p>
+      ${renderRoundScoreTracker()}
     </div>
   `;
 }
@@ -1517,32 +2445,38 @@ function renderAnswerPanelHome() {
 function renderAnswerPanelIntro() {
   if (!answerCard) return;
 
+  if (window.MELODY_MASTER_CLASSROOM_MODE) {
+    answerCard.innerHTML = renderClassroomDiagnosticPanel(null, {
+      feedback: "Place all notes, then submit your answer.",
+      status: "Live classroom"
+    });
+    return;
+  }
+
   answerCard.innerHTML = `
-    <div class="answerCard-empty mm-source-panel mm-source-panel-active mm-diagnostic-panel">
-      <div class="answer-empty-brand" aria-hidden="true">
-        <span class="answer-empty-icon">
-          <img
-            src="../../assets/icons/modules/melody-master.svg"
-            alt=""
-            onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
-          />
-        </span>
+    <div class="answerCard-empty mm-source-panel mm-source-panel-active mm-diagnostic-panel mm-gcse-feedback-panel mm-main-quiz-feedback-panel">
+      <div class="diagnostic-metrics gcse-mark-metrics mm-two-mark-metrics" aria-label="Melody Master mark breakdown">
+        <div class="diagnostic-metric">
+          <span>Pitch mark</span>
+          <strong>—</strong>
+        </div>
+        <div class="diagnostic-metric">
+          <span>Contour mark</span>
+          <strong>—</strong>
+        </div>
       </div>
 
-      <p class="eyebrow">SKILL FEEDBACK</p>
-      <h2>Attempt diagnosis</h2>
-
-      <div class="diagnostic-card diagnostic-empty">
-        <span>${escapeHTML(MM001.id)}</span>
-        <strong>Place all notes, then press Check your answers.</strong>
+      <div class="diagnostic-card diagnostic-feedback-tile">
+        <span>Feedback</span>
+        <strong>Place all notes, then press Submit your answers.</strong>
       </div>
 
-      <p class="diagnostic-next-step">This panel will identify contour accuracy, interval-size accuracy, anchor-note shifts, and strengths such as stepwise motion or leaps.</p>
+      ${renderRoundScoreTracker()}
     </div>
   `;
 }
 
-function renderAnswerPanelChecked(correctCount = 0, total = dictationSlots.length || 6) {
+function renderAnswerPanelSubmitted(correctCount = 0, total = dictationSlots.length || 6) {
   if (!answerCard) return;
 
   answerCard.innerHTML = renderDiagnosticPanel(correctCount, total, lastAttemptDiagnostic);
@@ -1609,6 +2543,7 @@ function classroomLoadQuestionByIndex(index = 0) {
   hasPlayedAudio = false;
   isShowingAnswer = false;
   isQuestionComplete = false;
+  hasSubmittedCurrentQuestion = false;
   if (scoreOverlay) {
     scoreOverlay.classList.add("is-notes-hidden-before-play");
     scoreOverlay.classList.remove("is-answer-visible", "is-perfect-answer-reveal");
@@ -1632,6 +2567,7 @@ function classroomShowQuestionForTeacherPlayback() {
 
   isShowingAnswer = false;
   isQuestionComplete = false;
+  hasSubmittedCurrentQuestion = false;
   hasPlayedAudio = true;
 
   if (audio) {
@@ -1659,6 +2595,123 @@ function classroomShowQuestionForTeacherPlayback() {
   renderAnswerPanelIntro();
 }
 
+function renderClassroomDiagnosticPanel(evaluation = null, options = {}) {
+  const marking = evaluation && evaluation.marking ? evaluation.marking : null;
+  const isSubmitted = Boolean(options.submitted);
+  const status = options.status || (isSubmitted ? "Submitted" : "Live classroom");
+  const feedbackText = options.feedback || (marking
+    ? getCompactGCSEFeedback(marking, evaluation.diagnostic, marking.awardedMarks === marking.maxMarks)
+    : "Place all notes, then submit your answer.");
+  const pitchText = marking ? `${marking.pitchMarksAwarded}/${marking.pitchMarksAvailable}` : "—";
+  const contourText = marking
+    ? (marking.shapeCreditAvailable ? `${marking.shapeMarksAwarded}/${marking.shapeMarksAvailable}` : "—")
+    : "—";
+
+  return `
+    <div class="answerCard-empty mm-source-panel mm-source-panel-active classroom-status-panel classroom-gcse-feedback-panel ${isSubmitted ? "is-submitted" : ""}">
+      <span class="classroom-status-pill">${escapeHTML(status)}</span>
+
+      <div class="diagnostic-metrics gcse-mark-metrics mm-two-mark-metrics" aria-label="Melody Master mark breakdown">
+        <div class="diagnostic-metric ${marking ? getMarkStateClass(marking.pitchMarksAwarded, marking.pitchMarksAvailable) : ""}">
+          <span>Pitch mark</span>
+          <strong>${escapeHTML(pitchText)}</strong>
+        </div>
+        <div class="diagnostic-metric ${marking ? (marking.shapeMarkAwarded ? "is-secure" : "is-focus") : ""}">
+          <span>Contour mark</span>
+          <strong>${escapeHTML(contourText)}</strong>
+        </div>
+      </div>
+
+      <div class="diagnostic-card diagnostic-feedback-tile">
+        <span>Feedback</span>
+        <strong>${escapeHTML(feedbackText)}</strong>
+      </div>
+    </div>
+  `;
+}
+
+function classroomEvaluateCurrentAttempt(options = {}) {
+  const payload = getClassroomSubmissionPayload();
+  const markTokens = Boolean(options.markTokens);
+  const setSubmittedState = Boolean(options.setSubmittedState);
+
+  if (!payload || !payload.allPlaced) {
+    return { payload, diagnostic: null, marking: null, allPlaced: false };
+  }
+
+  const correctFlags = Array.isArray(payload.correctFlags) ? payload.correctFlags : [];
+  let correctCount = 0;
+
+  dictationSlots.forEach((slot, index) => {
+    const isCorrect = Boolean(correctFlags[index]);
+    if (isCorrect) correctCount += 1;
+
+    if (markTokens && slot && slot.token) {
+      slot.token.classList.remove("correct", "wrong", "answer-flash-correct", "answer-flash-wrong", "perfect-answer-notehead-flash");
+      void slot.token.offsetWidth;
+      slot.token.classList.add(
+        isCorrect ? "correct" : "wrong",
+        isCorrect ? "answer-flash-correct" : "answer-flash-wrong"
+      );
+    }
+  });
+
+  lastAttemptDiagnostic = buildAttemptDiagnostic(correctFlags);
+  lastAttemptDiagnostic.gcseMarking = buildGCSEMarkingEvaluation(correctFlags, lastAttemptDiagnostic);
+
+  if (setSubmittedState) {
+    hasSubmittedCurrentQuestion = true;
+    isQuestionComplete = true;
+  }
+
+  if (progressInner) progressInner.style.width = "100%";
+  if (scoreText) scoreText.textContent = `Mark: ${lastAttemptDiagnostic.gcseMarking.awardedMarks} / ${lastAttemptDiagnostic.gcseMarking.maxMarks}`;
+  if (streakText) streakText.textContent = correctCount === payload.total ? "Complete" : `${correctCount}/${payload.total} pitches`;
+  if (xpText) {
+    xpText.textContent = lastAttemptDiagnostic.gcseMarking.shapeCreditAvailable
+      ? (lastAttemptDiagnostic.gcseMarking.shapeMarkAwarded ? "Shape credited" : "Shape not credited")
+      : "Submitted";
+  }
+
+  return {
+    payload,
+    diagnostic: lastAttemptDiagnostic,
+    marking: lastAttemptDiagnostic.gcseMarking,
+    correctCount,
+    total: payload.total,
+    allPlaced: true
+  };
+}
+
+function classroomRenderAttemptFeedback(evaluation = null, options = {}) {
+  if (!answerCard) return;
+  answerCard.innerHTML = renderClassroomDiagnosticPanel(evaluation, options);
+}
+
+function classroomToggleAnswer() {
+  hasSubmittedCurrentQuestion = true;
+  isQuestionComplete = true;
+  showAnswer();
+  return isShowingAnswer;
+}
+
+function classroomShowQuestionScore() {
+  if (isShowingAnswer) showAnswer();
+}
+
+function classroomGetQuestionMeta() {
+  return {
+    id: MM001 && MM001.id,
+    title: MM001 && MM001.title,
+    composer: MM001 && MM001.composer,
+    work: MM001 && MM001.work,
+    movement: MM001 && MM001.movement,
+    performer: MM001 && MM001.performer,
+    source: MM001 && MM001.source,
+    rights: MM001 && MM001.rights
+  };
+}
+
 function classroomSetFeedback(message = "", state = "") {
   setFeedback(message, state);
 }
@@ -1667,10 +2720,59 @@ window.MelodyMasterClassroom = {
   loadQuestionByIndex: classroomLoadQuestionByIndex,
   showQuestionForTeacherPlayback: classroomShowQuestionForTeacherPlayback,
   getSubmissionPayload: getClassroomSubmissionPayload,
+  evaluateCurrentAttempt: classroomEvaluateCurrentAttempt,
+  renderAttemptFeedback: classroomRenderAttemptFeedback,
+  toggleAnswer: classroomToggleAnswer,
+  showQuestionScore: classroomShowQuestionScore,
+  getQuestionMeta: classroomGetQuestionMeta,
   setFeedback: classroomSetFeedback,
   refreshExpandedScorePosition,
   queueNoteScaleUpdate
 };
+
+function closeSettingsMenu() {
+  if (!advancedSettings) return;
+  advancedSettings.style.display = "none";
+  advancedSettings.classList.remove("is-open");
+  advancedSettings.setAttribute("aria-hidden", "true");
+  if (settingsToggle) settingsToggle.setAttribute("aria-expanded", "false");
+}
+
+function getMelodicIntervalLaunchUrl() {
+  const mode = getSelectedRadioValue("miQuizMode", "recognition");
+  const count = getSelectedRadioValue("miQuestionCount", "3");
+  const intervalSet = getSelectedRadioValue("miIntervalSet", "basic");
+  const params = new URLSearchParams({
+    mode,
+    count,
+    set: intervalSet,
+    autostart: "1",
+    source: "melody-master"
+  });
+
+  return `../melodic-intervals/index.html?${params.toString()}`;
+}
+
+function startQuizRound() {
+  closeSettingsMenu();
+
+  if (getSelectedQuizMode() === "intervals") {
+    window.location.href = getMelodicIntervalLaunchUrl();
+    return;
+  }
+
+  closeRoundFeedbackWindow();
+  quizSettings = getQuizSettingsFromControls();
+  roundQuestionIndices = buildRoundQuestionIndices(quizSettings.questionCount);
+  roundQuestionPosition = 0;
+  roundResults = [];
+  hasSubmittedCurrentQuestion = false;
+  isRoundActive = true;
+
+  setActiveQuestion(roundQuestionIndices[0] || 0);
+  if (startButton) startButton.textContent = "Start Quiz";
+  loadQuestion({ autoPlay: true, expandOnLoad: true });
+}
 
 if (settingsToggle && advancedSettings) {
   settingsToggle.addEventListener("click", () => {
@@ -1682,14 +2784,17 @@ if (settingsToggle && advancedSettings) {
   });
 }
 
-startButton.addEventListener("click", () => loadQuestion());
+startButton.addEventListener("click", startQuizRound);
 playButton.addEventListener("click", playAudio);
 if (showAnswerButton) showAnswerButton.addEventListener("click", showAnswer);
 resetButton.addEventListener("click", resetDictation);
 checkAnswerButton.addEventListener("click", checkAnswer);
 if (scoreCloseButton) scoreCloseButton.addEventListener("click", closeExpandedScoreTile);
 window.addEventListener("resize", queueNoteScaleUpdate);
+document.querySelectorAll('input[name="quizMode"]').forEach((input) => input.addEventListener("change", updateSettingsAvailability));
+updateSettingsAvailability();
 
 initialiseNoteScaleObserver();
 queueNoteScaleUpdate();
+clearScoreTrackInfo();
 renderAnswerPanelHome();

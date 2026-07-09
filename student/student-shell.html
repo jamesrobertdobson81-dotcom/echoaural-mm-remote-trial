@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Classroom | EchoAural</title>
+  <link rel="stylesheet" href="/student/student.css" />
+</head>
+<body>
+  <main class="student-shell">
+    <section class="student-card">
+      <div class="student-topbar">
+        <div class="brand-lockup" aria-hidden="true">
+          <span class="wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <strong class="wordmark"><span>Echo</span><em>Aural</em></strong>
+        </div>
+        <span id="roomPill" class="room-pill">Room —</span>
+      </div>
+
+      <div id="waitingPanel">
+        <p class="eyebrow" id="moduleEyebrow">LIVE CLASSROOM</p>
+        <h1 id="waitingTitle">Waiting…</h1>
+        <p id="waitingMessage" class="student-muted">Wait for your teacher to start the question.</p>
+        <button id="enableAudioButton" class="primary-button" type="button">Enable audio for remote play</button>
+        <p id="audioStatus" class="status-message">Click once so your computer is allowed to play audio when your teacher presses Play.</p>
+      </div>
+
+      <div id="questionPanel" class="question-card hidden">
+        <p class="eyebrow" id="questionModuleEyebrow">LIVE CLASSROOM</p>
+        <h1 id="questionTitle">Question</h1>
+        <p id="questionPrompt" class="student-muted">Listen and answer.</p>
+        <div class="audio-row">
+          <audio id="studentAudio" preload="auto"></audio>
+          <button id="manualPlayButton" class="secondary-button" type="button">Play on this computer</button>
+        </div>
+        <div id="answerArea"></div>
+        <button id="submitButton" class="primary-button" type="button" disabled>Submit answer</button>
+        <div id="feedbackPanel" class="feedback-panel hidden"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/shared/js/classroom-client.js"></script>
+  <script src="/student/student.js"></script>
+</body>
+</html>

@@ -288,23 +288,33 @@ function getNextClip() {
 }
 
 function getAnswerChoices(correctInstrument) {
+  const correct = displayText(correctInstrument);
   const allInstruments = getUniqueInstrumentsFromClips(clipData);
 
   let wrongAnswers = shuffle(
-    getInstrumentsInSameFamily(correctInstrument)
-      .filter(i => cleanText(i) !== cleanText(correctInstrument))
+    getInstrumentsInSameFamily(correct)
+      .filter(i => cleanText(i) !== cleanText(correct))
   ).slice(0, 3);
 
   if (wrongAnswers.length < 3) {
     const backup = allInstruments.filter(i =>
-      cleanText(i) !== cleanText(correctInstrument) &&
+      cleanText(i) !== cleanText(correct) &&
       !wrongAnswers.some(w => cleanText(w) === cleanText(i))
     );
 
     wrongAnswers = wrongAnswers.concat(shuffle(backup).slice(0, 3 - wrongAnswers.length));
   }
 
-  return shuffle([correctInstrument, ...wrongAnswers]);
+  const choices = [correct, ...wrongAnswers]
+    .filter(Boolean)
+    .filter((choice, index, arr) => arr.findIndex(item => cleanText(item) === cleanText(choice)) === index)
+    .slice(0, 4);
+
+  if (correct && !choices.some(choice => cleanText(choice) === cleanText(correct))) {
+    choices[0] = correct;
+  }
+
+  return shuffle(choices);
 }
 
 function updateScore() {
@@ -346,8 +356,6 @@ function showAnswerCard(wasCorrect) {
   const family = getField(currentClip, ["family"]);
   const type = getField(currentClip, ["type"]);
   const difficulty = getField(currentClip, ["difficulty"]);
-  const composer = getField(currentClip, ["composer"]);
-  const work = getField(currentClip, ["work"]);
   const source = getField(currentClip, ["source"]);
   const rights = getField(currentClip, ["rights"]);
 
@@ -369,8 +377,6 @@ function showAnswerCard(wasCorrect) {
         ${buildMetaRow("Family", family)}
         ${buildMetaRow("Type", type)}
         ${buildMetaRow("Difficulty", difficulty)}
-        ${buildMetaRow("Composer", composer)}
-        ${buildMetaRow("Work", work)}
         ${buildMetaRow("Source", source)}
         ${buildMetaRow("Rights", rights)}
       </div>

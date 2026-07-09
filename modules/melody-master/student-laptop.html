@@ -303,7 +303,8 @@
             <button id="startButton" class="primary-button centre-start" type="button">Start Quiz</button>
             <button id="playButton" class="play-button" type="button" style="display: none;">Play Excerpt</button>
             <button id="checkAnswerButton" class="primary-button" type="button" disabled>Check your answers</button>
-            <button id="classroomSubmitButton" class="primary-button classroom-submit-button" type="button" disabled>Submit Answer</button>
+            <button id="classroomSubmitButton" class="primary-button classroom-submit-button" type="button" disabled>Submit your answers</button>
+            <button id="classroomRevealButton" class="secondary-button compact-action classroom-reveal-button" type="button" hidden>Reveal Answer</button>
             <button id="showAnswerButton" class="secondary-button compact-action" type="button" style="display: none;" aria-hidden="true" tabindex="-1">Show Answer</button>
             <button id="restartButton" class="secondary-button compact-action" type="button">Reset</button>
           </div>
@@ -329,6 +330,7 @@
                 <img id="scoreImage" class="score-image" src="questions/MM001/MM001-question.png" alt="MM001 question score with six missing notes" />
                 <div class="score-overlay" id="scoreOverlay" aria-label="Drag the semiquaver notes onto the stave"></div>
               </div>
+              <div id="scoreTrackInfo" class="score-track-info" aria-live="polite" aria-hidden="true"></div>
             </div>
           </div>
 
@@ -362,9 +364,19 @@
     </main>
   </div>
 
+  <div id="classroomRoundFeedbackOverlay" class="classroom-round-feedback-overlay" hidden aria-live="polite">
+    <section class="classroom-round-feedback-card mm-round-review-panel" role="dialog" aria-modal="true" aria-labelledby="classroomRoundFeedbackTitle">
+      <p class="eyebrow">MELODY MASTER CLASSROOM</p>
+      <h2 id="classroomRoundFeedbackTitle">Your round feedback</h2>
+      <div id="classroomRoundFeedbackContent" class="classroom-round-feedback-content"></div>
+      <p class="classroom-round-feedback-note">Wait for your teacher to give the next join code.</p>
+    </section>
+  </div>
+
   <script>window.MELODY_MASTER_CLASSROOM_MODE = true;</script>
   <script src="/modules/melody-master/clips.js"></script>
   <script src="/modules/melody-master/script.js"></script>
+  <script src="/shared/js/classroom-client.js"></script>
   <script src="/modules/melody-master/student-laptop.js"></script>
 </body>
 </html>

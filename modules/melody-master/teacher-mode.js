@@ -24,7 +24,10 @@ const els = {
   quizLengthOptions: document.getElementById('quizLengthOptions'),
   playLimitOptions: document.getElementById('playLimitOptions'),
   settingsSummary: document.getElementById('settingsSummary'),
-  saveSettingsButton: document.getElementById('saveSettingsButton')
+  saveSettingsButton: document.getElementById('saveSettingsButton'),
+  finalLeaderboardModal: document.getElementById('finalLeaderboardModal'),
+  finalLeaderboardContent: document.getElementById('finalLeaderboardContent'),
+  closeFinalLeaderboardButton: document.getElementById('closeFinalLeaderboardButton')
 };
 
 let roomCode = '';
@@ -33,11 +36,13 @@ let currentQuestionIndex = 0;
 let pollTimer = null;
 let isPolling = false;
 let primaryAction = 'settings';
+let isTeacherAudioPlaying = false;
 let quizSettings = {
   quizLength: 3,
   maxListens: 4,
   saved: false
 };
+let isEditingQuizSettings = false;
 
 function escapeHTML(value) {
   return String(value || '')
@@ -55,13 +60,13 @@ function setNotice(message, state = '') {
 
 function setConnectedUI(isConnected) {
   els.connectionStatus.textContent = isConnected
-    ? 'Connected to the local classroom server.'
-    : 'Teacher Mode needs the local classroom server. Run node server.js from the EchoAural folder, then open the localhost teacher URL.';
+    ? 'Connected to the classroom server.'
+    : 'Teacher Mode needs the hosted classroom server. Check the classroom API URL or run node server.js locally.';
   els.createSessionButton.disabled = !isConnected;
   if (!isConnected) {
     els.primaryQuizButton.disabled = true;
     els.endQuizButton.disabled = true;
-    setNotice('Not connected. In Terminal run: cd "/Users/james/Desktop/EchoAural 2" then node server.js', 'bad');
+    setNotice('Not connected. Local: run node server.js. Online: check teacher-api.echoaural.com or the configured classroom API URL.', 'bad');
   }
 }
 
@@ -71,7 +76,7 @@ async function api(path, body = null, method = body ? 'POST' : 'GET') {
     options.headers['Content-Type'] = 'application/json';
     options.body = JSON.stringify(body);
   }
-  const response = await fetch(path, options);
+  const response = await fetch(window.EchoAuralClassroom.buildApiUrl(path), options);
   const text = await response.text();
   let data = null;
   try { data = text ? JSON.parse(text) : {}; }
@@ -86,6 +91,13 @@ function delay(ms) {
 
 function pluralise(value, singular, plural = `${singular}s`) {
   return Number(value) === 1 ? singular : plural;
+}
+
+function formatPlayButtonLabel(prefix, playsRemaining, maxListens) {
+  const remaining = Math.max(0, Number(playsRemaining) || 0);
+  const max = Math.max(1, Number(maxListens) || 1);
+  const label = remaining === 1 ? 'play left' : 'plays left';
+  return `${prefix} · ${remaining}/${max} ${label}`;
 }
 
 function getQuestionTitle(question) {
@@ -122,6 +134,7 @@ function selectOption(groupEl, value) {
 }
 
 function openSettingsModal() {
+  isEditingQuizSettings = true;
   selectOption(els.quizLengthOptions, quizSettings.quizLength);
   selectOption(els.playLimitOptions, quizSettings.maxListens);
   updateSettingsSummary();
@@ -131,6 +144,7 @@ function openSettingsModal() {
 
 function closeSettingsModal() {
   els.quizSettingsModal.hidden = true;
+  isEditingQuizSettings = false;
 }
 
 async function saveSettings() {
@@ -188,6 +202,13 @@ function updatePrimaryButton(state = currentState) {
     return;
   }
 
+  if (isTeacherAudioPlaying) {
+    primaryAction = 'playing';
+    els.primaryQuizButton.disabled = true;
+    els.primaryQuizButton.textContent = formatPlayButtonLabel('Playing…', quiz.playsRemaining, quiz.maxListens);
+    return;
+  }
+
   if (quiz.listens >= quiz.maxListens) {
     primaryAction = quiz.current >= quiz.total ? 'finish' : 'next';
     els.primaryQuizButton.textContent = quiz.current >= quiz.total ? 'Finish Quiz' : 'Next Question';
@@ -195,7 +216,8 @@ function updatePrimaryButton(state = currentState) {
   }
 
   primaryAction = 'play';
-  els.primaryQuizButton.textContent = 'Play Again';
+  const prefix = quiz.listens > 0 ? 'Play Again' : 'Play Excerpt';
+  els.primaryQuizButton.textContent = formatPlayButtonLabel(prefix, quiz.playsRemaining, quiz.maxListens);
 }
 
 function updateTeacherStatus(state = currentState) {
@@ -288,7 +310,7 @@ function renderLeaderboard(state) {
     const cumulativeScore = Number(student.cumulativeScore || 0);
     const cumulativePercentage = student.cumulativePercentage === null || student.cumulativePercentage === undefined ? null : Number(student.cumulativePercentage);
     const currentLine = student.submitted
-      ? `This question: ${student.score}/${student.total} correct`
+      ? `This question: ${student.score}/${student.total} marks`
       : state.active ? 'This question: not submitted' : `${student.questionsSubmitted || 0} submitted`;
     return `
       <article class="leaderboard-row ${student.submitted || cumulativeTotal ? '' : 'is-unsubmitted'}">
@@ -301,6 +323,63 @@ function renderLeaderboard(state) {
       </article>
     `;
   }).join('');
+}
+
+function getFinalLeaderboardMarkup(state = currentState) {
+  const allStudents = state?.leaderboard || [];
+  const students = allStudents.slice(0, 20);
+  const summary = state?.summary || {};
+  const rows = students.length
+    ? students.map((student, index) => {
+        const cumulativeTotal = Number(student.cumulativeTotal || 0);
+        const cumulativeScore = Number(student.cumulativeScore || 0);
+        const percentage = student.cumulativePercentage === null || student.cumulativePercentage === undefined ? null : Number(student.cumulativePercentage);
+        return `
+          <article class="final-leaderboard-row ${cumulativeTotal ? '' : 'is-unsubmitted'}">
+            <span class="rank">${index + 1}</span>
+            <div>
+              <strong>${escapeHTML(student.name)}</strong>
+              <small>${Number(student.questionsSubmitted || 0)} submitted · ${cumulativeTotal ? `${cumulativeScore}/${cumulativeTotal} marks` : 'No score recorded'}</small>
+            </div>
+            <em>${cumulativeTotal ? `${percentage}%` : '—'}</em>
+          </article>
+        `;
+      }).join('')
+    : '<div class="empty-state final-empty-state">No submitted scores were recorded.</div>';
+
+  return `
+    <div class="final-leaderboard-hero">
+      <span>Class average</span>
+      <strong>${summary.totalPossible ? `${summary.classAverage}%` : '—'}</strong>
+      <small>${summary.totalPossible ? `${summary.totalCorrect}/${summary.totalPossible} class marks` : 'No class score yet'}</small>
+    </div>
+    <div class="final-leaderboard-list" aria-label="Final class leaderboard">
+      ${rows}
+    </div>
+    <p class="final-leaderboard-reset-note">Press the × button to reset Teacher Mode and send students back to the join-code page.</p>
+  `;
+}
+
+function showFinalLeaderboard(state = currentState) {
+  if (!els.finalLeaderboardModal || !els.finalLeaderboardContent) return;
+  els.finalLeaderboardContent.innerHTML = getFinalLeaderboardMarkup(state);
+  els.finalLeaderboardModal.hidden = false;
+}
+
+function hideFinalLeaderboard() {
+  if (els.finalLeaderboardModal) els.finalLeaderboardModal.hidden = true;
+}
+
+async function dismissFinalLeaderboard() {
+  if (roomCode) {
+    try {
+      await api('/api/classroom/dismiss', { roomCode });
+    } catch (_error) {
+      // Keep the teacher reset usable even if the local server has already stopped.
+    }
+  }
+  hideFinalLeaderboard();
+  window.location.href = 'teacher-mode.html';
 }
 
 function renderQuestionInfo(state) {
@@ -323,12 +402,18 @@ function renderState(state) {
   currentState = state;
   if (typeof state.questionIndex === 'number') currentQuestionIndex = state.questionIndex;
   if (state.quiz) {
-    if (Number(state.quiz.totalQuestions)) quizSettings.quizLength = Number(state.quiz.totalQuestions);
-    if (Number(state.maxListens)) quizSettings.maxListens = Number(state.maxListens);
+    // Do not let background polling overwrite the teacher's unsaved choices
+    // while the Settings modal is open. This was causing the selected
+    // question count to revert to the previous server value before Save.
+    if (!isEditingQuizSettings) {
+      if (Number(state.quiz.totalQuestions)) quizSettings.quizLength = Number(state.quiz.totalQuestions);
+      if (Number(state.maxListens)) quizSettings.maxListens = Number(state.maxListens);
+    }
     if (state.quiz.started || state.active) quizSettings.saved = true;
   }
 
   renderQuestionInfo(state);
+  if (state.quiz && state.quiz.ended && !state.dismissed) showFinalLeaderboard(state);
   els.closeSubmissionsButton.disabled = !state.question || !state.submissionsOpen;
   updatePrimaryButton(state);
   renderStudents(state.students || []);
@@ -361,7 +446,11 @@ async function createSession() {
   els.createSessionButton.disabled = true;
   setNotice('Creating classroom room…');
   try {
-    const response = await api('/api/classroom/create', {});
+    const response = await api('/api/classroom/create', {
+      moduleId: 'melody-master',
+      frontendBase: window.EchoAuralClassroom.getFrontendBase(),
+      apiBase: window.EchoAuralClassroom.getApiBase()
+    });
     updateSessionCard(response);
     renderState(response.state);
     updateTeacherStatus(response.state);
@@ -429,14 +518,26 @@ async function playExcerpt(options = {}) {
     els.teacherAudio.src = audioPath;
     els.teacherAudio.currentTime = 0;
     els.teacherAudio.onended = null;
+    els.teacherAudio.onpause = null;
     const playback = response.playback || response.state?.playback || {};
     const serverNow = Number(response.state?.serverNow || Date.now());
     const leadInMs = Math.max(0, Number(playback.audioStartAt || 0) - serverNow);
 
+    isTeacherAudioPlaying = true;
+    updatePrimaryButton(response.state);
+    updateTeacherStatus(response.state);
+
     if (leadInMs > 0) await delay(leadInMs);
     await els.teacherAudio.play();
-    updateTeacherStatus(response.state);
+
+    els.teacherAudio.onended = () => {
+      isTeacherAudioPlaying = false;
+      updatePrimaryButton(currentState);
+      updateTeacherStatus(currentState);
+    };
   } catch (error) {
+    isTeacherAudioPlaying = false;
+    updatePrimaryButton(currentState);
     setNotice(error.message || 'Could not play the excerpt. Check that the audio file exists.', 'bad');
   }
 }
@@ -444,10 +545,12 @@ async function playExcerpt(options = {}) {
 async function endQuiz() {
   if (!roomCode) return;
   try {
+    isTeacherAudioPlaying = false;
     els.teacherAudio.pause();
     const response = await api('/api/classroom/end', { roomCode });
     renderState(response.state);
-    setNotice('Quiz ended. The leaderboard remains available for review.', 'good');
+    showFinalLeaderboard(response.state);
+    setNotice('Quiz ended. The final leaderboard is open.', 'good');
   } catch (error) {
     setNotice(error.message || 'Could not end the quiz.', 'bad');
   }
@@ -463,6 +566,7 @@ async function handlePrimaryAction() {
   if (primaryAction === 'settings') return openSettingsModal();
   if (primaryAction === 'start') return startQuiz();
   if (primaryAction === 'play') return playExcerpt({ leadInSeconds: 0 });
+  if (primaryAction === 'playing') return;
   if (primaryAction === 'next') return nextQuestion();
   if (primaryAction === 'finish') return endQuiz();
 }
@@ -484,6 +588,7 @@ els.endQuizButton.addEventListener('click', endQuiz);
 els.copyLinkButton.addEventListener('click', copyJoinLink);
 els.closeSettingsModalButton.addEventListener('click', closeSettingsModal);
 els.saveSettingsButton.addEventListener('click', saveSettings);
+if (els.closeFinalLeaderboardButton) els.closeFinalLeaderboardButton.addEventListener('click', dismissFinalLeaderboard);
 els.quizSettingsModal.addEventListener('click', (event) => {
   if (event.target === els.quizSettingsModal) closeSettingsModal();
 });
@@ -494,6 +599,7 @@ els.quizLengthOptions.addEventListener('click', (event) => {
   const button = event.target.closest('.option-button');
   if (!button) return;
   quizSettings.quizLength = Number(button.dataset.value) || 3;
+  if (!currentState?.quiz?.started && !currentState?.active) quizSettings.saved = false;
   selectOption(els.quizLengthOptions, quizSettings.quizLength);
   updateSettingsSummary();
 });
@@ -501,6 +607,7 @@ els.playLimitOptions.addEventListener('click', (event) => {
   const button = event.target.closest('.option-button');
   if (!button) return;
   quizSettings.maxListens = Number(button.dataset.value) || 4;
+  if (!currentState?.quiz?.started && !currentState?.active) quizSettings.saved = false;
   selectOption(els.playLimitOptions, quizSettings.maxListens);
   updateSettingsSummary();
 });

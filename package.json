@@ -2,10 +2,16 @@
   "name": "echoaural-classroom-mvp",
   "version": "0.2.0",
   "private": true,
-  "description": "EchoAural Melody Master dependency-free laptop-first Teacher Mode MVP",
+  "description": "EchoAural classroom MVP with Instrument Identifier and Melody Master solo/teacher modes",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "classroom": "node server.js"
+    "classroom": "node server.js",
+    "check": "node tools/check-project.js",
+    "generate:mm": "node tools/generate-melody-master-clips.js",
+    "generate:ii": "node tools/generate-clips.js"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

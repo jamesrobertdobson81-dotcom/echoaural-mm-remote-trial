@@ -5135,10 +5135,10 @@ body::after {
 }
 
 /* =========================
-   Melody Master upper-ledger-line support
+   Melody Master ledger-line support
    Requested change only:
-   - Show the first two treble ledger lines above the stave while dragging/placing notes.
-   - Supports A5 and C6 ledger-line positions across all questions.
+   - Show treble ledger lines above and below the stave while dragging/placing notes.
+   - Supports A5/C6 above and C4/A3 below across all questions.
    - Leaves score layout, zoom, checking, note sizing and question data unchanged.
 ========================= */
 
@@ -5795,5 +5795,805 @@ body::after {
 @media (max-width: 780px) {
   .teacher-mode-topbar-link.nav-explore-button.nav-action-button {
     padding-inline: 12px;
+  }
+}
+
+/* =========================
+   Melody Master GCSE-style marking feedback
+   Scope: main Melody Master right feedback panel only.
+   No layout, gameplay, audio, drag/drop or Teacher Mode behaviour changed.
+========================= */
+.mm-gcse-feedback-panel .gcse-mark-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+}
+
+.mm-gcse-feedback-panel .diagnostic-card strong {
+  font-weight: 820;
+}
+
+.gcse-error-list,
+.gcse-error-list-empty {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: rgba(248, 250, 252, .92);
+  text-align: left;
+  font-size: .84rem;
+  line-height: 1.42;
+}
+
+.gcse-error-list {
+  list-style: none;
+  display: grid;
+  gap: .55rem;
+}
+
+.gcse-error-list li {
+  display: grid;
+  gap: .18rem;
+}
+
+.gcse-error-list strong {
+  display: block;
+  color: rgba(186, 230, 253, .96);
+  font-size: .76rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.gcse-error-list span {
+  display: block;
+  color: rgba(226, 232, 240, .82);
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.gcse-error-list-empty {
+  text-align: center;
+  color: rgba(226, 232, 240, .78);
+}
+
+@media (max-width: 980px) {
+  .mm-gcse-feedback-panel .gcse-mark-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   Melody Master GCSE feedback layout cleanup
+   Requested change only:
+   - Remove large score/headline and extra diagnostic tiles from the checked-answer panel.
+   - Keep the three compact mark boxes and one concise feedback tile.
+========================= */
+
+.mm-gcse-feedback-panel {
+  box-sizing: border-box;
+  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
+  gap: 10px;
+  padding: 14px;
+  align-content: start;
+}
+
+.mm-gcse-feedback-panel > .eyebrow {
+  margin-bottom: 0;
+}
+
+.mm-gcse-feedback-panel .gcse-mark-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: .42rem;
+  margin: 0;
+}
+
+.mm-gcse-feedback-panel .diagnostic-metric {
+  min-width: 0;
+  padding: .48rem .48rem;
+  border-radius: 14px;
+}
+
+.mm-gcse-feedback-panel .diagnostic-metric span {
+  font-size: .6rem;
+  letter-spacing: .075em;
+  margin-bottom: .12rem;
+}
+
+.mm-gcse-feedback-panel .diagnostic-metric strong {
+  display: block;
+  font-size: .92rem;
+  line-height: 1.05;
+}
+
+.mm-gcse-feedback-panel .diagnostic-feedback-tile {
+  width: 100%;
+  padding: 10px 11px;
+  border-radius: 15px;
+  border-color: rgba(56, 189, 248, .24);
+  background: linear-gradient(135deg, rgba(14, 116, 144, .18), rgba(15, 23, 42, .44));
+}
+
+.mm-gcse-feedback-panel .diagnostic-feedback-tile span {
+  margin-bottom: 4px;
+  font-size: .66rem;
+  letter-spacing: .1em;
+}
+
+.mm-gcse-feedback-panel .diagnostic-feedback-tile strong {
+  font-size: clamp(.74rem, .9vw, .86rem);
+  line-height: 1.32;
+  font-weight: 760;
+}
+
+@media (max-width: 980px) {
+  .mm-gcse-feedback-panel {
+    height: auto;
+    overflow: visible;
+  }
+
+  .mm-gcse-feedback-panel .gcse-mark-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.answerCard:has(.mm-gcse-feedback-panel) {
+  overflow: hidden;
+}
+
+
+.melody-mode-link-card {
+  color: inherit;
+  text-decoration: none;
+}
+
+.melody-mode-link-card .mode-status.live-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border: 1px solid rgba(56, 189, 248, .42);
+  border-radius: 999px;
+  color: rgba(224, 247, 255, .96);
+  background:
+    linear-gradient(135deg, rgba(56, 189, 248, .22), rgba(168, 85, 247, .13)),
+    rgba(5, 13, 28, .72);
+  box-shadow: 0 0 18px rgba(56, 189, 248, .12);
+  font-size: .64rem;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.mode-card-intervals .mode-icon-svg {
+  stroke: rgba(255, 255, 255, .92);
+}
+
+/* =========================
+   Melody Master main-app quiz settings and mode availability tweak
+   Scope: main Melody Master landing/settings controls only.
+========================= */
+
+.mode-card-devices.is-coming-soon {
+  position: relative;
+  cursor: not-allowed;
+  opacity: .66;
+  filter: saturate(.72);
+}
+
+.mode-card-devices.is-coming-soon input {
+  pointer-events: none;
+}
+
+.mode-card-devices.is-coming-soon .mode-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border: 1px solid rgba(251, 191, 36, .42);
+  border-radius: 999px;
+  color: rgba(255, 244, 214, .96);
+  background:
+    linear-gradient(135deg, rgba(251, 191, 36, .22), rgba(251, 113, 133, .13)),
+    rgba(5, 13, 28, .72);
+  box-shadow: 0 0 18px rgba(251, 191, 36, .12);
+  font-size: .64rem;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.mode-card-devices.is-coming-soon:hover,
+.mode-card-devices.is-coming-soon:focus-within {
+  transform: none;
+  border-color: rgba(255, 255, 255, .12);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .035);
+}
+
+.settings-popover.is-disabled {
+  pointer-events: none;
+  opacity: .62;
+}
+
+.advanced-settings-button:disabled {
+  cursor: not-allowed;
+  opacity: .58;
+  transform: none;
+}
+
+/* =========================
+   Melody Master main-app feedback panel refinement
+   Requested change only:
+   - Replace the GCSE-style text block with two mark boxes plus feedback.
+   - Add a compact round score tracker under the feedback tile.
+   - Keep gameplay, Teacher Mode and quiz flow unchanged.
+========================= */
+
+.mm-main-quiz-feedback-panel {
+  display: grid;
+  align-content: start;
+  justify-items: stretch;
+  gap: 10px;
+  text-align: left;
+}
+
+.mm-main-quiz-feedback-panel .gcse-mark-metrics,
+.mm-main-quiz-feedback-panel .mm-two-mark-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: .5rem;
+  margin: 0;
+}
+
+.mm-main-quiz-feedback-panel .diagnostic-feedback-tile,
+.mm-main-quiz-feedback-panel .mm-round-score-tile {
+  text-align: left;
+}
+
+.mm-main-quiz-feedback-panel .diagnostic-feedback-tile strong {
+  font-size: clamp(.78rem, .95vw, .9rem);
+  line-height: 1.34;
+}
+
+.mm-round-score-tile {
+  border-color: rgba(56, 189, 248, .22);
+  background:
+    radial-gradient(circle at 86% 16%, rgba(56, 189, 248, .15), transparent 36%),
+    linear-gradient(135deg, rgba(15, 23, 42, .54), rgba(2, 6, 23, .34));
+}
+
+.mm-round-score-tile.is-final {
+  border-color: rgba(52, 211, 153, .34);
+  background:
+    radial-gradient(circle at 86% 16%, rgba(52, 211, 153, .16), transparent 36%),
+    linear-gradient(135deg, rgba(20, 83, 45, .22), rgba(15, 23, 42, .44));
+}
+
+.mm-round-score-tile small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(186, 230, 253, .84);
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .035em;
+}
+
+.mm-round-score-tile p {
+  margin: 7px 0 0;
+  color: rgba(226, 232, 240, .82);
+  font-size: .78rem;
+  line-height: 1.35;
+}
+
+.answerCard:has(.mm-main-quiz-feedback-panel) {
+  overflow: hidden;
+}
+
+@media (max-width: 980px) {
+  .mm-main-quiz-feedback-panel .gcse-mark-metrics,
+  .mm-main-quiz-feedback-panel .mm-two-mark-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .answerCard:has(.mm-main-quiz-feedback-panel) {
+    overflow: auto;
+  }
+}
+
+
+/* =========================
+   Melody Master submit / review flow
+   - Reveal Answer appears only after the first submitted answer.
+   - Next/Finish remains available while students adjust notes and check again.
+========================= */
+.quiz-panel.is-active.is-answer-submitted #showAnswerButton,
+.quiz-panel.is-complete.is-answer-submitted #showAnswerButton {
+  display: inline-flex !important;
+}
+
+.quiz-panel.is-active.is-answer-submitted .dictation-toolbar .secondary-button,
+.quiz-panel.is-complete.is-answer-submitted .dictation-toolbar .secondary-button {
+  min-width: clamp(138px, 10.5vw, 168px) !important;
+  min-height: 43px !important;
+  padding: 0 18px !important;
+}
+
+/* =========================
+   Melody Master final round feedback window
+   Requested change only:
+   - Final-question progression becomes See Feedback.
+   - The question score minimises while the RHS Answers card becomes a central round summary.
+   - Finish Quiz lives at the bottom of the central feedback window.
+========================= */
+body.mm-round-review-open {
+  overflow: hidden;
+}
+
+body.mm-round-review-open::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(56, 189, 248, .12), transparent 34%),
+    radial-gradient(circle at 62% 82%, rgba(168, 85, 247, .13), transparent 32%),
+    rgba(2, 7, 19, .68);
+  backdrop-filter: blur(7px);
+}
+
+.app-shell.is-round-feedback-open .info-panel {
+  overflow: visible;
+  z-index: 520;
+  pointer-events: none;
+}
+
+.answerCard.is-round-feedback-window {
+  position: fixed;
+  left: 50%;
+  top: 52%;
+  z-index: 560;
+  width: min(760px, calc(100vw - 44px));
+  max-height: min(78vh, 760px);
+  min-height: 0;
+  overflow: auto !important;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 30px;
+  box-shadow:
+    0 34px 110px rgba(0, 0, 0, .58),
+    0 0 0 1px rgba(56, 189, 248, .20),
+    0 0 56px rgba(56, 189, 248, .16);
+  animation: mmRoundFeedbackZoomIn .42s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.answerCard.is-round-feedback-window .mm-round-review-panel {
+  min-height: 0;
+  height: auto;
+  padding: clamp(18px, 2.2vw, 26px);
+  gap: 12px;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(52, 211, 153, .16), transparent 34%),
+    radial-gradient(circle at 10% 18%, rgba(56, 189, 248, .18), transparent 38%),
+    linear-gradient(145deg, rgba(15, 23, 42, .94), rgba(2, 6, 23, .90));
+}
+
+.mm-round-review-panel .eyebrow {
+  margin: 0;
+  color: rgba(186, 230, 253, .88);
+  text-align: center;
+}
+
+.mm-round-review-hero {
+  width: 100%;
+  padding: clamp(16px, 2vw, 22px);
+  border: 1px solid rgba(56, 189, 248, .24);
+  border-radius: 24px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(56, 189, 248, .18), transparent 42%),
+    linear-gradient(135deg, rgba(14, 116, 144, .18), rgba(15, 23, 42, .50));
+}
+
+.mm-round-review-hero span,
+.mm-round-review-row span,
+.mm-compiled-feedback-tile span {
+  color: rgba(186, 230, 253, .86);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .105em;
+  text-transform: uppercase;
+}
+
+.mm-round-review-hero strong {
+  color: white;
+  font-size: clamp(2.1rem, 5vw, 4.2rem);
+  font-weight: 940;
+  line-height: .95;
+  letter-spacing: -.06em;
+}
+
+.mm-round-review-hero small {
+  color: rgba(226, 232, 240, .82);
+  font-size: .82rem;
+  font-weight: 820;
+}
+
+.mm-round-review-list {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.mm-round-review-row {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: minmax(94px, .8fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, .045);
+}
+
+.mm-round-review-row strong {
+  justify-self: end;
+  color: white;
+  font-size: 1rem;
+  font-weight: 920;
+}
+
+.mm-round-review-row small {
+  grid-column: 1 / -1;
+  color: rgba(226, 232, 240, .78);
+  font-size: .78rem;
+  font-weight: 740;
+  line-height: 1.32;
+}
+
+.mm-final-finish-button {
+  justify-self: center;
+  min-width: min(260px, 100%);
+  margin-top: 4px;
+}
+
+.quiz-panel.is-round-feedback-open.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-round-feedback-open.is-score-expanded .no-drag-workspace {
+  --mm-wide-score-width: min(430px, calc(100vw - 52px));
+  --mm-wide-score-height: clamp(126px, 17vh, 188px);
+  left: 50vw !important;
+  bottom: 50% !important;
+  width: var(--mm-wide-score-width) !important;
+  min-width: var(--mm-wide-score-width) !important;
+  max-width: var(--mm-wide-score-width) !important;
+  height: var(--mm-wide-score-height) !important;
+  min-height: var(--mm-wide-score-height) !important;
+  z-index: 300 !important;
+  opacity: .62;
+  pointer-events: none;
+  transform: translate(-50%, 63%) scale(.92) !important;
+  filter: saturate(.78) brightness(.82);
+}
+
+.quiz-panel.is-round-feedback-open.is-score-expanded .score-shell.no-drag-score-shell,
+.quiz-panel.is-round-feedback-open.is-score-expanded .score-shell,
+.quiz-panel.is-round-feedback-open .score-shell.is-score-expanded {
+  --score-frame-pad: 8px;
+  height: var(--mm-wide-score-height) !important;
+  min-height: var(--mm-wide-score-height) !important;
+  border-color: rgba(56, 189, 248, .32) !important;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, .42),
+    0 0 0 1px rgba(255, 255, 255, .04) inset !important;
+}
+
+.quiz-panel.is-round-feedback-open .score-close-button {
+  display: none !important;
+}
+
+.quiz-panel.is-round-feedback-open .dictation-toolbar,
+.quiz-panel.is-round-feedback-open .dictation-instructions,
+.quiz-panel.is-round-feedback-open #feedback {
+  opacity: .32;
+  pointer-events: none;
+}
+
+@keyframes mmRoundFeedbackZoomIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -44%) scale(.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (max-width: 760px) {
+  .answerCard.is-round-feedback-window {
+    top: 53%;
+    width: calc(100vw - 24px);
+    max-height: 82vh;
+  }
+
+  .mm-round-review-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mm-round-review-row strong {
+    justify-self: start;
+  }
+}
+
+/* =========================
+   Melody Master round feedback window fix
+   Requested change only:
+   - Keep the RHS Answers console content exactly as it was before See Feedback.
+   - Show the final round feedback in a separate central window.
+   - Hide the magnified question/answer PNG behind the feedback window.
+   - Remove the stray circular background artefact from the review overlay.
+========================= */
+body.mm-round-review-open::before {
+  background: rgba(2, 7, 19, .68) !important;
+}
+
+.app-shell.is-round-feedback-open .info-panel {
+  overflow: visible;
+  z-index: 520;
+  pointer-events: auto;
+}
+
+.quiz-panel.is-round-feedback-open .console-orbit,
+.quiz-panel.is-round-feedback-open .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-round-feedback-open .no-drag-workspace,
+.quiz-panel.is-round-feedback-open .score-shell,
+.quiz-panel.is-round-feedback-open .score-image-frame,
+.quiz-panel.is-round-feedback-open .score-image,
+.quiz-panel.is-round-feedback-open .score-overlay {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.mm-round-feedback-overlay {
+  position: fixed;
+  left: 50%;
+  top: 52%;
+  z-index: 560;
+  width: min(760px, calc(100vw - 44px));
+  max-height: min(78vh, 760px);
+  min-height: 0;
+  overflow: auto !important;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 30px;
+  box-shadow:
+    0 34px 110px rgba(0, 0, 0, .58),
+    0 0 0 1px rgba(56, 189, 248, .20),
+    0 0 56px rgba(56, 189, 248, .16);
+  animation: mmRoundFeedbackZoomIn .42s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.mm-round-feedback-overlay .mm-round-review-panel {
+  min-height: 0;
+  height: auto;
+  padding: clamp(18px, 2.2vw, 26px);
+  gap: 12px;
+  border-radius: 30px;
+  background:
+    linear-gradient(145deg, rgba(15, 23, 42, .96), rgba(2, 6, 23, .92));
+}
+
+@media (max-width: 760px) {
+  .mm-round-feedback-overlay {
+    top: 53%;
+    width: calc(100vw - 24px);
+    max-height: 82vh;
+  }
+}
+
+/* =========================
+   Melody Master round feedback visual cleanup
+   Requested change only:
+   - Remove the remaining circular review artefact by resetting decorative pseudo-elements.
+   - Hide the obsolete centre-console status text; feedback now lives in the RHS panel and final round window.
+========================= */
+body.mm-round-review-open::before {
+  inset: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  background: rgba(2, 7, 19, .68) !important;
+  backdrop-filter: blur(7px) !important;
+}
+
+body.mm-round-review-open::after,
+body.mm-round-review-open .app-shell::before,
+body.mm-round-review-open .app-shell::after,
+body.mm-round-review-open .listening-console::before,
+body.mm-round-review-open .listening-console::after,
+body.mm-round-review-open .console-orbit {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+#feedback {
+  display: none !important;
+}
+
+
+/* =========================
+   Melody Master central track information
+   Requested change only:
+   - Display the current composer/track information under the magnified question PNG.
+   - Use the existing Melody Master CSV-generated data in clips.js.
+========================= */
+.score-track-info {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + clamp(58px, 6.4vw, 92px));
+  z-index: 260;
+  width: min(860px, calc(100% - 48px));
+  transform: translateX(-50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 16px 11px;
+  border: 1px solid rgba(56, 189, 248, .28);
+  border-radius: 18px;
+  text-align: center;
+  color: rgba(248, 250, 252, .94);
+  background:
+    radial-gradient(circle at 14% 12%, rgba(56, 189, 248, .14), transparent 36%),
+    linear-gradient(135deg, rgba(15, 23, 42, .84), rgba(2, 6, 23, .74));
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, .26),
+    inset 0 0 0 1px rgba(255, 255, 255, .045);
+  backdrop-filter: blur(14px);
+  pointer-events: none;
+}
+
+.score-track-info-kicker {
+  color: rgba(125, 211, 252, .90);
+  font-size: .66rem;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.score-track-info strong {
+  max-width: 100%;
+  overflow: hidden;
+  color: white;
+  font-size: clamp(.84rem, 1.05vw, 1.02rem);
+  font-weight: 900;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-track-info small {
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(226, 232, 240, .74);
+  font-size: clamp(.68rem, .82vw, .78rem);
+  font-weight: 740;
+  letter-spacing: .01em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quiz-panel.is-active.is-score-expanded .score-track-info,
+.quiz-panel.is-complete.is-score-expanded .score-track-info {
+  display: flex;
+}
+
+.quiz-panel.is-round-feedback-open .score-track-info {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+@media (max-width: 760px) {
+  .score-track-info {
+    top: calc(50% + 54px);
+    width: min(520px, calc(100% - 28px));
+    padding: 8px 12px 9px;
+    border-radius: 15px;
+  }
+
+  .score-track-info strong,
+  .score-track-info small {
+    white-space: normal;
+  }
+}
+
+
+/* =========================
+   Melody Master locked expanded quiz score view
+   Requested change only:
+   - Students cannot close the expanded score tile during a quiz.
+   - The compact background score tile is hidden once quiz mode starts, so the
+     expanded score is the only visible question PNG until final feedback.
+========================= */
+.quiz-panel.is-active .score-close-button,
+.quiz-panel.is-complete .score-close-button,
+.score-shell.is-score-expanded .score-close-button {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete:not(.is-score-expanded) .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active:not(.is-score-expanded) .no-drag-workspace,
+.quiz-panel.is-complete:not(.is-score-expanded) .no-drag-workspace {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* =========================
+   Melody Master lower-stave visibility and track-info spacing fix
+   Requested change only:
+   - Add matching white paper extension below the expanded question PNG so low notes
+     and lower ledger lines remain visible below the stave.
+   - Move the central track information further down so it does not block placing
+     notes under the stave.
+   - Keep gameplay, scoring, quiz flow and Teacher Mode unchanged.
+========================= */
+.score-shell.is-score-expanded .score-image-frame::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -42%;
+  height: 46%;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 0 !important;
+  background: rgba(255, 255, 255, .982);
+  box-shadow: none !important;
+}
+
+.quiz-panel.is-active.is-score-expanded .score-track-info,
+.quiz-panel.is-complete.is-score-expanded .score-track-info {
+  top: calc(50% + clamp(108px, 9.8vw, 154px));
+}
+
+@media (max-width: 760px) {
+  .score-shell.is-score-expanded .score-image-frame::after {
+    bottom: -38%;
+    height: 42%;
+  }
+
+  .quiz-panel.is-active.is-score-expanded .score-track-info,
+  .quiz-panel.is-complete.is-score-expanded .score-track-info {
+    top: calc(50% + 92px);
   }
 }
