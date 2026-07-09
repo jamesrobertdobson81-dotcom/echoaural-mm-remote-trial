@@ -1,4 +1,3 @@
-/j/:room /student/join.html?room=:room 302
 /join /student/join.html 200
 /join/ /student/join.html 200
 /teacher /teacher/index.html 200
