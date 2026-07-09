@@ -10,7 +10,16 @@
   <p>Opening EchoAural student join…</p>
   <script>
     (function () {
-      var target = '/student/join.html' + window.location.search + window.location.hash;
+      var parts = window.location.pathname.split('/').filter(Boolean);
+      var possibleRoom = parts.length >= 2 && (parts[0] === 'join' || parts[0] === 'j') ? parts[1] : '';
+      var params = new URLSearchParams(window.location.search);
+
+      if (possibleRoom && !params.get('room')) {
+        params.set('room', possibleRoom.toUpperCase().replace(/[^A-Z0-9]/g, ''));
+      }
+
+      var query = params.toString();
+      var target = '/student/join.html' + (query ? '?' + query : '') + window.location.hash;
       window.location.replace(target);
     }());
   </script>

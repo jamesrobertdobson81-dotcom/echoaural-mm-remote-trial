@@ -226,11 +226,10 @@ class RoomManager {
     const code = this.makeRoomCode();
     const sharedUrlParams = apiBase ? { classroomApi: apiBase } : {};
 
-    // Reliable short public student link shown on the teacher screen.
-    // This uses the real /join page instead of relying on Cloudflare dynamic redirects.
+    // Short public student link shown on the teacher screen.
     // Final format:
-    // https://echoaural.com/join?room=ABCDE
-    const shortJoinUrl = buildClassroomUrl(baseUrl, '/join', { room: code });
+    // https://echoaural.com/join/ABCDE
+    const shortJoinUrl = buildClassroomUrl(baseUrl, `/join/${code}`);
 
     // Full fallback join link, useful for debugging and non-default API testing.
     const joinUrl = buildClassroomUrl(baseUrl, '/student/join.html', { room: code, ...sharedUrlParams });
