@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Melodic Intervals | Melody Master | EchoAural</title>
+  <link rel="stylesheet" href="../melody-master/style.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="mi-app">
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand refined-logo" href="../melody-master/index.html" aria-label="Back to Melody Master">
+        <span class="brand-wave refined-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+        <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+      </a>
+      <nav class="topbar-actions" aria-label="Melodic Intervals navigation">
+        <a class="topbar-module-chip" href="#gameScreen" aria-label="Melodic Intervals module">
+          <span class="topbar-mm-mark" aria-hidden="true"><span class="topbar-mm-main">M</span><span class="topbar-mm-gradient">I</span></span>
+          <span class="sr-only">Melodic Intervals</span>
+        </a>
+        <a class="topbar-link" href="../melody-master/index.html"><span>Melody Master Suite</span></a>
+        <a class="topbar-link teacher-mode-topbar-link nav-explore-button nav-action-button" href="../../teacher/?module=melodic-intervals"><span>Teacher Mode</span><img src="../../assets/icons/navigation/teacher-mode.svg" alt="" aria-hidden="true" onerror="this.style.display='none'" /></a>
+        <a class="topbar-link topbar-home-link" href="../melody-master/index.html"><span class="back-label">Back to</span><span class="mini-wordmark" aria-hidden="true"><span class="mini-wordmark-echo">Melody</span><span class="mini-wordmark-aural">Master</span></span></a>
+      </nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel" id="homeScreen">
+        <div class="panel-section-heading"><span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2><span>Settings</span></h2></div>
+        <div class="panel-hero mm-panel-hero mi-panel-hero">
+          <p class="eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+          <div class="mm-hero-lockup mi-hero-lockup-clean">
+            <span class="mm-title-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+            <h1 class="sr-only">Melodic Intervals</h1>
+          </div>
+          <p class="mm-panel-intro">Hear two piano notes, read them on the stave, then identify or build the interval.</p>
+        </div>
+
+        <h2>Interval Mode</h2>
+        <div class="cardGrid melody-mode-grid mi-mode-grid" aria-label="Choose interval mode">
+          <label class="quizCard mode-card-dictation">
+            <input type="radio" name="quizMode" value="recognition" checked />
+            <span class="mode-icon-shell" aria-hidden="true"><svg class="mode-icon-svg" viewBox="0 0 64 64"><path d="M10 18h44M10 28h44M10 38h44M10 48h44"/><circle cx="24" cy="38" r="4"/><circle cx="42" cy="18" r="4"/><path d="M28 38l14-20"/></svg></span>
+            <span class="mode-copy"><span class="modeBadge">Interval Recognition</span><small>Two notes shown. Name the interval.</small></span>
+          </label>
+          <label class="quizCard mode-card-devices">
+            <input type="radio" name="quizMode" value="construction" />
+            <span class="mode-icon-shell" aria-hidden="true"><svg class="mode-icon-svg" viewBox="0 0 64 64"><path d="M10 18h44M10 28h44M10 38h44M10 48h44"/><circle cx="22" cy="38" r="4"/><path d="M44 14v28"/><path d="M36 22l8-8 8 8"/></svg></span>
+            <span class="mode-copy"><span class="modeBadge">Hear & Build</span><small>First note shown. Drag the second note.</small></span>
+          </label>
+        </div>
+
+        <div class="settings-popover-wrap">
+          <div id="advancedSettings" class="advancedSettings settings-popover" style="display:none;" aria-hidden="true">
+            <div class="settings-popover-header"><p class="eyebrow">CUSTOMISE ROUND</p><h3>Settings</h3></div>
+            <h3>Questions per round</h3>
+            <div class="pillRow" aria-label="Number of questions per interval round">
+              <label class="pill"><input type="radio" name="questionCount" value="3" checked />3</label>
+              <label class="pill"><input type="radio" name="questionCount" value="5" />5</label>
+              <label class="pill"><input type="radio" name="questionCount" value="10" />10</label>
+            </div>
+            <h3>Intervals</h3>
+            <div class="pillRow" aria-label="Interval set">
+              <label class="pill"><input type="radio" name="intervalSet" value="basic" checked />2nds–5ths</label>
+              <label class="pill"><input type="radio" name="intervalSet" value="octaves" />+ Octaves</label>
+            </div>
+          </div>
+          <button id="settingsToggle" class="secondary-button advanced-settings-button" type="button" aria-controls="advancedSettings" aria-expanded="false">Settings</button>
+        </div>
+        <p id="setupMessage" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel quiz-panel is-ready" id="gameScreen">
+        <div class="panel-section-heading panel-section-heading-centre"><span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2><span>Intervals</span></h2></div>
+        <div class="quiz-header"><p id="roundText">Ready</p><div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div></div>
+        <div class="statsRow" aria-label="Question statistics"><p id="scoreText">Score: 0 / 0</p><p id="streakText">Treble clef</p><p id="xpText">Ascending</p></div>
+
+        <div class="listening-console dictation-console mi-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+          <div class="console-question-kicker"><p class="eyebrow active-only">LISTENING QUESTION</p></div>
+          <div class="listening-visual mm-ready-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="console-heading"><h1 class="sr-only">Identify the interval</h1><p id="questionText">Choose a mode, then start the round.</p></div>
+
+          <div class="mi-stave-card" id="staveCard" aria-label="Interval stave">
+            <div class="mi-stave-stage" id="staveStage"></div>
+            <p class="mi-note-hint" id="noteHint">The notes will appear here.</p>
+          </div>
+
+          <div id="answers" class="answer-grid mi-answer-grid"></div>
+          <p id="feedback" role="status" aria-live="polite"></p>
+          <div class="console-actions console-actions-replay">
+            <button id="startButton" class="primary-button" type="button">Start Quiz</button>
+            <button id="playButton" class="play-button" type="button" disabled>Play Interval</button>
+            <button id="checkAnswerButton" class="primary-button" type="button" disabled>Check Answer</button>
+            <button id="restartButton" class="secondary-button" type="button">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="panel-section-heading"><span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2><span>Answer</span></h2></div>
+        <div id="answerCard" class="answerCard" aria-live="polite">
+          <div class="answerCard-empty"><div class="answer-empty-brand" aria-hidden="true"><span class="answer-empty-wave"><span></span><span></span><span></span></span></div><p>Start a quiz to practise interval recognition.</p></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <audio id="intervalAudio" preload="auto"></audio>
+  <script src="interval-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

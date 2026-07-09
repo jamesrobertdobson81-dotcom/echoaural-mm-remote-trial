@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Melodic Intervals Classroom Student | EchoAural</title>
+  <link rel="stylesheet" href="/modules/melody-master/style.css" />
+  <link rel="stylesheet" href="/modules/melodic-intervals/style.css" />
+  <link rel="stylesheet" href="/modules/melodic-intervals/student-classroom.css" />
+</head>
+<body class="mi-app mi-classroom-student">
+  <div class="app-shell classroom-app-shell" id="classroomAppShell">
+    <header class="topbar">
+      <a class="brand refined-logo" href="/index.html" aria-label="Back to EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+        <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+      </a>
+      <nav class="topbar-actions" aria-label="Melodic Intervals classroom navigation">
+        <a class="topbar-module-chip" href="#gameScreen" aria-label="Melodic Intervals module">
+          <span class="topbar-module-icon" aria-hidden="true"><img src="/assets/icons/modules/melodic-intervals.svg" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-topbar-icon');" /></span>
+          <span class="topbar-mm-mark" aria-hidden="true"><span class="topbar-mm-main">M</span><span class="topbar-mm-gradient">I</span></span>
+          <span class="sr-only">Melodic Intervals</span>
+        </a>
+        <span class="topbar-link mi-classroom-room-chip">Room <strong id="classroomTopbarCode">—</strong></span>
+      </nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel" id="homeScreen">
+        <div class="panel-section-heading"><span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2><span>Live Class</span></h2></div>
+        <div class="panel-hero mm-panel-hero mi-panel-hero">
+          <p class="eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+          <div class="mm-hero-lockup">
+            <span class="mm-hero-icon" aria-hidden="true"><img src="/assets/icons/modules/melodic-intervals.svg" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-mm-icon');" /></span>
+            <div class="mm-title-lockup" aria-hidden="true"><span class="mm-title-wave"><span></span><span></span><span></span><span></span><span></span></span><span class="mm-title-text"><span class="mm-title-main">Melodic</span><span class="mm-title-gradient">Intervals</span></span></div>
+          </div>
+          <p class="mm-panel-intro" id="classroomStudentLine">You are connected to the live interval quiz.</p>
+        </div>
+        <div class="mi-classroom-info-stack">
+          <div class="mi-classroom-info-tile"><span>Room</span><strong id="classroomSideCode">—</strong></div>
+          <div class="mi-classroom-info-tile"><span>Student</span><strong id="classroomStudentName">—</strong></div>
+          <div class="mi-classroom-info-tile"><span>Status</span><strong id="classroomConnectionStatus">Waiting</strong></div>
+        </div>
+      </section>
+
+      <section class="panel quiz-panel is-ready" id="gameScreen">
+        <div class="panel-section-heading panel-section-heading-centre"><span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2><span>Intervals</span></h2></div>
+        <div class="quiz-header"><p id="roundText">Waiting for teacher</p><div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div></div>
+        <div class="statsRow" aria-label="Round statistics"><p id="scoreText">Score: 0 / 0</p><p id="streakText">Submitted: 0</p><p id="xpText">Accuracy: —</p></div>
+        <div class="listening-console dictation-console mi-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+          <div class="console-ready-brand mm-console-start-brand" aria-hidden="true"><div class="console-mm-combined-lockup"><span class="console-mm-icon"><img src="/assets/icons/modules/melodic-intervals.svg" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-console-icon');" /></span><span class="console-title-text"><span class="console-title-main">Melodic</span><span class="console-title-gradient">Intervals</span></span></div></div>
+          <div class="console-question-kicker"><p class="eyebrow active-only">LISTENING QUESTION</p></div>
+          <div class="listening-visual mm-ready-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="console-heading"><h1 class="sr-only">Identify the interval</h1><p id="questionText">Waiting for your teacher to start the quiz.</p></div>
+          <div class="mi-stave-card" id="staveCard" aria-label="Interval stave"><div class="mi-stave-stage" id="staveStage"></div><p class="mi-note-hint" id="noteHint">The notes will appear here.</p></div>
+          <div id="answers" class="answer-grid mi-answer-grid"></div>
+          <p id="feedback" role="status" aria-live="polite"></p>
+          <div class="console-actions console-actions-replay mi-classroom-submit-actions">
+            <button id="manualPlayButton" class="play-button" type="button" disabled>Play on this computer</button>
+            <button id="classroomSubmitButton" class="primary-button mi-classroom-submit-button" type="button" disabled>Submit answer</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="panel-section-heading"><span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2><span>Answer</span></h2></div>
+        <div id="answerCard" class="answerCard" aria-live="polite"></div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="mi-round-feedback-overlay" id="roundFeedbackOverlay" hidden>
+    <div class="mi-round-feedback-card">
+      <span class="classroom-status-pill">Round feedback</span>
+      <div id="roundFeedbackContent"></div>
+    </div>
+  </div>
+
+  <audio id="studentAudio" preload="auto"></audio>
+  <script src="/modules/melodic-intervals/interval-data.js"></script>
+  <script src="/shared/js/classroom-client.js"></script>
+  <script src="/modules/melodic-intervals/student-classroom.js"></script>
+</body>
+</html>

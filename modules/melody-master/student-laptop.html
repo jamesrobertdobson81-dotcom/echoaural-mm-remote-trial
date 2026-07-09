@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Melody Master Classroom Student | EchoAural</title>
+  <base href="/modules/melody-master/" />
+
+  <link rel="stylesheet" href="/modules/melody-master/style.css" />
+  <link rel="stylesheet" href="/modules/melody-master/student-laptop-classroom.css" />
+</head>
+
+<body class="classroom-student classroom-phase-join">
+
+  <section id="classroomGate" class="classroom-gate" aria-live="polite">
+    <div class="classroom-bg-orb classroom-bg-orb-a" aria-hidden="true"></div>
+    <div class="classroom-bg-orb classroom-bg-orb-b" aria-hidden="true"></div>
+
+    <div class="classroom-card classroom-join-card" id="classroomJoinCard">
+      <div class="classroom-brand-lockup" aria-hidden="true">
+        <span class="classroom-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+        <strong><span>Echo</span><em>Aural</em></strong>
+      </div>
+      <p class="eyebrow">MELODY MASTER CLASSROOM</p>
+      <h1>Join the live dictation</h1>
+      <p class="classroom-muted">Enter your name and the join code shown on the teacher screen.</p>
+
+      <form id="classroomJoinForm" class="classroom-join-form">
+        <label>
+          <span>Your name</span>
+          <input id="classroomNameInput" type="text" autocomplete="name" placeholder="e.g. James" required />
+        </label>
+        <label>
+          <span>Join code</span>
+          <input id="classroomCodeInput" type="text" inputmode="text" autocomplete="off" placeholder="ABCDE" maxlength="8" required />
+        </label>
+        <button class="primary-button classroom-join-button" type="submit">Join session</button>
+      </form>
+      <p id="classroomJoinMessage" class="classroom-message" role="status"></p>
+    </div>
+
+    <div class="classroom-card classroom-wait-card" id="classroomWaitCard" hidden>
+      <div class="classroom-brand-lockup classroom-brand-centred" aria-hidden="true">
+        <span class="classroom-wave classroom-wave-large"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+        <strong><span>Echo</span><em>Aural</em></strong>
+      </div>
+      <p class="eyebrow">ROOM <span id="classroomWaitingCode">—</span></p>
+      <h1>Waiting...</h1>
+      <p id="classroomWaitingMessage" class="classroom-muted">You are in. The Melody Master screen will appear when your teacher presses Play.</p>
+      <button id="classroomEnableAudioButton" class="primary-button classroom-audio-button" type="button">Enable audio for remote play</button>
+      <p id="classroomAudioStatus" class="classroom-audio-status">Click once so your computer is allowed to play the excerpt when your teacher presses Play.</p>
+    </div>
+  </section>
+
+  <div class="app-shell classroom-app-shell" id="classroomAppShell" aria-hidden="true">
+    <header class="topbar">
+      <a class="brand refined-logo" href="../../index.html" aria-label="Back to EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+
+        <strong class="wordmark">
+          <span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span>
+        </strong>
+      </a>
+
+      <nav class="topbar-actions" aria-label="Melody Master navigation">
+        <a class="topbar-module-chip" href="#gameScreen" aria-label="Melody Master module">
+          <span class="topbar-module-icon" aria-hidden="true">
+            <img
+              src="../../assets/icons/modules/melody-master.svg"
+              alt=""
+              onerror="this.style.display='none'; this.parentElement.classList.add('missing-topbar-icon');"
+            />
+          </span>
+          <span class="topbar-mm-mark" aria-hidden="true">
+            <span class="topbar-mm-main">M</span><span class="topbar-mm-gradient">M</span>
+          </span>
+          <span class="sr-only">Melody Master</span>
+        </a>
+
+        <a class="topbar-link teacher-mode-topbar-link nav-explore-button nav-action-button" href="teacher-mode.html" aria-label="Open Melody Master Teacher Mode">
+          <span>Teacher Mode</span>
+          <img
+            src="../../assets/icons/navigation/teacher-mode.svg"
+            alt=""
+            aria-hidden="true"
+            onerror="this.style.display='none'"
+          />
+        </a>
+
+        <a class="topbar-link topbar-home-link" href="../../index.html" aria-label="Back to EchoAural home">
+          <span class="back-label">Back to</span>
+          <span class="mini-wordmark" aria-hidden="true">
+            <span class="mini-wordmark-echo">Echo</span><span class="mini-wordmark-aural">Aural</span>
+          </span>
+          <span class="sr-only">EchoAural home</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel" id="homeScreen">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Settings</span></h2>
+        </div>
+
+        <div class="panel-hero mm-panel-hero">
+          <p class="eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+
+          <div class="mm-hero-lockup">
+            <span class="mm-hero-icon" aria-hidden="true">
+              <img
+                src="../../assets/icons/modules/melody-master.svg"
+                alt=""
+                onerror="this.style.display='none'; this.parentElement.classList.add('missing-mm-icon');"
+              />
+            </span>
+
+            <div class="mm-title-lockup" aria-hidden="true">
+              <span class="mm-title-wave">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+
+              <span class="mm-title-text">
+                <span class="mm-title-main">Melody</span>
+                <span class="mm-title-gradient">Master</span>
+              </span>
+            </div>
+
+            <h1 class="sr-only">Melody Master</h1>
+          </div>
+
+          <p class="mm-panel-intro">
+            Complete the missing melody, then reveal the model answer.
+          </p>
+        </div>
+
+        <h2>Melody Mode</h2>
+
+        <div class="cardGrid melody-mode-grid" aria-label="Choose melody mode">
+          <label class="quizCard mode-card-devices">
+            <input type="radio" name="quizMode" value="devices" />
+            <span class="mode-icon-shell" aria-hidden="true">
+              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
+                <path d="M12 42c8-16 16-16 24 0s16 16 24 0" />
+                <path d="M12 26c8-16 16-16 24 0s16 16 24 0" />
+                <circle cx="16" cy="48" r="3" />
+                <circle cx="32" cy="36" r="3" />
+                <circle cx="48" cy="48" r="3" />
+              </svg>
+            </span>
+            <span class="mode-copy">
+              <span class="modeBadge">Melodic Devices</span>
+              <small>Sequence, repetition and contour</small>
+            </span>
+          </label>
+
+          <label class="quizCard mode-card-dictation">
+            <input type="radio" name="quizMode" value="dictation" checked />
+            <span class="mode-icon-shell" aria-hidden="true">
+              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
+                <path d="M10 18h44" />
+                <path d="M10 28h44" />
+                <path d="M10 38h44" />
+                <path d="M10 48h44" />
+                <circle cx="22" cy="28" r="4" />
+                <circle cx="34" cy="18" r="4" />
+                <circle cx="46" cy="38" r="4" />
+                <path d="M26 28l8-10 12 20" />
+              </svg>
+            </span>
+            <span class="mode-copy">
+              <span class="modeBadge">Melodic Dictation</span>
+              <small>Listen and compare with the model answer</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="settings-popover-wrap">
+          <div
+            id="advancedSettings"
+            class="advancedSettings settings-popover"
+            style="display: none;"
+            aria-hidden="true"
+          >
+            <div class="settings-popover-header">
+              <p class="eyebrow">CUSTOMISE ROUND</p>
+              <h3>Advanced Settings</h3>
+            </div>
+
+            <h3>Questions</h3>
+            <div class="pillRow" aria-label="Number of questions">
+              <label class="pill"><input type="radio" name="questionCount" value="5" />5</label>
+              <label class="pill"><input type="radio" name="questionCount" value="10" checked />10</label>
+              <label class="pill"><input type="radio" name="questionCount" value="20" />20</label>
+              <label class="pill"><input type="radio" name="questionCount" value="50" />50</label>
+              <label class="pill"><input type="radio" name="questionCount" value="unlimited" />∞</label>
+            </div>
+
+            <h3>Difficulty</h3>
+            <div class="pillRow" aria-label="Difficulty filter">
+              <label class="pill"><input type="radio" name="difficultyFilter" value="all" checked />Mixed</label>
+              <label class="pill"><input type="radio" name="difficultyFilter" value="easy" />Easy</label>
+              <label class="pill"><input type="radio" name="difficultyFilter" value="medium" />Medium</label>
+              <label class="pill"><input type="radio" name="difficultyFilter" value="hard" />Hard</label>
+            </div>
+          </div>
+
+          <button
+            id="settingsToggle"
+            class="secondary-button advanced-settings-button"
+            type="button"
+            aria-controls="advancedSettings"
+            aria-expanded="false"
+          >
+            Advanced Settings
+          </button>
+        </div>
+
+        <p id="setupMessage" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel quiz-panel is-ready" id="gameScreen">
+        <div class="panel-section-heading panel-section-heading-centre">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Dictation</span></h2>
+        </div>
+
+        <div class="quiz-header">
+          <p id="roundText">MM001 Ready</p>
+          <div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div>
+        </div>
+
+        <div class="statsRow" aria-label="Question statistics">
+          <p id="scoreText">Score: 0 / 6</p>
+          <p id="streakText">Pitch snap</p>
+          <p id="xpText">6 semiquavers</p>
+        </div>
+
+        <div class="listening-console dictation-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+
+          <div class="console-ready-brand mm-console-start-brand" aria-hidden="true">
+            <div class="console-mm-combined-lockup">
+              <span class="console-mm-icon">
+                <img
+                  src="../../assets/icons/modules/melody-master.svg"
+                  alt=""
+                  onerror="this.style.display='none'; this.parentElement.classList.add('missing-console-icon');"
+                />
+              </span>
+
+              <span class="console-title-text">
+                <span class="console-title-main">Melody</span>
+                <span class="console-title-gradient">Master</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="listening-visual mm-ready-wave" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <div class="listening-cues mm-ready-cues" aria-label="Melody Master focus areas">
+            <span>Pitch</span>
+            <span>Contour</span>
+            <span>Dictation</span>
+          </div>
+
+          <div class="console-question-kicker">
+            <p class="eyebrow active-only">MELODIC DICTATION</p>
+          </div>
+
+          <div class="console-heading dictation-heading">
+            <h1 class="sr-only">Complete the missing melody</h1>
+            <p id="questionText">Complete the melody.</p>
+          </div>
+
+          <div class="dictation-toolbar" aria-label="Melody Master controls">
+            <button id="startButton" class="primary-button centre-start" type="button">Start Quiz</button>
+            <button id="playButton" class="play-button" type="button" style="display: none;">Play Excerpt</button>
+            <button id="checkAnswerButton" class="primary-button" type="button" disabled>Check your answers</button>
+            <button id="classroomSubmitButton" class="primary-button classroom-submit-button" type="button" disabled>Submit your answers</button>
+            <button id="classroomRevealButton" class="secondary-button compact-action classroom-reveal-button" type="button" hidden>Reveal Answer</button>
+            <button id="showAnswerButton" class="secondary-button compact-action" type="button" style="display: none;" aria-hidden="true" tabindex="-1">Show Answer</button>
+            <button id="restartButton" class="secondary-button compact-action" type="button">Reset</button>
+          </div>
+
+          <div class="dictation-instructions" aria-live="polite">
+            <span>PLAY &amp; LISTEN</span>
+            <span>DRAG THE NOTES</span>
+            <span>SUBMIT TO TEACHER</span>
+          </div>
+
+          <div id="answers" class="dictation-workspace no-drag-workspace">
+            <div class="score-shell no-drag-score-shell" id="scoreShell">
+              <button
+                id="scoreCloseButton"
+                class="score-close-button"
+                type="button"
+                aria-label="Close expanded score"
+                title="Close score"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+              <div class="score-image-frame">
+                <img id="scoreImage" class="score-image" src="questions/MM001/MM001-question.png" alt="MM001 question score with six missing notes" />
+                <div class="score-overlay" id="scoreOverlay" aria-label="Drag the semiquaver notes onto the stave"></div>
+              </div>
+              <div id="scoreTrackInfo" class="score-track-info" aria-live="polite" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <p id="feedback" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Answers</span></h2>
+        </div>
+
+        <div id="answerCard" class="answerCard" aria-live="polite">
+          <div class="answerCard-empty mm-source-panel">
+            <div class="answer-empty-brand" aria-hidden="true">
+              <span class="answer-empty-icon">
+                <img
+                  src="../../assets/icons/modules/melody-master.svg"
+                  alt=""
+                  onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
+                />
+              </span>
+              <span class="answer-empty-wave">
+                <span></span><span></span><span></span><span></span><span></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="classroomRoundFeedbackOverlay" class="classroom-round-feedback-overlay" hidden aria-live="polite">
+    <section class="classroom-round-feedback-card mm-round-review-panel" role="dialog" aria-modal="true" aria-labelledby="classroomRoundFeedbackTitle">
+      <p class="eyebrow">MELODY MASTER CLASSROOM</p>
+      <h2 id="classroomRoundFeedbackTitle">Your round feedback</h2>
+      <div id="classroomRoundFeedbackContent" class="classroom-round-feedback-content"></div>
+      <p class="classroom-round-feedback-note">Wait for your teacher to give the next join code.</p>
+    </section>
+  </div>
+
+  <script>window.MELODY_MASTER_CLASSROOM_MODE = true;</script>
+  <script src="/modules/melody-master/clips.js"></script>
+  <script src="/modules/melody-master/script.js"></script>
+  <script src="/shared/js/classroom-client.js"></script>
+  <script src="/modules/melody-master/student-laptop.js"></script>
+</body>
+</html>

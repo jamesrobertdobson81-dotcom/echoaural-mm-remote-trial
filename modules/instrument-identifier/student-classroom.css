@@ -1,0 +1,535 @@
+body.ii-classroom-student {
+  min-height: 100svh;
+}
+
+body.ii-classroom-phase-join #classroomWaitCard,
+body.ii-classroom-phase-waiting #classroomJoinCard,
+body.ii-classroom-phase-active .ii-classroom-gate {
+  display: none;
+}
+
+body.ii-classroom-phase-join .ii-classroom-app-shell,
+body.ii-classroom-phase-waiting .ii-classroom-app-shell {
+  display: none;
+}
+
+.ii-classroom-gate {
+  width: min(760px, calc(100% - 28px));
+  min-height: 100svh;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 28px 0;
+  position: relative;
+  z-index: 5;
+}
+
+.ii-classroom-bg-orb {
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 999px;
+  filter: blur(.2px);
+}
+
+.ii-classroom-bg-orb-a {
+  width: min(540px, 58vw);
+  height: min(540px, 58vw);
+  left: -220px;
+  top: 9vh;
+  border: 1px solid rgba(56, 189, 248, .12);
+  box-shadow: 0 0 0 70px rgba(56, 189, 248, .026), 0 0 90px rgba(56, 189, 248, .08);
+}
+
+.ii-classroom-bg-orb-b {
+  width: min(620px, 62vw);
+  height: min(620px, 62vw);
+  right: -270px;
+  bottom: -220px;
+  border: 1px solid rgba(139, 92, 246, .16);
+  box-shadow: 0 0 0 80px rgba(139, 92, 246, .034), 0 0 120px rgba(251, 113, 133, .08);
+}
+
+.ii-classroom-card {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 88% 10%, rgba(56, 189, 248, .18), transparent 38%),
+    radial-gradient(circle at 8% 96%, rgba(251, 113, 133, .12), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .045));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .32);
+  backdrop-filter: blur(18px);
+  padding: clamp(26px, 5vw, 46px);
+}
+
+.ii-classroom-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 24px;
+}
+
+.ii-classroom-brand-lockup strong {
+  font-size: 1.42rem;
+  font-weight: 950;
+  letter-spacing: -.045em;
+}
+
+.ii-classroom-brand-centred {
+  justify-content: center;
+  width: 100%;
+}
+
+.ii-classroom-wave-large {
+  width: 54px;
+  height: 40px;
+}
+
+.ii-classroom-brand-lockup em {
+  font-style: normal;
+  background: var(--ea-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ii-classroom-wave {
+  width: 46px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ii-classroom-wave span {
+  display: block;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--ea-gradient);
+}
+
+.ii-classroom-wave span:nth-child(1) { height: 12px; }
+.ii-classroom-wave span:nth-child(2) { height: 22px; }
+.ii-classroom-wave span:nth-child(3) { height: 30px; }
+.ii-classroom-wave span:nth-child(4) { height: 18px; }
+.ii-classroom-wave span:nth-child(5) { height: 28px; }
+.ii-classroom-wave span:nth-child(6) { height: 16px; }
+.ii-classroom-wave span:nth-child(7) { height: 24px; }
+
+.ii-classroom-card h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2.65rem, 7vw, 5rem);
+  line-height: .88;
+  letter-spacing: -.08em;
+}
+
+.ii-classroom-muted,
+.ii-classroom-message,
+.ii-classroom-audio-status {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.ii-classroom-join-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.ii-classroom-join-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted-strong);
+  font-weight: 850;
+}
+
+.ii-classroom-join-form input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 18px;
+  background: rgba(2, 8, 23, .54);
+  color: var(--text);
+  padding: 16px 18px;
+  outline: none;
+  font-weight: 850;
+}
+
+.ii-classroom-join-form input:focus {
+  border-color: rgba(56, 189, 248, .55);
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, .10);
+}
+
+.ii-classroom-join-button {
+  margin-top: 4px;
+}
+
+.ii-classroom-message {
+  min-height: 24px;
+  margin: 16px 0 0;
+  font-weight: 800;
+}
+
+.ii-classroom-message.is-good,
+.ii-classroom-audio-status.is-good {
+  color: var(--green);
+}
+
+.ii-classroom-message.is-bad,
+.ii-classroom-audio-status.is-bad {
+  color: var(--red);
+}
+
+.ii-classroom-app-shell {
+  min-height: 100svh;
+}
+
+.ii-classroom-room-chip {
+  cursor: default;
+}
+
+.ii-classroom-room-chip strong {
+  color: var(--text);
+  letter-spacing: .08em;
+}
+
+.ii-classroom-live-hero {
+  margin-bottom: 18px;
+}
+
+.ii-classroom-info-stack {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.ii-classroom-info-tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 17px;
+  border: 1px solid rgba(255, 255, 255, .11);
+  background: rgba(3, 9, 21, .30);
+}
+
+.ii-classroom-info-tile span {
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.ii-classroom-info-tile strong {
+  text-align: right;
+  font-weight: 950;
+  color: var(--text);
+}
+
+.ii-classroom-audio-button {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.ii-classroom-audio-button.is-enabled {
+  opacity: .84;
+}
+
+.ii-classroom-audio-status {
+  min-height: 48px;
+  margin: 12px 0 0;
+  font-weight: 760;
+}
+
+.ii-classroom-submit-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 0;
+}
+
+.ii-classroom-submit-button {
+  min-width: 180px;
+}
+
+/* Keep the centre console vertical rhythm aligned with the main Instrument Identifier app. */
+.ii-classroom-student .ii-classroom-start-spacer {
+  min-height: 0;
+}
+
+.ii-classroom-student .console-heading p {
+  min-height: 0;
+}
+
+.ii-classroom-student .answer-option.is-selected {
+  border-color: rgba(56, 189, 248, .76);
+  background:
+    radial-gradient(circle at 30% 18%, rgba(56, 189, 248, .20), transparent 45%),
+    rgba(255, 255, 255, .105);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, .10), 0 18px 42px rgba(56, 189, 248, .08);
+}
+
+.ii-classroom-student .answer-option.is-submitted:not(.correct):not(.wrong) {
+  opacity: .56;
+}
+
+.ii-classroom-student .answer-option.correct,
+.ii-classroom-student .answer-option.wrong {
+  opacity: 1;
+}
+
+.ii-classroom-waiting-state .console-ready-brand {
+  opacity: 1;
+}
+
+.ii-classroom-active-state .console-ready-brand {
+  opacity: .14;
+}
+
+.ii-classroom-student audio {
+  position: fixed;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 920px) {
+  .ii-classroom-submit-actions {
+    display: grid;
+  }
+
+  .ii-classroom-submit-button,
+  .ii-classroom-submit-actions .play-button {
+    width: 100%;
+  }
+}
+
+/* =========================
+   Classroom student final round feedback pop-out
+   Matches the Melody Master classroom feedback behaviour.
+========================= */
+.classroom-round-feedback-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(56, 189, 248, .18), transparent 34%),
+    rgba(2, 8, 19, .76);
+  backdrop-filter: blur(16px);
+}
+
+.classroom-round-feedback-overlay[hidden] {
+  display: none !important;
+}
+
+.classroom-round-feedback-card {
+  width: min(760px, calc(100vw - 34px));
+  max-height: min(82vh, 760px);
+  overflow: auto;
+  border: 1px solid rgba(56, 189, 248, .22);
+  border-radius: 30px;
+  padding: clamp(18px, 2.2vw, 26px);
+  color: rgba(248, 250, 252, .96);
+  background:
+    radial-gradient(circle at 88% 8%, rgba(56, 189, 248, .16), transparent 34%),
+    radial-gradient(circle at 8% 92%, rgba(251, 113, 133, .12), transparent 38%),
+    linear-gradient(145deg, rgba(15, 23, 42, .97), rgba(2, 6, 23, .94));
+  box-shadow:
+    0 34px 110px rgba(0, 0, 0, .58),
+    0 0 0 1px rgba(56, 189, 248, .16),
+    0 0 56px rgba(56, 189, 248, .15);
+  animation: classroomRoundFeedbackIn .38s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.classroom-round-feedback-card h2 {
+  margin: 8px 0 16px;
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+  line-height: 1.04;
+  letter-spacing: -.055em;
+}
+
+.classroom-round-feedback-content {
+  display: grid;
+  gap: 12px;
+}
+
+.classroom-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border: 1px solid rgba(56, 189, 248, .26);
+  border-radius: 999px;
+  padding: 7px 11px;
+  color: rgba(186, 230, 253, .96);
+  background: rgba(56, 189, 248, .10);
+  font-size: .72rem;
+  font-weight: 950;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+}
+
+.mm-round-review-hero {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 24px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, .18), transparent 55%),
+    rgba(255, 255, 255, .055);
+}
+
+.mm-round-review-hero span,
+.mm-round-review-row span,
+.diagnostic-card span,
+.diagnostic-metric span {
+  color: rgba(226, 232, 240, .70);
+  font-size: .72rem;
+  font-weight: 950;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+}
+
+.mm-round-review-hero strong {
+  font-size: clamp(3.2rem, 8vw, 5rem);
+  line-height: .94;
+  letter-spacing: -.07em;
+}
+
+.mm-round-review-hero small,
+.mm-round-review-row small {
+  color: rgba(226, 232, 240, .74);
+  line-height: 1.35;
+}
+
+.diagnostic-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.diagnostic-metric,
+.diagnostic-card,
+.mm-round-review-row {
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 20px;
+  padding: 14px;
+  background: rgba(255, 255, 255, .055);
+}
+
+.diagnostic-metric {
+  display: grid;
+  gap: 5px;
+}
+
+.diagnostic-metric strong {
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  line-height: 1;
+}
+
+.diagnostic-metric.is-secure {
+  border-color: rgba(34, 197, 94, .28);
+  background: rgba(34, 197, 94, .08);
+}
+
+.diagnostic-metric.is-focus {
+  border-color: rgba(251, 191, 36, .25);
+  background: rgba(251, 191, 36, .075);
+}
+
+.diagnostic-card {
+  display: grid;
+  gap: 7px;
+}
+
+.diagnostic-card strong {
+  font-size: clamp(.92rem, 1.5vw, 1.08rem);
+  line-height: 1.38;
+}
+
+.mm-round-review-list {
+  display: grid;
+  gap: 10px;
+  max-height: min(32vh, 300px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.mm-round-review-row {
+  display: grid;
+  grid-template-columns: minmax(92px, .9fr) minmax(70px, auto) minmax(0, 1.8fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.mm-round-review-row strong {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.mm-round-review-row.is-correct {
+  border-color: rgba(34, 197, 94, .24);
+}
+
+.mm-round-review-row.is-focus {
+  border-color: rgba(251, 113, 133, .24);
+}
+
+.classroom-round-summary-panel {
+  gap: 16px;
+}
+
+.classroom-round-summary-panel .mm-round-review-hero {
+  width: 100%;
+}
+
+.classroom-round-feedback-note {
+  margin: 16px 0 0;
+  color: rgba(226, 232, 240, .72);
+  text-align: center;
+  line-height: 1.4;
+}
+
+body.classroom-round-feedback-open .ii-classroom-app-shell {
+  filter: saturate(.92) brightness(.72);
+}
+
+@keyframes classroomRoundFeedbackIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 760px) {
+  .classroom-round-feedback-overlay {
+    padding: 12px;
+  }
+
+  .classroom-round-feedback-card {
+    max-height: 86vh;
+  }
+
+  .diagnostic-metrics,
+  .mm-round-review-row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,6599 @@
+:root {
+  --navy: #07111f;
+  --navy-2: #0b1730;
+  --navy-deep: #050b16;
+  --navy-ink: #020713;
+  --purple: #a855f7;
+  --purple-2: #c084fc;
+  --blue: #38bdf8;
+  --royal-blue: #6366f1;
+  --pink: #fb7185;
+  --green: #6ee7b7;
+  --red: #fb7185;
+  --gold: #fbbf24;
+  --white: #ffffff;
+  --text: rgba(255, 255, 255, .94);
+  --muted: rgba(255, 255, 255, .68);
+  --muted-strong: rgba(255, 255, 255, .80);
+  --faint: rgba(255, 255, 255, .50);
+  --border: rgba(255, 255, 255, .13);
+  --border-soft: rgba(255, 255, 255, .08);
+  --border-bright: rgba(56, 189, 248, .48);
+  --glass: rgba(255, 255, 255, .055);
+  --glass-strong: rgba(255, 255, 255, .085);
+  --ea-gradient: linear-gradient(135deg, #38bdf8 0%, #6366f1 34%, #a855f7 70%, #fb7185 100%);
+  --blue-gradient: linear-gradient(135deg, rgba(56, 189, 248, .98), rgba(74, 144, 226, .82));
+  --panel-gradient:
+    radial-gradient(circle at 82% 10%, rgba(56, 189, 248, .145), transparent 34%),
+    radial-gradient(circle at 8% 90%, rgba(251, 113, 133, .105), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, .092), rgba(255, 255, 255, .045));
+  --shadow-soft: 0 28px 70px rgba(0, 0, 0, .26);
+  --shadow-tight: 0 14px 34px rgba(0, 0, 0, .24);
+  --shadow-glow: 0 0 36px rgba(56, 189, 248, .12);
+  --radius-xl: 30px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 50% 4%, rgba(56, 189, 248, .15), transparent 28%),
+    radial-gradient(circle at 82% 14%, rgba(56, 189, 248, .22), transparent 31%),
+    radial-gradient(circle at 18% 72%, rgba(251, 113, 133, .16), transparent 34%),
+    radial-gradient(circle at 62% 42%, rgba(74, 144, 226, .10), transparent 38%),
+    linear-gradient(135deg, #050b16, #07111f 48%, #101f3d);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+body::before {
+  width: min(560px, 48vw);
+  height: min(560px, 48vw);
+  left: -210px;
+  top: 110px;
+  border: 1px solid rgba(255, 255, 255, .055);
+  box-shadow:
+    0 0 0 58px rgba(56, 189, 248, .018),
+    0 0 0 116px rgba(139, 92, 246, .014);
+  opacity: .92;
+}
+
+body::after {
+  width: 760px;
+  height: 760px;
+  right: -360px;
+  bottom: -430px;
+  border: 1px solid rgba(56, 189, 248, .14);
+  box-shadow:
+    0 0 0 82px rgba(56, 189, 248, .045),
+    0 0 0 164px rgba(139, 92, 246, .035),
+    0 0 0 246px rgba(255, 255, 255, .012),
+    0 0 70px rgba(56, 189, 248, .08);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+button:focus-visible,
+a:focus-visible,
+label:has(input:focus-visible) {
+  outline: 2px solid rgba(56, 189, 248, .86);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.app-shell {
+  position: relative;
+  z-index: 2;
+  width: min(1540px, calc(100% - 28px));
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: 10px 0 14px;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: "";
+  position: fixed;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.app-shell::before {
+  width: min(420px, 38vw);
+  height: min(420px, 38vw);
+  right: -130px;
+  top: 32%;
+  border: 1px solid rgba(139, 92, 246, .08);
+  box-shadow:
+    0 0 0 50px rgba(74, 144, 226, .018),
+    0 0 0 100px rgba(255, 255, 255, .01);
+}
+
+.app-shell::after {
+  width: min(300px, 30vw);
+  height: min(300px, 30vw);
+  left: -120px;
+  bottom: 8%;
+  border: 1px solid rgba(56, 189, 248, .09);
+  box-shadow:
+    0 0 0 42px rgba(56, 189, 248, .018),
+    0 0 0 84px rgba(139, 92, 246, .012);
+}
+
+/* =========================
+   Topbar and EchoAural branding
+========================= */
+
+.topbar,
+.three-panel-layout {
+  position: relative;
+  z-index: 3;
+}
+
+.topbar {
+  min-height: 78px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid var(--border);
+  border-radius: 26px 26px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .078), rgba(255, 255, 255, .030)),
+    rgba(5, 13, 28, .78);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 16px 46px rgba(0, 0, 0, .18);
+}
+
+.brand,
+.brand-lockup,
+.refined-logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.brand {
+  gap: 14px;
+  min-width: max-content;
+}
+
+.wordmark,
+.mini-wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  line-height: .92;
+  letter-spacing: -.056em;
+  font-weight: 860;
+}
+
+.topbar .wordmark {
+  font-size: clamp(1.85rem, 2.25vw, 2.45rem);
+}
+
+.wordmark-echo,
+.mini-wordmark-echo {
+  color: rgba(255, 255, 255, .96);
+}
+
+.wordmark-aural,
+.mini-wordmark-aural,
+.topbar-mm-gradient,
+.mm-title-gradient,
+.console-title-gradient {
+  background: var(--ea-gradient);
+  background-size: 170% 170%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: iiTextGlow 6.4s ease-in-out infinite;
+}
+
+.brand-wave,
+.refined-wave {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.topbar .refined-wave {
+  width: 62px;
+  height: 50px;
+  gap: 3px;
+}
+
+.topbar .refined-wave span,
+.mm-title-wave span,
+.panel-heading-wave span,
+.console-title-wave span,
+.answer-empty-wave span {
+  display: block;
+  width: 4px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  transform-origin: 50% 50%;
+  animation: iiWaveRoll 1.45s ease-in-out infinite;
+  box-shadow:
+    0 0 9px rgba(56, 189, 248, .28),
+    0 0 18px rgba(168, 85, 247, .14);
+}
+
+.topbar .refined-wave span:nth-child(1) { height: 12px; background: linear-gradient(180deg, #38bdf8, #4a90e2); animation-delay: 0s; }
+.topbar .refined-wave span:nth-child(2) { height: 24px; background: linear-gradient(180deg, #38bdf8, #4a90e2); animation-delay: .09s; }
+.topbar .refined-wave span:nth-child(3) { height: 36px; background: linear-gradient(180deg, #60a5fa, #4a90e2 48%, #8b5cf6); animation-delay: .18s; }
+.topbar .refined-wave span:nth-child(4) { height: 46px; background: linear-gradient(180deg, #7dd3fc, #4a90e2 38%, #8b5cf6 76%, #a855f7); animation-delay: .27s; }
+.topbar .refined-wave span:nth-child(5) { height: 34px; background: linear-gradient(180deg, #a78bfa, #8b5cf6 52%, #c084fc); animation-delay: .36s; }
+.topbar .refined-wave span:nth-child(6) { height: 24px; background: linear-gradient(180deg, #c084fc, #a855f7 58%, #fb7185); animation-delay: .45s; }
+.topbar .refined-wave span:nth-child(7) { height: 13px; background: linear-gradient(180deg, #d946ef, #fb7185); animation-delay: .54s; }
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.topbar-module-chip,
+.topbar-link {
+  min-height: 44px;
+  border: 1px solid rgba(56, 189, 248, .28);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .15), transparent 34%),
+    linear-gradient(135deg, rgba(168, 85, 247, .24), rgba(74, 144, 226, .14));
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .16);
+  color: rgba(255, 255, 255, .82);
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, color .22s ease;
+}
+
+.topbar-module-chip:hover,
+.topbar-link:hover {
+  transform: translateY(-1px);
+  border-color: rgba(56, 189, 248, .64);
+  color: white;
+}
+
+.topbar-module-chip {
+  padding: 7px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.topbar-module-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: white;
+}
+
+.topbar-module-icon img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(56, 189, 248, .16));
+}
+
+.topbar-module-icon.missing-topbar-icon::before {
+  content: "II";
+  font-weight: 950;
+  letter-spacing: -.06em;
+}
+
+.topbar-mm-mark {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 1.05rem;
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.topbar-mm-main {
+  color: rgba(255, 255, 255, .95);
+}
+
+.topbar-link {
+  padding: 0 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .84rem;
+  font-weight: 820;
+}
+
+.back-label {
+  color: rgba(255, 255, 255, .60);
+  letter-spacing: .03em;
+}
+
+.mini-wordmark {
+  font-size: 1rem;
+}
+
+/* =========================
+   App frame and panel balance
+========================= */
+
+.three-panel-layout {
+  height: calc(100svh - 102px);
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(290px, 340px) minmax(540px, 1fr) minmax(320px, 370px);
+  gap: 14px;
+  padding: 14px;
+  overflow: visible;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 26px 26px;
+  background:
+    radial-gradient(circle at 52% 0%, rgba(56, 189, 248, .06), transparent 42%),
+    rgba(7, 17, 31, .48);
+  backdrop-filter: blur(18px);
+}
+
+.panel {
+  position: relative;
+  min-height: 0;
+  overflow: visible;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--panel-gradient);
+  box-shadow: var(--shadow-soft);
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .065), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.setup-panel,
+.quiz-panel,
+.info-panel {
+  padding: 22px;
+}
+
+.setup-panel,
+.info-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.setup-panel {
+  z-index: 5;
+  gap: 16px;
+}
+
+.quiz-panel {
+  z-index: 4;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  gap: 12px;
+  min-width: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, .18), transparent 28%),
+    radial-gradient(circle at 50% 46%, rgba(251, 113, 133, .095), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, .105), rgba(255, 255, 255, .050));
+}
+
+.info-panel {
+  z-index: 3;
+  overflow: hidden;
+}
+
+.panel-section-heading {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, .82);
+}
+
+.panel-section-heading-centre {
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.panel-section-heading h2 {
+  margin: 0;
+  font-size: clamp(1.02rem, 1.18vw, 1.28rem);
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+
+.panel-section-heading h2 span {
+  background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(125,211,252,.78));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.panel-heading-wave {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: 26px;
+  height: 26px;
+}
+
+.panel-heading-wave span {
+  width: 4px;
+}
+
+.panel-heading-wave span:nth-child(1) { height: 12px; background: #38bdf8; }
+.panel-heading-wave span:nth-child(2) { height: 22px; background: #8b5cf6; animation-delay: .12s; }
+.panel-heading-wave span:nth-child(3) { height: 15px; background: #fb7185; animation-delay: .24s; }
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--blue);
+  font-size: .70rem;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.muted,
+.panel-hero p,
+#questionText {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+/* =========================
+   Left settings panel
+========================= */
+
+.panel-hero {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.mm-panel-hero {
+  margin-bottom: 2px;
+  text-align: center;
+}
+
+.mm-hero-lockup {
+  display: grid;
+  justify-items: center;
+  gap: 11px;
+}
+
+.mm-hero-icon {
+  width: 112px;
+  height: 112px;
+  padding: 17px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 31px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 68% 20%, rgba(56, 189, 248, .24), transparent 42%),
+    radial-gradient(circle at 18% 90%, rgba(139, 92, 246, .18), transparent 46%),
+    linear-gradient(145deg, rgba(7, 17, 31, .98), rgba(13, 30, 60, .94));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .035),
+    0 22px 44px rgba(0, 0, 0, .24),
+    0 0 28px rgba(56, 189, 248, .09);
+}
+
+.mm-hero-icon img {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  filter:
+    brightness(0) invert(1)
+    drop-shadow(0 0 5px rgba(255, 255, 255, .16))
+    drop-shadow(0 0 14px rgba(56, 189, 248, .18));
+}
+
+.mm-hero-icon.missing-mm-icon::before,
+.console-mm-icon.missing-console-icon::before,
+.answer-empty-icon.missing-answer-icon::before {
+  content: "II";
+  color: white;
+  font-size: 2rem;
+  font-weight: 950;
+  letter-spacing: -.08em;
+}
+
+.mm-title-lockup {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+
+.mm-title-wave {
+  height: 23px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.mm-title-wave span { width: 3px; }
+.mm-title-wave span:nth-child(1) { height: 9px; background: #38bdf8; }
+.mm-title-wave span:nth-child(2) { height: 17px; background: #4a90e2; animation-delay: .1s; }
+.mm-title-wave span:nth-child(3) { height: 22px; background: #8b5cf6; animation-delay: .2s; }
+.mm-title-wave span:nth-child(4) { height: 15px; background: #a855f7; animation-delay: .3s; }
+.mm-title-wave span:nth-child(5) { height: 10px; background: #fb7185; animation-delay: .4s; }
+
+.mm-title-text {
+  display: grid;
+  justify-items: center;
+  gap: 0;
+  line-height: .96;
+  font-weight: 930;
+  letter-spacing: -.055em;
+}
+
+.mm-title-main,
+.mm-title-gradient {
+  display: block;
+  font-size: clamp(1.55rem, 1.8vw, 2rem);
+}
+
+.mm-title-main {
+  color: rgba(255, 255, 255, .96);
+}
+
+.mm-panel-intro {
+  max-width: 25ch;
+  margin: 2px auto 0;
+  font-size: .9rem;
+}
+
+.setup-panel > h2 {
+  margin: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, .82);
+  font-size: .74rem;
+  font-weight: 900;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.quizCard {
+  position: relative;
+  min-height: 80px;
+  padding: 13px 13px;
+  border: 1px solid rgba(255, 255, 255, .105);
+  border-radius: 22px;
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  align-items: center;
+  gap: 12px;
+  background:
+    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, .10), transparent 38%),
+    rgba(255, 255, 255, .045);
+  box-shadow: 0 13px 32px rgba(0, 0, 0, .16);
+  cursor: pointer;
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+}
+
+.quizCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, .36);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, .16), transparent 38%),
+    rgba(255, 255, 255, .066);
+}
+
+.quizCard input,
+.pill input,
+.familyPill input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.quizCard:has(input:checked) {
+  border-color: rgba(56, 189, 248, .60);
+  background:
+    radial-gradient(circle at 85% 10%, rgba(56, 189, 248, .20), transparent 38%),
+    linear-gradient(135deg, rgba(56, 189, 248, .16), rgba(139, 92, 246, .12));
+  box-shadow: 0 18px 42px rgba(56, 189, 248, .10);
+}
+
+.quizCard:has(input:checked)::after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 16px rgba(56, 189, 248, .70);
+}
+
+.mode-icon-shell {
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, .88);
+  background: rgba(5, 13, 28, .56);
+}
+
+.mode-icon-svg {
+  width: 34px;
+  height: 34px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mode-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.modeBadge {
+  color: rgba(255, 255, 255, .94);
+  font-size: .98rem;
+  font-weight: 880;
+  letter-spacing: -.015em;
+}
+
+.mode-copy small {
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.settings-popover-wrap {
+  position: relative;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.settings-popover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 12px);
+  z-index: 30;
+  max-height: min(64vh, 540px);
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid rgba(56, 189, 248, .34);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(56, 189, 248, .16), transparent 34%),
+    radial-gradient(circle at 10% 90%, rgba(139, 92, 246, .15), transparent 38%),
+    rgba(5, 13, 28, .96);
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, .45),
+    0 0 0 1px rgba(255, 255, 255, .035) inset,
+    0 0 36px rgba(56, 189, 248, .12);
+}
+
+.settings-popover.is-open {
+  animation: popoverIn .18s ease-out both;
+}
+
+.settings-popover-header {
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.settings-popover h3 {
+  margin: 0 0 10px;
+  color: rgba(255, 255, 255, .92);
+  font-size: .82rem;
+  font-weight: 900;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+}
+
+.settings-popover-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -.01em;
+  text-transform: none;
+}
+
+.pillRow,
+.familyGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.familyGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.pill,
+.familyPill {
+  position: relative;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, .76);
+  background: rgba(255, 255, 255, .045);
+  font-size: .8rem;
+  font-weight: 840;
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+}
+
+.familyPill {
+  min-height: 42px;
+  border-radius: 16px;
+}
+
+.pill:hover,
+.familyPill:hover {
+  transform: translateY(-1px);
+  color: white;
+  border-color: rgba(56, 189, 248, .36);
+}
+
+.pill:has(input:checked),
+.familyPill:has(input:checked) {
+  color: white;
+  border-color: rgba(56, 189, 248, .60);
+  background: linear-gradient(135deg, rgba(56, 189, 248, .20), rgba(139, 92, 246, .16));
+  box-shadow: 0 10px 24px rgba(56, 189, 248, .08);
+}
+
+.primary-button,
+.secondary-button,
+.play-button {
+  position: relative;
+  min-height: 48px;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: white;
+  font-weight: 910;
+  letter-spacing: -.015em;
+  transition: transform .22s ease, box-shadow .22s ease, filter .22s ease, border-color .22s ease, background .22s ease;
+}
+
+.primary-button,
+.play-button {
+  padding: 0 25px;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255, 255, 255, .24), transparent 30%),
+    var(--ea-gradient);
+  box-shadow:
+    0 18px 38px rgba(56, 189, 248, .18),
+    0 0 0 1px rgba(255, 255, 255, .13) inset;
+}
+
+.secondary-button {
+  width: 100%;
+  padding: 0 20px;
+  border: 1px solid rgba(56, 189, 248, .32);
+  background:
+    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .14), transparent 34%),
+    linear-gradient(135deg, rgba(168, 85, 247, .20), rgba(74, 144, 226, .12));
+}
+
+.primary-button:hover,
+.play-button:hover,
+.secondary-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow:
+    0 22px 44px rgba(56, 189, 248, .22),
+    0 0 0 1px rgba(255, 255, 255, .18) inset;
+}
+
+#setupMessage {
+  min-height: 1.3em;
+  margin: 0;
+  color: rgba(251, 191, 36, .92);
+  font-size: .82rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* =========================
+   Centre quiz console
+========================= */
+
+.quiz-header {
+  min-height: 38px;
+  padding: 5px 6px;
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr);
+  align-items: center;
+  gap: 13px;
+}
+
+.quiz-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, .76);
+  font-size: .80rem;
+  font-weight: 880;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.progressOuter {
+  height: 9px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .055);
+}
+
+#progressInner {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ea-gradient);
+  box-shadow: 0 0 16px rgba(56, 189, 248, .38);
+  transition: width .35s ease;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.statsRow p {
+  min-height: 38px;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, .085);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, .80);
+  background: rgba(255, 255, 255, .044);
+  font-size: .82rem;
+  font-weight: 840;
+}
+
+.listening-console {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  padding: clamp(18px, 2.35vw, 32px);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 34px;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto auto auto auto auto auto auto auto;
+  align-content: center;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(7px, .95vh, 13px);
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(56, 189, 248, .15), transparent 30%),
+    radial-gradient(circle at 50% 56%, rgba(139, 92, 246, .12), transparent 40%),
+    linear-gradient(180deg, rgba(2, 7, 19, .36), rgba(2, 7, 19, .28));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .025),
+    0 22px 60px rgba(0, 0, 0, .22);
+}
+
+.listening-console::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  z-index: 0;
+  border: 1px solid rgba(56, 189, 248, .08);
+  border-radius: 28px;
+  pointer-events: none;
+}
+
+.listening-console::after {
+  content: "";
+  position: absolute;
+  width: 620px;
+  height: 620px;
+  left: 50%;
+  top: 52%;
+  z-index: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(56, 189, 248, .06);
+  box-shadow:
+    0 0 0 60px rgba(56, 189, 248, .018),
+    0 0 0 120px rgba(139, 92, 246, .013),
+    0 0 56px rgba(56, 189, 248, .045);
+  opacity: .76;
+  pointer-events: none;
+}
+
+.listening-console > * {
+  position: relative;
+  z-index: 1;
+}
+
+.console-orbit {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  left: 50%;
+  top: 46%;
+  z-index: 0;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, .045);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 44px rgba(56, 189, 248, .015),
+    0 0 0 88px rgba(139, 92, 246, .012);
+  opacity: .85;
+}
+
+.console-ready-brand {
+  display: grid;
+  justify-items: center;
+  transition: opacity .28s ease, transform .28s ease, max-height .28s ease;
+}
+
+.console-mm-combined-lockup {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+}
+
+.console-mm-icon {
+  width: clamp(122px, 12vw, 176px);
+  height: clamp(122px, 12vw, 176px);
+  padding: clamp(18px, 2vw, 26px);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: clamp(30px, 3vw, 42px);
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 62% 18%, rgba(56, 189, 248, .30), transparent 38%),
+    radial-gradient(circle at 22% 90%, rgba(168, 85, 247, .20), transparent 40%),
+    linear-gradient(145deg, rgba(7, 17, 31, .98), rgba(13, 30, 60, .92));
+  box-shadow:
+    0 28px 64px rgba(0, 0, 0, .28),
+    0 0 40px rgba(56, 189, 248, .11),
+    inset 0 0 0 1px rgba(255, 255, 255, .04);
+}
+
+.console-mm-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter:
+    brightness(0) invert(1)
+    drop-shadow(0 0 7px rgba(255, 255, 255, .16))
+    drop-shadow(0 0 18px rgba(56, 189, 248, .20));
+}
+
+.console-title-text {
+  display: grid;
+  justify-items: center;
+  line-height: .92;
+  font-weight: 930;
+  letter-spacing: -.06em;
+}
+
+.console-title-main,
+.console-title-gradient {
+  display: block;
+  font-size: clamp(2.05rem, 5vw, 4.2rem);
+}
+
+.console-title-main {
+  color: rgba(255, 255, 255, .96);
+}
+
+.quiz-panel.is-active .console-ready-brand {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px) scale(.96);
+  pointer-events: none;
+}
+
+.quiz-panel.is-complete .console-ready-brand {
+  opacity: .18;
+  transform: scale(.92);
+}
+
+.console-question-kicker {
+  min-height: 18px;
+  display: grid;
+  place-items: center;
+}
+
+.console-question-kicker .eyebrow {
+  margin: 0;
+}
+
+.console-heading {
+  width: min(720px, 100%);
+  min-height: 64px;
+  display: grid;
+  place-items: center;
+  gap: 7px;
+}
+
+.active-only {
+  display: none;
+}
+
+.quiz-panel.is-active .active-only,
+.quiz-panel.is-complete .active-only {
+  display: block;
+}
+
+#questionText {
+  margin: 0;
+  max-width: 34ch;
+  color: rgba(255, 255, 255, .92);
+  font-size: clamp(1.35rem, 2.25vw, 2.25rem);
+  line-height: 1.13;
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+.listening-visual {
+  width: min(560px, 86%);
+  height: clamp(66px, 9vh, 102px);
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, .085);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 1vw, 12px);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, .10), transparent 50%),
+    rgba(255, 255, 255, .035);
+  box-shadow: inset 0 0 28px rgba(56, 189, 248, .025);
+}
+
+.listening-visual span {
+  width: clamp(4px, .55vw, 7px);
+  border-radius: 999px;
+  background: var(--ea-gradient);
+  box-shadow:
+    0 0 12px rgba(56, 189, 248, .26),
+    0 0 26px rgba(139, 92, 246, .14);
+  animation: consoleBars 1.28s ease-in-out infinite;
+}
+
+.listening-visual span:nth-child(1) { height: 26%; animation-delay: .00s; }
+.listening-visual span:nth-child(2) { height: 48%; animation-delay: .06s; }
+.listening-visual span:nth-child(3) { height: 78%; animation-delay: .12s; }
+.listening-visual span:nth-child(4) { height: 58%; animation-delay: .18s; }
+.listening-visual span:nth-child(5) { height: 92%; animation-delay: .24s; }
+.listening-visual span:nth-child(6) { height: 64%; animation-delay: .30s; }
+.listening-visual span:nth-child(7) { height: 86%; animation-delay: .36s; }
+.listening-visual span:nth-child(8) { height: 50%; animation-delay: .42s; }
+.listening-visual span:nth-child(9) { height: 72%; animation-delay: .48s; }
+.listening-visual span:nth-child(10) { height: 44%; animation-delay: .54s; }
+.listening-visual span:nth-child(11) { height: 28%; animation-delay: .60s; }
+
+.quiz-panel.is-ready .listening-visual span,
+.quiz-panel.is-complete .listening-visual span {
+  animation-duration: 2.6s;
+  opacity: .78;
+}
+
+.listening-cues {
+  width: 100%;
+  margin-top: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  z-index: 3;
+}
+
+.listening-cues span {
+  min-height: 31px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, .105);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  color: rgba(255, 255, 255, .68);
+  background: rgba(255, 255, 255, .04);
+  font-size: .73rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.console-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.console-actions-replay {
+  width: 100%;
+  margin-top: 0;
+  align-self: center;
+  position: relative;
+  z-index: 3;
+}
+
+.centre-start,
+.play-button {
+  min-width: 172px;
+}
+
+.answer-grid {
+  width: min(820px, 100%);
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.answer-option {
+  min-height: clamp(116px, 14.6vh, 150px);
+  padding: 17px 18px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 28px;
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  align-items: center;
+  gap: 18px;
+  color: rgba(255, 255, 255, .94);
+  background:
+    radial-gradient(circle at 84% 16%, rgba(56, 189, 248, .12), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, .070), rgba(255, 255, 255, .042));
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .17);
+  text-align: left;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+
+.answer-option:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, .44);
+  background:
+    radial-gradient(circle at 84% 16%, rgba(56, 189, 248, .19), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, .090), rgba(255, 255, 255, .054));
+  box-shadow: 0 20px 44px rgba(56, 189, 248, .11);
+}
+
+.answer-option:disabled {
+  opacity: .70;
+}
+
+.answer-option.correct {
+  border-color: rgba(110, 231, 183, .62);
+  background:
+    radial-gradient(circle at 84% 16%, rgba(110, 231, 183, .22), transparent 38%),
+    rgba(110, 231, 183, .085);
+}
+
+.answer-option.wrong {
+  border-color: rgba(251, 113, 133, .62);
+  background:
+    radial-gradient(circle at 84% 16%, rgba(251, 113, 133, .22), transparent 38%),
+    rgba(251, 113, 133, .08);
+}
+
+.option-icon,
+.instrument-icon-shell {
+  display: grid;
+  place-items: center;
+}
+
+.option-icon .instrument-icon-shell {
+  width: 108px;
+  height: 108px;
+}
+
+.reveal-icon .instrument-icon-shell {
+  width: 58px;
+  height: 58px;
+}
+
+.instrument-icon-shell {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 22px;
+  color: white;
+  background:
+    radial-gradient(circle at 70% 18%, rgba(56, 189, 248, .17), transparent 42%),
+    rgba(5, 13, 28, .52);
+}
+
+.instrument-icon-img {
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
+  filter:
+    brightness(0) invert(1)
+    drop-shadow(0 0 5px rgba(255, 255, 255, .12))
+    drop-shadow(0 0 11px rgba(56, 189, 248, .12));
+}
+
+.icon-fallback {
+  display: none;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.option-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: clamp(1.08rem, 1.28vw, 1.34rem);
+  font-weight: 880;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+}
+
+#feedback {
+  min-height: 1.6em;
+  margin: 0;
+  color: rgba(255, 255, 255, .72);
+  font-size: .98rem;
+  font-weight: 820;
+}
+
+.good {
+  color: var(--green) !important;
+}
+
+.bad {
+  color: var(--red) !important;
+}
+
+#restartButton {
+  width: min(260px, 100%);
+  display: none;
+}
+
+/* =========================
+   Right answer panel
+========================= */
+
+.info-panel .panel-section-heading {
+  flex: 0 0 auto;
+}
+
+.answerCard {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.answerCard-empty,
+.answer-reveal,
+.summary {
+  min-height: 100%;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 74% 12%, rgba(56, 189, 248, .12), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, .060), rgba(255, 255, 255, .036));
+}
+
+.answerCard-empty {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 11px;
+  text-align: center;
+}
+
+
+/* Move active source/answer content higher so the expanded score tile does not cover it. */
+.mm-source-panel-active {
+  align-content: start;
+  padding-top: 10px;
+}
+
+.mm-source-panel-active .answer-empty-brand {
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.mm-source-panel-active h2 {
+  margin-top: -2px;
+  margin-bottom: 2px;
+}
+
+.mm-source-panel-active .answer-empty-icon {
+  width: 74px;
+  height: 74px;
+  padding: 13px;
+}
+
+.mm-source-panel-active .source-meta-card {
+  margin-top: 0;
+}
+
+.answer-empty-brand {
+  display: grid;
+  justify-items: center;
+  gap: 11px;
+  margin-bottom: 4px;
+}
+
+.answer-empty-icon {
+  width: 92px;
+  height: 92px;
+  padding: 17px;
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 13, 28, .52);
+}
+
+.answer-empty-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 0 12px rgba(56, 189, 248, .16));
+}
+
+.answer-empty-wave {
+  height: 23px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.answer-empty-wave span { width: 3px; }
+.answer-empty-wave span:nth-child(1) { height: 9px; background: #38bdf8; }
+.answer-empty-wave span:nth-child(2) { height: 17px; background: #4a90e2; animation-delay: .1s; }
+.answer-empty-wave span:nth-child(3) { height: 22px; background: #8b5cf6; animation-delay: .2s; }
+.answer-empty-wave span:nth-child(4) { height: 15px; background: #a855f7; animation-delay: .3s; }
+.answer-empty-wave span:nth-child(5) { height: 10px; background: #fb7185; animation-delay: .4s; }
+
+.answerCard-empty h2,
+.answer-title-block h2,
+.summary h2 {
+  margin: 0;
+  color: rgba(255, 255, 255, .96);
+  font-size: clamp(1.45rem, 2.1vw, 2.05rem);
+  line-height: 1;
+  font-weight: 920;
+  letter-spacing: -.05em;
+}
+
+.answerCard-empty p,
+.answer-title-block p,
+.summary p {
+  margin-bottom: 0;
+}
+
+.answer-reveal {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.answer-reveal.is-correct {
+  border-color: rgba(110, 231, 183, .24);
+}
+
+.answer-reveal.is-wrong {
+  border-color: rgba(251, 113, 133, .24);
+}
+
+.answer-status-line {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.answer-status-line p {
+  margin: 0;
+  font-size: .78rem;
+  font-weight: 920;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.answer-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 15px currentColor;
+}
+
+.answer-reveal.is-correct .answer-status-dot {
+  color: var(--green);
+}
+
+.answer-reveal.is-wrong .answer-status-dot {
+  color: var(--red);
+}
+
+.reveal-icon {
+  width: 96px;
+  height: 96px;
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 70% 18%, rgba(56, 189, 248, .18), transparent 42%),
+    rgba(5, 13, 28, .52);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, .20);
+}
+
+.reveal-icon .instrument-icon-shell {
+  border: 0;
+  background: transparent;
+}
+
+.reveal-icon .instrument-icon-img {
+  width: 90%;
+  height: 90%;
+}
+
+.answer-title-block {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.answer-meta-card {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.meta-row {
+  min-height: 43px;
+  padding: 9px 11px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 15px;
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 8px;
+  align-items: center;
+  background: rgba(255, 255, 255, .035);
+  text-align: left;
+}
+
+.meta-row span {
+  color: rgba(255, 255, 255, .52);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.meta-row strong {
+  min-width: 0;
+  color: rgba(255, 255, 255, .88);
+  font-size: .86rem;
+  font-weight: 830;
+  overflow-wrap: anywhere;
+}
+
+.summary {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.summary-medal {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.summary .stars {
+  margin: 0;
+  color: var(--gold);
+  font-size: 1.2rem;
+  letter-spacing: .12em;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.summary-stats div {
+  min-height: 70px;
+  padding: 11px 7px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 17px;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, .04);
+}
+
+.summary-stats strong {
+  color: rgba(255, 255, 255, .94);
+  font-size: 1.05rem;
+  font-weight: 920;
+}
+
+.summary-stats span {
+  color: rgba(255, 255, 255, .55);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
+  gap: 8px;
+}
+
+.summaryCorrect,
+.summaryWrong {
+  min-height: 70px;
+  padding: 7px 5px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 16px;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.summaryCorrect {
+  border-color: rgba(110, 231, 183, .24);
+}
+
+.summaryWrong {
+  border-color: rgba(251, 113, 133, .24);
+}
+
+.summaryCorrect small,
+.summaryWrong small {
+  color: rgba(255, 255, 255, .56);
+  font-size: .66rem;
+  font-weight: 900;
+}
+
+.summary-mini-icon .instrument-icon-shell {
+  width: 31px;
+  height: 31px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+}
+
+.summary-mini-icon .instrument-icon-img {
+  width: 100%;
+  height: 100%;
+}
+
+.summary-mark {
+  font-size: .84rem;
+  font-weight: 950;
+}
+
+.summaryCorrect .summary-mark {
+  color: var(--green);
+}
+
+.summaryWrong .summary-mark {
+  color: var(--red);
+}
+
+/* =========================
+   Confetti and animation
+========================= */
+
+.confettiBox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confettiBox span {
+  position: absolute;
+  top: -16px;
+  width: 7px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--ea-gradient);
+  animation: confettiFall 1.15s ease-in forwards;
+}
+
+@keyframes iiWaveRoll {
+  0%, 100% { transform: scaleY(.78); opacity: .78; }
+  50% { transform: scaleY(1.08); opacity: 1; }
+}
+
+@keyframes iiTextGlow {
+  0%, 100% { background-position: 0% 50%; filter: drop-shadow(0 0 0 rgba(56, 189, 248, 0)); }
+  50% { background-position: 100% 50%; filter: drop-shadow(0 0 12px rgba(56, 189, 248, .12)); }
+}
+
+@keyframes consoleBars {
+  0%, 100% { transform: scaleY(.68); opacity: .68; }
+  45% { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes popoverIn {
+  from { transform: translateY(8px) scale(.985); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(520deg); opacity: 0; }
+}
+
+@media (min-width: 981px) and (max-height: 880px) {
+  .app-shell {
+    padding: 8px 0 10px;
+  }
+
+  .topbar {
+    min-height: 70px;
+  }
+
+  .topbar .wordmark {
+    font-size: clamp(1.65rem, 2vw, 2.18rem);
+  }
+
+  .topbar .refined-wave {
+    width: 56px;
+    height: 44px;
+  }
+
+  .three-panel-layout {
+    height: calc(100svh - 88px);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .setup-panel,
+  .quiz-panel,
+  .info-panel {
+    padding: 16px;
+  }
+
+  .setup-panel {
+    gap: 11px;
+  }
+
+  .quiz-panel {
+    gap: 8px;
+  }
+
+  .panel-section-heading {
+    min-height: 30px;
+    margin-bottom: 8px;
+  }
+
+  .panel-section-heading h2 {
+    font-size: clamp(1.08rem, 1.08vw, 1.22rem);
+  }
+
+  .panel-hero {
+    padding-bottom: 12px;
+  }
+
+  .mm-hero-lockup {
+    gap: 8px;
+  }
+
+  .mm-hero-icon {
+    width: 90px;
+    height: 90px;
+    padding: 14px;
+    border-radius: 26px;
+  }
+
+  .mm-hero-icon img {
+    width: 62px;
+    height: 62px;
+  }
+
+  .mm-title-lockup {
+    gap: 5px;
+  }
+
+  .mm-title-wave {
+    height: 18px;
+  }
+
+  .mm-title-main,
+  .mm-title-gradient {
+    font-size: clamp(1.34rem, 1.55vw, 1.72rem);
+  }
+
+  .mm-panel-intro {
+    max-width: 22ch;
+    font-size: .80rem;
+    line-height: 1.4;
+  }
+
+  .cardGrid {
+    gap: 7px;
+  }
+
+  .quizCard {
+    min-height: 66px;
+    padding: 9px 11px;
+    grid-template-columns: 46px 1fr;
+    border-radius: 19px;
+  }
+
+  .mode-icon-shell {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+  }
+
+  .mode-icon-svg {
+    width: 29px;
+    height: 29px;
+  }
+
+  .modeBadge {
+    font-size: .90rem;
+  }
+
+  .mode-copy small {
+    font-size: .72rem;
+  }
+
+  .settings-popover-wrap {
+    padding-top: 0;
+  }
+
+  .primary-button,
+  .secondary-button,
+  .play-button {
+    min-height: 42px;
+  }
+
+  .quiz-header {
+    min-height: 30px;
+    padding: 2px 4px;
+  }
+
+  .statsRow p {
+    min-height: 32px;
+    font-size: .77rem;
+  }
+
+  .listening-console {
+    padding: clamp(14px, 1.6vw, 22px);
+    gap: clamp(6px, .78vh, 10px);
+  }
+
+  .console-question-kicker {
+    min-height: 16px;
+  }
+
+  .console-heading {
+    min-height: 48px;
+  }
+
+  #questionText {
+    font-size: clamp(1.16rem, 1.65vw, 1.72rem);
+  }
+
+  .listening-visual {
+    height: clamp(52px, 6.8vh, 72px);
+  }
+
+  .listening-cues span {
+    min-height: 28px;
+    padding: 0 11px;
+    font-size: .68rem;
+  }
+
+  .answer-grid {
+    gap: 10px;
+  }
+
+  .answer-option {
+    min-height: clamp(98px, 12.1vh, 122px);
+    padding: 12px;
+    grid-template-columns: 88px 1fr;
+    gap: 12px;
+    border-radius: 23px;
+  }
+
+  .option-icon .instrument-icon-shell {
+    width: 88px;
+    height: 88px;
+    border-radius: 22px;
+  }
+
+  .option-label {
+    font-size: clamp(.98rem, 1.1vw, 1.16rem);
+  }
+
+  #feedback {
+    font-size: .88rem;
+  }
+
+  .answerCard-empty,
+  .answer-reveal,
+  .summary {
+    padding: 16px;
+  }
+
+  .answer-empty-icon {
+    width: 74px;
+    height: 74px;
+    padding: 14px;
+    border-radius: 24px;
+  }
+
+  .answerCard-empty h2,
+  .answer-title-block h2,
+  .summary h2 {
+    font-size: clamp(1.24rem, 1.7vw, 1.68rem);
+  }
+
+  .answer-reveal {
+    gap: 11px;
+  }
+
+  .reveal-icon {
+    width: 78px;
+    height: 78px;
+    border-radius: 24px;
+  }
+
+  .meta-row {
+    min-height: 38px;
+    padding: 8px 10px;
+  }
+
+  .summary {
+    gap: 11px;
+  }
+
+  .summary-stats div,
+  .summaryCorrect,
+  .summaryWrong {
+    min-height: 60px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+/* =========================
+   Responsive behaviour
+========================= */
+
+@media (max-width: 1280px) {
+  .app-shell {
+    width: min(100% - 20px, 1180px);
+  }
+
+  .three-panel-layout {
+    grid-template-columns: 310px minmax(460px, 1fr);
+  }
+
+  .info-panel {
+    grid-column: 1 / -1;
+    min-height: 360px;
+  }
+
+  .answerCard-empty,
+  .answer-reveal,
+  .summary {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 980px) {
+  .app-shell {
+    width: min(100% - 16px, 760px);
+    padding-top: 8px;
+  }
+
+  .topbar {
+    min-height: auto;
+    padding: 15px;
+    border-radius: 24px 24px 0 0;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .three-panel-layout {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .setup-panel,
+  .quiz-panel,
+  .info-panel {
+    padding: 18px;
+  }
+
+  .quiz-panel {
+    min-height: 720px;
+  }
+
+  .settings-popover {
+    position: fixed;
+    left: 18px;
+    right: 18px;
+    bottom: 88px;
+    max-height: min(70vh, 620px);
+  }
+}
+
+@media (max-width: 700px) {
+  .topbar .wordmark {
+    font-size: 1.9rem;
+  }
+
+  .topbar .refined-wave {
+    width: 52px;
+  }
+
+  .quiz-header {
+    grid-template-columns: 1fr;
+  }
+
+  .statsRow,
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .listening-console {
+    padding: 18px;
+    border-radius: 28px;
+  }
+
+  .answer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .answer-option {
+    min-height: 104px;
+    grid-template-columns: 84px 1fr;
+  }
+
+  .option-icon .instrument-icon-shell {
+    width: 84px;
+    height: 84px;
+    border-radius: 22px;
+  }
+
+  .console-title-main,
+  .console-title-gradient {
+    font-size: 2.15rem;
+  }
+
+  .familyGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .back-label {
+    display: none;
+  }
+}
+
+/* =========================
+   Targeted ready-state console refinements
+   - Keeps the active quiz layout intact
+========================= */
+
+.quiz-panel.is-ready .console-ready-brand {
+  transform: translateY(12px);
+}
+
+.quiz-panel.is-ready .console-mm-combined-lockup {
+  gap: clamp(8px, 1vh, 11px);
+}
+
+.quiz-panel.is-ready .console-mm-icon {
+  width: clamp(108px, 10.8vw, 150px);
+  height: clamp(108px, 10.8vw, 150px);
+  padding: clamp(16px, 1.65vw, 22px);
+  border-radius: clamp(28px, 2.6vw, 38px);
+}
+
+.quiz-panel.is-ready .console-title-main,
+.quiz-panel.is-ready .console-title-gradient {
+  font-size: clamp(1.82rem, 4.2vw, 3.35rem);
+}
+
+.quiz-panel.is-ready .console-question-kicker,
+.quiz-panel.is-ready .console-heading,
+.quiz-panel.is-ready .listening-cues {
+  display: none;
+}
+
+.quiz-panel.is-ready .listening-visual {
+  width: min(640px, 90%);
+  height: clamp(86px, 11vh, 128px);
+  margin-top: clamp(10px, 1.3vh, 18px);
+}
+
+.quiz-panel.is-ready .listening-visual span {
+  width: clamp(5px, .68vw, 8px);
+}
+
+.quiz-panel.is-active .console-actions-replay {
+  margin-top: -6px;
+  transform: translateY(-4px);
+}
+
+
+/* =========================
+   Targeted ready-state text/start refinements
+   - Keeps the module SVG tile exactly where it is
+========================= */
+
+.quiz-panel.is-ready .console-mm-lockup {
+  margin-top: clamp(-22px, -1.8vw, -14px);
+}
+
+.quiz-panel.is-ready .console-actions-start {
+  margin-top: clamp(24px, 3.8vh, 48px);
+}
+
+.quiz-panel.is-ready .centre-start {
+  min-width: clamp(218px, 18vw, 270px);
+  min-height: clamp(56px, 6.2vh, 66px);
+  padding: 0 clamp(34px, 3.2vw, 46px);
+  font-size: clamp(1.02rem, 1.2vw, 1.16rem);
+}
+
+
+/* =========================
+   Targeted ready-state logo/wave/start refinements v2
+   - First page only
+   - Keeps existing active quiz layout intact
+========================= */
+
+.quiz-panel.is-ready .console-mm-icon {
+  width: clamp(132px, 12.8vw, 178px);
+  height: clamp(132px, 12.8vw, 178px);
+  padding: clamp(19px, 2.05vw, 27px);
+  border-radius: clamp(32px, 3.1vw, 44px);
+}
+
+.quiz-panel.is-ready .listening-visual {
+  margin-top: clamp(26px, 3.2vh, 38px);
+}
+
+.quiz-panel.is-ready .console-actions-start {
+  margin-top: clamp(44px, 5.8vh, 74px);
+}
+
+
+/* =========================
+   Melody Master prototype refinements
+   - Two mode cards only
+   - Layout dimensions inherit the shared EchoAural module layout
+========================= */
+
+.melody-mode-grid {
+  grid-template-columns: 1fr;
+}
+
+.mode-card-devices .mode-icon-svg,
+.mode-card-dictation .mode-icon-svg {
+  stroke: rgba(255, 255, 255, .92);
+}
+
+/* =========================
+   Melody Master colour identity pass
+   - Colour-only overrides
+   - Preserves the Instrument Identifier layout dimensions and behaviour
+========================= */
+
+:root {
+  --melody-indigo: #6366f1;
+  --melody-violet: #a855f7;
+  --melody-pink: #fb7185;
+  --melody-gold: #fbbf24;
+  --melody-cyan: #38bdf8;
+  --melody-panel-border: rgba(251, 113, 133, .18);
+  --melody-panel-border-bright: rgba(251, 113, 133, .46);
+  --melody-glow: rgba(251, 113, 133, .14);
+  --ea-gradient: linear-gradient(135deg, #38bdf8 0%, #6366f1 32%, #a855f7 66%, #fb7185 100%);
+  --panel-gradient:
+    radial-gradient(circle at 82% 10%, rgba(168, 85, 247, .16), transparent 34%),
+    radial-gradient(circle at 10% 88%, rgba(251, 113, 133, .12), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, .092), rgba(255, 255, 255, .045));
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% 4%, rgba(168, 85, 247, .17), transparent 28%),
+    radial-gradient(circle at 82% 14%, rgba(251, 113, 133, .18), transparent 31%),
+    radial-gradient(circle at 18% 72%, rgba(99, 102, 241, .17), transparent 34%),
+    radial-gradient(circle at 62% 42%, rgba(251, 191, 36, .065), transparent 38%),
+    linear-gradient(135deg, #050b16, #07111f 48%, #101f3d);
+}
+
+body::before {
+  box-shadow:
+    0 0 0 58px rgba(168, 85, 247, .018),
+    0 0 0 116px rgba(251, 113, 133, .014);
+}
+
+body::after {
+  border-color: rgba(251, 113, 133, .13);
+  box-shadow:
+    0 0 0 82px rgba(251, 113, 133, .036),
+    0 0 0 164px rgba(168, 85, 247, .034),
+    0 0 0 246px rgba(255, 255, 255, .012),
+    0 0 70px rgba(251, 113, 133, .07);
+}
+
+.app-shell::before {
+  border-color: rgba(251, 113, 133, .09);
+  box-shadow:
+    0 0 0 50px rgba(168, 85, 247, .018),
+    0 0 0 100px rgba(255, 255, 255, .01);
+}
+
+.app-shell::after {
+  border-color: rgba(251, 191, 36, .09);
+  box-shadow:
+    0 0 0 42px rgba(251, 191, 36, .014),
+    0 0 0 84px rgba(251, 113, 133, .012);
+}
+
+.three-panel-layout {
+  border-color: rgba(251, 113, 133, .12);
+  background:
+    radial-gradient(circle at 52% 0%, rgba(251, 113, 133, .060), transparent 42%),
+    radial-gradient(circle at 0% 100%, rgba(168, 85, 247, .045), transparent 44%),
+    rgba(7, 17, 31, .50);
+}
+
+.panel {
+  border-color: var(--melody-panel-border);
+}
+
+.setup-panel {
+  background:
+    radial-gradient(circle at 82% 10%, rgba(168, 85, 247, .18), transparent 34%),
+    radial-gradient(circle at 8% 88%, rgba(251, 191, 36, .075), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, .090), rgba(255, 255, 255, .044));
+}
+
+.quiz-panel {
+  border-color: rgba(251, 113, 133, .20);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(251, 113, 133, .17), transparent 28%),
+    radial-gradient(circle at 50% 46%, rgba(168, 85, 247, .13), transparent 38%),
+    radial-gradient(circle at 12% 100%, rgba(251, 191, 36, .045), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, .104), rgba(255, 255, 255, .050));
+}
+
+.info-panel {
+  border-color: rgba(168, 85, 247, .18);
+  background:
+    radial-gradient(circle at 80% 12%, rgba(99, 102, 241, .16), transparent 34%),
+    radial-gradient(circle at 14% 90%, rgba(251, 113, 133, .105), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, .088), rgba(255, 255, 255, .043));
+}
+
+.panel-heading-wave span:nth-child(1) { background: var(--melody-cyan); }
+.panel-heading-wave span:nth-child(2) { background: var(--melody-violet); }
+.panel-heading-wave span:nth-child(3) { background: var(--melody-pink); }
+
+.quizCard {
+  border-color: rgba(255, 255, 255, .11);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(168, 85, 247, .13), transparent 38%),
+    radial-gradient(circle at 10% 92%, rgba(251, 113, 133, .055), transparent 38%),
+    rgba(255, 255, 255, .045);
+}
+
+.quizCard:hover {
+  border-color: rgba(251, 113, 133, .38);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(168, 85, 247, .18), transparent 38%),
+    radial-gradient(circle at 10% 92%, rgba(251, 113, 133, .085), transparent 38%),
+    rgba(255, 255, 255, .066);
+}
+
+.quizCard:has(input:checked) {
+  border-color: var(--melody-panel-border-bright);
+  background:
+    radial-gradient(circle at 85% 10%, rgba(251, 113, 133, .20), transparent 38%),
+    linear-gradient(135deg, rgba(168, 85, 247, .17), rgba(251, 113, 133, .12));
+  box-shadow: 0 18px 42px rgba(251, 113, 133, .105);
+}
+
+.quizCard:has(input:checked)::after {
+  background: var(--melody-gold);
+  box-shadow: 0 0 16px rgba(251, 191, 36, .68);
+}
+
+.mode-icon-shell {
+  background:
+    radial-gradient(circle at 70% 18%, rgba(251, 113, 133, .13), transparent 38%),
+    rgba(5, 13, 28, .56);
+}
+
+.settings-popover {
+  border-color: rgba(251, 113, 133, .34);
+  background:
+    radial-gradient(circle at 88% 12%, rgba(251, 113, 133, .16), transparent 34%),
+    radial-gradient(circle at 10% 90%, rgba(168, 85, 247, .15), transparent 38%),
+    rgba(5, 13, 28, .96);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, .45),
+    0 0 0 1px rgba(255, 255, 255, .035) inset,
+    0 0 36px rgba(251, 113, 133, .12);
+}
+
+.pill:hover,
+.familyPill:hover {
+  border-color: rgba(251, 113, 133, .38);
+}
+
+.pill:has(input:checked),
+.familyPill:has(input:checked) {
+  border-color: rgba(251, 113, 133, .58);
+  background: linear-gradient(135deg, rgba(168, 85, 247, .20), rgba(251, 113, 133, .16));
+  box-shadow: 0 10px 24px rgba(251, 113, 133, .08);
+}
+
+.secondary-button {
+  border-color: rgba(251, 113, 133, .32);
+  background:
+    radial-gradient(circle at 82% 18%, rgba(251, 113, 133, .13), transparent 34%),
+    linear-gradient(135deg, rgba(168, 85, 247, .22), rgba(251, 113, 133, .11));
+}
+
+.primary-button:hover,
+.play-button:hover,
+.secondary-button:hover {
+  box-shadow:
+    0 22px 44px rgba(251, 113, 133, .17),
+    0 0 0 1px rgba(255, 255, 255, .18) inset;
+}
+
+.listening-console {
+  border-color: rgba(251, 113, 133, .14);
+  background:
+    radial-gradient(circle at 50% 24%, rgba(251, 113, 133, .14), transparent 30%),
+    radial-gradient(circle at 50% 56%, rgba(168, 85, 247, .14), transparent 40%),
+    radial-gradient(circle at 50% 92%, rgba(251, 191, 36, .040), transparent 38%),
+    linear-gradient(180deg, rgba(2, 7, 19, .36), rgba(2, 7, 19, .28));
+}
+
+.listening-console::before {
+  border-color: rgba(251, 113, 133, .08);
+}
+
+.listening-console::after {
+  border-color: rgba(251, 113, 133, .06);
+  box-shadow:
+    0 0 0 60px rgba(251, 113, 133, .016),
+    0 0 0 120px rgba(168, 85, 247, .014),
+    0 0 56px rgba(251, 113, 133, .044);
+}
+
+.console-mm-icon,
+.answer-empty-icon {
+  background:
+    radial-gradient(circle at 62% 18%, rgba(251, 113, 133, .26), transparent 38%),
+    radial-gradient(circle at 22% 90%, rgba(168, 85, 247, .22), transparent 40%),
+    linear-gradient(145deg, rgba(7, 17, 31, .98), rgba(31, 18, 52, .92));
+}
+
+.listening-visual {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(251, 113, 133, .10), transparent 50%),
+    rgba(255, 255, 255, .045);
+}
+
+.answer-option {
+  border-color: rgba(255, 255, 255, .12);
+  background:
+    radial-gradient(circle at 84% 16%, rgba(168, 85, 247, .13), transparent 38%),
+    radial-gradient(circle at 14% 90%, rgba(251, 113, 133, .055), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, .070), rgba(255, 255, 255, .042));
+}
+
+.answer-option:hover:not(:disabled) {
+  border-color: rgba(251, 113, 133, .46);
+  background:
+    radial-gradient(circle at 84% 16%, rgba(168, 85, 247, .18), transparent 38%),
+    radial-gradient(circle at 14% 90%, rgba(251, 113, 133, .090), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, .090), rgba(255, 255, 255, .054));
+  box-shadow: 0 20px 44px rgba(251, 113, 133, .10);
+}
+
+.instrument-icon-shell {
+  background:
+    radial-gradient(circle at 70% 18%, rgba(251, 113, 133, .15), transparent 42%),
+    rgba(5, 13, 28, .52);
+}
+
+.answerCard-empty,
+.answer-reveal,
+.summary {
+  border-color: rgba(255, 255, 255, .105);
+  background:
+    radial-gradient(circle at 74% 12%, rgba(168, 85, 247, .13), transparent 38%),
+    radial-gradient(circle at 12% 92%, rgba(251, 113, 133, .060), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, .060), rgba(255, 255, 255, .036));
+}
+
+.answer-meta-card,
+.summary-item,
+.answer-title-card {
+  border-color: rgba(255, 255, 255, .095);
+  background:
+    radial-gradient(circle at 88% 12%, rgba(251, 113, 133, .055), transparent 36%),
+    rgba(255, 255, 255, .035);
+}
+
+
+/* =========================
+   Melody Master MM001 dictation prototype
+   Additions only — keeps the EchoAural shell and existing brand system.
+========================= */
+
+.dictation-console {
+  align-content: stretch;
+  grid-template-rows: auto auto auto auto 1fr auto;
+  gap: clamp(9px, 1.1vh, 14px);
+  padding: clamp(14px, 1.5vw, 22px);
+}
+
+.dictation-heading {
+  min-height: auto;
+}
+
+.dictation-heading #questionText {
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.45vw, 1.34rem);
+  line-height: 1.35;
+  letter-spacing: -.025em;
+}
+
+.dictation-toolbar {
+  width: min(920px, 100%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.dictation-toolbar .primary-button,
+.dictation-toolbar .play-button,
+.dictation-toolbar .secondary-button {
+  width: auto;
+  min-height: 43px;
+  padding: 0 18px;
+  font-size: .88rem;
+}
+
+.dictation-toolbar .compact-action {
+  border-radius: 999px;
+}
+
+.dictation-instructions {
+  width: min(920px, 100%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px;
+}
+
+.dictation-instructions span {
+  min-height: 28px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 255, 255, .105);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  color: rgba(255, 255, 255, .70);
+  background: rgba(255, 255, 255, .04);
+  font-size: .70rem;
+  font-weight: 850;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.dictation-workspace {
+  width: min(980px, 100%);
+  min-height: 0;
+  align-self: stretch;
+  display: grid;
+  grid-template-rows: auto minmax(250px, 1fr);
+  gap: 12px;
+}
+
+.rhythm-tray {
+  min-height: 86px;
+  padding: 13px;
+  border: 1px solid rgba(56, 189, 248, .18);
+  border-radius: 24px;
+  display: grid;
+  grid-template-columns: minmax(140px, 190px) 1fr;
+  align-items: center;
+  gap: 14px;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(56, 189, 248, .14), transparent 34%),
+    rgba(255, 255, 255, .045);
+  box-shadow: inset 0 0 28px rgba(56, 189, 248, .025);
+}
+
+.rhythm-tray-label {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+
+.rhythm-tray-label .eyebrow {
+  margin: 0;
+}
+
+.rhythm-tray-label strong {
+  color: rgba(255, 255, 255, .92);
+  font-size: .94rem;
+  letter-spacing: -.01em;
+}
+
+.note-token-row {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.3vw, 15px);
+}
+
+.note-token {
+  touch-action: none;
+  user-select: none;
+
+  width: calc(var(--mm-note-width, 22px) + 10px);
+  height: calc(var(--mm-note-height, 46px) + 8px);
+
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 10px;
+
+  display: grid;
+  place-items: center;
+
+  color: #050505;
+  background: rgba(255, 255, 255, .86);
+
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, .18),
+    inset 0 0 0 1px rgba(255, 255, 255, .66);
+
+  font-size: 0;
+  line-height: 1;
+  cursor: grab;
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease,
+    filter .18s ease,
+    background .18s ease;
+}
+
+.note-token::before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: currentColor;
+
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2042%2088%27%3E%0A%20%20%3Cg%20fill%3D%27black%27%3E%0A%20%20%20%20%3Cellipse%20cx%3D%2718.2%27%20cy%3D%2773.1%27%20rx%3D%2713.6%27%20ry%3D%277.1%27%20transform%3D%27rotate%28-22%2018.2%2073.1%29%27%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2730.4%27%20y%3D%277%27%20width%3D%272.2%27%20height%3D%2760.8%27%20rx%3D%270.55%27%2F%3E%0A%20%20%3C%2Fg%3E%0A%20%20%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.85%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M32.0%207.8%20C38.6%2010.7%2042.0%2015.2%2041.2%2020.7%20C40.6%2024.7%2038.0%2028.6%2034.0%2032.3%20C36.0%2025.6%2035.0%2020.2%2032.0%2016.6%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M32.0%2021.4%20C38.3%2024.0%2041.5%2028.1%2040.9%2033.4%20C40.4%2037.3%2037.9%2041.2%2034.0%2044.9%20C35.7%2038.4%2034.9%2033.1%2032.0%2029.5%27%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2042%2088%27%3E%0A%20%20%3Cg%20fill%3D%27black%27%3E%0A%20%20%20%20%3Cellipse%20cx%3D%2718.2%27%20cy%3D%2773.1%27%20rx%3D%2713.6%27%20ry%3D%277.1%27%20transform%3D%27rotate%28-22%2018.2%2073.1%29%27%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2730.4%27%20y%3D%277%27%20width%3D%272.2%27%20height%3D%2760.8%27%20rx%3D%270.55%27%2F%3E%0A%20%20%3C%2Fg%3E%0A%20%20%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.85%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M32.0%207.8%20C38.6%2010.7%2042.0%2015.2%2041.2%2020.7%20C40.6%2024.7%2038.0%2028.6%2034.0%2032.3%20C36.0%2025.6%2035.0%2020.2%2032.0%2016.6%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M32.0%2021.4%20C38.3%2024.0%2041.5%2028.1%2040.9%2033.4%20C40.4%2037.3%2037.9%2041.2%2034.0%2044.9%20C35.7%2038.4%2034.9%2033.1%2032.0%2029.5%27%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E") center / contain no-repeat;
+}
+
+.note-token:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, .22),
+    0 0 18px rgba(56, 189, 248, .13),
+    inset 0 0 0 1px rgba(255, 255, 255, .76);
+}
+
+.note-token.is-dragging {
+  opacity: .98;
+  cursor: grabbing;
+  pointer-events: none;
+}
+
+.note-token.is-placed.is-dragging {
+  transform: translate(-50%, -76%);
+  filter:
+    drop-shadow(0 0 4px rgba(56, 189, 248, .48))
+    drop-shadow(0 0 14px rgba(56, 189, 248, .22));
+}
+
+.note-token.is-placed {
+  width: var(--mm-note-width, 22px);
+  height: var(--mm-note-height, 46px);
+  border-color: transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+
+  /* Align the centre of the Sibelius-style notehead with the selected pitch row. */
+  transform: translate(-50%, -76%);
+}
+
+.note-token.is-placed:hover {
+  transform: translate(-50%, -76%);
+  box-shadow: none;
+}
+
+.note-token.is-home-note {
+  opacity: 1;
+  filter: none;
+}
+
+.note-token.is-home-note:hover {
+  transform: translate(-50%, -76%);
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, .20));
+}
+
+.note-token.correct {
+  color: #050505;
+  filter:
+    drop-shadow(0 0 3px rgba(110, 231, 183, .95))
+    drop-shadow(0 0 12px rgba(110, 231, 183, .72));
+}
+
+.note-token.wrong {
+  color: #050505;
+  filter:
+    drop-shadow(0 0 3px rgba(251, 113, 133, .95))
+    drop-shadow(0 0 12px rgba(251, 113, 133, .72));
+}
+
+.score-shell {
+  position: relative;
+  min-height: 250px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .078), rgba(255, 255, 255, .040)),
+    rgba(2, 7, 19, .38);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, .23),
+    inset 0 0 0 1px rgba(255, 255, 255, .035);
+  --mm-score-focus-scale: 1.18;
+  --mm-note-focus-scale: 1.72;
+  --mm-note-width: 22px;
+  --mm-note-height: 46px;
+  --mm-focus-x: 50%;
+  --mm-focus-y: 50%;
+  isolation: isolate;
+  transition:
+    border-color .28s ease,
+    box-shadow .28s ease,
+    background .28s ease;
+}
+
+.score-shell.is-audio-focus {
+  border-color: rgba(56, 189, 248, .68);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(56, 189, 248, .10), transparent 52%),
+    linear-gradient(180deg, rgba(255, 255, 255, .092), rgba(255, 255, 255, .046)),
+    rgba(2, 7, 19, .42);
+  box-shadow:
+    0 24px 62px rgba(0, 0, 0, .30),
+    0 0 0 4px rgba(56, 189, 248, .085),
+    0 0 42px rgba(56, 189, 248, .20),
+    inset 0 0 0 1px rgba(255, 255, 255, .045);
+}
+
+.score-image,
+.score-overlay {
+  transform-origin: var(--mm-focus-x) var(--mm-focus-y);
+  transition: transform .62s cubic-bezier(.22, 1, .36, 1), transform-origin .22s ease;
+}
+
+.score-shell.is-audio-focus .score-image,
+.score-shell.is-audio-focus .score-overlay {
+  transform: scale(var(--mm-score-focus-scale));
+}
+
+.score-shell.is-note-focus {
+  border-color: rgba(125, 211, 252, .82);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, .34),
+    0 0 0 5px rgba(56, 189, 248, .10),
+    0 0 52px rgba(56, 189, 248, .24),
+    inset 0 0 0 1px rgba(255, 255, 255, .055);
+}
+
+.score-shell.is-note-focus .score-image,
+.score-shell.is-note-focus .score-overlay {
+  transform: scale(var(--mm-note-focus-scale));
+}
+
+.score-shell.is-drop-target {
+  border-color: rgba(56, 189, 248, .70);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, .23),
+    0 0 0 4px rgba(56, 189, 248, .10),
+    0 0 32px rgba(56, 189, 248, .18);
+}
+
+.score-shell.showing-answer {
+  border-color: rgba(110, 231, 183, .50);
+}
+
+.score-image {
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+  object-fit: contain;
+  padding: clamp(10px, 1.2vw, 18px);
+  background:
+    radial-gradient(circle at 20% 10%, rgba(56, 189, 248, .06), transparent 28%),
+    rgba(255, 255, 255, .92);
+}
+
+.score-overlay {
+  position: absolute;
+  inset: clamp(10px, 1.2vw, 18px);
+  z-index: 3;
+}
+
+.dictation-slot {
+  position: absolute;
+  width: clamp(34px, 4vw, 48px);
+  height: clamp(34px, 4vw, 48px);
+  border: 1px dashed rgba(56, 189, 248, .48);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: rgba(56, 189, 248, .055);
+  box-shadow: 0 0 18px rgba(56, 189, 248, .06);
+  pointer-events: none;
+  transition:
+    border-color .2s ease,
+    background .2s ease,
+    box-shadow .2s ease,
+    opacity .2s ease;
+}
+
+.dictation-slot.filled {
+  opacity: .42;
+  border-style: solid;
+}
+
+.score-overlay.checked .dictation-slot.filled {
+  opacity: .75;
+}
+
+.dictation-slot.correct {
+  opacity: 1;
+  border-color: rgba(110, 231, 183, .88);
+  background: rgba(110, 231, 183, .12);
+  box-shadow:
+    0 0 0 4px rgba(110, 231, 183, .08),
+    0 0 22px rgba(110, 231, 183, .24);
+}
+
+.dictation-slot.wrong {
+  opacity: 1;
+  border-color: rgba(251, 113, 133, .92);
+  background: rgba(251, 113, 133, .11);
+  box-shadow:
+    0 0 0 4px rgba(251, 113, 133, .08),
+    0 0 22px rgba(251, 113, 133, .25);
+}
+
+.dictation-slot.missing {
+  opacity: 1;
+  border-color: rgba(251, 191, 36, .88);
+  background: rgba(251, 191, 36, .10);
+}
+
+.pulse-warning {
+  animation: slotPulse 1.05s ease-in-out infinite;
+}
+
+#feedback.good,
+.good {
+  color: rgba(110, 231, 183, .96);
+}
+
+#feedback.bad,
+.bad {
+  color: rgba(251, 113, 133, .96);
+}
+
+.dictation-result-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.dictation-result-row {
+  min-height: 45px;
+  padding: 9px 10px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 15px;
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 4px 10px;
+  align-items: center;
+  background: rgba(255, 255, 255, .04);
+}
+
+.dictation-result-row span {
+  color: rgba(255, 255, 255, .58);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.dictation-result-row strong {
+  color: rgba(255, 255, 255, .94);
+  font-size: 1rem;
+}
+
+.dictation-result-row em {
+  grid-column: 2;
+  color: rgba(255, 255, 255, .66);
+  font-size: .78rem;
+  font-style: normal;
+  line-height: 1.25;
+}
+
+.dictation-result-row.correct {
+  border-color: rgba(110, 231, 183, .36);
+  background: rgba(110, 231, 183, .055);
+}
+
+.dictation-result-row.wrong {
+  border-color: rgba(251, 113, 133, .36);
+  background: rgba(251, 113, 133, .055);
+}
+
+.dictation-result-row.missing {
+  border-color: rgba(251, 191, 36, .34);
+  background: rgba(251, 191, 36, .050);
+}
+
+.result-note {
+  margin: 14px 0 0;
+  font-size: .82rem;
+}
+
+@keyframes slotPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, .16);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.08);
+    box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
+  }
+}
+
+@media (max-width: 1100px) {
+  .dictation-workspace {
+    grid-template-rows: auto minmax(230px, 1fr);
+  }
+
+  .rhythm-tray {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .rhythm-tray-label {
+    justify-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .dictation-toolbar .primary-button,
+  .dictation-toolbar .play-button,
+  .dictation-toolbar .secondary-button {
+    width: 100%;
+  }
+
+  .score-shell,
+  .score-image {
+    min-height: 210px;
+  }
+
+  .dictation-slot {
+    opacity: .55;
+  }
+}
+
+
+/* =========================
+   MM001 right-panel source information
+   Keeps the previous score display while moving track details out of the centre panel.
+========================= */
+
+.source-meta-card {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 14px;
+}
+
+.source-meta-card .meta-row {
+  min-height: 44px;
+  border-color: rgba(56, 189, 248, .14);
+  background:
+    radial-gradient(circle at 90% 20%, rgba(56, 189, 248, .075), transparent 38%),
+    rgba(255, 255, 255, .038);
+}
+
+.compact-source-meta {
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+
+.compact-source-meta .meta-row {
+  min-height: 38px;
+}
+
+.mm-source-panel h2,
+.answer-title-block h2 {
+  letter-spacing: -.045em;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .score-image,
+  .score-overlay {
+    transition: none;
+  }
+
+  .score-shell.is-audio-focus .score-image,
+  .score-shell.is-audio-focus .score-overlay {
+    transform: scale(1.10);
+  }
+}
+
+
+/* =========================
+   Requested MM centre-console refinement
+   - Removes the visible "Given Rhythm" tile
+   - Lets the score PNG use the full available console width
+   - Keeps the note-token DOM available for the existing drag code
+========================= */
+
+.dictation-workspace {
+  width: 100%;
+  grid-template-rows: minmax(0, auto);
+  gap: 0;
+  align-items: center;
+}
+
+.rhythm-tray {
+  display: none !important;
+}
+
+.score-shell {
+  width: 100%;
+  min-height: 0;
+  height: auto;
+  aspect-ratio: 2048 / 188;
+  border-radius: 22px;
+}
+
+.score-image {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  object-fit: fill;
+  background: rgba(255, 255, 255, .96);
+}
+
+.score-overlay {
+  inset: 0;
+}
+
+@media (max-width: 1100px) {
+  .dictation-workspace {
+    grid-template-rows: minmax(0, auto);
+  }
+}
+
+@media (max-width: 760px) {
+  .score-shell,
+  .score-image {
+    min-height: 0;
+  }
+}
+
+/* =========================
+   MM centre-console brand + enlarged branded score tile
+   Requested change only:
+   - Start page shows Melody Master SVG icon and text logo in centre console
+   - Buttons and score area sit lower
+   - Score PNG remains anchored in the same bottom position during gameplay
+   - Score tile is larger with EchoAural waveform/circle background elements
+========================= */
+
+.dictation-console {
+  grid-template-rows:
+    clamp(118px, 15vh, 160px)
+    auto
+    auto
+    auto
+    minmax(clamp(250px, 31vh, 360px), 1fr)
+    auto;
+  align-content: stretch;
+  justify-content: stretch;
+  gap: clamp(7px, .85vh, 12px);
+  padding: clamp(14px, 1.45vw, 22px);
+}
+
+.mm-console-start-brand {
+  width: min(520px, 100%);
+  min-height: clamp(118px, 15vh, 160px);
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  opacity: 1;
+  visibility: visible;
+  max-height: none;
+  pointer-events: none;
+}
+
+.mm-console-start-brand .console-mm-combined-lockup {
+  gap: clamp(7px, .9vh, 11px);
+}
+
+.mm-console-start-brand .console-mm-icon {
+  width: clamp(62px, 7.2vw, 92px);
+  height: clamp(62px, 7.2vw, 92px);
+  padding: clamp(10px, 1.15vw, 16px);
+  border-radius: clamp(18px, 2vw, 27px);
+}
+
+.mm-console-start-brand .console-title-text {
+  line-height: .92;
+}
+
+.mm-console-start-brand .console-title-main,
+.mm-console-start-brand .console-title-gradient {
+  font-size: clamp(1.42rem, 2.55vw, 2.45rem);
+}
+
+.quiz-panel.is-ready .mm-console-start-brand {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Keep this row reserved after loading so the score PNG does not jump. */
+.quiz-panel.is-active .mm-console-start-brand,
+.quiz-panel.is-complete .mm-console-start-brand {
+  max-height: none;
+  min-height: clamp(118px, 15vh, 160px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px) scale(.98);
+  pointer-events: none;
+}
+
+.dictation-heading {
+  min-height: 0;
+}
+
+.dictation-heading #questionText {
+  max-width: 56ch;
+  font-size: clamp(.92rem, 1.2vw, 1.12rem);
+  line-height: 1.28;
+}
+
+.dictation-toolbar {
+  margin-top: 0;
+}
+
+.dictation-instructions {
+  margin-bottom: 0;
+}
+
+.dictation-workspace {
+  align-self: end;
+  min-height: clamp(250px, 31vh, 360px);
+  display: grid;
+  place-items: end center;
+}
+
+.score-shell {
+  --score-frame-pad: clamp(12px, 1.45vw, 22px);
+  width: min(1120px, 100%);
+  height: clamp(250px, 31vh, 360px);
+  min-height: clamp(250px, 31vh, 360px);
+  aspect-ratio: auto;
+  border-radius: 32px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(56, 189, 248, .20), transparent 23%),
+    radial-gradient(circle at 86% 18%, rgba(168, 85, 247, .18), transparent 26%),
+    radial-gradient(circle at 48% 92%, rgba(251, 113, 133, .105), transparent 31%),
+    linear-gradient(145deg, rgba(255, 255, 255, .088), rgba(255, 255, 255, .038)),
+    rgba(2, 7, 19, .52);
+  box-shadow:
+    0 22px 56px rgba(0, 0, 0, .30),
+    0 0 0 1px rgba(255, 255, 255, .045) inset,
+    0 0 44px rgba(56, 189, 248, .10);
+}
+
+.score-shell::before,
+.score-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.score-shell::before {
+  background:
+    radial-gradient(circle at 18% 35%, transparent 0 58px, rgba(56, 189, 248, .105) 59px 60px, transparent 61px),
+    radial-gradient(circle at 18% 35%, transparent 0 112px, rgba(139, 92, 246, .075) 113px 114px, transparent 115px),
+    radial-gradient(circle at 84% 32%, transparent 0 72px, rgba(255, 255, 255, .060) 73px 74px, transparent 75px),
+    radial-gradient(circle at 84% 32%, transparent 0 136px, rgba(56, 189, 248, .070) 137px 138px, transparent 139px);
+  opacity: .92;
+}
+
+.score-shell::after {
+  left: 50%;
+  top: 22%;
+  width: min(560px, 66%);
+  height: 86px;
+  transform: translateX(-50%);
+  opacity: .24;
+  background:
+    linear-gradient(90deg,
+      transparent 0 5%,
+      rgba(56, 189, 248, .70) 5% 6%,
+      transparent 6% 12%,
+      rgba(99, 102, 241, .78) 12% 13.2%,
+      transparent 13.2% 20%,
+      rgba(168, 85, 247, .82) 20% 21.3%,
+      transparent 21.3% 29%,
+      rgba(251, 113, 133, .72) 29% 30%,
+      transparent 30% 37%,
+      rgba(56, 189, 248, .68) 37% 38.4%,
+      transparent 38.4% 46%,
+      rgba(139, 92, 246, .76) 46% 47.2%,
+      transparent 47.2% 55%,
+      rgba(255, 255, 255, .56) 55% 56%,
+      transparent 56% 64%,
+      rgba(56, 189, 248, .72) 64% 65.4%,
+      transparent 65.4% 73%,
+      rgba(168, 85, 247, .72) 73% 74.2%,
+      transparent 74.2% 82%,
+      rgba(251, 113, 133, .66) 82% 83.3%,
+      transparent 83.3% 100%);
+  filter: blur(.1px) drop-shadow(0 0 18px rgba(56, 189, 248, .24));
+  mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
+}
+
+.score-image-frame {
+  position: absolute;
+  left: var(--score-frame-pad);
+  right: var(--score-frame-pad);
+  bottom: var(--score-frame-pad);
+  z-index: 2;
+  aspect-ratio: 2048 / 188;
+  border-radius: 15px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .965);
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, .24),
+    0 0 0 1px rgba(255, 255, 255, .30) inset;
+  transform-origin: var(--mm-focus-x) var(--mm-focus-y);
+}
+
+.score-image,
+.score-overlay {
+  transform-origin: var(--mm-focus-x) var(--mm-focus-y);
+  transition: transform .62s cubic-bezier(.22, 1, .36, 1), transform-origin .22s ease;
+}
+
+.score-image {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  object-fit: fill;
+  background: rgba(255, 255, 255, .965);
+}
+
+.score-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.score-shell.is-audio-focus .score-image-frame {
+  transform: scale(var(--mm-score-focus-scale));
+}
+
+.score-shell.is-note-focus .score-image-frame {
+  transform: scale(var(--mm-note-focus-scale));
+}
+
+/* The frame now scales as one unit; prevent the older image/overlay scale rule from double-scaling. */
+.score-shell.is-audio-focus .score-image,
+.score-shell.is-audio-focus .score-overlay,
+.score-shell.is-note-focus .score-image,
+.score-shell.is-note-focus .score-overlay {
+  transform: none;
+}
+
+@media (max-width: 1100px) {
+  .dictation-console {
+    grid-template-rows:
+      clamp(104px, 13vh, 138px)
+      auto
+      auto
+      auto
+      minmax(clamp(220px, 29vh, 310px), 1fr)
+      auto;
+  }
+
+  .mm-console-start-brand,
+  .quiz-panel.is-active .mm-console-start-brand,
+  .quiz-panel.is-complete .mm-console-start-brand {
+    min-height: clamp(104px, 13vh, 138px);
+  }
+
+  .dictation-workspace,
+  .score-shell {
+    min-height: clamp(220px, 29vh, 310px);
+    height: clamp(220px, 29vh, 310px);
+  }
+}
+
+@media (max-width: 760px) {
+  .dictation-console {
+    grid-template-rows: auto auto auto auto auto auto;
+  }
+
+  .mm-console-start-brand,
+  .quiz-panel.is-active .mm-console-start-brand,
+  .quiz-panel.is-complete .mm-console-start-brand {
+    min-height: 92px;
+  }
+
+  .dictation-workspace,
+  .score-shell {
+    min-height: 190px;
+    height: 190px;
+  }
+
+  .score-shell {
+    border-radius: 24px;
+  }
+}
+
+/* =========================
+   MM console correction — centred score tile, top controls, no drag gameplay
+   Requested change only:
+   - PNG centred and visible inside its score tile
+   - Score tile sits higher in the centre console
+   - Active gameplay text/question/buttons stay at the top
+   - Drag/drop elements and checking are removed for now
+========================= */
+
+#checkAnswerButton {
+  display: inline-flex !important;
+}
+
+.quiz-panel.is-active .dictation-console,
+.quiz-panel.is-complete .dictation-console {
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  align-content: start;
+  align-items: start;
+  gap: clamp(7px, .85vh, 11px);
+}
+
+.quiz-panel.is-active .mm-console-start-brand,
+.quiz-panel.is-complete .mm-console-start-brand {
+  display: none !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.quiz-panel.is-active .console-question-kicker,
+.quiz-panel.is-active .dictation-heading,
+.quiz-panel.is-active .dictation-toolbar,
+.quiz-panel.is-active .dictation-instructions,
+.quiz-panel.is-complete .console-question-kicker,
+.quiz-panel.is-complete .dictation-heading,
+.quiz-panel.is-complete .dictation-toolbar,
+.quiz-panel.is-complete .dictation-instructions {
+  align-self: start;
+}
+
+.quiz-panel.is-active .dictation-heading #questionText,
+.quiz-panel.is-complete .dictation-heading #questionText {
+  max-width: 60ch;
+  font-size: clamp(.94rem, 1.12vw, 1.08rem);
+  line-height: 1.25;
+}
+
+.no-drag-workspace,
+.dictation-workspace.no-drag-workspace {
+  width: 100%;
+  min-height: clamp(226px, 28vh, 334px);
+  height: clamp(226px, 28vh, 334px);
+  align-self: start;
+  display: grid;
+  place-items: center;
+  margin-top: clamp(2px, .65vh, 8px);
+}
+
+.score-shell.no-drag-score-shell,
+.score-shell {
+  --score-frame-pad: clamp(12px, 1.35vw, 20px);
+  width: min(1160px, 100%);
+  height: clamp(226px, 28vh, 334px);
+  min-height: clamp(226px, 28vh, 334px);
+  aspect-ratio: auto;
+  display: block;
+  border-radius: 32px;
+}
+
+.score-shell.no-drag-score-shell .score-image-frame,
+.score-image-frame {
+  position: absolute !important;
+  left: var(--score-frame-pad) !important;
+  right: var(--score-frame-pad) !important;
+  top: 50% !important;
+  bottom: auto !important;
+  z-index: 2;
+  aspect-ratio: 2048 / 188;
+  border-radius: 15px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .975);
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, .24),
+    0 0 0 1px rgba(255, 255, 255, .34) inset;
+  transform: translateY(-50%);
+  transform-origin: var(--mm-focus-x) var(--mm-focus-y);
+}
+
+.score-image {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0 !important;
+  padding: 0 !important;
+  object-fit: fill;
+  background: rgba(255, 255, 255, .975);
+}
+
+.score-overlay {
+  display: none !important;
+}
+
+.dictation-slot,
+.note-token,
+.note-token-row,
+.rhythm-tray,
+.rhythm-tray-label {
+  display: none !important;
+}
+
+.score-shell.is-audio-focus .score-image-frame {
+  transform: translateY(-50%) scale(1.03);
+}
+
+.score-shell.is-note-focus .score-image-frame {
+  transform: translateY(-50%);
+}
+
+.score-shell.is-audio-focus .score-image,
+.score-shell.is-note-focus .score-image {
+  transform: none !important;
+}
+
+#feedback {
+  min-height: 1.25em;
+  align-self: end;
+}
+
+@media (max-width: 1100px) {
+  .quiz-panel.is-active .dictation-console,
+  .quiz-panel.is-complete .dictation-console {
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  }
+
+  .no-drag-workspace,
+  .dictation-workspace.no-drag-workspace,
+  .score-shell.no-drag-score-shell,
+  .score-shell {
+    min-height: clamp(210px, 26vh, 300px);
+    height: clamp(210px, 26vh, 300px);
+  }
+}
+
+@media (max-width: 760px) {
+  .no-drag-workspace,
+  .dictation-workspace.no-drag-workspace,
+  .score-shell.no-drag-score-shell,
+  .score-shell {
+    min-height: 188px;
+    height: 188px;
+  }
+
+  .score-shell.no-drag-score-shell,
+  .score-shell {
+    border-radius: 24px;
+  }
+}
+
+/* =========================
+   MM ready-page console layout refinement
+   Requested change only:
+   - First page: Melody Master logo above the score tile
+   - Score PNG stays centred; score tile is slightly less tall
+   - Start/reveal/reset buttons sit underneath the score tile
+   - Active gameplay layout remains controlled by the previous no-drag rules
+========================= */
+
+.quiz-panel.is-ready .dictation-console {
+  grid-template-rows: auto auto auto;
+  align-content: center;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(10px, 1.15vh, 15px);
+  padding-top: clamp(16px, 1.8vw, 26px);
+  padding-bottom: clamp(16px, 1.8vw, 26px);
+}
+
+.quiz-panel.is-ready .console-question-kicker,
+.quiz-panel.is-ready .dictation-heading,
+.quiz-panel.is-ready .dictation-instructions,
+.quiz-panel.is-ready #feedback {
+  display: none !important;
+}
+
+.quiz-panel.is-ready .mm-console-start-brand {
+  order: 1;
+  width: min(500px, 100%);
+  min-height: 0 !important;
+  height: auto;
+  margin: 0 auto;
+  display: grid !important;
+  place-items: center;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-mm-combined-lockup {
+  display: grid;
+  justify-items: center;
+  gap: clamp(6px, .7vh, 9px);
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-mm-icon {
+  width: clamp(64px, 6.6vw, 88px);
+  height: clamp(64px, 6.6vw, 88px);
+  padding: clamp(10px, 1.1vw, 14px);
+  border-radius: clamp(18px, 2vw, 25px);
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-title-main,
+.quiz-panel.is-ready .mm-console-start-brand .console-title-gradient {
+  font-size: clamp(1.35rem, 2.25vw, 2.1rem);
+}
+
+.quiz-panel.is-ready .no-drag-workspace,
+.quiz-panel.is-ready .dictation-workspace.no-drag-workspace {
+  order: 2;
+  width: 100%;
+  min-height: clamp(198px, 23.5vh, 292px);
+  height: clamp(198px, 23.5vh, 292px);
+  margin-top: 0;
+  align-self: center;
+  display: grid;
+  place-items: center;
+}
+
+.quiz-panel.is-ready .score-shell.no-drag-score-shell,
+.quiz-panel.is-ready .score-shell {
+  --score-frame-pad: clamp(10px, 1.15vw, 16px);
+  width: min(1160px, 100%);
+  min-height: clamp(198px, 23.5vh, 292px);
+  height: clamp(198px, 23.5vh, 292px);
+  border-radius: 30px;
+}
+
+.quiz-panel.is-ready .score-shell.no-drag-score-shell .score-image-frame,
+.quiz-panel.is-ready .score-image-frame {
+  left: var(--score-frame-pad) !important;
+  right: var(--score-frame-pad) !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+}
+
+.quiz-panel.is-ready .dictation-toolbar {
+  order: 3;
+  width: min(900px, 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(8px, .8vw, 12px);
+}
+
+.quiz-panel.is-ready .dictation-toolbar .primary-button,
+.quiz-panel.is-ready .dictation-toolbar .play-button,
+.quiz-panel.is-ready .dictation-toolbar .secondary-button {
+  min-height: clamp(39px, 4.6vh, 46px);
+  padding: 0 clamp(15px, 1.55vw, 22px);
+  font-size: clamp(.82rem, .92vw, .9rem);
+}
+
+@media (max-width: 1100px) {
+  .quiz-panel.is-ready .dictation-console {
+    grid-template-rows: auto auto auto;
+    gap: 10px;
+  }
+
+  .quiz-panel.is-ready .no-drag-workspace,
+  .quiz-panel.is-ready .dictation-workspace.no-drag-workspace,
+  .quiz-panel.is-ready .score-shell.no-drag-score-shell,
+  .quiz-panel.is-ready .score-shell {
+    min-height: clamp(188px, 22vh, 270px);
+    height: clamp(188px, 22vh, 270px);
+  }
+}
+
+@media (max-width: 760px) {
+  .quiz-panel.is-ready .dictation-console {
+    align-content: start;
+  }
+
+  .quiz-panel.is-ready .mm-console-start-brand .console-mm-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+  }
+
+  .quiz-panel.is-ready .mm-console-start-brand .console-title-main,
+  .quiz-panel.is-ready .mm-console-start-brand .console-title-gradient {
+    font-size: 1.25rem;
+  }
+
+  .quiz-panel.is-ready .no-drag-workspace,
+  .quiz-panel.is-ready .dictation-workspace.no-drag-workspace,
+  .quiz-panel.is-ready .score-shell.no-drag-score-shell,
+  .quiz-panel.is-ready .score-shell {
+    min-height: 176px;
+    height: 176px;
+  }
+}
+
+
+/* =========================
+   MM ready-page start layout polish
+   Requested change only:
+   - Bigger Melody Master SVG/text lockup on the first page
+   - Keep the score PNG tile in place
+   - Hide Show Answer on the first page only
+   - Start Quiz sits centrally at the bottom of the centre console
+========================= */
+
+.quiz-panel.is-ready .dictation-console {
+  position: relative;
+  padding-bottom: clamp(72px, 8.4vh, 104px);
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-mm-combined-lockup {
+  gap: clamp(8px, .95vh, 13px);
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-mm-icon {
+  width: clamp(82px, 8.2vw, 118px);
+  height: clamp(82px, 8.2vw, 118px);
+  padding: clamp(12px, 1.35vw, 18px);
+  border-radius: clamp(22px, 2.4vw, 32px);
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-title-main,
+.quiz-panel.is-ready .mm-console-start-brand .console-title-gradient {
+  font-size: clamp(1.72rem, 3vw, 2.85rem);
+}
+
+.quiz-panel.is-ready #showAnswerButton,
+.quiz-panel.is-ready #restartButton {
+  display: none !important;
+}
+
+.quiz-panel.is-ready .dictation-toolbar {
+  position: absolute;
+  left: 50%;
+  right: auto;
+  bottom: clamp(18px, 2.2vh, 30px);
+  z-index: 5;
+  width: min(420px, calc(100% - 44px));
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.quiz-panel.is-ready #startButton {
+  min-width: min(260px, 100%);
+  min-height: clamp(46px, 5.2vh, 54px);
+  padding: 0 clamp(28px, 3vw, 42px);
+  font-size: clamp(.94rem, 1.08vw, 1.04rem);
+}
+
+@media (max-width: 760px) {
+  .quiz-panel.is-ready .dictation-console {
+    padding-bottom: 74px;
+  }
+
+  .quiz-panel.is-ready .mm-console-start-brand .console-mm-icon {
+    width: 74px;
+    height: 74px;
+    border-radius: 22px;
+  }
+
+  .quiz-panel.is-ready .mm-console-start-brand .console-title-main,
+  .quiz-panel.is-ready .mm-console-start-brand .console-title-gradient {
+    font-size: 1.55rem;
+  }
+}
+
+/* =========================
+   MM fixed score-tile position across all console states
+   Requested change only:
+   - Keep the question/answer PNG tile in the same location before Start Quiz and after
+   - Preserve the ready-page logo, start button, and active top controls
+========================= */
+
+.dictation-console {
+  --mm-fixed-score-top: clamp(168px, 22vh, 220px);
+  --mm-fixed-score-height: clamp(190px, 23.5vh, 280px);
+  --mm-fixed-score-side: clamp(18px, 2vw, 32px);
+  position: relative;
+}
+
+/* The score workspace is now pinned to the same place for ready, active and complete states. */
+.quiz-panel.is-ready .no-drag-workspace,
+.quiz-panel.is-ready .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active .no-drag-workspace,
+.quiz-panel.is-active .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete .no-drag-workspace,
+.quiz-panel.is-complete .dictation-workspace.no-drag-workspace {
+  position: absolute !important;
+  left: var(--mm-fixed-score-side) !important;
+  right: var(--mm-fixed-score-side) !important;
+  top: var(--mm-fixed-score-top) !important;
+  width: auto !important;
+  min-height: var(--mm-fixed-score-height) !important;
+  height: var(--mm-fixed-score-height) !important;
+  margin: 0 !important;
+  align-self: auto !important;
+  justify-self: stretch !important;
+  display: grid !important;
+  place-items: center !important;
+  z-index: 2;
+}
+
+.quiz-panel.is-ready .score-shell.no-drag-score-shell,
+.quiz-panel.is-ready .score-shell,
+.quiz-panel.is-active .score-shell.no-drag-score-shell,
+.quiz-panel.is-active .score-shell,
+.quiz-panel.is-complete .score-shell.no-drag-score-shell,
+.quiz-panel.is-complete .score-shell {
+  width: 100% !important;
+  min-height: var(--mm-fixed-score-height) !important;
+  height: var(--mm-fixed-score-height) !important;
+}
+
+/* Keep the active text/buttons visually at the top while the score tile stays pinned below. */
+.quiz-panel.is-active .console-question-kicker,
+.quiz-panel.is-active .dictation-heading,
+.quiz-panel.is-active .dictation-toolbar,
+.quiz-panel.is-active .dictation-instructions,
+.quiz-panel.is-complete .console-question-kicker,
+.quiz-panel.is-complete .dictation-heading,
+.quiz-panel.is-complete .dictation-toolbar,
+.quiz-panel.is-complete .dictation-instructions {
+  position: relative;
+  z-index: 4;
+}
+
+/* Keep the ready-page logo above the pinned score tile and the Start Quiz button at the bottom. */
+.quiz-panel.is-ready .mm-console-start-brand {
+  position: relative;
+  z-index: 4;
+}
+
+.quiz-panel.is-ready .dictation-toolbar {
+  z-index: 5;
+}
+
+@media (max-width: 1100px) {
+  .dictation-console {
+    --mm-fixed-score-top: clamp(154px, 21vh, 205px);
+    --mm-fixed-score-height: clamp(184px, 22vh, 258px);
+    --mm-fixed-score-side: clamp(14px, 1.8vw, 26px);
+  }
+}
+
+@media (max-width: 760px) {
+  .dictation-console {
+    --mm-fixed-score-top: 142px;
+    --mm-fixed-score-height: 176px;
+    --mm-fixed-score-side: 12px;
+  }
+}
+
+/* =========================
+   MM ready homepage II-style centre console
+   Requested change only:
+   - Before Start Quiz, hide the score PNG/tile completely
+   - Use the Instrument Identifier ready-console structure, but with Melody Master branding
+   - Active/question/answer screens keep the fixed score tile behaviour unchanged
+========================= */
+
+.quiz-panel.is-ready .dictation-console {
+  grid-template-rows: auto auto auto auto;
+  align-content: center;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(14px, 1.8vh, 24px);
+  padding-top: clamp(22px, 2.5vw, 38px);
+  padding-bottom: clamp(82px, 9vh, 112px);
+}
+
+/* Remove the score PNG tile on the homepage only. */
+.quiz-panel.is-ready .no-drag-workspace,
+.quiz-panel.is-ready .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-ready .score-shell.no-drag-score-shell,
+.quiz-panel.is-ready .score-shell {
+  display: none !important;
+}
+
+.quiz-panel.is-ready .mm-console-start-brand {
+  order: 1;
+  width: min(560px, 100%);
+  display: grid !important;
+  place-items: center;
+  margin: 0 auto;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-mm-combined-lockup {
+  display: grid;
+  justify-items: center;
+  gap: clamp(12px, 1.55vh, 18px);
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-mm-icon {
+  width: clamp(126px, 12vw, 176px);
+  height: clamp(126px, 12vw, 176px);
+  padding: clamp(18px, 1.95vw, 26px);
+  border-radius: clamp(30px, 3vw, 42px);
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-title-main,
+.quiz-panel.is-ready .mm-console-start-brand .console-title-gradient {
+  font-size: clamp(2.05rem, 5vw, 4.05rem);
+}
+
+.quiz-panel.is-ready .mm-ready-wave {
+  order: 2;
+  width: min(640px, 90%);
+  height: clamp(86px, 11vh, 126px);
+  margin: clamp(2px, .5vh, 8px) 0 0;
+  display: flex !important;
+}
+
+.quiz-panel.is-ready .mm-ready-wave span {
+  width: clamp(5px, .68vw, 8px);
+}
+
+.quiz-panel.is-ready .mm-ready-cues {
+  order: 3;
+  display: flex !important;
+  width: 100%;
+  margin-top: 0;
+}
+
+.quiz-panel.is-ready .mm-ready-cues span {
+  border-color: rgba(251, 113, 133, .18);
+  background:
+    radial-gradient(circle at 82% 18%, rgba(251, 113, 133, .09), transparent 38%),
+    rgba(255, 255, 255, .04);
+}
+
+/* Keep the start button central at the bottom of the ready console. */
+.quiz-panel.is-ready .dictation-toolbar {
+  order: 4;
+  position: absolute;
+  left: 50%;
+  right: auto;
+  bottom: clamp(18px, 2.2vh, 30px);
+  width: min(420px, calc(100% - 44px));
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+}
+
+/* Ready page only: keep the question/feedback/instruction text hidden, as in the II start console. */
+.quiz-panel.is-ready .console-question-kicker,
+.quiz-panel.is-ready .dictation-heading,
+.quiz-panel.is-ready .dictation-instructions,
+.quiz-panel.is-ready #feedback {
+  display: none !important;
+}
+
+/* The ready-only waveform/cues must not appear once the quiz starts. */
+.quiz-panel.is-active .mm-ready-wave,
+.quiz-panel.is-active .mm-ready-cues,
+.quiz-panel.is-complete .mm-ready-wave,
+.quiz-panel.is-complete .mm-ready-cues {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .quiz-panel.is-ready .dictation-console {
+    gap: 12px;
+    padding-bottom: 78px;
+  }
+
+  .quiz-panel.is-ready .mm-console-start-brand .console-mm-icon {
+    width: 98px;
+    height: 98px;
+    border-radius: 28px;
+  }
+
+  .quiz-panel.is-ready .mm-console-start-brand .console-title-main,
+  .quiz-panel.is-ready .mm-console-start-brand .console-title-gradient {
+    font-size: 2rem;
+  }
+
+  .quiz-panel.is-ready .mm-ready-wave {
+    height: 82px;
+  }
+}
+
+
+/* =========================
+   MM draggable semiquaver layer
+   Added for Melody Master dictation:
+   - Semiquaver PNGs sit just above the question stave
+   - Each note keeps its horizontal answer position and drags vertically down
+   - Hotspots are subtle and only appear while dragging
+========================= */
+
+.score-overlay.dictation-note-overlay {
+  display: block !important;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 8;
+}
+
+.score-overlay.dictation-note-overlay.is-answer-visible {
+  display: none !important;
+}
+
+.score-overlay.dictation-note-overlay .dictation-hotspot {
+  position: absolute;
+  display: block !important;
+  width: clamp(18px, 1.9vw, 26px);
+  height: clamp(18px, 1.9vw, 26px);
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(56, 189, 248, .68);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(56, 189, 248, .20), rgba(56, 189, 248, .03) 52%, transparent 70%);
+  box-shadow:
+    0 0 0 4px rgba(56, 189, 248, .05),
+    0 0 18px rgba(56, 189, 248, .16);
+  opacity: 0;
+  transition: opacity .18s ease, transform .18s ease, border-color .18s ease;
+  pointer-events: none;
+}
+
+.score-overlay.dictation-note-overlay.is-dragging .dictation-hotspot {
+  opacity: .20;
+}
+
+.score-overlay.dictation-note-overlay .dictation-hotspot.is-hot {
+  opacity: .52;
+  transform: translate(-50%, -50%) scale(1.08);
+  border-color: rgba(110, 231, 183, .86);
+  box-shadow:
+    0 0 0 5px rgba(110, 231, 183, .08),
+    0 0 22px rgba(110, 231, 183, .25);
+}
+
+.score-overlay.dictation-note-overlay .dictation-hotspot.is-filled {
+  opacity: 0;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver {
+  --mm-drag-note-width: clamp(8px, 0.72vw, 12px);
+  position: absolute !important;
+  display: grid !important;
+  place-items: center;
+  width: var(--mm-drag-note-width) !important;
+  height: calc(var(--mm-drag-note-width) * 1.78) !important;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #050505;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  transform: translate(-26%, -76%);
+  transform-origin: 26% 76%;
+  transition:
+    left .16s ease,
+    top .16s ease,
+    transform .16s ease,
+    filter .16s ease,
+    opacity .16s ease;
+  z-index: 4;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver::before {
+  display: none !important;
+  content: none !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver img {
+  display: block !important;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  filter:
+    drop-shadow(0 1px 1px rgba(0, 0, 0, .20))
+    drop-shadow(0 0 5px rgba(56, 189, 248, .08));
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver:hover {
+  transform: translate(-26%, -79%) scale(1.04);
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, .20));
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.is-dragging {
+  opacity: .98;
+  cursor: grabbing;
+  z-index: 10;
+  transition: none;
+  filter:
+    drop-shadow(0 0 4px rgba(56, 189, 248, .42))
+    drop-shadow(0 0 14px rgba(56, 189, 248, .18));
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.is-placed {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, .18));
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.correct {
+  filter:
+    drop-shadow(0 0 3px rgba(110, 231, 183, .72))
+    drop-shadow(0 0 12px rgba(110, 231, 183, .38));
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.note-image-missing::after {
+  content: "♪";
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: #050505;
+  font-size: calc(var(--mm-drag-note-width) * 1.18);
+  font-weight: 900;
+  line-height: 1;
+}
+
+@media (max-width: 760px) {
+  .score-overlay.dictation-note-overlay .note-token.draggable-semiquaver {
+    --mm-drag-note-width: 9px;
+  }
+
+  .score-overlay.dictation-note-overlay .dictation-hotspot {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* =========================
+   Melody Master gameplay update
+   - Notes can now be placed on any stave line or space
+   - Check Answer flashes each placed note green or red
+========================= */
+
+.score-overlay.dictation-note-overlay .dictation-hotspot,
+.score-overlay.dictation-note-overlay.is-dragging .dictation-hotspot,
+.score-overlay.dictation-note-overlay .dictation-hotspot.is-hot,
+.score-overlay.dictation-note-overlay .dictation-hotspot.is-filled {
+  opacity: 0 !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.wrong {
+  filter:
+    drop-shadow(0 0 3px rgba(251, 113, 133, .78))
+    drop-shadow(0 0 12px rgba(251, 113, 133, .42));
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct {
+  animation: mmCorrectNoteFlash 1.05s ease-in-out 0s 3;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong {
+  animation: mmWrongNoteFlash 1.05s ease-in-out 0s 3;
+}
+
+@keyframes mmCorrectNoteFlash {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 2px rgba(0, 0, 0, .20))
+      drop-shadow(0 0 0 rgba(110, 231, 183, 0));
+    transform: translate(-26%, -76%) scale(1);
+  }
+
+  50% {
+    filter:
+      drop-shadow(0 0 4px rgba(110, 231, 183, .98))
+      drop-shadow(0 0 17px rgba(110, 231, 183, .75));
+    transform: translate(-26%, -76%) scale(1.08);
+  }
+}
+
+@keyframes mmWrongNoteFlash {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 2px rgba(0, 0, 0, .20))
+      drop-shadow(0 0 0 rgba(251, 113, 133, 0));
+    transform: translate(-26%, -76%) scale(1);
+  }
+
+  50% {
+    filter:
+      drop-shadow(0 0 4px rgba(251, 113, 133, .98))
+      drop-shadow(0 0 17px rgba(251, 113, 133, .76));
+    transform: translate(-26%, -76%) scale(1.08);
+  }
+}
+
+
+/* =========================
+   Melody Master score zoom update
+   - Play Audio gently magnifies the question score around the missing-note area
+   - Dragging a note magnifies further around the selected blank
+   - The score image and overlay scale together, so percent-based note positions stay aligned
+========================= */
+
+.score-shell {
+  --mm-score-focus-scale: 1.18;
+  --mm-note-focus-scale: 1.68;
+}
+
+.score-image-frame {
+  will-change: transform;
+  transition:
+    transform .48s cubic-bezier(.22, 1, .36, 1),
+    transform-origin .18s ease;
+}
+
+.score-shell.is-audio-focus .score-image-frame {
+  transform: translateY(-50%) scale(var(--mm-score-focus-scale)) !important;
+}
+
+.score-shell.is-note-focus .score-image-frame {
+  transform: translateY(-50%) scale(var(--mm-note-focus-scale)) !important;
+}
+
+.score-shell.is-audio-focus .score-image,
+.score-shell.is-audio-focus .score-overlay,
+.score-shell.is-note-focus .score-image,
+.score-shell.is-note-focus .score-overlay {
+  transform: none !important;
+}
+
+.score-shell.is-note-focus {
+  border-color: rgba(125, 211, 252, .86);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, .34),
+    0 0 0 5px rgba(56, 189, 248, .10),
+    0 0 52px rgba(56, 189, 248, .24),
+    inset 0 0 0 1px rgba(255, 255, 255, .055);
+}
+
+@media (max-width: 760px) {
+  .score-shell {
+    --mm-score-focus-scale: 1.12;
+    --mm-note-focus-scale: 1.46;
+  }
+}
+
+/* =========================
+   Melody Master three-console edge-aligned score fix
+   Change only:
+   - On Play Audio, the question PNG tile expands from the LH console box edge
+     to the RH console box edge.
+   - The tile is fixed to those panel edges, so it sits centrally in the full app
+     frame rather than being offset by the centre quiz column.
+   - The score image and draggable-note overlay remain in one shared frame.
+========================= */
+
+.quiz-panel.is-active.is-score-expanded,
+.quiz-panel.is-complete.is-score-expanded {
+  z-index: 120 !important;
+  overflow: visible !important;
+}
+
+.three-panel-layout:has(.quiz-panel.is-score-expanded),
+.quiz-panel.is-score-expanded .listening-console.dictation-console,
+.quiz-panel.is-score-expanded .dictation-console {
+  overflow: visible !important;
+}
+
+.quiz-panel.is-active.is-score-expanded .console-question-kicker,
+.quiz-panel.is-active.is-score-expanded .dictation-heading,
+.quiz-panel.is-active.is-score-expanded .dictation-toolbar,
+.quiz-panel.is-active.is-score-expanded .dictation-instructions,
+.quiz-panel.is-complete.is-score-expanded .console-question-kicker,
+.quiz-panel.is-complete.is-score-expanded .dictation-heading,
+.quiz-panel.is-complete.is-score-expanded .dictation-toolbar,
+.quiz-panel.is-complete.is-score-expanded .dictation-instructions {
+  position: relative;
+  z-index: 95 !important;
+}
+
+.quiz-panel.is-active.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active.is-score-expanded .no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
+  --mm-wide-score-width: var(--mm-score-expanded-width, min(calc(100vw - 42px), 1480px));
+  --mm-wide-score-height: clamp(320px, 42vh, 490px);
+  position: fixed !important;
+  left: var(--mm-score-expanded-left, 50vw) !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: var(--mm-score-expanded-bottom, 14px) !important;
+  width: var(--mm-wide-score-width) !important;
+  min-width: var(--mm-wide-score-width) !important;
+  max-width: var(--mm-wide-score-width) !important;
+  height: var(--mm-wide-score-height) !important;
+  min-height: var(--mm-wide-score-height) !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  z-index: 180 !important;
+  pointer-events: auto;
+  transition:
+    left .5s cubic-bezier(.22, 1, .36, 1),
+    bottom .5s cubic-bezier(.22, 1, .36, 1),
+    width .5s cubic-bezier(.22, 1, .36, 1),
+    min-width .5s cubic-bezier(.22, 1, .36, 1),
+    max-width .5s cubic-bezier(.22, 1, .36, 1),
+    height .5s cubic-bezier(.22, 1, .36, 1),
+    min-height .5s cubic-bezier(.22, 1, .36, 1),
+    transform .5s cubic-bezier(.22, 1, .36, 1);
+}
+
+.quiz-panel.is-active.is-score-expanded .score-shell.no-drag-score-shell,
+.quiz-panel.is-active.is-score-expanded .score-shell,
+.quiz-panel.is-complete.is-score-expanded .score-shell.no-drag-score-shell,
+.quiz-panel.is-complete.is-score-expanded .score-shell,
+.score-shell.is-score-expanded {
+  --score-frame-pad: clamp(10px, .8vw, 16px);
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  height: var(--mm-wide-score-height) !important;
+  min-height: var(--mm-wide-score-height) !important;
+  border-color: rgba(56, 189, 248, .70) !important;
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, .44),
+    0 0 0 4px rgba(56, 189, 248, .08),
+    0 0 54px rgba(56, 189, 248, .20),
+    inset 0 0 0 1px rgba(255, 255, 255, .055) !important;
+}
+
+.quiz-panel.is-active.is-score-expanded .score-image-frame,
+.quiz-panel.is-complete.is-score-expanded .score-image-frame {
+  left: var(--score-frame-pad) !important;
+  right: var(--score-frame-pad) !important;
+}
+
+
+/* Close button for the expanded score tile */
+.score-close-button {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 250;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(56, 189, 248, .42);
+  border-radius: 999px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, .94);
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255, 255, 255, .18), transparent 32%),
+    linear-gradient(135deg, rgba(168, 85, 247, .86), rgba(56, 189, 248, .74));
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, .32),
+    0 0 22px rgba(56, 189, 248, .22),
+    inset 0 0 0 1px rgba(255, 255, 255, .12);
+  font-size: 1.55rem;
+  font-weight: 760;
+  line-height: 1;
+}
+
+.score-close-button span {
+  display: block;
+  transform: translateY(-1px);
+}
+
+.score-close-button:hover {
+  transform: translate(-50%, -52%);
+  filter: brightness(1.08);
+  border-color: rgba(56, 189, 248, .72);
+}
+
+.score-shell.is-score-expanded .score-close-button {
+  display: inline-flex;
+}
+
+@media (max-width: 1100px) {
+  .quiz-panel.is-active.is-score-expanded .dictation-workspace.no-drag-workspace,
+  .quiz-panel.is-complete.is-score-expanded .dictation-workspace.no-drag-workspace,
+  .quiz-panel.is-active.is-score-expanded .no-drag-workspace,
+  .quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
+    --mm-wide-score-width: var(--mm-score-expanded-width, min(calc(100vw - 30px), 1060px));
+    --mm-wide-score-height: clamp(288px, 38vh, 410px);
+    top: auto !important;
+    bottom: var(--mm-score-expanded-bottom, 12px) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .quiz-panel.is-active.is-score-expanded .dictation-workspace.no-drag-workspace,
+  .quiz-panel.is-complete.is-score-expanded .dictation-workspace.no-drag-workspace,
+  .quiz-panel.is-active.is-score-expanded .no-drag-workspace,
+  .quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
+    --mm-wide-score-width: var(--mm-score-expanded-width, calc(100vw - 20px));
+    --mm-wide-score-height: 230px;
+    top: auto !important;
+    bottom: var(--mm-score-expanded-bottom, 10px) !important;
+  }
+}
+
+/* =========================
+   Melody Master note scale fix
+   Requested change only:
+   - Draggable/placeable semiquavers now scale with the question PNG width.
+   - The score image and note overlay remain locked in the same frame.
+========================= */
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver {
+  --mm-drag-note-width: var(--mm-drag-note-width-dynamic, clamp(8.5px, 1.05vw, 18px));
+  width: var(--mm-drag-note-width) !important;
+  height: calc(var(--mm-drag-note-width) * 1.78) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
+/* =========================
+   Melody Master notehead-size match fix
+   Requested change only:
+   - The draggable/placeable semiquaver is sized from the score PNG frame.
+   - Its notehead now matches the Sibelius noteheads at normal, expanded, and drag-zoom sizes.
+   - The token remains inside the same percent-based overlay, so hotspots/answers stay aligned.
+========================= */
+
+.score-image-frame {
+  overflow: visible !important;
+}
+
+.score-overlay.dictation-note-overlay {
+  overflow: visible !important;
+  --mm-drag-note-width: var(--mm-drag-note-width-percent, 3.15%);
+  --mm-drag-note-height: var(--mm-drag-note-height-percent, 50.5%);
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver {
+  width: var(--mm-drag-note-width) !important;
+  height: var(--mm-drag-note-height) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: fill !important;
+}
+
+
+/* =========================
+   Melody Master note-width refinement
+   Requested change only:
+   - Notes are wider and only slightly taller while remaining percentage-scaled
+     to the visible question PNG at every magnification.
+========================= */
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver img {
+  object-fit: fill !important;
+}
+
+
+/* =========================
+   Melody Master note-width final refinement
+   Requested change only:
+   - Movable semiquavers are wider while keeping the same height.
+   - Scale remains percentage-based against the displayed score PNG.
+========================= */
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver img {
+  object-fit: fill !important;
+}
+
+
+/* =========================
+   Melody Master note-width stronger refinement
+   Requested change only:
+   - Keeps the perfect note height.
+   - Stretches only the visible semiquaver artwork horizontally.
+   - Scaling remains locked to the displayed question PNG at all magnifications.
+========================= */
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver {
+  overflow: visible !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver img {
+  transform: scaleX(var(--mm-drag-note-stretch-x, 1.95)) !important;
+  transform-origin: 26% 76% !important;
+}
+
+/* =========================
+   Melody Master refinement: high-C home notes and centre-out score expansion
+   Requested change only:
+   - Home semiquavers sit higher, around high C / two ledger lines above the stave.
+   - A white paper extension appears above the question PNG so home notes remain visible.
+   - The wide score opens from the current score tile centre, not from one side.
+   - Gameplay, pitch hotspots, checking, zoom, and note scaling remain unchanged.
+========================= */
+
+.score-image-frame {
+  overflow: visible !important;
+  isolation: isolate;
+}
+
+.score-image-frame::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -64%;
+  height: 70%;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 15px 15px 0 0;
+  background: rgba(255, 255, 255, .982);
+  box-shadow:
+    0 -10px 22px rgba(0, 0, 0, .10),
+    0 0 0 1px rgba(255, 255, 255, .34) inset;
+}
+
+.score-image,
+.score-overlay.dictation-note-overlay {
+  position: absolute;
+}
+
+.score-image {
+  z-index: 1 !important;
+}
+
+.score-overlay.dictation-note-overlay {
+  z-index: 4 !important;
+}
+
+.dictation-workspace.no-drag-workspace,
+.no-drag-workspace,
+.score-shell,
+.score-image-frame {
+  transform-origin: center center !important;
+}
+
+.quiz-panel.is-score-pre-expanding .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-score-pre-expanding .no-drag-workspace {
+  position: fixed !important;
+  left: var(--mm-score-expand-centre-x, 50vw) !important;
+  right: auto !important;
+  top: var(--mm-score-expand-top, 50vh) !important;
+  width: var(--mm-score-expand-start-width, 720px) !important;
+  min-width: var(--mm-score-expand-start-width, 720px) !important;
+  max-width: var(--mm-score-expand-start-width, 720px) !important;
+  height: var(--mm-score-expand-start-height, 320px) !important;
+  min-height: var(--mm-score-expand-start-height, 320px) !important;
+  margin: 0 !important;
+  transform: translateX(-50%) !important;
+  transform-origin: center center !important;
+  z-index: 60 !important;
+  pointer-events: auto;
+}
+
+.quiz-panel.is-active.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active.is-score-expanded .no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
+  position: fixed !important;
+  left: var(--mm-score-expand-centre-x, 50vw) !important;
+  right: auto !important;
+  top: var(--mm-score-expand-top, 50vh) !important;
+  transform: translateX(-50%) !important;
+  transform-origin: center center !important;
+}
+
+.quiz-panel.is-active.is-score-expanded .score-shell.no-drag-score-shell,
+.quiz-panel.is-active.is-score-expanded .score-shell,
+.quiz-panel.is-complete.is-score-expanded .score-shell.no-drag-score-shell,
+.quiz-panel.is-complete.is-score-expanded .score-shell,
+.score-shell.is-score-expanded {
+  transform-origin: center center !important;
+}
+
+@media (max-width: 760px) {
+  .score-image-frame::before {
+    top: -58%;
+    height: 64%;
+  }
+}
+
+
+/* =========================
+   Melody Master centred play expansion + drag focus correction
+   Requested change only:
+   - After Play Audio, the expanded score tile is centred in the browser window.
+   - Audio/play magnification stays visually centred.
+   - When a note is clicked/dragged, the zoom origin returns to the selected missing-note area
+     so the correct section of the score is enlarged for placement.
+   - Gameplay, hotspots, note size, note home height, checking and branding remain unchanged.
+========================= */
+
+.quiz-panel.is-active.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active.is-score-expanded .no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
+  left: 50vw !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  transform-origin: center center !important;
+  transition:
+    left .5s cubic-bezier(.22, 1, .36, 1),
+    width .5s cubic-bezier(.22, 1, .36, 1),
+    min-width .5s cubic-bezier(.22, 1, .36, 1),
+    max-width .5s cubic-bezier(.22, 1, .36, 1),
+    height .5s cubic-bezier(.22, 1, .36, 1),
+    min-height .5s cubic-bezier(.22, 1, .36, 1),
+    top .5s cubic-bezier(.22, 1, .36, 1),
+    transform .5s cubic-bezier(.22, 1, .36, 1) !important;
+}
+
+.score-shell.is-audio-focus:not(.is-note-focus) .score-image-frame {
+  transform-origin: center center !important;
+}
+
+.score-shell.is-note-focus .score-image-frame {
+  transform-origin: var(--mm-focus-x) var(--mm-focus-y) !important;
+}
+
+
+/* =========================
+   Melody Master viewport-centred expanded score fix
+   Requested change only:
+   - In the expanded Play Audio state, the score tile centre is locked to the
+     browser-window centre.
+   - The bottom edge of the expanded score tile is aligned with the bottom edge
+     of the three main console panels.
+   - Drag zoom/focus, hotspots, note scaling and checking remain unchanged.
+========================= */
+
+.quiz-panel.is-active.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active.is-score-expanded .no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
+  position: fixed !important;
+  left: var(--mm-score-expanded-left, 50vw) !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: var(--mm-score-expanded-bottom, 14px) !important;
+  transform: translateX(-50%) !important;
+  transform-origin: center bottom !important;
+}
+
+.quiz-panel.is-active.is-score-expanded .score-shell.no-drag-score-shell,
+.quiz-panel.is-active.is-score-expanded .score-shell,
+.quiz-panel.is-complete.is-score-expanded .score-shell.no-drag-score-shell,
+.quiz-panel.is-complete.is-score-expanded .score-shell,
+.score-shell.is-score-expanded {
+  transform-origin: center bottom !important;
+}
+
+.score-shell.is-note-focus .score-image-frame {
+  transform-origin: var(--mm-focus-x) var(--mm-focus-y) !important;
+}
+
+
+/* =========================
+   Melody Master three-panel expanded score width fix
+   Requested change only:
+   - When Play Audio expands the question PNG tile, the expanded tile uses the
+     full width of the three console boxes instead of sitting offset to the right.
+   - Zoom focus, hotspots, note scaling, checking and gameplay remain unchanged.
+========================= */
+
+.quiz-panel.is-active.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active.is-score-expanded .no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
+  --mm-wide-score-width: var(--mm-score-expanded-width, min(calc(100vw - 42px), 1480px)) !important;
+  position: fixed !important;
+  left: var(--mm-score-expanded-left, 50vw) !important;
+  right: auto !important;
+  width: var(--mm-wide-score-width) !important;
+  min-width: var(--mm-wide-score-width) !important;
+  max-width: var(--mm-wide-score-width) !important;
+  transform: translateX(-50%) !important;
+}
+
+
+/* =========================
+   Melody Master centre-screen proportional expansion fix
+   Requested change only:
+   - When Play Audio is pressed, the question PNG tile expands from the centre
+     of the browser window.
+   - Its expanded width is still calculated from the total span of the three
+     console boxes.
+   - Gameplay, zoom focus, hotspots, note scaling and checking are unchanged.
+========================= */
+
+.quiz-panel.is-score-pre-expanding .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-score-pre-expanding .no-drag-workspace {
+  left: var(--mm-score-expand-centre-x, 50vw) !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  transform-origin: center center !important;
+}
+
+.quiz-panel.is-active.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active.is-score-expanded .no-drag-workspace,
+.quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
+  --mm-wide-score-width: var(--mm-score-expanded-width, min(calc(100vw - 28px), 1480px)) !important;
+  position: fixed !important;
+  left: var(--mm-score-expanded-left, 50vw) !important;
+  right: auto !important;
+  width: var(--mm-wide-score-width) !important;
+  min-width: var(--mm-wide-score-width) !important;
+  max-width: var(--mm-wide-score-width) !important;
+  transform: translateX(-50%) !important;
+  transform-origin: center bottom !important;
+}
+
+/* =========================
+   Melody Master pre-audio blank question score
+   Requested change only:
+   - On the screen with the Play Audio button, the question PNG stays blank.
+   - Draggable notes appear only after Play Audio is pressed.
+========================= */
+
+.score-overlay.dictation-note-overlay.is-notes-hidden-before-play .note-token.draggable-semiquaver,
+.score-overlay.dictation-note-overlay.is-notes-hidden-before-play .dictation-hotspot {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+
+/* =========================
+   Melody Master X visibility + left-shift refinement
+   Requested change only:
+   - Keep the expanded score close button fully visible.
+   - The expanded score tile is shifted left by script.js as one whole unit,
+     so the PNG, notes, hotspots, and zoom remain locked together.
+========================= */
+
+.score-shell.is-score-expanded {
+  overflow: visible !important;
+}
+
+.score-shell.is-score-expanded .score-close-button {
+  display: inline-flex;
+  z-index: 500 !important;
+}
+
+/* =========================
+   Melody Master active quiz layout refinement
+   Requested change only:
+   - After Start Quiz, keep the score PNG tile in its existing position.
+   - Move the gameplay buttons directly underneath the Melodic Dictation label.
+   - Move the question prompt down so it sits immediately above the score PNG tile.
+   - Preserve all gameplay, score zoom/expansion, hotspots, checking, and branding.
+========================= */
+
+.quiz-panel.is-active:not(.is-score-expanded) .console-question-kicker,
+.quiz-panel.is-complete:not(.is-score-expanded) .console-question-kicker {
+  order: 1;
+  margin: 0 auto;
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .dictation-toolbar,
+.quiz-panel.is-complete:not(.is-score-expanded) .dictation-toolbar {
+  order: 2;
+  width: min(900px, 100%);
+  margin: 0 auto;
+  justify-content: center;
+  gap: clamp(8px, .72vw, 11px);
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .dictation-instructions,
+.quiz-panel.is-complete:not(.is-score-expanded) .dictation-instructions {
+  order: 3;
+  width: min(900px, 100%);
+  margin: 0 auto;
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .dictation-heading,
+.quiz-panel.is-complete:not(.is-score-expanded) .dictation-heading {
+  order: 4;
+  width: min(920px, 100%);
+  min-height: 0;
+  margin: clamp(1px, .35vh, 5px) auto 0;
+  padding: clamp(5px, .55vh, 8px) clamp(10px, 1vw, 16px);
+  border: 1px solid rgba(255, 255, 255, .075);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .075), transparent 38%),
+    rgba(255, 255, 255, .028);
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .dictation-heading #questionText,
+.quiz-panel.is-complete:not(.is-score-expanded) .dictation-heading #questionText {
+  max-width: 64ch;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, .91);
+  font-size: clamp(.92rem, 1.04vw, 1.08rem);
+  line-height: 1.25;
+  letter-spacing: -.02em;
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete:not(.is-score-expanded) .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active:not(.is-score-expanded) .no-drag-workspace,
+.quiz-panel.is-complete:not(.is-score-expanded) .no-drag-workspace {
+  order: 5;
+  margin-top: clamp(2px, .5vh, 7px);
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) #feedback,
+.quiz-panel.is-complete:not(.is-score-expanded) #feedback {
+  order: 6;
+}
+
+/* =========================
+   Melody Master locked active controls during expanded score
+   Requested change only:
+   - When Play Audio expands the score tile, the Melodic Dictation label,
+     control buttons, instruction chips and question prompt keep the same
+     positions they had before Play Audio was pressed.
+   - Score expansion, drag zoom, hotspots, notes, checking and audio are unchanged.
+========================= */
+
+.quiz-panel.is-active .console-question-kicker,
+.quiz-panel.is-complete .console-question-kicker {
+  order: 1 !important;
+  margin: 0 auto !important;
+  position: relative !important;
+  z-index: 95 !important;
+}
+
+.quiz-panel.is-active .dictation-toolbar,
+.quiz-panel.is-complete .dictation-toolbar {
+  order: 2 !important;
+  width: min(900px, 100%) !important;
+  margin: 0 auto !important;
+  justify-content: center !important;
+  gap: clamp(8px, .72vw, 11px) !important;
+  position: relative !important;
+  z-index: 95 !important;
+}
+
+.quiz-panel.is-active .dictation-instructions,
+.quiz-panel.is-complete .dictation-instructions {
+  order: 3 !important;
+  width: min(900px, 100%) !important;
+  margin: 0 auto !important;
+  position: relative !important;
+  z-index: 95 !important;
+}
+
+.quiz-panel.is-active .dictation-heading,
+.quiz-panel.is-complete .dictation-heading {
+  order: 4 !important;
+  width: min(920px, 100%) !important;
+  min-height: 0 !important;
+  margin: clamp(1px, .35vh, 5px) auto 0 !important;
+  padding: clamp(5px, .55vh, 8px) clamp(10px, 1vw, 16px) !important;
+  border: 1px solid rgba(255, 255, 255, .075) !important;
+  border-radius: 18px !important;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .075), transparent 38%),
+    rgba(255, 255, 255, .028) !important;
+  position: relative !important;
+  z-index: 95 !important;
+}
+
+.quiz-panel.is-active .dictation-heading #questionText,
+.quiz-panel.is-complete .dictation-heading #questionText {
+  max-width: 64ch !important;
+  margin: 0 auto !important;
+  color: rgba(255, 255, 255, .91) !important;
+  font-size: clamp(.92rem, 1.04vw, 1.08rem) !important;
+  line-height: 1.25 !important;
+  letter-spacing: -.02em !important;
+}
+
+.quiz-panel.is-active .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active .no-drag-workspace,
+.quiz-panel.is-complete .no-drag-workspace {
+  order: 5 !important;
+  margin-top: clamp(2px, .5vh, 7px) !important;
+}
+
+.quiz-panel.is-active #feedback,
+.quiz-panel.is-complete #feedback {
+  order: 6 !important;
+}
+
+
+/* =========================
+   Melody Master active quiz layout reorder
+   Requested change only:
+   - Active centre console order: Melodic Dictation, Play/Check buttons,
+     short question prompt, small grey step chips, unchanged score tile.
+   - Hide the Show Answer button without changing underlying gameplay code.
+========================= */
+
+#showAnswerButton {
+  display: none !important;
+}
+
+.quiz-panel.is-active .console-question-kicker,
+.quiz-panel.is-complete .console-question-kicker {
+  order: 1 !important;
+  margin: 0 auto !important;
+}
+
+.quiz-panel.is-active .dictation-toolbar,
+.quiz-panel.is-complete .dictation-toolbar {
+  order: 2 !important;
+  width: min(820px, 100%) !important;
+  margin: clamp(2px, .35vh, 5px) auto 0 !important;
+  justify-content: center !important;
+  gap: clamp(10px, .82vw, 14px) !important;
+}
+
+.quiz-panel.is-active .dictation-toolbar .play-button,
+.quiz-panel.is-active .dictation-toolbar .primary-button,
+.quiz-panel.is-complete .dictation-toolbar .play-button,
+.quiz-panel.is-complete .dictation-toolbar .primary-button {
+  min-width: clamp(150px, 12vw, 188px) !important;
+  min-height: 43px !important;
+  padding: 0 20px !important;
+}
+
+.quiz-panel.is-active .dictation-heading,
+.quiz-panel.is-complete .dictation-heading {
+  order: 3 !important;
+  width: min(780px, 100%) !important;
+  min-height: 0 !important;
+  margin: clamp(5px, .75vh, 10px) auto 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.quiz-panel.is-active .dictation-heading #questionText,
+.quiz-panel.is-complete .dictation-heading #questionText {
+  max-width: 34ch !important;
+  margin: 0 auto !important;
+  color: rgba(255, 255, 255, .96) !important;
+  font-size: clamp(1.45rem, 2.25vw, 2.2rem) !important;
+  line-height: 1.04 !important;
+  font-weight: 940 !important;
+  letter-spacing: -.055em !important;
+  text-shadow: 0 0 24px rgba(56, 189, 248, .10) !important;
+}
+
+.quiz-panel.is-active .dictation-instructions,
+.quiz-panel.is-complete .dictation-instructions {
+  order: 4 !important;
+  width: min(780px, 100%) !important;
+  margin: clamp(5px, .65vh, 9px) auto 0 !important;
+  justify-content: center !important;
+  gap: 7px !important;
+}
+
+.quiz-panel.is-active .dictation-instructions span,
+.quiz-panel.is-complete .dictation-instructions span {
+  min-height: 26px !important;
+  padding: 0 11px !important;
+  border: 1px solid rgba(255, 255, 255, .10) !important;
+  border-radius: 999px !important;
+  color: rgba(255, 255, 255, .66) !important;
+  background: rgba(255, 255, 255, .035) !important;
+  box-shadow: none !important;
+  font-size: .66rem !important;
+  font-weight: 850 !important;
+  letter-spacing: .13em !important;
+  text-transform: uppercase !important;
+}
+
+.quiz-panel.is-active .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active .no-drag-workspace,
+.quiz-panel.is-complete .no-drag-workspace {
+  order: 5 !important;
+  margin-top: clamp(3px, .65vh, 8px) !important;
+}
+
+.quiz-panel.is-active #feedback,
+.quiz-panel.is-complete #feedback {
+  order: 6 !important;
+}
+
+/* =========================
+   Melody Master note visibility refinement
+   Requested change only:
+   - Movable/clickable notes are visible only while the score PNG tile is expanded.
+   - Small score versions before and after Play Excerpt remain blank.
+   - Existing score expansion, zoom, hotspots, checking and gameplay stay unchanged.
+========================= */
+
+.quiz-panel:not(.is-score-expanded) .score-overlay.dictation-note-overlay .note-token.draggable-semiquaver,
+.quiz-panel:not(.is-score-expanded) .score-overlay.dictation-note-overlay .dictation-hotspot {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* =========================
+   Melody Master paper-extension refinement
+   Requested change only:
+   - Remove the white note-padding extension completely on the small score tile.
+   - Keep the white extension only when the score tile is expanded.
+   - Square off the extension's top corners while expanded.
+========================= */
+
+.score-image-frame::before {
+  display: none !important;
+  border-radius: 0 !important;
+}
+
+.score-shell.is-score-expanded .score-image-frame::before {
+  display: block !important;
+  border-radius: 0 !important;
+}
+
+/* =========================
+   Melody Master ready/home layout refinement
+   Requested change only:
+   - Keep the Melody Master SVG in place.
+   - Move the Melody Master text logo visually upward so it sits tight to the SVG tile.
+   - Hide the Check your answers button on the ready/home screen.
+   - Place the three small ready chips underneath Start Quiz.
+========================= */
+
+.quiz-panel.is-ready .mm-console-start-brand .console-title-text {
+  transform: translateY(-14px) !important;
+}
+
+.quiz-panel.is-ready #checkAnswerButton,
+.quiz-panel.is-ready #playButton,
+.quiz-panel.is-ready #showAnswerButton,
+.quiz-panel.is-ready #restartButton {
+  display: none !important;
+}
+
+.quiz-panel.is-ready .dictation-toolbar {
+  order: 3 !important;
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: min(420px, calc(100% - 44px)) !important;
+  transform: none !important;
+  margin: clamp(2px, .45vh, 7px) auto 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 5 !important;
+}
+
+.quiz-panel.is-ready .mm-ready-cues {
+  order: 4 !important;
+  display: flex !important;
+  width: 100% !important;
+  margin: clamp(5px, .8vh, 10px) auto 0 !important;
+  justify-content: center !important;
+}
+
+
+/* =========================
+   Melody Master MM002 C5 visual-anchor fix
+   - Keeps MM002 note 3 checked as C5.
+   - Moves only that note's visible artwork anchor up so the notehead sits on the C5 top space, not the B4 line.
+   - Gameplay, deck order, score zoom, hotspots and checking logic remain unchanged.
+========================= */
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver {
+  transform: translate(-26%, var(--mm-token-anchor-y, -79.55%)) !important;
+  transform-origin: 26% calc(var(--mm-token-anchor-y, -79.55%) * -1) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver:hover {
+  transform: translate(-26%, var(--mm-token-anchor-y, -79.55%)) scale(1.04) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.is-dragging,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.is-placed {
+  transform: translate(-26%, var(--mm-token-anchor-y, -79.55%)) !important;
+}
+
+@keyframes mmCorrectNoteFlash {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 2px rgba(0, 0, 0, .20))
+      drop-shadow(0 0 0 rgba(110, 231, 183, 0));
+    transform: translate(-26%, var(--mm-token-anchor-y, -79.55%)) scale(1);
+  }
+
+  50% {
+    filter:
+      drop-shadow(0 0 4px rgba(110, 231, 183, .98))
+      drop-shadow(0 0 17px rgba(110, 231, 183, .75));
+    transform: translate(-26%, var(--mm-token-anchor-y, -79.55%)) scale(1.08);
+  }
+}
+
+@keyframes mmWrongNoteFlash {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 2px rgba(0, 0, 0, .20))
+      drop-shadow(0 0 0 rgba(251, 113, 133, 0));
+    transform: translate(-26%, var(--mm-token-anchor-y, -79.55%)) scale(1);
+  }
+
+  50% {
+    filter:
+      drop-shadow(0 0 4px rgba(251, 113, 133, .98))
+      drop-shadow(0 0 17px rgba(251, 113, 133, .76));
+    transform: translate(-26%, var(--mm-token-anchor-y, -79.55%)) scale(1.08);
+  }
+}
+
+/* =========================
+   Melody Master compact score padding safeguard
+   Requested change only:
+   - Add a little more vertical breathing room around the small, non-expanded score PNG.
+   - Prevent ledger-line notes from clipping at the top on future questions.
+   - Leave expanded-score gameplay, zoom, note placement and layout unchanged.
+========================= */
+
+.quiz-panel.is-active:not(.is-score-expanded) .score-image,
+.quiz-panel.is-complete:not(.is-score-expanded) .score-image {
+  inset: clamp(10px, 1.15vh, 16px) clamp(8px, .7vw, 12px) clamp(12px, 1.3vh, 18px) clamp(8px, .7vw, 12px) !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .score-overlay,
+.quiz-panel.is-complete:not(.is-score-expanded) .score-overlay {
+  inset: clamp(10px, 1.15vh, 16px) clamp(8px, .7vw, 12px) clamp(12px, 1.3vh, 18px) clamp(8px, .7vw, 12px) !important;
+}
+
+/* =========================
+   Melody Master compact score top-padding correction
+   Requested change only:
+   - Remove the all-sides inset used in the previous attempt.
+   - Add top padding only, as a uniform white extension above the small question PNG.
+   - Keep the extension aligned flush with the score PNG width.
+   - Use square corners on the added top extension.
+   - Leave all other gameplay and layout unchanged.
+========================= */
+
+.quiz-panel.is-active:not(.is-score-expanded) .score-image,
+.quiz-panel.is-complete:not(.is-score-expanded) .score-image {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: fill !important;
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .score-overlay,
+.quiz-panel.is-complete:not(.is-score-expanded) .score-overlay {
+  inset: 0 !important;
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .score-image-frame,
+.quiz-panel.is-complete:not(.is-score-expanded) .score-image-frame {
+  overflow: visible !important;
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .score-image-frame::before,
+.quiz-panel.is-complete:not(.is-score-expanded) .score-image-frame::before {
+  display: block !important;
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -28%;
+  height: 28%;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 0 !important;
+  background: rgba(255, 255, 255, .982);
+  box-shadow: none !important;
+}
+
+@media (max-width: 760px) {
+  .quiz-panel.is-active:not(.is-score-expanded) .score-image-frame::before,
+  .quiz-panel.is-complete:not(.is-score-expanded) .score-image-frame::before {
+    top: -24%;
+    height: 24%;
+  }
+}
+
+/* =========================
+   Melody Master ledger-line support
+   Requested change only:
+   - Show treble ledger lines above and below the stave while dragging/placing notes.
+   - Supports A5/C6 above and C4/A3 below across all questions.
+   - Leaves score layout, zoom, checking, note sizing and question data unchanged.
+========================= */
+
+.score-overlay.dictation-note-overlay .dictation-ledger-line {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  width: clamp(24px, 1.75vw, 30px);
+  height: 2px;
+  min-height: 2px;
+  max-height: 2px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -50%);
+  margin-left: var(--mm-ledger-offset-x, 0px);
+  background: #050505;
+  border-radius: 999px;
+  transition: opacity .08s ease, visibility .08s ease;
+}
+
+.score-overlay.dictation-note-overlay .dictation-ledger-line.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.quiz-panel:not(.is-score-expanded) .score-overlay.dictation-note-overlay .dictation-ledger-line,
+.score-overlay.dictation-note-overlay.is-notes-hidden-before-play .dictation-ledger-line,
+.score-overlay.dictation-note-overlay.is-answer-visible .dictation-ledger-line {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* =========================
+   Melody Master perfect-answer notehead reveal
+   Requested change only:
+   - On a perfect check, only the notehead flashes green, not the whole note.
+   - After the answer PNG appears, the same notehead positions keep flashing green
+     over the printed answer score without changing score position or magnification.
+========================= */
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.correct.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash {
+  animation: none !important;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, .18)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  content: "";
+  position: absolute;
+  left: 26%;
+  top: calc(var(--mm-token-anchor-y, -79.55%) * -1);
+  width: calc(var(--mm-drag-note-width, 10px) * var(--mm-drag-note-stretch-x, 1.95) * 1.95);
+  height: calc(var(--mm-drag-note-width, 10px) * 1.25);
+  z-index: 20;
+  pointer-events: none;
+  border-radius: 999px;
+  background: rgba(34, 255, 102, .72);
+  box-shadow:
+    0 0 0 2px rgba(34, 255, 102, .52),
+    0 0 10px rgba(34, 255, 102, .95),
+    0 0 24px rgba(34, 255, 102, .68);
+  transform: translate(-50%, -50%) rotate(-20deg) scale(.88);
+  mix-blend-mode: multiply;
+  animation: mmCorrectNoteheadPulse 1.05s ease-in-out 0s 2;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  animation: mmCorrectNoteheadPulse 1.05s ease-in-out infinite;
+}
+
+.score-overlay.dictation-note-overlay.is-perfect-answer-reveal {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.score-overlay.dictation-note-overlay.is-perfect-answer-reveal .dictation-hotspot,
+.score-overlay.dictation-note-overlay.is-perfect-answer-reveal .dictation-ledger-line {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.score-overlay.dictation-note-overlay.is-perfect-answer-reveal .note-token.draggable-semiquaver {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+}
+
+.score-overlay.dictation-note-overlay.is-perfect-answer-reveal .note-token.draggable-semiquaver img {
+  opacity: 0 !important;
+}
+
+@keyframes mmCorrectNoteheadPulse {
+  0%, 100% {
+    opacity: .78;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(.86);
+    box-shadow:
+      0 0 0 1px rgba(34, 255, 102, .42),
+      0 0 8px rgba(34, 255, 102, .78),
+      0 0 18px rgba(34, 255, 102, .46);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(1.18);
+    box-shadow:
+      0 0 0 3px rgba(34, 255, 102, .76),
+      0 0 16px rgba(34, 255, 102, 1),
+      0 0 34px rgba(34, 255, 102, .84);
+  }
+}
+
+
+/* =========================
+   Melody Master notehead-only feedback refinement
+   Requested change only:
+   - Correct and incorrect checks use the same notehead-circle flash behaviour.
+   - Green/red feedback is on the notehead only, not the whole note artwork.
+   - Perfect answers still reveal the answer PNG after 2 seconds and keep green
+     notehead circles flashing over the answer score.
+========================= */
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.wrong,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.correct.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.wrong.answer-flash-wrong,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash {
+  animation: none !important;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, .16)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 26% !important;
+  top: calc(var(--mm-token-anchor-y, -79.55%) * -1) !important;
+  width: calc(var(--mm-drag-note-width, 10px) * var(--mm-drag-note-stretch-x, 1.95) * 1.70) !important;
+  height: calc(var(--mm-drag-note-width, 10px) * 1.06) !important;
+  z-index: 20 !important;
+  pointer-events: none !important;
+  border-radius: 999px !important;
+  transform: translate(-50%, -50%) rotate(-20deg) scale(.94) !important;
+  mix-blend-mode: normal !important;
+  background: rgba(34, 197, 94, .18) !important;
+  border: 2px solid rgba(34, 255, 102, .95) !important;
+  box-shadow:
+    0 0 0 1px rgba(34, 255, 102, .18),
+    0 0 8px rgba(34, 255, 102, .62) !important;
+  opacity: 0;
+  animation: mmNoteheadCircleGreenFlash .9s ease-in-out 0s 3 !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after {
+  background: rgba(251, 55, 88, .16) !important;
+  border-color: rgba(255, 58, 94, .95) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 58, 94, .18),
+    0 0 8px rgba(255, 58, 94, .62) !important;
+  animation-name: mmNoteheadCircleRedFlash !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  background: rgba(34, 197, 94, .15) !important;
+  border-color: rgba(34, 255, 102, .92) !important;
+  box-shadow:
+    0 0 0 1px rgba(34, 255, 102, .16),
+    0 0 7px rgba(34, 255, 102, .58) !important;
+  animation: mmNoteheadCircleGreenFlash .95s ease-in-out infinite !important;
+}
+
+.score-overlay.dictation-note-overlay.is-perfect-answer-reveal .note-token.draggable-semiquaver img {
+  opacity: 0 !important;
+}
+
+@keyframes mmNoteheadCircleGreenFlash {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(.90);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(1.08);
+  }
+}
+
+@keyframes mmNoteheadCircleRedFlash {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(.90);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(1.08);
+  }
+}
+
+/* =========================
+   Melody Master next-question handoff
+   Requested change only:
+   - Next Question moves straight into the next item and auto-plays the excerpt.
+   - The completed answer tile minimises, then the next question tile magnifies in.
+   - Existing score positioning, magnification, checking, notehead feedback and branding stay unchanged.
+========================= */
+
+.quiz-panel.is-question-handoff-out .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-question-handoff-out .no-drag-workspace {
+  opacity: .72;
+  filter: saturate(.92) brightness(.95);
+  transform-origin: center center !important;
+  transition:
+    opacity .32s ease,
+    filter .32s ease,
+    transform .42s cubic-bezier(.22, 1, .36, 1) !important;
+}
+
+.quiz-panel.is-question-handoff-out .score-image-frame {
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, .20),
+    0 0 0 1px rgba(255, 255, 255, .24) inset !important;
+  transition:
+    box-shadow .32s ease,
+    transform .42s cubic-bezier(.22, 1, .36, 1),
+    opacity .32s ease !important;
+}
+
+.quiz-panel.is-question-handoff-in .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-question-handoff-in .no-drag-workspace {
+  animation: mmQuestionHandoffIn .72s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.quiz-panel.is-question-handoff-in .score-image-frame {
+  animation: mmQuestionScoreGlowIn .78s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@keyframes mmQuestionHandoffIn {
+  0% {
+    opacity: .68;
+    filter: saturate(.92) brightness(.96);
+  }
+  100% {
+    opacity: 1;
+    filter: saturate(1) brightness(1);
+  }
+}
+
+@keyframes mmQuestionScoreGlowIn {
+  0% {
+    opacity: .72;
+    box-shadow:
+      0 10px 24px rgba(0, 0, 0, .20),
+      0 0 0 1px rgba(255, 255, 255, .22) inset;
+  }
+  55% {
+    opacity: 1;
+    box-shadow:
+      0 18px 38px rgba(0, 0, 0, .26),
+      0 0 0 3px rgba(56, 189, 248, .14),
+      0 0 34px rgba(56, 189, 248, .20),
+      0 0 0 1px rgba(255, 255, 255, .34) inset;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* =========================
+   Melody Master exact notehead feedback mask
+   Requested change only:
+   - Green/red feedback is clipped to the actual notehead/dot area of each note asset.
+   - The flash changes the notehead from black to green/red without covering stems, beams,
+     flags, ledger lines, neighbouring notes, or the surrounding score.
+========================= */
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.wrong,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.correct.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.wrong.answer-flash-wrong,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash {
+  animation: none !important;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, .16)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 20 !important;
+  pointer-events: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  opacity: 0;
+  background: #00e676 !important;
+  mix-blend-mode: normal !important;
+  transform: translateY(2.8%) scaleX(var(--mm-drag-note-stretch-x, 1.95)) !important;
+  transform-origin: 26% 76% !important;
+  filter: drop-shadow(0 0 1.6px rgba(0, 230, 118, .58)) !important;
+  -webkit-mask-image: var(--mm-notehead-mask) !important;
+  mask-image: var(--mm-notehead-mask) !important;
+  -webkit-mask-size: contain !important;
+  mask-size: contain !important;
+  -webkit-mask-position: center !important;
+  mask-position: center !important;
+  -webkit-mask-repeat: no-repeat !important;
+  mask-repeat: no-repeat !important;
+  animation: mmExactNoteheadGreenFlash .82s ease-in-out 0s 3 !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after {
+  background: #ff3355 !important;
+  filter: drop-shadow(0 0 1.45px rgba(255, 51, 85, .5)) !important;
+  animation-name: mmExactNoteheadRedFlash !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  background: #00e676 !important;
+  filter: drop-shadow(0 0 1.6px rgba(0, 230, 118, .58)) !important;
+  animation: mmExactNoteheadGreenFlash .95s ease-in-out infinite !important;
+}
+
+@keyframes mmExactNoteheadGreenFlash {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@keyframes mmExactNoteheadRedFlash {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* =========================
+   Melody Master notehead flash final position/glow adjustment
+   Requested change only:
+   - Move the exact notehead mask a little lower.
+   - Increase the small glow around the correctly positioned flashing dots.
+   - Leave gameplay, score transitions, audio, question data and layout unchanged.
+========================= */
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  transform: translateY(6.2%) scaleX(var(--mm-drag-note-stretch-x, 1.95)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  filter: drop-shadow(0 0 2.6px rgba(0, 230, 118, .82)) drop-shadow(0 0 5px rgba(0, 230, 118, .32)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after {
+  filter: drop-shadow(0 0 2.4px rgba(255, 51, 85, .78)) drop-shadow(0 0 4.8px rgba(255, 51, 85, .3)) !important;
+}
+
+/* =========================
+   Melody Master notehead flash lower + note glow refinement
+   Requested change only:
+   - Move the exact notehead flash further down so it sits on the printed notehead/dot.
+   - Add a subtle matching glow around the note itself while feedback flashes.
+   - Leave gameplay, scoring, transitions, audio, score positioning, magnification and data unchanged.
+========================= */
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  transform: translateY(11.5%) scaleX(var(--mm-drag-note-stretch-x, 1.95)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.correct.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash {
+  filter: drop-shadow(0 0 2px rgba(0, 230, 118, .62)) drop-shadow(0 0 6px rgba(0, 230, 118, .24)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.wrong.answer-flash-wrong {
+  filter: drop-shadow(0 0 2px rgba(255, 51, 85, .58)) drop-shadow(0 0 6px rgba(255, 51, 85, .22)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  filter: drop-shadow(0 0 3.8px rgba(0, 230, 118, .95)) drop-shadow(0 0 8px rgba(0, 230, 118, .42)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after {
+  filter: drop-shadow(0 0 3.6px rgba(255, 51, 85, .92)) drop-shadow(0 0 7.5px rgba(255, 51, 85, .38)) !important;
+}
+
+/* =========================
+   Melody Master precise notehead flash size/position refinement
+   Requested change only:
+   - Move the flashing dots slightly lower so they sit more accurately on the noteheads.
+   - Enlarge the flashing dot effect to about 1.5x size.
+   - Remove the whole-note glow added in the previous step.
+   - Keep only a subtle glow on the flashing notehead itself.
+========================= */
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.correct.answer-flash-correct,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.wrong.answer-flash-wrong {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, .16)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  transform: translateY(14.2%) scale(1.5) scaleX(var(--mm-drag-note-stretch-x, 1.95)) !important;
+  transform-origin: 26% 76% !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-correct::after,
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.perfect-answer-notehead-flash::after {
+  filter: drop-shadow(0 0 2.6px rgba(0, 230, 118, .92)) drop-shadow(0 0 5.6px rgba(0, 230, 118, .34)) !important;
+}
+
+.score-overlay.dictation-note-overlay .note-token.draggable-semiquaver.answer-flash-wrong::after {
+  filter: drop-shadow(0 0 2.4px rgba(255, 51, 85, .9)) drop-shadow(0 0 5.2px rgba(255, 51, 85, .3)) !important;
+}
+
+/* =========================
+   Melody Master attempt diagnostics
+   Requested change:
+   - Replace source/composer info in the right-hand feedback panel with per-attempt skill diagnosis.
+   - Feedback analyses correct answer pitches by starting pitch, stepwise motion, repeated notes and interval leaps.
+========================= */
+
+.mm-diagnostic-panel {
+  gap: clamp(12px, 1.4vw, 18px);
+}
+
+.mm-diagnostic-panel .diagnostic-headline {
+  margin: -4px 0 2px;
+  color: rgba(226, 232, 240, .82);
+  font-size: .95rem;
+  line-height: 1.45;
+}
+
+.diagnostic-grid {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.diagnostic-card {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1px solid rgba(148, 163, 184, .18);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, .46);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+.diagnostic-card span {
+  display: block;
+  margin-bottom: 5px;
+  color: rgba(148, 163, 184, .88);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.diagnostic-card strong {
+  display: block;
+  color: rgba(248, 250, 252, .94);
+  font-size: .92rem;
+  line-height: 1.45;
+}
+
+.diagnostic-strength {
+  border-color: rgba(34, 197, 94, .24);
+  background: linear-gradient(135deg, rgba(20, 83, 45, .26), rgba(15, 23, 42, .42));
+}
+
+.diagnostic-focus {
+  border-color: rgba(251, 113, 133, .24);
+  background: linear-gradient(135deg, rgba(127, 29, 29, .18), rgba(15, 23, 42, .42));
+}
+
+.diagnostic-empty {
+  border-color: rgba(56, 189, 248, .2);
+  background: linear-gradient(135deg, rgba(14, 116, 144, .18), rgba(15, 23, 42, .42));
+}
+
+.diagnostic-score {
+  display: inline !important;
+  margin: 0 0 0 4px !important;
+  color: rgba(186, 230, 253, .96) !important;
+  font-size: .78rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.diagnostic-note-ref {
+  display: inline !important;
+  margin: 0 0 0 5px !important;
+  color: rgba(203, 213, 225, .72) !important;
+  font-size: .76rem !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.diagnostic-next-step {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: rgba(226, 232, 240, .82);
+  background: rgba(2, 6, 23, .28);
+  border: 1px solid rgba(148, 163, 184, .13);
+  font-size: .88rem;
+  line-height: 1.45;
+}
+
+/* =========================
+   Melody Master diagnostic feedback refinement
+   Requested change only:
+   - Add contour and interval-size diagnosis to each checked attempt.
+   - Keep all gameplay, score, audio and note behaviour unchanged.
+========================= */
+
+.diagnostic-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .55rem;
+  margin: .65rem 0 .75rem;
+}
+
+.diagnostic-metric {
+  padding: .55rem .65rem;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, .18);
+  background: rgba(15, 23, 42, .48);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
+}
+
+.diagnostic-metric span {
+  display: block;
+  color: rgba(226, 232, 240, .68);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .095em;
+  text-transform: uppercase;
+  margin-bottom: .16rem;
+}
+
+.diagnostic-metric strong {
+  color: #f8fafc;
+  font-size: .98rem;
+  font-weight: 900;
+}
+
+.diagnostic-metric.is-secure {
+  border-color: rgba(52, 211, 153, .42);
+  background: rgba(16, 185, 129, .105);
+}
+
+.diagnostic-metric.is-nearly {
+  border-color: rgba(56, 189, 248, .38);
+  background: rgba(14, 165, 233, .1);
+}
+
+.diagnostic-metric.is-focus {
+  border-color: rgba(251, 113, 133, .42);
+  background: rgba(244, 63, 94, .105);
+}
+
+
+/* =========================
+   Melody Master Teacher Mode entry button
+   Matches the main EchoAural index Teacher Mode button.
+========================= */
+.teacher-mode-topbar-link.nav-explore-button.nav-action-button {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid rgba(56, 189, 248, .38);
+  border-radius: 999px;
+  color: white;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .22), transparent 34%),
+    linear-gradient(135deg, rgba(168, 85, 247, .42), rgba(74, 144, 226, .24));
+  box-shadow: 0 14px 34px rgba(56, 189, 248, .12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: .82rem;
+  font-weight: 900;
+  white-space: nowrap;
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+}
+
+.teacher-mode-topbar-link.nav-explore-button.nav-action-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, .72);
+  background:
+    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .32), transparent 34%),
+    linear-gradient(135deg, rgba(168, 85, 247, .58), rgba(74, 144, 226, .34));
+  box-shadow: 0 18px 42px rgba(56, 189, 248, .18);
+}
+
+.teacher-mode-topbar-link.nav-explore-button.nav-action-button img {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  opacity: .98;
+  object-fit: contain;
+  filter:
+    brightness(0) invert(1)
+    drop-shadow(0 0 6px rgba(255, 255, 255, .18))
+    drop-shadow(0 0 12px rgba(56, 189, 248, .26));
+  transform-origin: center;
+  transition: transform .24s ease, filter .24s ease, opacity .24s ease;
+}
+
+.teacher-mode-topbar-link.nav-explore-button.nav-action-button:hover img {
+  opacity: 1;
+  transform: scale(1.22) translateX(1px);
+  filter:
+    brightness(0) invert(1)
+    drop-shadow(0 0 7px rgba(255, 255, 255, .24))
+    drop-shadow(0 0 18px rgba(56, 189, 248, .42));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teacher-mode-topbar-link.nav-explore-button.nav-action-button,
+  .teacher-mode-topbar-link.nav-explore-button.nav-action-button img {
+    transition: none;
+  }
+
+  .teacher-mode-topbar-link.nav-explore-button.nav-action-button:hover img {
+    transform: none;
+  }
+}
+
+@media (max-width: 780px) {
+  .teacher-mode-topbar-link.nav-explore-button.nav-action-button {
+    padding-inline: 12px;
+  }
+}
+
+/* =========================
+   Melody Master GCSE-style marking feedback
+   Scope: main Melody Master right feedback panel only.
+   No layout, gameplay, audio, drag/drop or Teacher Mode behaviour changed.
+========================= */
+.mm-gcse-feedback-panel .gcse-mark-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+}
+
+.mm-gcse-feedback-panel .diagnostic-card strong {
+  font-weight: 820;
+}
+
+.gcse-error-list,
+.gcse-error-list-empty {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: rgba(248, 250, 252, .92);
+  text-align: left;
+  font-size: .84rem;
+  line-height: 1.42;
+}
+
+.gcse-error-list {
+  list-style: none;
+  display: grid;
+  gap: .55rem;
+}
+
+.gcse-error-list li {
+  display: grid;
+  gap: .18rem;
+}
+
+.gcse-error-list strong {
+  display: block;
+  color: rgba(186, 230, 253, .96);
+  font-size: .76rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.gcse-error-list span {
+  display: block;
+  color: rgba(226, 232, 240, .82);
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.gcse-error-list-empty {
+  text-align: center;
+  color: rgba(226, 232, 240, .78);
+}
+
+@media (max-width: 980px) {
+  .mm-gcse-feedback-panel .gcse-mark-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   Melody Master GCSE feedback layout cleanup
+   Requested change only:
+   - Remove large score/headline and extra diagnostic tiles from the checked-answer panel.
+   - Keep the three compact mark boxes and one concise feedback tile.
+========================= */
+
+.mm-gcse-feedback-panel {
+  box-sizing: border-box;
+  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
+  gap: 10px;
+  padding: 14px;
+  align-content: start;
+}
+
+.mm-gcse-feedback-panel > .eyebrow {
+  margin-bottom: 0;
+}
+
+.mm-gcse-feedback-panel .gcse-mark-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: .42rem;
+  margin: 0;
+}
+
+.mm-gcse-feedback-panel .diagnostic-metric {
+  min-width: 0;
+  padding: .48rem .48rem;
+  border-radius: 14px;
+}
+
+.mm-gcse-feedback-panel .diagnostic-metric span {
+  font-size: .6rem;
+  letter-spacing: .075em;
+  margin-bottom: .12rem;
+}
+
+.mm-gcse-feedback-panel .diagnostic-metric strong {
+  display: block;
+  font-size: .92rem;
+  line-height: 1.05;
+}
+
+.mm-gcse-feedback-panel .diagnostic-feedback-tile {
+  width: 100%;
+  padding: 10px 11px;
+  border-radius: 15px;
+  border-color: rgba(56, 189, 248, .24);
+  background: linear-gradient(135deg, rgba(14, 116, 144, .18), rgba(15, 23, 42, .44));
+}
+
+.mm-gcse-feedback-panel .diagnostic-feedback-tile span {
+  margin-bottom: 4px;
+  font-size: .66rem;
+  letter-spacing: .1em;
+}
+
+.mm-gcse-feedback-panel .diagnostic-feedback-tile strong {
+  font-size: clamp(.74rem, .9vw, .86rem);
+  line-height: 1.32;
+  font-weight: 760;
+}
+
+@media (max-width: 980px) {
+  .mm-gcse-feedback-panel {
+    height: auto;
+    overflow: visible;
+  }
+
+  .mm-gcse-feedback-panel .gcse-mark-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.answerCard:has(.mm-gcse-feedback-panel) {
+  overflow: hidden;
+}
+
+
+.melody-mode-link-card {
+  color: inherit;
+  text-decoration: none;
+}
+
+.melody-mode-link-card .mode-status.live-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border: 1px solid rgba(56, 189, 248, .42);
+  border-radius: 999px;
+  color: rgba(224, 247, 255, .96);
+  background:
+    linear-gradient(135deg, rgba(56, 189, 248, .22), rgba(168, 85, 247, .13)),
+    rgba(5, 13, 28, .72);
+  box-shadow: 0 0 18px rgba(56, 189, 248, .12);
+  font-size: .64rem;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.mode-card-intervals .mode-icon-svg {
+  stroke: rgba(255, 255, 255, .92);
+}
+
+/* =========================
+   Melody Master main-app quiz settings and mode availability tweak
+   Scope: main Melody Master landing/settings controls only.
+========================= */
+
+.mode-card-devices.is-coming-soon {
+  position: relative;
+  cursor: not-allowed;
+  opacity: .66;
+  filter: saturate(.72);
+}
+
+.mode-card-devices.is-coming-soon input {
+  pointer-events: none;
+}
+
+.mode-card-devices.is-coming-soon .mode-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border: 1px solid rgba(251, 191, 36, .42);
+  border-radius: 999px;
+  color: rgba(255, 244, 214, .96);
+  background:
+    linear-gradient(135deg, rgba(251, 191, 36, .22), rgba(251, 113, 133, .13)),
+    rgba(5, 13, 28, .72);
+  box-shadow: 0 0 18px rgba(251, 191, 36, .12);
+  font-size: .64rem;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.mode-card-devices.is-coming-soon:hover,
+.mode-card-devices.is-coming-soon:focus-within {
+  transform: none;
+  border-color: rgba(255, 255, 255, .12);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .035);
+}
+
+.settings-popover.is-disabled {
+  pointer-events: none;
+  opacity: .62;
+}
+
+.advanced-settings-button:disabled {
+  cursor: not-allowed;
+  opacity: .58;
+  transform: none;
+}
+
+/* =========================
+   Melody Master main-app feedback panel refinement
+   Requested change only:
+   - Replace the GCSE-style text block with two mark boxes plus feedback.
+   - Add a compact round score tracker under the feedback tile.
+   - Keep gameplay, Teacher Mode and quiz flow unchanged.
+========================= */
+
+.mm-main-quiz-feedback-panel {
+  display: grid;
+  align-content: start;
+  justify-items: stretch;
+  gap: 10px;
+  text-align: left;
+}
+
+.mm-main-quiz-feedback-panel .gcse-mark-metrics,
+.mm-main-quiz-feedback-panel .mm-two-mark-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: .5rem;
+  margin: 0;
+}
+
+.mm-main-quiz-feedback-panel .diagnostic-feedback-tile,
+.mm-main-quiz-feedback-panel .mm-round-score-tile {
+  text-align: left;
+}
+
+.mm-main-quiz-feedback-panel .diagnostic-feedback-tile strong {
+  font-size: clamp(.78rem, .95vw, .9rem);
+  line-height: 1.34;
+}
+
+.mm-round-score-tile {
+  border-color: rgba(56, 189, 248, .22);
+  background:
+    radial-gradient(circle at 86% 16%, rgba(56, 189, 248, .15), transparent 36%),
+    linear-gradient(135deg, rgba(15, 23, 42, .54), rgba(2, 6, 23, .34));
+}
+
+.mm-round-score-tile.is-final {
+  border-color: rgba(52, 211, 153, .34);
+  background:
+    radial-gradient(circle at 86% 16%, rgba(52, 211, 153, .16), transparent 36%),
+    linear-gradient(135deg, rgba(20, 83, 45, .22), rgba(15, 23, 42, .44));
+}
+
+.mm-round-score-tile small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(186, 230, 253, .84);
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .035em;
+}
+
+.mm-round-score-tile p {
+  margin: 7px 0 0;
+  color: rgba(226, 232, 240, .82);
+  font-size: .78rem;
+  line-height: 1.35;
+}
+
+.answerCard:has(.mm-main-quiz-feedback-panel) {
+  overflow: hidden;
+}
+
+@media (max-width: 980px) {
+  .mm-main-quiz-feedback-panel .gcse-mark-metrics,
+  .mm-main-quiz-feedback-panel .mm-two-mark-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .answerCard:has(.mm-main-quiz-feedback-panel) {
+    overflow: auto;
+  }
+}
+
+
+/* =========================
+   Melody Master submit / review flow
+   - Reveal Answer appears only after the first submitted answer.
+   - Next/Finish remains available while students adjust notes and check again.
+========================= */
+.quiz-panel.is-active.is-answer-submitted #showAnswerButton,
+.quiz-panel.is-complete.is-answer-submitted #showAnswerButton {
+  display: inline-flex !important;
+}
+
+.quiz-panel.is-active.is-answer-submitted .dictation-toolbar .secondary-button,
+.quiz-panel.is-complete.is-answer-submitted .dictation-toolbar .secondary-button {
+  min-width: clamp(138px, 10.5vw, 168px) !important;
+  min-height: 43px !important;
+  padding: 0 18px !important;
+}
+
+/* =========================
+   Melody Master final round feedback window
+   Requested change only:
+   - Final-question progression becomes See Feedback.
+   - The question score minimises while the RHS Answers card becomes a central round summary.
+   - Finish Quiz lives at the bottom of the central feedback window.
+========================= */
+body.mm-round-review-open {
+  overflow: hidden;
+}
+
+body.mm-round-review-open::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(56, 189, 248, .12), transparent 34%),
+    radial-gradient(circle at 62% 82%, rgba(168, 85, 247, .13), transparent 32%),
+    rgba(2, 7, 19, .68);
+  backdrop-filter: blur(7px);
+}
+
+.app-shell.is-round-feedback-open .info-panel {
+  overflow: visible;
+  z-index: 520;
+  pointer-events: none;
+}
+
+.answerCard.is-round-feedback-window {
+  position: fixed;
+  left: 50%;
+  top: 52%;
+  z-index: 560;
+  width: min(760px, calc(100vw - 44px));
+  max-height: min(78vh, 760px);
+  min-height: 0;
+  overflow: auto !important;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 30px;
+  box-shadow:
+    0 34px 110px rgba(0, 0, 0, .58),
+    0 0 0 1px rgba(56, 189, 248, .20),
+    0 0 56px rgba(56, 189, 248, .16);
+  animation: mmRoundFeedbackZoomIn .42s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.answerCard.is-round-feedback-window .mm-round-review-panel {
+  min-height: 0;
+  height: auto;
+  padding: clamp(18px, 2.2vw, 26px);
+  gap: 12px;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(52, 211, 153, .16), transparent 34%),
+    radial-gradient(circle at 10% 18%, rgba(56, 189, 248, .18), transparent 38%),
+    linear-gradient(145deg, rgba(15, 23, 42, .94), rgba(2, 6, 23, .90));
+}
+
+.mm-round-review-panel .eyebrow {
+  margin: 0;
+  color: rgba(186, 230, 253, .88);
+  text-align: center;
+}
+
+.mm-round-review-hero {
+  width: 100%;
+  padding: clamp(16px, 2vw, 22px);
+  border: 1px solid rgba(56, 189, 248, .24);
+  border-radius: 24px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(56, 189, 248, .18), transparent 42%),
+    linear-gradient(135deg, rgba(14, 116, 144, .18), rgba(15, 23, 42, .50));
+}
+
+.mm-round-review-hero span,
+.mm-round-review-row span,
+.mm-compiled-feedback-tile span {
+  color: rgba(186, 230, 253, .86);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .105em;
+  text-transform: uppercase;
+}
+
+.mm-round-review-hero strong {
+  color: white;
+  font-size: clamp(2.1rem, 5vw, 4.2rem);
+  font-weight: 940;
+  line-height: .95;
+  letter-spacing: -.06em;
+}
+
+.mm-round-review-hero small {
+  color: rgba(226, 232, 240, .82);
+  font-size: .82rem;
+  font-weight: 820;
+}
+
+.mm-round-review-list {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.mm-round-review-row {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: minmax(94px, .8fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, .045);
+}
+
+.mm-round-review-row strong {
+  justify-self: end;
+  color: white;
+  font-size: 1rem;
+  font-weight: 920;
+}
+
+.mm-round-review-row small {
+  grid-column: 1 / -1;
+  color: rgba(226, 232, 240, .78);
+  font-size: .78rem;
+  font-weight: 740;
+  line-height: 1.32;
+}
+
+.mm-final-finish-button {
+  justify-self: center;
+  min-width: min(260px, 100%);
+  margin-top: 4px;
+}
+
+.quiz-panel.is-round-feedback-open.is-score-expanded .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-round-feedback-open.is-score-expanded .no-drag-workspace {
+  --mm-wide-score-width: min(430px, calc(100vw - 52px));
+  --mm-wide-score-height: clamp(126px, 17vh, 188px);
+  left: 50vw !important;
+  bottom: 50% !important;
+  width: var(--mm-wide-score-width) !important;
+  min-width: var(--mm-wide-score-width) !important;
+  max-width: var(--mm-wide-score-width) !important;
+  height: var(--mm-wide-score-height) !important;
+  min-height: var(--mm-wide-score-height) !important;
+  z-index: 300 !important;
+  opacity: .62;
+  pointer-events: none;
+  transform: translate(-50%, 63%) scale(.92) !important;
+  filter: saturate(.78) brightness(.82);
+}
+
+.quiz-panel.is-round-feedback-open.is-score-expanded .score-shell.no-drag-score-shell,
+.quiz-panel.is-round-feedback-open.is-score-expanded .score-shell,
+.quiz-panel.is-round-feedback-open .score-shell.is-score-expanded {
+  --score-frame-pad: 8px;
+  height: var(--mm-wide-score-height) !important;
+  min-height: var(--mm-wide-score-height) !important;
+  border-color: rgba(56, 189, 248, .32) !important;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, .42),
+    0 0 0 1px rgba(255, 255, 255, .04) inset !important;
+}
+
+.quiz-panel.is-round-feedback-open .score-close-button {
+  display: none !important;
+}
+
+.quiz-panel.is-round-feedback-open .dictation-toolbar,
+.quiz-panel.is-round-feedback-open .dictation-instructions,
+.quiz-panel.is-round-feedback-open #feedback {
+  opacity: .32;
+  pointer-events: none;
+}
+
+@keyframes mmRoundFeedbackZoomIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -44%) scale(.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (max-width: 760px) {
+  .answerCard.is-round-feedback-window {
+    top: 53%;
+    width: calc(100vw - 24px);
+    max-height: 82vh;
+  }
+
+  .mm-round-review-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mm-round-review-row strong {
+    justify-self: start;
+  }
+}
+
+/* =========================
+   Melody Master round feedback window fix
+   Requested change only:
+   - Keep the RHS Answers console content exactly as it was before See Feedback.
+   - Show the final round feedback in a separate central window.
+   - Hide the magnified question/answer PNG behind the feedback window.
+   - Remove the stray circular background artefact from the review overlay.
+========================= */
+body.mm-round-review-open::before {
+  background: rgba(2, 7, 19, .68) !important;
+}
+
+.app-shell.is-round-feedback-open .info-panel {
+  overflow: visible;
+  z-index: 520;
+  pointer-events: auto;
+}
+
+.quiz-panel.is-round-feedback-open .console-orbit,
+.quiz-panel.is-round-feedback-open .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-round-feedback-open .no-drag-workspace,
+.quiz-panel.is-round-feedback-open .score-shell,
+.quiz-panel.is-round-feedback-open .score-image-frame,
+.quiz-panel.is-round-feedback-open .score-image,
+.quiz-panel.is-round-feedback-open .score-overlay {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.mm-round-feedback-overlay {
+  position: fixed;
+  left: 50%;
+  top: 52%;
+  z-index: 560;
+  width: min(760px, calc(100vw - 44px));
+  max-height: min(78vh, 760px);
+  min-height: 0;
+  overflow: auto !important;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 30px;
+  box-shadow:
+    0 34px 110px rgba(0, 0, 0, .58),
+    0 0 0 1px rgba(56, 189, 248, .20),
+    0 0 56px rgba(56, 189, 248, .16);
+  animation: mmRoundFeedbackZoomIn .42s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.mm-round-feedback-overlay .mm-round-review-panel {
+  min-height: 0;
+  height: auto;
+  padding: clamp(18px, 2.2vw, 26px);
+  gap: 12px;
+  border-radius: 30px;
+  background:
+    linear-gradient(145deg, rgba(15, 23, 42, .96), rgba(2, 6, 23, .92));
+}
+
+@media (max-width: 760px) {
+  .mm-round-feedback-overlay {
+    top: 53%;
+    width: calc(100vw - 24px);
+    max-height: 82vh;
+  }
+}
+
+/* =========================
+   Melody Master round feedback visual cleanup
+   Requested change only:
+   - Remove the remaining circular review artefact by resetting decorative pseudo-elements.
+   - Hide the obsolete centre-console status text; feedback now lives in the RHS panel and final round window.
+========================= */
+body.mm-round-review-open::before {
+  inset: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  background: rgba(2, 7, 19, .68) !important;
+  backdrop-filter: blur(7px) !important;
+}
+
+body.mm-round-review-open::after,
+body.mm-round-review-open .app-shell::before,
+body.mm-round-review-open .app-shell::after,
+body.mm-round-review-open .listening-console::before,
+body.mm-round-review-open .listening-console::after,
+body.mm-round-review-open .console-orbit {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+#feedback {
+  display: none !important;
+}
+
+
+/* =========================
+   Melody Master central track information
+   Requested change only:
+   - Display the current composer/track information under the magnified question PNG.
+   - Use the existing Melody Master CSV-generated data in clips.js.
+========================= */
+.score-track-info {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + clamp(58px, 6.4vw, 92px));
+  z-index: 260;
+  width: min(860px, calc(100% - 48px));
+  transform: translateX(-50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 16px 11px;
+  border: 1px solid rgba(56, 189, 248, .28);
+  border-radius: 18px;
+  text-align: center;
+  color: rgba(248, 250, 252, .94);
+  background:
+    radial-gradient(circle at 14% 12%, rgba(56, 189, 248, .14), transparent 36%),
+    linear-gradient(135deg, rgba(15, 23, 42, .84), rgba(2, 6, 23, .74));
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, .26),
+    inset 0 0 0 1px rgba(255, 255, 255, .045);
+  backdrop-filter: blur(14px);
+  pointer-events: none;
+}
+
+.score-track-info-kicker {
+  color: rgba(125, 211, 252, .90);
+  font-size: .66rem;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.score-track-info strong {
+  max-width: 100%;
+  overflow: hidden;
+  color: white;
+  font-size: clamp(.84rem, 1.05vw, 1.02rem);
+  font-weight: 900;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-track-info small {
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(226, 232, 240, .74);
+  font-size: clamp(.68rem, .82vw, .78rem);
+  font-weight: 740;
+  letter-spacing: .01em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quiz-panel.is-active.is-score-expanded .score-track-info,
+.quiz-panel.is-complete.is-score-expanded .score-track-info {
+  display: flex;
+}
+
+.quiz-panel.is-round-feedback-open .score-track-info {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+@media (max-width: 760px) {
+  .score-track-info {
+    top: calc(50% + 54px);
+    width: min(520px, calc(100% - 28px));
+    padding: 8px 12px 9px;
+    border-radius: 15px;
+  }
+
+  .score-track-info strong,
+  .score-track-info small {
+    white-space: normal;
+  }
+}
+
+
+/* =========================
+   Melody Master locked expanded quiz score view
+   Requested change only:
+   - Students cannot close the expanded score tile during a quiz.
+   - The compact background score tile is hidden once quiz mode starts, so the
+     expanded score is the only visible question PNG until final feedback.
+========================= */
+.quiz-panel.is-active .score-close-button,
+.quiz-panel.is-complete .score-close-button,
+.score-shell.is-score-expanded .score-close-button {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.quiz-panel.is-active:not(.is-score-expanded) .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-complete:not(.is-score-expanded) .dictation-workspace.no-drag-workspace,
+.quiz-panel.is-active:not(.is-score-expanded) .no-drag-workspace,
+.quiz-panel.is-complete:not(.is-score-expanded) .no-drag-workspace {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* =========================
+   Melody Master lower-stave visibility and track-info spacing fix
+   Requested change only:
+   - Add matching white paper extension below the expanded question PNG so low notes
+     and lower ledger lines remain visible below the stave.
+   - Move the central track information further down so it does not block placing
+     notes under the stave.
+   - Keep gameplay, scoring, quiz flow and Teacher Mode unchanged.
+========================= */
+.score-shell.is-score-expanded .score-image-frame::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -42%;
+  height: 46%;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 0 !important;
+  background: rgba(255, 255, 255, .982);
+  box-shadow: none !important;
+}
+
+.quiz-panel.is-active.is-score-expanded .score-track-info,
+.quiz-panel.is-complete.is-score-expanded .score-track-info {
+  top: calc(50% + clamp(108px, 9.8vw, 154px));
+}
+
+@media (max-width: 760px) {
+  .score-shell.is-score-expanded .score-image-frame::after {
+    bottom: -38%;
+    height: 42%;
+  }
+
+  .quiz-panel.is-active.is-score-expanded .score-track-info,
+  .quiz-panel.is-complete.is-score-expanded .score-track-info {
+    top: calc(50% + 92px);
+  }
+}

@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: echoaural-classroom-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PUBLIC_SITE_URL
+        value: https://echoaural.com
+      - key: PUBLIC_API_URL
+        value: https://teacher-api.echoaural.com
+      - key: PUBLIC_HOST
+        value: teacher-api.echoaural.com
+      - key: PUBLIC_PROTOCOL
+        value: https
+      - key: ROOM_MAX_AGE_MS
+        value: "43200000"

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Join EchoAural Classroom</title>
+  <meta name="robots" content="noindex" />
+</head>
+<body>
+  <p>Opening EchoAural student join…</p>
+  <script>
+    (function () {
+      var hashRoom = String(window.location.hash || "")
+        .replace(/^#/, "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "");
+
+      var params = new URLSearchParams(window.location.search);
+
+      if (hashRoom && !params.get("room")) {
+        params.set("room", hashRoom);
+      }
+
+      var query = params.toString();
+      var target = "/student/join" + (query ? "?" + query : "");
+
+      window.location.replace(target);
+    }());
+  </script>
+  <noscript>
+    <p><a href="/student/join">Continue to student join</a></p>
+  </noscript>
+</body>
+</html>
