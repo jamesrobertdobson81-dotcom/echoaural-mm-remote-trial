@@ -1,0 +1,73 @@
+/*
+  EchoAural class setup popup viewport fix.
+  Keeps the complete class form inside the browser window.
+*/
+
+#classDialog {
+  width: min(700px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+#classDialog .class-dialog-inner-v6 {
+  width: 100%;
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  padding: clamp(22px, 3vw, 28px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  box-sizing: border-box;
+}
+
+#classDialog .class-form-grid-v6 {
+  min-width: 0;
+}
+
+#classDialog .field,
+#classDialog input,
+#classDialog select {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 820px) {
+  #classDialog {
+    width: min(620px, calc(100vw - 20px));
+    max-width: calc(100vw - 20px);
+    max-height: calc(100dvh - 16px);
+  }
+
+  #classDialog .class-dialog-inner-v6 {
+    max-height: calc(100dvh - 16px);
+    padding: 22px 20px;
+  }
+}
+
+@media (max-height: 720px) {
+  #classDialog .class-dialog-inner-v6 {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  #classDialog .section-title {
+    margin-bottom: 8px;
+  }
+
+  #classDialog .section-copy {
+    margin-bottom: 16px;
+  }
+
+  #classDialog .class-form-grid-v6 {
+    gap: 11px;
+  }
+
+  #classDialog .dialog-actions {
+    margin-top: 14px;
+  }
+}

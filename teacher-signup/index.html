@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#07111f" />
+  <title>Teacher Signup | EchoAural</title>
+  <link rel="stylesheet" href="/account/account.css" />
+  <link rel="stylesheet" href="/account/onboarding.css" />
+  <link rel="stylesheet" href="/shared/css/login-modals.css" />
+  <style>
+    .development-code-signup #pilotCode {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, .10);
+    }
+
+    .development-code-signup #pilotCode:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, .16);
+    }
+  </style>
+</head>
+<body class="onboarding-shell">
+  <div class="account-shell">
+    <header class="account-hero">
+      <nav class="account-nav" aria-label="EchoAural signup navigation">
+        <a class="account-logo" href="/" aria-label="EchoAural home">
+          <span class="account-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <strong class="account-wordmark"><span class="account-wordmark-echo">Echo</span><span class="account-wordmark-aural">Aural</span></strong>
+        </a>
+        <a class="nav-link" href="/?login=teacher" data-ea-login="teacher">Teacher login</a>
+      </nav>
+      <section class="account-hero-content">
+        <div class="hero-copy">
+          <p class="hero-kicker">Founding Partner access</p>
+          <h1 class="hero-title">Create your EchoAural <span class="gradient">classroom.</span></h1>
+          <p class="hero-text">Create one teacher account, organise up to three classes and use twenty active student seats across practice and live listening quizzes.</p>
+        </div>
+      </section>
+    </header>
+
+    <main class="account-main">
+      <div class="account-panel-wrap">
+        <section class="account-card onboarding-card" aria-labelledby="signupTitle">
+          <aside class="onboarding-aside">
+            <p class="card-eyebrow" style="color:#8bdcff">EchoAural access</p>
+            <h2>Listen. Identify. Improve.</h2>
+            <p>Create your secure EchoAural teacher account and receive a one-time email link to choose your password.</p>
+            <div class="onboarding-feature-list">
+              <div class="onboarding-feature"><span class="onboarding-feature-icon"><img src="/assets/icons/navigation/teacher-mode.svg" alt="" /></span><div><strong>Teacher dashboard</strong><span>Student accounts, class progress and compiled feedback.</span></div></div>
+              <div class="onboarding-feature"><span class="onboarding-feature-icon"><img src="/assets/icons/modules/melody-master.svg" alt="" /></span><div><strong>3 classes · 20 seats</strong><span>Add named students with private usernames and PINs, without student email addresses.</span></div></div>
+              <div class="onboarding-feature"><span class="onboarding-feature-icon"><img src="/assets/icons/modules/instrument-identifier.svg" alt="" /></span><div><strong>Practice tracking</strong><span>Independent work recorded by app and listening skill.</span></div></div>
+              <div class="onboarding-feature"><span class="onboarding-feature-icon"><img src="/assets/icons/modules/texture-trainer.svg" alt="" /></span><div><strong>Live quizzes</strong><span>Teacher Mode scores feed into the same progress view.</span></div></div>
+            </div>
+          </aside>
+
+          <div class="onboarding-form-panel">
+            <p class="card-eyebrow">Teacher signup</p>
+            <h2 class="card-title" id="signupTitle">Become a Founding Partner.</h2>
+            <p class="card-intro">Enter your school details. If EchoAural sent you an invitation code, add it below; otherwise leave it blank and sign up directly while places remain. EchoAural will email a secure one-time link so you can choose your own password.</p>
+
+            <form class="account-form" id="teacherSignupForm">
+              <div class="onboarding-grid">
+                <div class="field"><label for="displayName">Full name</label><input id="displayName" name="displayName" type="text" autocomplete="name" maxlength="70" required /></div>
+                <div class="field"><label for="email">School email</label><input id="email" name="email" type="email" autocomplete="email" maxlength="180" required /></div>
+                <div class="field field-wide"><label for="schoolName">School name</label><input id="schoolName" name="schoolName" type="text" autocomplete="organization" maxlength="120" required /></div>
+                <div class="field"><label for="country">Country</label><input id="country" name="country" type="text" autocomplete="country-name" maxlength="80" required /></div>
+                <div class="field"><label for="examBoard">Exam board</label><select id="examBoard" name="examBoard" required><option value="">Choose one</option><option>AQA</option><option>Edexcel</option><option>Eduqas / WJEC</option><option>OCR</option><option>Cambridge IGCSE</option><option>Other / international</option></select></div>
+                <div class="field field-wide"><label for="pilotCode">Invitation code <span aria-hidden="true">(optional)</span></label><input id="pilotCode" name="pilotCode" type="text" autocomplete="off" maxlength="80" /><p class="field-help">Enter the code from your EchoAural invitation email, or leave this blank to claim an available Founding Partner place.</p></div>
+              </div>
+
+              <label class="onboarding-check"><input id="acceptedTerms" name="acceptedTerms" type="checkbox" required /><span>I agree to the EchoAural terms and privacy notice and confirm that I am creating this account for legitimate educational use.</span></label>
+
+              <div class="onboarding-actions">
+                <button class="primary-button" id="signupButton" type="submit">Create Founding Partner account</button>
+                <a class="secondary-button" href="/?login=teacher" data-ea-login="teacher" style="min-height:52px;padding:0 22px;display:inline-flex;align-items:center">I already have an account</a>
+              </div>
+              <p class="form-message" id="signupMessage" aria-live="polite"></p>
+              <div class="onboarding-status-card" id="signupSuccess" hidden></div>
+            </form>
+            <p class="onboarding-security-note">EchoAural never emails a password. The welcome email contains a one-time setup link that expires after 24 hours.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="/account/account-common.js"></script>
+  <script src="/shared/js/login-modals.js"></script>
+  <script src="/teacher-signup/teacher-signup.js"></script>
+</body>
+</html>

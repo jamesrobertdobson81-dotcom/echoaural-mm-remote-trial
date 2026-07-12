@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Instrument Identifier | EchoAural</title>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand refined-logo" href="../../index.html" aria-label="Back to EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+
+        <strong class="wordmark">
+          <span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span>
+        </strong>
+      </a>
+
+      <nav class="topbar-actions" aria-label="Instrument Identifier navigation">
+        <a class="topbar-module-chip" href="#gameScreen" aria-label="Instrument Identifier module">
+          <span class="topbar-module-icon" aria-hidden="true">
+            <img
+              src="../../assets/icons/modules/instrument-identifier.svg"
+              alt=""
+              onerror="this.style.display='none'; this.parentElement.classList.add('missing-topbar-icon');"
+            />
+          </span>
+          <span class="topbar-ii-mark" aria-hidden="true">
+            <span class="topbar-ii-main">I</span><span class="topbar-ii-gradient">I</span>
+          </span>
+          <span class="sr-only">Instrument Identifier</span>
+        </a>
+
+        <a class="topbar-link" href="../melody-master/index.html" aria-label="Open Melody Master">
+          <span>Melody Master</span>
+        </a>
+
+        <a class="topbar-link topbar-home-link" href="../../index.html" aria-label="Back to EchoAural home">
+          <span class="back-label">Back to</span>
+          <span class="mini-wordmark" aria-hidden="true">
+            <span class="mini-wordmark-echo">Echo</span><span class="mini-wordmark-aural">Aural</span>
+          </span>
+          <span class="sr-only">EchoAural home</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel" id="homeScreen">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Settings</span></h2>
+        </div>
+
+        <div class="panel-hero ii-panel-hero">
+          <p class="eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+
+          <div class="ii-hero-lockup">
+            <span class="ii-hero-icon" aria-hidden="true">
+              <img
+                src="../../assets/icons/modules/instrument-identifier.svg"
+                alt=""
+                onerror="this.style.display='none'; this.parentElement.classList.add('missing-ii-icon');"
+              />
+            </span>
+
+            <div class="ii-title-lockup" aria-hidden="true">
+              <span class="ii-title-wave">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+
+              <span class="ii-title-text">
+                <span class="ii-title-main">Instrument</span>
+                <span class="ii-title-gradient">Identifier</span>
+              </span>
+            </div>
+
+            <h1 class="sr-only">Instrument Identifier</h1>
+          </div>
+
+          <p class="ii-panel-intro">
+            Choose your settings, then start the quiz from the centre panel.
+          </p>
+        </div>
+
+        <h2>Quiz Mode</h2>
+
+        <div class="cardGrid" aria-label="Choose quiz mode">
+          <label class="quizCard mode-card-solo">
+            <input type="radio" name="quizMode" value="solo" checked />
+            <span class="mode-icon-shell" aria-hidden="true">
+              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
+                <path d="M34 12v29" />
+                <path d="M34 14c8 1 13 4 16 9" />
+                <ellipse cx="24" cy="44" rx="11" ry="8" transform="rotate(-19 24 44)" />
+                <path d="M45 27c-3-2-7-3-11-3" />
+              </svg>
+            </span>
+            <span class="mode-copy">
+              <span class="modeBadge">Solo</span>
+              <small>Single instrument</small>
+            </span>
+          </label>
+
+          <label class="quizCard mode-card-accompanied">
+            <input type="radio" name="quizMode" value="accompanied" />
+            <span class="mode-icon-shell" aria-hidden="true">
+              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
+                <path d="M23 14v31" />
+                <path d="M43 20v25" />
+                <ellipse cx="15" cy="48" rx="9" ry="6.5" transform="rotate(-18 15 48)" />
+                <ellipse cx="35" cy="48" rx="9" ry="6.5" transform="rotate(-18 35 48)" />
+                <path d="M23 16c8 1 14 3 20 8" />
+                <path d="M23 28c7 1 13 3 20 7" />
+              </svg>
+            </span>
+            <span class="mode-copy">
+              <span class="modeBadge">Accompanied</span>
+              <small>With accompaniment</small>
+            </span>
+          </label>
+
+          <label class="quizCard mode-card-mixed">
+            <input type="radio" name="quizMode" value="all" />
+            <span class="mode-icon-shell" aria-hidden="true">
+              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
+                <path d="M15 22c6-8 14-8 20 0s14 8 20 0" />
+                <path d="M15 34c6-8 14-8 20 0s14 8 20 0" />
+                <path d="M15 46c6-8 14-8 20 0s14 8 20 0" />
+                <circle cx="16" cy="14" r="3" />
+                <circle cx="32" cy="14" r="3" />
+                <circle cx="48" cy="14" r="3" />
+              </svg>
+            </span>
+            <span class="mode-copy">
+              <span class="modeBadge">Mixed</span>
+              <small>All types</small>
+            </span>
+          </label>
+        </div>
+
+        <div class="settings-popover-wrap">
+          <div
+            id="advancedSettings"
+            class="advancedSettings settings-popover"
+            style="display: none;"
+            aria-hidden="true"
+          >
+            <div class="settings-popover-header">
+              <p class="eyebrow">CUSTOMISE ROUND</p>
+              <h3>Advanced Settings</h3>
+            </div>
+
+            <h3>Questions</h3>
+            <div class="pillRow" aria-label="Number of questions">
+              <label class="pill"><input type="radio" name="questionCount" value="5" />5</label>
+              <label class="pill"><input type="radio" name="questionCount" value="10" checked />10</label>
+              <label class="pill"><input type="radio" name="questionCount" value="20" />20</label>
+              <label class="pill"><input type="radio" name="questionCount" value="50" />50</label>
+              <label class="pill"><input type="radio" name="questionCount" value="unlimited" />∞</label>
+            </div>
+
+            <h3>Difficulty</h3>
+            <div class="pillRow" aria-label="Difficulty filter">
+              <label class="pill"><input type="radio" name="difficultyFilter" value="all" checked />Mixed</label>
+              <label class="pill"><input type="radio" name="difficultyFilter" value="easy" />Easy</label>
+              <label class="pill"><input type="radio" name="difficultyFilter" value="medium" />Medium</label>
+              <label class="pill"><input type="radio" name="difficultyFilter" value="hard" />Hard</label>
+            </div>
+
+            <h3>Families</h3>
+            <div class="familyGrid" aria-label="Instrument families">
+              <label class="familyPill"><input type="checkbox" name="familyFilter" value="strings" checked />Strings</label>
+              <label class="familyPill"><input type="checkbox" name="familyFilter" value="woodwind" checked />Woodwind</label>
+              <label class="familyPill"><input type="checkbox" name="familyFilter" value="brass" checked />Brass</label>
+              <label class="familyPill"><input type="checkbox" name="familyFilter" value="guitar" checked />Guitar</label>
+            </div>
+          </div>
+
+          <button
+            id="settingsToggle"
+            class="secondary-button advanced-settings-button"
+            type="button"
+            aria-controls="advancedSettings"
+            aria-expanded="false"
+          >
+            Advanced Settings
+          </button>
+        </div>
+
+        <p id="setupMessage" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel quiz-panel is-ready" id="gameScreen">
+        <div class="panel-section-heading panel-section-heading-centre">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Quiz</span></h2>
+        </div>
+
+        <div class="quiz-header">
+          <p id="roundText">Ready</p>
+          <div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div>
+        </div>
+
+        <div class="statsRow" aria-label="Round statistics">
+          <p id="scoreText">Score: 0 / 0</p>
+          <p id="streakText">Streak: 0</p>
+          <p id="xpText">XP: 0</p>
+        </div>
+
+        <div class="listening-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+
+          <div class="console-ready-brand" aria-hidden="true">
+            <div class="console-ii-combined-lockup">
+              <span class="console-ii-icon">
+                <img
+                  src="../../assets/icons/modules/instrument-identifier.svg"
+                  alt=""
+                  onerror="this.style.display='none'; this.parentElement.classList.add('missing-console-icon');"
+                />
+              </span>
+
+              <div class="console-ii-lockup">
+                <span class="console-title-text">
+                  <span class="console-title-main">Instrument</span>
+                  <span class="console-title-gradient">Identifier</span>
+                </span>
+</div>
+            </div>
+          </div>
+
+          <div class="console-question-kicker">
+            <p class="eyebrow active-only">LISTENING QUESTION</p>
+          </div>
+
+          <div class="listening-visual" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <div class="console-heading">
+            <h1 class="sr-only">Which instrument is playing?</h1>
+            <p id="questionText"></p>
+          </div>
+
+          <div class="console-actions console-actions-start">
+            <button id="startButton" class="primary-button centre-start" type="button">Start Quiz</button>
+          </div>
+
+          <div id="answers" class="answer-grid"></div>
+
+          <div class="listening-cues" aria-label="Listening focus areas">
+            <span>Listening Hints</span>
+          </div>
+
+          <p id="feedback" role="status" aria-live="polite"></p>
+
+          <div class="console-actions console-actions-replay">
+            <button id="playButton" class="play-button" type="button" style="display: none;">Replay Clip</button>
+          </div>
+
+          <button id="restartButton" class="secondary-button" type="button">Restart Round</button>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Answers</span></h2>
+        </div>
+
+        <div id="answerCard" class="answerCard" aria-live="polite">
+          <div class="answerCard-empty">
+            <div class="answer-empty-brand" aria-hidden="true">
+              <span class="answer-empty-icon">
+                <img
+                  src="../../assets/icons/modules/instrument-identifier.svg"
+                  alt=""
+                  onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
+                />
+              </span>
+              <span class="answer-empty-wave">
+                <span></span><span></span><span></span><span></span><span></span>
+              </span>
+            </div>
+            <p class="eyebrow">ANSWER PANEL</p>
+            <h2>Your listening evidence appears here.</h2>
+            <p class="muted">Correct answers, clip details and the round summary will build here as students listen.</p>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="clips.js"></script>
+  <script src="/account/tracking.js"></script>
+  <script src="script.js"></script>
+  <script src="../../shared/js/progression-store.js"></script>
+  <script src="progression-dashboard-adapter.js"></script>
+</body>
+</html>

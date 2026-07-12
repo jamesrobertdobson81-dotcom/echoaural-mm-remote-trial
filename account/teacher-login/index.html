@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Login | EchoAural</title>
+  <link rel="stylesheet" href="/account/account.css" />
+</head>
+<body>
+  <div class="account-shell">
+    <header class="account-hero">
+      <nav class="account-nav" aria-label="EchoAural account navigation">
+        <a class="account-logo" href="/" aria-label="EchoAural home">
+          <span class="account-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <strong class="account-wordmark"><span class="account-wordmark-echo">Echo</span><span class="account-wordmark-aural">Aural</span></strong>
+        </a>
+        <a class="nav-link" href="/founding/">Founding Partners</a>
+      </nav>
+      <section class="account-hero-content">
+        <div class="hero-copy">
+          <p class="hero-kicker">Teacher access</p>
+          <h1 class="hero-title">Your EchoAural <span class="gradient">classroom.</span></h1>
+          <p class="hero-text">Manage student seats, open Teacher Mode and keep your Founding Partner access in one place.</p>
+        </div>
+      </section>
+    </header>
+
+    <main class="account-main">
+      <div class="account-panel-wrap">
+        <section class="account-card login-card" aria-labelledby="loginTitle">
+          <p class="card-eyebrow">Teacher login</p>
+          <h2 class="card-title" id="loginTitle">Welcome back.</h2>
+          <p class="card-intro">Use the email address and password issued with your EchoAural account.</p>
+
+          <form class="account-form" id="teacherLoginForm">
+            <div class="field">
+              <label for="email">Email address</label>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" autocomplete="current-password" required />
+            </div>
+            <button class="primary-button" id="loginButton" type="submit">Log in</button>
+            <p class="form-message" id="loginMessage" aria-live="polite"></p>
+          </form>
+
+          <p class="login-switch">Student? <a href="/account/student-login/">Use student login</a></p>
+          <p class="login-switch">New pilot teacher? <a href="/teacher-signup/">Create a teacher account</a></p>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="/account/account-common.js"></script>
+  <script src="/account/teacher-login/teacher-login.js"></script>
+</body>
+</html>

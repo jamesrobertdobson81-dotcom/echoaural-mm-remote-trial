@@ -1,0 +1,25 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local dev caches and generated mail previews
+.wrangler/
+dev-mail/*.html
+dev-mail/*.txt
+
+# Dated backups (not live application files)
+backups/
+*-backup-*/
+*.backup-*
+*.backup

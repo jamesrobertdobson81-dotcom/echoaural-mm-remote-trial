@@ -1,0 +1,225 @@
+/*
+  EchoAural Teacher Dashboard Typography
+  Restores the standard EchoAural app/page type scale without changing layout.
+*/
+
+.teacher-dashboard-v5 {
+  font-size: 16px;
+}
+
+/* Compact top banner, but at the normal EchoAural readable scale */
+.teacher-dashboard-v5 .teacher-welcome-v3 p {
+  font-size: .68rem;
+}
+
+.teacher-dashboard-v5 .teacher-welcome-v3 h1 {
+  font-size: clamp(1.28rem, 1.8vw, 1.68rem);
+}
+
+.teacher-dashboard-v5 .teacher-welcome-v3 > span {
+  font-size: .74rem;
+}
+
+.teacher-dashboard-v5 .teacher-dashboard-actions-v3 .nav-link {
+  font-size: .8rem;
+}
+
+/* Main console headings match the platform panel-title scale */
+.teacher-dashboard-v5 .teacher-console-heading-v3 .card-eyebrow {
+  font-size: .7rem;
+}
+
+.teacher-dashboard-v5 .teacher-console-heading-v3 h2 {
+  font-size: clamp(1.24rem, 1.45vw, 1.48rem);
+}
+
+.teacher-dashboard-v5 .compact-primary-v3,
+.teacher-dashboard-v5 .console-icon-button-v3 {
+  font-size: .76rem;
+}
+
+/* Student accounts console */
+.teacher-dashboard-v5 .student-seat-heading-v4 span {
+  font-size: .58rem;
+}
+
+.teacher-dashboard-v5 .student-seat-heading-v4 strong {
+  font-size: .94rem;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-name {
+  font-size: .84rem;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-username {
+  font-size: .7rem;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-category-results-v2 > div > span:first-child {
+  font-size: .58rem;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-progress-summary {
+  font-size: .62rem;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-status {
+  font-size: .62rem;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-actions button {
+  font-size: .62rem;
+}
+
+.teacher-dashboard-v5 .student-console-footer-v4 .compact-notice-v3,
+.teacher-dashboard-v5 .student-console-footer-v4 .compact-form-message-v3 {
+  font-size: .72rem;
+}
+
+.teacher-dashboard-v5 .add-student-launch-v4 {
+  font-size: .8rem;
+}
+
+/* Centre console summaries */
+.teacher-dashboard-v5 .learning-summary-title-v5 p {
+  font-size: .66rem;
+}
+
+.teacher-dashboard-v5 .learning-summary-title-v5 h3 {
+  font-size: clamp(1.18rem, 1.35vw, 1.38rem);
+  line-height: 1.08;
+}
+
+.teacher-dashboard-v5 .learning-summary-percentage-v5 {
+  min-width: 70px;
+  font-size: clamp(1.78rem, 2.1vw, 2.05rem);
+}
+
+.teacher-dashboard-v5 .learning-summary-feedback-v5 > span {
+  font-size: .64rem;
+}
+
+.teacher-dashboard-v5 .learning-summary-feedback-v5 p {
+  font-size: .8rem;
+  line-height: 1.43;
+}
+
+.teacher-dashboard-v5 .learning-summary-footer-v5 > span {
+  font-size: .68rem;
+}
+
+.teacher-dashboard-v5 .learning-detail-button-v5 {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: .72rem;
+}
+
+/* Whole-class feedback console */
+.teacher-dashboard-v5 .class-overall-score-v3 > span {
+  font-size: .68rem;
+}
+
+.teacher-dashboard-v5 .class-overall-score-v3 > small {
+  font-size: .76rem;
+}
+
+.teacher-dashboard-v5 .class-overall-metrics-v3 span {
+  font-size: .62rem;
+}
+
+.teacher-dashboard-v5 .class-overall-metrics-v3 strong {
+  font-size: 1rem;
+}
+
+.teacher-dashboard-v5 .whole-class-feedback-v3 > span {
+  font-size: .66rem;
+}
+
+.teacher-dashboard-v5 .whole-class-feedback-v3 p {
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+/* Detailed feedback tile */
+.teacher-dashboard-v5 .category-detail-heading-v5 .section-title {
+  font-size: clamp(1.55rem, 2.3vw, 2rem);
+}
+
+.teacher-dashboard-v5 .category-detail-heading-v5 .section-copy {
+  font-size: .86rem;
+  line-height: 1.5;
+}
+
+.teacher-dashboard-v5 .category-detail-score-v5 > span,
+.teacher-dashboard-v5 .category-detail-feedback-v5 > span {
+  font-size: .7rem;
+}
+
+.teacher-dashboard-v5 .category-detail-score-v5 > small {
+  font-size: .8rem;
+}
+
+.teacher-dashboard-v5 .category-detail-metrics-v5 span {
+  font-size: .7rem;
+}
+
+.teacher-dashboard-v5 .category-detail-feedback-v5 p {
+  font-size: .92rem;
+}
+
+.teacher-dashboard-v5 .category-detail-section-heading-v5 h3 {
+  font-size: 1.32rem;
+}
+
+.teacher-dashboard-v5 .category-detail-section-heading-v5 > span {
+  font-size: .76rem;
+}
+
+/* Dialog typography follows the existing account-page scale */
+.teacher-dashboard-v5 .dialog .card-eyebrow {
+  font-size: .7rem;
+}
+
+.teacher-dashboard-v5 .dialog .section-title {
+  font-size: clamp(1.65rem, 3vw, 2.1rem);
+}
+
+.teacher-dashboard-v5 .dialog .section-copy,
+.teacher-dashboard-v5 .dialog .field label,
+.teacher-dashboard-v5 .dialog .field-help,
+.teacher-dashboard-v5 .dialog button {
+  font-size: .82rem;
+}
+
+/* Preserve the one-screen desktop composition at narrower laptop widths */
+@media (max-width: 1320px) and (min-width: 1001px) {
+  .teacher-dashboard-v5 .teacher-console-heading-v3 h2 {
+    font-size: 1.22rem;
+  }
+
+  .teacher-dashboard-v5 .learning-summary-title-v5 h3 {
+    font-size: 1.16rem;
+  }
+
+  .teacher-dashboard-v5 .learning-summary-feedback-v5 p {
+    font-size: .77rem;
+  }
+
+  .teacher-dashboard-v5 .learning-summary-footer-v5 > span {
+    font-size: .64rem;
+  }
+}
+
+@media (max-width: 650px) {
+  .teacher-dashboard-v5 .teacher-console-heading-v3 h2 {
+    font-size: 1.28rem;
+  }
+
+  .teacher-dashboard-v5 .learning-summary-title-v5 h3 {
+    font-size: 1.2rem;
+  }
+
+  .teacher-dashboard-v5 .learning-summary-feedback-v5 p {
+    font-size: .84rem;
+  }
+}

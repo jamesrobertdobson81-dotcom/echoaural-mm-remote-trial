@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Texture Trainer | EchoAural</title>
+  <link rel="preload" href="../../assets/icons/modules/texture-trainer.svg" as="image" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand refined-logo" href="../../index.html" aria-label="Back to EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+      </a>
+
+      <nav class="topbar-actions" aria-label="Texture Trainer navigation">
+        <a class="topbar-module-chip" href="#gameScreen" aria-label="Texture Trainer module">
+          <span class="topbar-module-icon" aria-hidden="true">
+            <img src="../../assets/icons/modules/texture-trainer.svg" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-topbar-icon');" />
+          </span>
+          <span class="topbar-tt-mark" aria-hidden="true"><span class="topbar-tt-main">T</span><span class="topbar-tt-gradient">T</span></span>
+          <span class="sr-only">Texture Trainer</span>
+        </a>
+
+        <a class="topbar-link" href="../instrument-identifier/index.html" aria-label="Open Instrument Identifier"><span>Instrument Identifier</span></a>
+        <a class="topbar-link" href="../melody-master/index.html" aria-label="Open Melody Master"><span>Melody Master</span></a>
+        <a class="topbar-link topbar-home-link" href="../../index.html" aria-label="Back to EchoAural home">
+          <span class="back-label">Back to</span>
+          <span class="mini-wordmark" aria-hidden="true"><span class="mini-wordmark-echo">Echo</span><span class="mini-wordmark-aural">Aural</span></span>
+          <span class="sr-only">EchoAural home</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel" id="homeScreen">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Settings</span></h2>
+        </div>
+
+        <div class="panel-hero tt-panel-hero">
+          <p class="eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+          <div class="tt-hero-lockup">
+            <span class="tt-hero-icon" aria-hidden="true">
+              <img src="../../assets/icons/modules/texture-trainer.svg" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-tt-icon');" />
+            </span>
+            <div class="tt-title-lockup" aria-hidden="true">
+              <span class="tt-title-wave"><span></span><span></span><span></span><span></span><span></span></span>
+              <span class="tt-title-text"><span class="tt-title-main">Texture</span><span class="tt-title-gradient">Trainer</span></span>
+            </div>
+            <h1 class="sr-only">Texture Trainer</h1>
+          </div>
+          <p class="tt-panel-intro">Exam-style written answers for texture vocabulary. Listen, type, submit, improve.</p>
+        </div>
+
+        <h2>Question Focus</h2>
+        <div class="focus-card-grid" aria-label="Texture skills covered">
+          <div class="focus-card"><strong>Terms</strong><span>monophonic, homophonic, polyphonic</span></div>
+          <div class="focus-card"><strong>Evidence</strong><span>single line, chords, independent parts</span></div>
+          <div class="focus-card"><strong>Change</strong><span>layers added, texture thickens</span></div>
+        </div>
+
+        <div class="exam-note-card">
+          <p class="eyebrow">MVP MARKING</p>
+          <p>This version uses deterministic answer cards: accepted phrases, partial phrases and common wrong-answer phrases. No external AI/API is used.</p>
+        </div>
+
+        <button id="restartButton" class="secondary-button" type="button">Restart Texture Round</button>
+      </section>
+
+      <section class="panel quiz-panel is-ready" id="gameScreen">
+        <div class="panel-section-heading panel-section-heading-centre">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Written Response</span></h2>
+        </div>
+
+        <div class="quiz-header">
+          <p id="roundText">Question 1 / 6</p>
+          <div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div>
+        </div>
+
+        <div class="statsRow" aria-label="Round statistics">
+          <p id="scoreText">Marks: 0 / 0</p>
+          <p id="answeredText">Answered: 0</p>
+          <p id="accuracyText">Accuracy: 0%</p>
+        </div>
+
+        <div class="listening-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+
+          <div class="console-ready-brand" aria-hidden="true">
+            <div class="console-tt-combined-lockup">
+              <span class="console-tt-icon"><img src="../../assets/icons/modules/texture-trainer.svg" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-console-icon');" /></span>
+              <div class="console-tt-lockup"><span class="console-title-text"><span class="console-title-main">Texture</span><span class="console-title-gradient">Trainer</span></span></div>
+            </div>
+          </div>
+
+          <div class="console-question-kicker"><p class="eyebrow active-only">LISTENING QUESTION</p></div>
+
+          <div class="listening-visual" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+
+          <div class="console-heading">
+            <p id="questionTitle" class="question-title">Texture Trainer</p>
+            <div class="exam-prompt-line">
+              <h1 id="questionPrompt">Click start to begin the texture round.</h1>
+              <span id="questionMarks" class="question-marks" aria-label="Question marks" hidden></span>
+            </div>
+          </div>
+
+          <div class="console-actions console-actions-start">
+            <button id="startButton" class="primary-button centre-start" type="button">Start Texture Trainer</button>
+          </div>
+
+          <div class="response-area" id="responseArea" hidden>
+            <button id="playButton" class="play-button" type="button">Play Clip</button>
+            <label class="answer-label" for="studentAnswer">Your answer</label>
+            <textarea id="studentAnswer" rows="5" placeholder="Example: The texture is monophonic because there is one unaccompanied melodic line."></textarea>
+            <div class="response-actions">
+              <button id="submitButton" class="primary-button" type="button">Submit Answer</button>
+              <button id="nextButton" class="secondary-button" type="button" hidden>Next Question</button>
+            </div>
+          </div>
+
+          <div class="listening-cues" aria-label="Listening focus areas">
+            <span>Line</span><span>Layers</span><span>Independence</span><span>Accompaniment</span>
+          </div>
+
+          <p id="feedback" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Answer Card</span></h2>
+        </div>
+
+        <div id="answerCard" class="answerCard" aria-live="polite">
+          <div class="answerCard-empty">
+            <div class="answer-empty-brand" aria-hidden="true">
+              <span class="answer-empty-icon"><img src="../../assets/icons/modules/texture-trainer.svg" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');" /></span>
+              <span class="answer-empty-wave"><span></span><span></span><span></span><span></span><span></span></span>
+            </div>
+            <p class="eyebrow">ANSWER PANEL</p>
+            <h2>Your marked answer appears here.</h2>
+            <p class="muted">Submit a short written response to see the awarded mark, feedback, model answer and vocabulary tip.</p>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="data/texture-questions.js"></script>
+  <script src="/account/tracking.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

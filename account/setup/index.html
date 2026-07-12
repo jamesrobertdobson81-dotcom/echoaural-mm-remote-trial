@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set Up Teacher Account | EchoAural</title>
+  <link rel="stylesheet" href="/account/account.css" />
+  <link rel="stylesheet" href="/account/onboarding.css" />
+</head>
+<body class="onboarding-shell">
+  <div class="account-shell">
+    <header class="account-hero">
+      <nav class="account-nav" aria-label="EchoAural setup navigation">
+        <a class="account-logo" href="/" aria-label="EchoAural home"><span class="account-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span><strong class="account-wordmark"><span class="account-wordmark-echo">Echo</span><span class="account-wordmark-aural">Aural</span></strong></a>
+        <a class="nav-link" href="/account/teacher-login/">Teacher login</a>
+      </nav>
+      <section class="account-hero-content"><div class="hero-copy"><p class="hero-kicker">Secure account setup</p><h1 class="hero-title">Choose your EchoAural <span class="gradient">password.</span></h1><p class="hero-text">Activate your teacher access and continue directly to the classroom dashboard.</p></div></section>
+    </header>
+    <main class="account-main"><div class="account-panel-wrap"><section class="account-card setup-card" aria-labelledby="setupTitle">
+      <p class="card-eyebrow">Teacher account</p><h2 class="card-title" id="setupTitle">Complete your setup.</h2><p class="card-intro">Use at least ten characters, including a letter and a number. Your password is never sent by email.</p>
+      <form class="account-form" id="setupForm">
+        <div class="field"><label for="password">New password</label><input id="password" name="password" type="password" minlength="10" autocomplete="new-password" required /></div>
+        <div class="field"><label for="confirmPassword">Confirm password</label><input id="confirmPassword" name="confirmPassword" type="password" minlength="10" autocomplete="new-password" required /></div>
+        <button class="primary-button" id="setupButton" type="submit">Activate my account</button>
+        <p class="form-message" id="setupMessage" aria-live="polite"></p>
+      </form>
+      <p class="onboarding-security-note">This link is single-use and expires 24 hours after it was issued.</p>
+    </section></div></main>
+  </div>
+  <script src="/account/account-common.js"></script>
+  <script src="/account/setup/setup.js"></script>
+</body>
+</html>

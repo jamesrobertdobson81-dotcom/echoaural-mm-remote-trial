@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard | EchoAural</title>
+  <link rel="stylesheet" href="/account/account.css" />
+  <link rel="stylesheet" href="/account/student-home/student-dashboard.css" />
+  <link rel="stylesheet" href="/account/student-home/student-banner-standardised.css" />
+</head>
+<body class="progress-dashboard-v2 student-dashboard-v2 student-dashboard-v3">
+  <div class="account-shell student-dashboard-shell-v3">
+    <header class="student-dashboard-header-v3">
+      <nav class="student-dashboard-topbar-v3" aria-label="EchoAural student navigation">
+        <a class="account-logo student-dashboard-logo-v3" href="/" aria-label="EchoAural home">
+          <span class="account-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <strong class="account-wordmark"><span class="account-wordmark-echo">Echo</span><span class="account-wordmark-aural">Aural</span></strong>
+        </a>
+
+        <div class="student-welcome-v3">
+          <p>Student dashboard</p>
+          <h1>Hello, <span class="gradient" id="studentHeroName">student.</span></h1>
+          <span>Teacher <strong id="studentTeacherName">—</strong> · Code <strong id="studentTeacherCode">—</strong></span>
+        </div>
+
+        <div class="dashboard-nav-actions student-dashboard-actions-v3">
+          <button class="nav-link" id="refreshProgressButton" type="button">Refresh</button>
+          <button class="nav-link" id="studentLogoutButton" type="button">Log out</button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="student-dashboard-main-v3">
+      <div class="student-console-grid-v3">
+        <section class="student-console-v3 student-progress-console-v3" aria-labelledby="myProgressHeading">
+          <div class="student-console-heading-v3">
+            <div>
+              <p class="card-eyebrow">Your listening record</p>
+              <h2 id="myProgressHeading">My progress</h2>
+            </div>
+          </div>
+
+          <div class="student-overall-score-v3">
+            <span id="overallLevel">Not started</span>
+            <strong id="overallPercentage">—</strong>
+            <small id="overallScore">0 / 0 marks</small>
+          </div>
+
+          <div class="student-overall-metrics-v3">
+            <div><span>Questions</span><strong id="overallQuestions">0</strong></div>
+            <div><span>Rounds</span><strong id="overallRounds">0</strong></div>
+            <div><span>Apps</span><strong id="overallModules">0 / 4</strong></div>
+          </div>
+
+          <div class="student-account-card-v3">
+            <span>Learning account</span>
+            <strong id="studentAccountName">—</strong>
+            <small>Results save automatically while you are logged in.</small>
+          </div>
+
+          <div class="student-quick-actions-v3">
+            <a class="primary-button" href="/#apps">Choose an app</a>
+            <a class="secondary-button" href="/join">Join live class</a>
+          </div>
+        </section>
+
+        <section class="student-console-v3 student-learning-console-v3" aria-labelledby="myLearningHeading">
+          <div class="student-console-heading-v3 student-learning-heading-v3">
+            <div>
+              <p class="card-eyebrow">Listen · Identify · Improve</p>
+              <h2 id="myLearningHeading">My learning</h2>
+            </div>
+          </div>
+
+          <p class="progress-status student-dashboard-status-v3" id="progressStatus" role="status" aria-live="polite"></p>
+
+          <div class="student-learning-summary-list-v3">
+            <section class="student-learning-summary-card-v3 practice-summary-v3" id="studentPracticeContent" aria-labelledby="studentPracticeHeading"></section>
+            <section class="student-learning-summary-card-v3 quiz-summary-v3" id="studentQuizContent" aria-labelledby="studentQuizHeading"></section>
+            <section class="student-learning-summary-card-v3 homework-summary-v3" id="studentHomeworkContent" aria-labelledby="studentHomeworkHeading"></section>
+          </div>
+        </section>
+
+        <aside class="student-console-v3 student-memory-console-v3" aria-labelledby="learningMemoryHeading">
+          <div class="student-console-heading-v3">
+            <div>
+              <p class="card-eyebrow">Your learning memory</p>
+              <h2 id="learningMemoryHeading">Feedback & history</h2>
+            </div>
+          </div>
+
+          <div class="student-memory-scroll-v3">
+            <div class="student-compiled-feedback-v3">
+              <span>Overall feedback</span>
+              <p id="compiledFeedback">Complete a round to begin your progress record.</p>
+            </div>
+
+            <div class="student-next-step-v3">
+              <span>Focus next</span>
+              <p id="studentNextStep">Choose an app and complete your first listening round.</p>
+            </div>
+
+            <section class="student-recent-memory-v3" aria-labelledby="recentLearningHeading">
+              <div class="student-memory-heading-v3">
+                <span id="recentLearningHeading">Recent learning</span>
+                <small>Practice & quizzes</small>
+              </div>
+              <div id="recentLearningList" class="student-memory-list-v3">
+                <div class="student-memory-empty-v3">Your completed rounds will appear here.</div>
+              </div>
+            </section>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <dialog class="dialog category-detail-dialog-v5 student-category-detail-dialog-v3" id="studentCategoryDetailDialog">
+    <div class="dialog-inner category-detail-dialog-inner-v5">
+      <div class="category-detail-heading-v5">
+        <div class="category-detail-title-wrap-v5">
+          <div class="category-detail-icon-slot-v5" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div>
+            <p class="card-eyebrow" id="studentCategoryDetailEyebrow">My learning</p>
+            <h2 class="section-title" id="studentCategoryDetailTitle">Detailed feedback</h2>
+            <p class="section-copy" id="studentCategoryDetailSubtitle">Your saved EchoAural progress.</p>
+          </div>
+        </div>
+        <button class="dialog-close-button" id="closeStudentCategoryDetail" type="button" aria-label="Close detailed feedback">×</button>
+      </div>
+      <div id="studentCategoryDetailContent"><div class="progress-empty-state">Choose a learning area to view detailed feedback.</div></div>
+    </div>
+  </dialog>
+
+  <script src="/account/account-common.js"></script>
+  <script src="/account/student-home/student-home.js"></script>
+</body>
+</html>

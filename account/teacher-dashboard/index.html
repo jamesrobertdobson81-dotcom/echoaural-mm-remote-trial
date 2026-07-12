@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Dashboard | EchoAural</title>
+  <link rel="stylesheet" href="/account/account.css" />
+  <link rel="stylesheet" href="/account/teacher-dashboard/teacher-dashboard-typography.css" />
+  <link rel="stylesheet" href="/account/onboarding.css" />
+  <link rel="stylesheet" href="/account/teacher-dashboard/class-dialog-viewport-fix.css" />
+  <link rel="stylesheet" href="/account/teacher-dashboard/class-management-v7.css" />
+</head>
+<body class="progress-dashboard-v2 teacher-dashboard-v2 teacher-dashboard-v3 teacher-dashboard-v4 teacher-dashboard-v5">
+  <div class="account-shell teacher-dashboard-shell-v3">
+    <header class="teacher-dashboard-header-v3">
+      <nav class="teacher-dashboard-topbar-v3" aria-label="EchoAural account navigation">
+        <a class="account-logo teacher-dashboard-logo-v3" href="/" aria-label="EchoAural home">
+          <span class="account-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <strong class="account-wordmark"><span class="account-wordmark-echo">Echo</span><span class="account-wordmark-aural">Aural</span></strong>
+        </a>
+
+        <div class="teacher-welcome-v3">
+          <p>Teacher dashboard</p>
+          <h1>Welcome, <span class="gradient" id="heroTeacherName">Teacher.</span></h1>
+          <span>Code <strong id="teacherCode">—</strong> · Licence ends <strong id="licenceExpiry">—</strong></span>
+        </div>
+
+        <div class="dashboard-nav-actions teacher-dashboard-actions-v3">
+          <button class="nav-link" id="refreshClassProgress" type="button">Refresh</button>
+          <button class="nav-link" id="openPasswordDialog" type="button">Password</button>
+          <button class="nav-link" id="logoutButton" type="button">Log out</button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="teacher-dashboard-main-v3">
+      <div class="teacher-console-grid-v3">
+        <section class="teacher-console-v3 student-accounts-console-v3 student-accounts-console-v4" aria-labelledby="studentAccountsHeading">
+          <div class="teacher-console-heading-v3 student-console-heading-v4">
+            <div>
+              <p class="card-eyebrow">Account management</p>
+              <h2 id="studentAccountsHeading">Student accounts</h2>
+            </div>
+            <div class="student-seat-heading-v4" aria-label="Student seats used">
+              <span>Student seats</span>
+              <strong id="seatMetric">0 / 20</strong>
+            </div>
+          </div>
+
+          <div class="seat-bar student-seat-bar-v4" aria-hidden="true"><div class="seat-bar-fill" id="seatBarFill"></div></div>
+
+          <div class="teacher-class-strip-v7">
+            <div>
+              <span>Classes</span>
+              <strong id="classCountMetric">0 / 3</strong>
+              <small id="classSeatSummary">20 seats available</small>
+            </div>
+            <button class="small-button" id="openClassDialog" type="button">Create class</button>
+          </div>
+
+          <div class="student-list student-list-v2 student-list-v3 student-list-v4 class-grouped-student-list-v7" id="studentList"><div class="empty-state">Loading classes and student accounts…</div></div>
+
+          <div class="student-console-footer-v4">
+            <div class="notice-card compact-notice-v3" id="passwordNotice" hidden>Your account is using a temporary password. Change it before sharing student logins.</div>
+            <p class="form-message compact-form-message-v3" id="studentFormMessage" aria-live="polite"></p>
+            <button class="primary-button add-student-launch-v4" id="openStudentDialog" type="button">Add student</button>
+          </div>
+        </section>
+        <section class="teacher-console-v3 learning-console-v3 learning-console-v5" aria-labelledby="learningActivityHeading">
+          <div class="teacher-console-heading-v3 learning-console-heading-v3">
+            <div>
+              <p class="card-eyebrow">Class learning</p>
+              <h2 id="learningActivityHeading">Practice, quizzes & homework</h2>
+            </div>
+            <a class="primary-button compact-primary-v3" href="/teacher/">Open Teacher Mode</a>
+          </div>
+
+          <p class="progress-status dashboard-status-v2 compact-dashboard-status-v3" id="classProgressStatus" aria-live="polite"></p>
+
+          <div class="learning-summary-list-v5" id="learningSummaryList">
+            <section class="learning-summary-card-v5 practice-summary-v5" id="teacherPracticeContent" aria-labelledby="teacherPracticeHeading"></section>
+            <section class="learning-summary-card-v5 quiz-summary-v5" id="teacherQuizContent" aria-labelledby="teacherQuizHeading"></section>
+            <section class="learning-summary-card-v5 homework-summary-v5" id="teacherHomeworkContent" aria-labelledby="teacherHomeworkHeading"></section>
+          </div>
+        </section>
+
+        <aside class="teacher-console-v3 class-feedback-console-v3" aria-labelledby="classOverallHeading">
+          <div class="teacher-console-heading-v3">
+            <div>
+              <p class="card-eyebrow">Class overview</p>
+              <h2 id="classOverallHeading">Whole class feedback</h2>
+            </div>
+          </div>
+
+          <div class="class-feedback-scroll-v3">
+            <div class="class-overall-score-v3">
+              <span id="classLevel">No evidence</span>
+              <strong id="classPercentage">—</strong>
+              <small id="classScore">0 / 0 marks</small>
+            </div>
+
+            <div class="class-overall-metrics-v3">
+              <div><span>Questions</span><strong id="classQuestions">0</strong></div>
+              <div><span>Rounds</span><strong id="classRounds">0</strong></div>
+              <div><span>Active</span><strong id="classStudents">0 / 0</strong></div>
+              <div><span>Participation</span><strong id="classParticipation">0%</strong></div>
+            </div>
+
+            <div class="whole-class-feedback-v3">
+              <span>Compiled feedback</span>
+              <p id="classFeedback">Class feedback will appear after students complete logged-in EchoAural rounds.</p>
+            </div>
+
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <dialog class="dialog" id="studentDialog">
+    <div class="dialog-inner add-student-dialog-inner-v4">
+      <p class="card-eyebrow">Student accounts</p>
+      <h2 class="section-title">Add student</h2>
+      <p class="section-copy">Choose a class, then create the student’s named login. Usernames must be unique within this teacher account.</p>
+      <form class="account-form student-create-form-v4" id="studentCreateForm">
+        <div class="field">
+          <label for="studentClassId">Class</label>
+          <select id="studentClassId" name="classId" required></select>
+        </div>
+        <div class="field">
+          <label for="studentDisplayName">Student name or display name</label>
+          <input id="studentDisplayName" name="displayName" type="text" maxlength="50" autocomplete="off" required />
+        </div>
+        <div class="field">
+          <label for="studentUsername">Username</label>
+          <input id="studentUsername" name="username" type="text" maxlength="24" pattern="[A-Za-z0-9._-]{2,24}" autocomplete="off" required />
+        </div>
+        <div class="field">
+          <label for="studentPin">PIN</label>
+          <input id="studentPin" name="pin" type="text" inputmode="numeric" pattern="[0-9]{4,6}" maxlength="6" autocomplete="off" required />
+        </div>
+        <p class="form-message" id="studentDialogMessage" aria-live="polite"></p>
+        <div class="dialog-actions">
+          <button class="secondary-button" id="cancelStudentButton" type="button">Cancel</button>
+          <button class="primary-button" id="createStudentButton" type="submit">Add student</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+
+  <dialog class="dialog class-wizard-dialog-v7" id="classDialog">
+    <div class="dialog-inner class-dialog-inner-v6 class-wizard-inner-v7">
+      <div class="class-wizard-heading-v7">
+        <div>
+          <p class="card-eyebrow">Class setup</p>
+          <h2 class="section-title" id="classWizardTitle">Create class</h2>
+          <p class="section-copy" id="classWizardSubtitle">Add the class details first, then enter each student name, username and PIN.</p>
+        </div>
+        <button class="dialog-close-button" id="closeClassDialog" type="button" aria-label="Close class setup">×</button>
+      </div>
+
+      <div class="class-wizard-progress-v7" aria-label="Class setup steps">
+        <span class="is-active" id="classStepIndicatorOne"><b>1</b> Class details</span>
+        <i></i>
+        <span id="classStepIndicatorTwo"><b>2</b> Add students</span>
+      </div>
+
+      <section class="class-wizard-step-v7" id="classDetailsStep">
+        <form class="account-form" id="classDetailsForm">
+          <div class="class-form-grid-v6">
+            <div class="field field-wide">
+              <label for="className">Class name</label>
+              <input id="className" name="className" type="text" maxlength="80" placeholder="Year 10 GCSE Music" autocomplete="off" required />
+            </div>
+            <div class="field">
+              <label for="yearGroup">Year group</label>
+              <input id="yearGroup" name="yearGroup" type="text" maxlength="60" placeholder="Year 10" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label for="classExamBoard">Exam board</label>
+              <select id="classExamBoard" name="examBoard">
+                <option value="">Choose one</option>
+                <option>AQA</option>
+                <option>Edexcel</option>
+                <option>Eduqas / WJEC</option>
+                <option>OCR</option>
+                <option>Cambridge IGCSE</option>
+                <option>Other / international</option>
+              </select>
+            </div>
+          </div>
+          <p class="form-message" id="classDetailsMessage" aria-live="polite"></p>
+          <div class="dialog-actions">
+            <button class="secondary-button" id="cancelClassButton" type="button">Cancel</button>
+            <button class="primary-button" id="continueClassButton" type="submit">Continue to students</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="class-wizard-step-v7" id="classStudentsStep" hidden>
+        <div class="class-student-step-heading-v7">
+          <div>
+            <span id="draftClassName">New class</span>
+            <strong id="draftSeatSummary">0 students added</strong>
+          </div>
+          <button class="small-button" id="backToClassDetails" type="button">Back</button>
+        </div>
+
+        <form class="class-student-entry-v7" id="classStudentForm">
+          <div class="field">
+            <label for="draftStudentDisplayName">Student name</label>
+            <input id="draftStudentDisplayName" name="displayName" type="text" maxlength="50" autocomplete="off" required />
+          </div>
+          <div class="field">
+            <label for="draftStudentUsername">Username</label>
+            <input id="draftStudentUsername" name="username" type="text" maxlength="24" pattern="[A-Za-z0-9._-]{2,24}" autocomplete="off" required />
+          </div>
+          <div class="field">
+            <label for="draftStudentPin">PIN</label>
+            <input id="draftStudentPin" name="pin" type="text" inputmode="numeric" pattern="[0-9]{4,6}" maxlength="6" autocomplete="off" required />
+          </div>
+          <button class="secondary-button" id="addDraftStudentButton" type="submit">Add to class</button>
+        </form>
+
+        <p class="form-message" id="classStudentMessage" aria-live="polite"></p>
+        <div class="class-draft-list-v7" id="classDraftStudentList">
+          <div class="empty-state">Add each student individually. Nothing is saved until you press Finish class.</div>
+        </div>
+
+        <div class="class-wizard-finish-v7">
+          <span id="classWizardRemainingSeats">20 seats available</span>
+          <button class="primary-button" id="finishClassButton" type="button" disabled>Finish class</button>
+        </div>
+      </section>
+    </div>
+  </dialog>
+
+  <dialog class="dialog" id="generatedLoginsDialog">
+    <div class="dialog-inner generated-login-dialog-v6">
+      <div class="student-progress-dialog-heading">
+        <div><p class="card-eyebrow">Class login sheet</p><h2 class="section-title" id="generatedLoginsTitle">Student accounts created</h2><p class="section-copy" id="generatedLoginsMeta">Print or copy these details before closing.</p></div>
+        <button class="dialog-close-button" id="closeGeneratedLogins" type="button" aria-label="Close login sheet">×</button>
+      </div>
+      <div class="generated-login-toolbar-v6"><button class="primary-button" id="printGeneratedLogins" type="button">Print login sheet</button><button class="secondary-button" id="copyGeneratedLogins" type="button">Copy all logins</button></div>
+      <div class="generated-login-sheet-v6" id="generatedLoginSheet"></div>
+      <p class="generated-login-warning-v6">Student PINs are shown only at creation. Save this sheet now; individual PINs can be reset later from Student Accounts.</p>
+    </div>
+  </dialog>
+
+  <dialog class="dialog" id="passwordDialog">
+    <div class="dialog-inner">
+      <p class="card-eyebrow">Account security</p>
+      <h2 class="section-title">Change password</h2>
+      <form class="account-form" id="passwordForm">
+        <div class="field"><label for="currentPassword">Current password</label><input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required /></div>
+        <div class="field"><label for="newPassword">New password</label><input id="newPassword" name="newPassword" type="password" minlength="10" autocomplete="new-password" required /><p class="field-help">Use at least 10 characters.</p></div>
+        <div class="field"><label for="confirmPassword">Confirm new password</label><input id="confirmPassword" name="confirmPassword" type="password" minlength="10" autocomplete="new-password" required /></div>
+        <p class="form-message" id="passwordMessage" aria-live="polite"></p>
+        <div class="dialog-actions"><button class="secondary-button" id="cancelPasswordButton" type="button">Cancel</button><button class="primary-button" type="submit">Save password</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog class="dialog" id="pinDialog">
+    <div class="dialog-inner">
+      <p class="card-eyebrow">Student security</p>
+      <h2 class="section-title">Reset student PIN</h2>
+      <p class="section-copy" id="pinDialogStudent">Choose a new four-to-six digit PIN.</p>
+      <form class="account-form" id="pinForm">
+        <div class="field"><label for="newPin">New PIN</label><input id="newPin" name="pin" type="text" inputmode="numeric" pattern="[0-9]{4,6}" maxlength="6" required /></div>
+        <p class="form-message" id="pinMessage" aria-live="polite"></p>
+        <div class="dialog-actions"><button class="secondary-button" id="cancelPinButton" type="button">Cancel</button><button class="primary-button" type="submit">Reset PIN</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog class="dialog category-detail-dialog-v5" id="categoryDetailDialog">
+    <div class="dialog-inner category-detail-dialog-inner-v5">
+      <div class="category-detail-heading-v5">
+        <div class="category-detail-title-wrap-v5">
+          <div class="category-detail-icon-slot-v5" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div>
+            <p class="card-eyebrow" id="categoryDetailEyebrow">Class learning</p>
+            <h2 class="section-title" id="categoryDetailTitle">Detailed feedback</h2>
+            <p class="section-copy" id="categoryDetailSubtitle">All-app class evidence.</p>
+          </div>
+        </div>
+        <button class="dialog-close-button" id="closeCategoryDetail" type="button" aria-label="Close detailed feedback">×</button>
+      </div>
+      <div id="categoryDetailContent"><div class="progress-empty-state">Loading detailed feedback…</div></div>
+    </div>
+  </dialog>
+
+  <dialog class="dialog student-progress-dialog" id="studentProgressDialog">
+    <div class="dialog-inner student-progress-dialog-inner">
+      <div class="student-progress-dialog-heading">
+        <div>
+          <p class="card-eyebrow">Individual progress</p>
+          <h2 class="section-title" id="progressStudentName">Student progress</h2>
+          <p class="section-copy" id="progressStudentMeta">Loading results…</p>
+        </div>
+        <button class="dialog-close-button" id="closeStudentProgress" type="button" aria-label="Close student progress">×</button>
+      </div>
+      <div id="studentProgressContent"><div class="progress-empty-state">Loading student feedback…</div></div>
+    </div>
+  </dialog>
+
+  <script src="/account/account-common.js"></script>
+  <script src="/account/teacher-dashboard/teacher-dashboard.js"></script>
+</body>
+</html>

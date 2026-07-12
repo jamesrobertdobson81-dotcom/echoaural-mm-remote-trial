@@ -1,0 +1,31 @@
+{
+  "name": "echoaural-classroom-mvp",
+  "version": "0.2.0",
+  "private": true,
+  "description": "EchoAural classroom MVP with Instrument Identifier and Melody Master solo/teacher modes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "classroom": "node server.js",
+    "check": "node tools/check-project.js",
+    "generate:mm": "node tools/generate-melody-master-clips.js",
+    "generate:ii": "node tools/generate-clips.js",
+    "db:start": "bash tools/db-start.sh",
+    "db:stop": "bash tools/db-stop.sh",
+    "db:status": "bash tools/db-status.sh",
+    "db:check": "node db/check-connection.js",
+    "db:migrate": "node db/run-schema.js",
+    "account:create-teacher": "node tools/create-teacher.js",
+    "account:list": "node tools/list-accounts.js",
+    "onboarding:migrate": "node db/run-onboarding-schema.js",
+    "report:ii-progression": "node tools/report-ii-progression.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
+    "pg": "^8.22.0"
+  }
+}

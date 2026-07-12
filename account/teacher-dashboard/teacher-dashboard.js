@@ -1,0 +1,1069 @@
+"use strict";
+
+const { api, setMessage, escapeHtml, formatDate } = window.EchoAuralAccounts;
+const state = {
+  teacher: null,
+  students: [],
+  classProgress: null,
+  classes: [],
+  classMeta: {
+    classLimit: 3,
+    activeClasses: 0,
+    seatLimit: 20,
+    activeStudents: 0,
+    seatsRemaining: 20
+  },
+  classDraft: null,
+  draftStudents: [],
+  generatedCredentials: null,
+  resetStudent: null
+};
+
+const els = {
+  heroTeacherName: document.getElementById("heroTeacherName"),
+  teacherCode: document.getElementById("teacherCode"),
+  licenceExpiry: document.getElementById("licenceExpiry"),
+  seatMetric: document.getElementById("seatMetric"),
+  seatBarFill: document.getElementById("seatBarFill"),
+  passwordNotice: document.getElementById("passwordNotice"),
+  studentCreateForm: document.getElementById("studentCreateForm"),
+  createStudentButton: document.getElementById("createStudentButton"),
+  studentFormMessage: document.getElementById("studentFormMessage"),
+  studentDialogMessage: document.getElementById("studentDialogMessage"),
+  studentDialog: document.getElementById("studentDialog"),
+  studentClassId: document.getElementById("studentClassId"),
+  openStudentDialog: document.getElementById("openStudentDialog"),
+  cancelStudentButton: document.getElementById("cancelStudentButton"),
+  studentList: document.getElementById("studentList"),
+  logoutButton: document.getElementById("logoutButton"),
+  passwordDialog: document.getElementById("passwordDialog"),
+  openPasswordDialog: document.getElementById("openPasswordDialog"),
+  cancelPasswordButton: document.getElementById("cancelPasswordButton"),
+  passwordForm: document.getElementById("passwordForm"),
+  passwordMessage: document.getElementById("passwordMessage"),
+  pinDialog: document.getElementById("pinDialog"),
+  pinDialogStudent: document.getElementById("pinDialogStudent"),
+  pinForm: document.getElementById("pinForm"),
+  pinMessage: document.getElementById("pinMessage"),
+  cancelPinButton: document.getElementById("cancelPinButton"),
+  refreshClassProgress: document.getElementById("refreshClassProgress"),
+  classLevel: document.getElementById("classLevel"),
+  classPercentage: document.getElementById("classPercentage"),
+  classScore: document.getElementById("classScore"),
+  classQuestions: document.getElementById("classQuestions"),
+  classRounds: document.getElementById("classRounds"),
+  classStudents: document.getElementById("classStudents"),
+  classParticipation: document.getElementById("classParticipation"),
+  classFeedback: document.getElementById("classFeedback"),
+  classProgressStatus: document.getElementById("classProgressStatus"),
+  learningSummaryList: document.getElementById("learningSummaryList"),
+  categoryDetailDialog: document.getElementById("categoryDetailDialog"),
+  closeCategoryDetail: document.getElementById("closeCategoryDetail"),
+  categoryDetailEyebrow: document.getElementById("categoryDetailEyebrow"),
+  categoryDetailTitle: document.getElementById("categoryDetailTitle"),
+  categoryDetailSubtitle: document.getElementById("categoryDetailSubtitle"),
+  categoryDetailContent: document.getElementById("categoryDetailContent"),
+  studentProgressDialog: document.getElementById("studentProgressDialog"),
+  closeStudentProgress: document.getElementById("closeStudentProgress"),
+  progressStudentName: document.getElementById("progressStudentName"),
+  progressStudentMeta: document.getElementById("progressStudentMeta"),
+  studentProgressContent: document.getElementById("studentProgressContent"),
+  classCountMetric: document.getElementById("classCountMetric"),
+  classSeatSummary: document.getElementById("classSeatSummary"),
+  openClassDialog: document.getElementById("openClassDialog"),
+  classDialog: document.getElementById("classDialog"),
+  closeClassDialog: document.getElementById("closeClassDialog"),
+  classWizardTitle: document.getElementById("classWizardTitle"),
+  classWizardSubtitle: document.getElementById("classWizardSubtitle"),
+  classStepIndicatorOne: document.getElementById("classStepIndicatorOne"),
+  classStepIndicatorTwo: document.getElementById("classStepIndicatorTwo"),
+  classDetailsStep: document.getElementById("classDetailsStep"),
+  classStudentsStep: document.getElementById("classStudentsStep"),
+  classDetailsForm: document.getElementById("classDetailsForm"),
+  classDetailsMessage: document.getElementById("classDetailsMessage"),
+  continueClassButton: document.getElementById("continueClassButton"),
+  cancelClassButton: document.getElementById("cancelClassButton"),
+  draftClassName: document.getElementById("draftClassName"),
+  draftSeatSummary: document.getElementById("draftSeatSummary"),
+  backToClassDetails: document.getElementById("backToClassDetails"),
+  classStudentForm: document.getElementById("classStudentForm"),
+  classStudentMessage: document.getElementById("classStudentMessage"),
+  addDraftStudentButton: document.getElementById("addDraftStudentButton"),
+  classDraftStudentList: document.getElementById("classDraftStudentList"),
+  classWizardRemainingSeats: document.getElementById("classWizardRemainingSeats"),
+  finishClassButton: document.getElementById("finishClassButton"),
+  generatedLoginsDialog: document.getElementById("generatedLoginsDialog"),
+  generatedLoginsTitle: document.getElementById("generatedLoginsTitle"),
+  generatedLoginsMeta: document.getElementById("generatedLoginsMeta"),
+  generatedLoginSheet: document.getElementById("generatedLoginSheet"),
+  closeGeneratedLogins: document.getElementById("closeGeneratedLogins"),
+  printGeneratedLogins: document.getElementById("printGeneratedLogins"),
+  copyGeneratedLogins: document.getElementById("copyGeneratedLogins")
+};
+
+function formatMark(value) {
+  const number = Number(value || 0);
+  return Number.isInteger(number) ? String(number) : number.toFixed(1).replace(/\.0$/, "");
+}
+
+function formatDateTime(value) {
+  if (!value) return "No activity yet";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "No activity yet";
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
+}
+
+function scoreClass(percentage, questions) {
+  if (!questions) return "is-empty";
+  if (percentage >= 85) return "is-secure";
+  if (percentage >= 70) return "is-strong";
+  if (percentage >= 50) return "is-developing";
+  return "is-focus";
+}
+
+function renderAccount() {
+  const teacher = state.teacher;
+  const licence = teacher.licence || {};
+  els.heroTeacherName.textContent = `${teacher.displayName}.`;
+  els.teacherCode.textContent = teacher.teacherCode;
+  els.licenceExpiry.textContent = formatDate(licence.expiresAt);
+  els.passwordNotice.hidden = !teacher.mustChangePassword;
+}
+
+
+function activeClasses() {
+  return state.classes.filter((item) => item.active);
+}
+
+function currentSeatAvailability() {
+  const seatLimit = Number(
+    state.teacher?.licence?.seatLimit ||
+    state.classMeta.seatLimit ||
+    20
+  );
+
+  /*
+    Use the student list already returned for this teacher rather than
+    trusting a missing or stale seatsRemaining field from the class endpoint.
+    The server still performs the authoritative seat check when a class is
+    saved.
+  */
+  const activeStudents = state.students.filter((student) => student.active).length;
+
+  return {
+    seatLimit: Number.isFinite(seatLimit) && seatLimit > 0 ? seatLimit : 20,
+    activeStudents,
+    seatsRemaining: Math.max(
+      0,
+      (Number.isFinite(seatLimit) && seatLimit > 0 ? seatLimit : 20) - activeStudents
+    )
+  };
+}
+
+function renderClassSummary() {
+  const classes = activeClasses();
+  const limit = Number(state.classMeta.classLimit || 3);
+  const availability = currentSeatAvailability();
+  const remainingSeats = availability.seatsRemaining;
+
+  els.classCountMetric.textContent = `${classes.length} / ${limit}`;
+  els.classSeatSummary.textContent = `${remainingSeats} seat${remainingSeats === 1 ? '' : 's'} available`;
+
+  const classLimitReached = classes.length >= limit;
+  const seatLimitReached = remainingSeats <= 0;
+
+  /*
+    Do not let an incomplete class-summary response permanently grey out the
+    button. Local eligibility controls the presentation; the API performs the
+    final transactional class and seat validation.
+  */
+  els.openClassDialog.disabled = classLimitReached || seatLimitReached;
+
+  if (classLimitReached) {
+    els.openClassDialog.textContent = "3 classes created";
+  } else if (seatLimitReached) {
+    els.openClassDialog.textContent = "No seats available";
+  } else {
+    els.openClassDialog.textContent = "Create class";
+  }
+
+  const canAddStudent = classes.length > 0 && !seatLimitReached;
+  els.openStudentDialog.disabled = !canAddStudent;
+
+  if (!classes.length) {
+    els.openStudentDialog.textContent = "Create a class first";
+  } else if (seatLimitReached) {
+    els.openStudentDialog.textContent = "All student seats used";
+  } else {
+    els.openStudentDialog.textContent = "Add student";
+  }
+}
+
+async function loadClasses() {
+  const result = await api("/api/teacher/classes");
+  const fallbackSeatLimit = Number(state.teacher?.licence?.seatLimit || 20);
+  const reportedSeatLimit = Number(result.seatLimit);
+  const seatLimit = Number.isFinite(reportedSeatLimit) && reportedSeatLimit > 0
+    ? reportedSeatLimit
+    : fallbackSeatLimit;
+
+  const reportedActiveStudents = Number(result.activeStudents);
+  const activeStudents = Number.isFinite(reportedActiveStudents)
+    ? reportedActiveStudents
+    : state.students.filter((student) => student.active).length;
+
+  state.classes = Array.isArray(result.classes) ? result.classes : [];
+  state.classMeta = {
+    classLimit: Number(result.classLimit || 3),
+    activeClasses: Number(result.activeClasses || state.classes.filter((item) => item.active).length),
+    seatLimit,
+    activeStudents,
+    seatsRemaining: Math.max(0, seatLimit - activeStudents)
+  };
+
+  renderClassSummary();
+}
+
+function cleanDraftUsername(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "")
+    .slice(0, 24);
+}
+
+function resetClassWizard() {
+  state.classDraft = null;
+  state.draftStudents = [];
+  els.classDetailsForm.reset();
+  els.classStudentForm.reset();
+  setMessage(els.classDetailsMessage);
+  setMessage(els.classStudentMessage);
+  showClassWizardStep("details");
+  renderDraftStudents();
+}
+
+function showClassWizardStep(step) {
+  const studentStep = step === "students";
+  els.classDetailsStep.hidden = studentStep;
+  els.classStudentsStep.hidden = !studentStep;
+  els.classStepIndicatorOne.classList.toggle("is-active", !studentStep);
+  els.classStepIndicatorOne.classList.toggle("is-complete", studentStep);
+  els.classStepIndicatorTwo.classList.toggle("is-active", studentStep);
+
+  if (studentStep) {
+    els.classWizardTitle.textContent = "Add students";
+    els.classWizardSubtitle.textContent = "Enter every student name, username and PIN individually. Nothing is saved until you finish the class.";
+    window.setTimeout(() => els.classStudentForm.elements.displayName.focus(), 0);
+  } else {
+    els.classWizardTitle.textContent = "Create class";
+    els.classWizardSubtitle.textContent = "Add the class details first, then enter each student name, username and PIN.";
+    window.setTimeout(() => els.classDetailsForm.elements.className.focus(), 0);
+  }
+}
+
+function openClassSetup() {
+  const classes = activeClasses();
+  const classLimit = Number(state.classMeta.classLimit || 3);
+  const { seatsRemaining } = currentSeatAvailability();
+
+  if (classes.length >= classLimit) {
+    setMessage(els.studentFormMessage, "This account already has the maximum of three active classes.", "error");
+    return;
+  }
+
+  if (seatsRemaining <= 0) {
+    setMessage(els.studentFormMessage, "All active student seats are already in use.", "error");
+    return;
+  }
+
+  resetClassWizard();
+  els.classDialog.showModal();
+}
+
+function renderDraftStudents() {
+  const { seatsRemaining } = currentSeatAvailability();
+  const draftCount = state.draftStudents.length;
+  const availableForDraft = Math.max(0, Math.min(20, seatsRemaining) - draftCount);
+
+  els.draftSeatSummary.textContent = `${draftCount} student${draftCount === 1 ? "" : "s"} added`;
+  els.classWizardRemainingSeats.textContent = `${availableForDraft} more student${availableForDraft === 1 ? "" : "s"} can be added`;
+  els.finishClassButton.disabled = draftCount < 1;
+  els.addDraftStudentButton.disabled = availableForDraft <= 0;
+
+  if (!draftCount) {
+    els.classDraftStudentList.innerHTML = '<div class="empty-state">Add each student individually. Nothing is saved until you press Finish class.</div>';
+    return;
+  }
+
+  els.classDraftStudentList.innerHTML = state.draftStudents.map((student, index) => `
+    <article class="class-draft-student-v7" data-draft-index="${index}">
+      <div>
+        <strong>${escapeHtml(student.displayName)}</strong>
+        <span>${escapeHtml(student.username)} · PIN ${escapeHtml(student.pin)}</span>
+      </div>
+      <button class="small-button" type="button" data-action="remove-draft-student">Remove</button>
+    </article>
+  `).join("");
+}
+
+function populateClassSelect(preferredClassId = "") {
+  const classes = activeClasses();
+  els.studentClassId.innerHTML = classes.map((classItem) => `
+    <option value="${escapeHtml(classItem.id)}"${classItem.id === preferredClassId ? " selected" : ""}>
+      ${escapeHtml(classItem.className)}${classItem.yearGroup ? ` · ${escapeHtml(classItem.yearGroup)}` : ""}
+    </option>
+  `).join("");
+}
+
+function generatedLoginsMarkup(result) {
+  return `
+    <table class="generated-login-table-v6">
+      <thead><tr><th>Student</th><th>Teacher code</th><th>Username</th><th>PIN</th></tr></thead>
+      <tbody>${result.credentials.map((credential) => `
+        <tr>
+          <td>${escapeHtml(credential.displayName)}</td>
+          <td><code>${escapeHtml(result.teacherCode)}</code></td>
+          <td><code>${escapeHtml(credential.username)}</code></td>
+          <td><code>${escapeHtml(credential.pin)}</code></td>
+        </tr>
+      `).join("")}</tbody>
+    </table>
+  `;
+}
+
+function showGeneratedLogins(result) {
+  state.generatedCredentials = result;
+  els.generatedLoginsTitle.textContent = `${result.credentials.length} student account${result.credentials.length === 1 ? "" : "s"} created`;
+  els.generatedLoginsMeta.textContent = `${result.class.className} · Teacher code ${result.teacherCode}`;
+  els.generatedLoginSheet.innerHTML = generatedLoginsMarkup(result);
+  els.generatedLoginsDialog.showModal();
+}
+
+function credentialsText(result) {
+  const lines = [
+    "EchoAural student logins",
+    `Class: ${result.class.className}`,
+    `Teacher code: ${result.teacherCode}`,
+    "",
+    ...result.credentials.map((item) => `${item.displayName}: ${item.username} / PIN ${item.pin}`),
+    "",
+    "Student login: /account/student-login/"
+  ];
+  return lines.join("\n");
+}
+
+function printLoginSheet() {
+  const result = state.generatedCredentials;
+  if (!result) return;
+  const popup = window.open("", "_blank", "width=900,height=720");
+  if (!popup) return;
+  popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>EchoAural student logins</title><style>body{font-family:Inter,Arial,sans-serif;color:#10233f;margin:34px}h1{margin:0;font-size:30px}.brand{font-size:18px;font-weight:900;margin-bottom:8px}.brand span{color:#7c3aed}p{color:#62738a}table{width:100%;border-collapse:collapse;margin-top:24px}th,td{padding:12px;border-bottom:1px solid #dfe6ef;text-align:left}th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#6b7c93}code{font-size:15px;font-weight:800}.note{margin-top:24px;font-size:13px}</style></head><body><div class="brand">Echo<span>Aural</span></div><h1>${escapeHtml(result.class.className)}</h1><p>Teacher code: <strong>${escapeHtml(result.teacherCode)}</strong> · Student login: ${escapeHtml(window.location.origin)}/account/student-login/</p>${generatedLoginsMarkup(result)}<p class="note">Keep this sheet secure. Student PINs can be reset from the teacher dashboard.</p><script>window.onload=()=>window.print()<\/script></body></html>`);
+  popup.document.close();
+}
+
+function categoryStudent(categoryName, studentId) {
+  return state.classProgress?.categories?.[categoryName]?.students?.find((student) => student.id === studentId) || null;
+}
+
+function overallStudent(studentId) {
+  return state.classProgress?.students?.find((student) => student.id === studentId) || null;
+}
+
+function progressPill(progress, fallback = "No results") {
+  const questions = Number(progress?.questions || 0);
+  const percentage = Number(progress?.percentage || 0);
+  return `<span class="student-progress-summary ${scoreClass(percentage, questions)}">${questions ? `${percentage}% · ${questions}q` : fallback}</span>`;
+}
+
+function studentRowMarkup(student) {
+  const overall = overallStudent(student.id);
+  const practice = categoryStudent("practice", student.id);
+  const quizzes = categoryStudent("quizzes", student.id);
+
+  return `
+    <article class="student-row student-row-v2 class-student-row-v7 ${student.active ? "" : "inactive"}" data-student-id="${escapeHtml(student.id)}">
+      <button class="student-summary-button" type="button" data-action="view-progress">
+        <span class="student-name">${escapeHtml(student.displayName)}</span>
+        <span class="student-username">${escapeHtml(student.username)}</span>
+      </button>
+      <div class="student-category-results-v2">
+        <div><span>Overall</span>${progressPill(overall)}</div>
+        <div><span>Practice</span>${progressPill(practice, "Not started")}</div>
+        <div><span>Live quizzes</span>${progressPill(quizzes, "No quizzes")}</div>
+      </div>
+      <div class="student-status">${student.active ? "Active seat" : "Inactive"}</div>
+      <div class="student-actions">
+        <button class="small-button" type="button" data-action="view-progress">View progress</button>
+        <button class="small-button" type="button" data-action="reset-pin">Reset PIN</button>
+        <button class="${student.active ? "danger-button" : "small-button"}" type="button" data-action="toggle">${student.active ? "Disable" : "Reactivate"}</button>
+      </div>
+    </article>
+  `;
+}
+
+function classGroupMarkup(classItem, students) {
+  const activeCount = students.filter((student) => student.active).length;
+  const details = [classItem.yearGroup, classItem.examBoard].filter(Boolean).join(" · ");
+
+  return `
+    <section class="student-class-group-v7" data-class-id="${escapeHtml(classItem.id)}">
+      <div class="student-class-heading-v7">
+        <div>
+          <strong>${escapeHtml(classItem.className)}</strong>
+          <span>${details ? escapeHtml(details) : "EchoAural class"}</span>
+        </div>
+        <b>${activeCount}</b>
+      </div>
+      <div class="student-class-members-v7">
+        ${students.length
+          ? students.map(studentRowMarkup).join("")
+          : '<div class="class-empty-students-v7">No students in this class yet.</div>'}
+      </div>
+    </section>
+  `;
+}
+
+function renderStudents() {
+  const licence = state.teacher.licence || {};
+  const activeStudents = state.students.filter((student) => student.active).length;
+  const seatLimit = Number(licence.seatLimit || state.classMeta.seatLimit || 20);
+  els.seatMetric.textContent = `${activeStudents} / ${seatLimit}`;
+  els.seatBarFill.style.width = `${Math.min(100, (activeStudents / seatLimit) * 100)}%`;
+
+  renderClassSummary();
+
+  const classes = activeClasses();
+  if (!classes.length) {
+    els.studentList.innerHTML = '<div class="empty-state">No classes yet. Create a class, add named student logins, then finish the class.</div>';
+    return;
+  }
+
+  const markup = classes.map((classItem) => {
+    const members = state.students.filter((student) => student.classId === classItem.id);
+    return classGroupMarkup(classItem, members);
+  });
+
+  const unassigned = state.students.filter((student) => !student.classId);
+  if (unassigned.length) {
+    markup.push(`
+      <section class="student-class-group-v7 is-unassigned">
+        <div class="student-class-heading-v7">
+          <div><strong>Unassigned students</strong><span>Legacy accounts not yet attached to a class</span></div>
+          <b>${unassigned.filter((student) => student.active).length}</b>
+        </div>
+        <div class="student-class-members-v7">${unassigned.map(studentRowMarkup).join("")}</div>
+      </section>
+    `);
+  }
+
+  els.studentList.innerHTML = markup.join("");
+}
+
+function renderClassModules(modules = [], compact = false) {
+  return `<div class="class-module-list-v2 ${compact ? "is-compact" : ""}">${modules.map((module) => `
+    <article class="class-module-row-v2 ${scoreClass(module.percentage, module.questions)}">
+      <span class="category-module-icon-v2"><img src="${escapeHtml(module.icon)}" alt="" /></span>
+      <div class="class-module-copy-v2">
+        <span>${escapeHtml(module.title)}</span>
+        <small>${module.questions ? `${module.students} students · ${module.questions} questions` : "No class evidence"}</small>
+      </div>
+      <strong>${module.questions ? `${module.percentage}%` : "—"}</strong>
+      <span class="category-module-bar-v2" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, module.percentage || 0))}%"></i></span>
+      <p>${escapeHtml(module.feedback)}</p>
+    </article>
+  `).join("")}</div>`;
+}
+
+const CLASS_CATEGORY_CONFIG = {
+  practice: {
+    title: "Practice",
+    headingId: "teacherPracticeHeading",
+    eyebrow: "Independent learning",
+    subtitle: "Class progress from student-selected activities.",
+    detailSubtitle: "Detailed practice feedback across all EchoAural apps.",
+    emptyFeedback: "Class practice feedback will appear after students complete independent rounds."
+  },
+  quizzes: {
+    title: "Live Quizzes",
+    headingId: "teacherQuizHeading",
+    eyebrow: "Teacher-led learning",
+    subtitle: "Saved results from live Teacher Mode rounds.",
+    detailSubtitle: "Detailed live-quiz feedback across all EchoAural apps.",
+    emptyFeedback: "Live-quiz feedback will appear after a logged-in Teacher Mode round."
+  },
+  homework: {
+    title: "Homework",
+    headingId: "teacherHomeworkHeading",
+    eyebrow: "Assigned learning",
+    subtitle: "Teacher-set activities completed outside live lessons.",
+    detailSubtitle: "Homework feedback will appear when assignments are introduced.",
+    emptyFeedback: "No homework has been assigned yet."
+  }
+};
+
+function classCategorySummaryMarkup(categoryKey, category) {
+  const config = CLASS_CATEGORY_CONFIG[categoryKey];
+  const overall = category?.overall || {};
+  const hasEvidence = Number(overall.questions || 0) > 0;
+  const percentage = hasEvidence ? `${Number(overall.percentage || 0)}%` : "—";
+  const feedback = hasEvidence
+    ? overall.compiledFeedback
+    : config.emptyFeedback;
+
+  return `
+    <div class="learning-summary-heading-v5">
+      <div class="learning-summary-icon-slot-v5" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="learning-summary-title-v5">
+        <p>${escapeHtml(config.eyebrow)}</p>
+        <h3 id="${escapeHtml(config.headingId)}">${escapeHtml(config.title)}</h3>
+      </div>
+      <strong class="learning-summary-percentage-v5 ${scoreClass(overall.percentage, overall.questions)}">${percentage}</strong>
+    </div>
+
+    <div class="learning-summary-feedback-v5">
+      <span>Compiled class feedback</span>
+      <p>${escapeHtml(feedback)}</p>
+    </div>
+
+    <div class="learning-summary-footer-v5">
+      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds · ${Number(overall.participatingStudents || 0)} students</span>
+      <button class="secondary-button learning-detail-button-v5" type="button" data-category-detail="${escapeHtml(categoryKey)}">Detailed feedback</button>
+    </div>
+  `;
+}
+
+function renderClassCategory(targetId, categoryKey, category) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  target.innerHTML = classCategorySummaryMarkup(categoryKey, category);
+}
+
+function detailedCategoryMarkup(categoryKey, category) {
+  const config = CLASS_CATEGORY_CONFIG[categoryKey];
+  const overall = category?.overall || {};
+  const hasEvidence = Number(overall.questions || 0) > 0;
+
+  if (categoryKey === "homework") {
+    return `
+      <div class="homework-detail-placeholder-v5">
+        <span class="homework-status-pill-v3">Coming next</span>
+        <h3>No homework assigned</h3>
+        <p>Homework assignments, deadlines, submissions, app-by-app averages and compiled feedback will appear here when the homework system is added.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="category-detail-overview-v5">
+      <div class="category-detail-score-v5 ${scoreClass(overall.percentage, overall.questions)}">
+        <span>${escapeHtml(overall.level || "No evidence")}</span>
+        <strong>${hasEvidence ? `${Number(overall.percentage || 0)}%` : "—"}</strong>
+        <small>${formatMark(overall.score)} / ${formatMark(overall.maximumScore)} marks</small>
+      </div>
+
+      <div class="category-detail-metrics-v5">
+        <div><span>Questions</span><strong>${Number(overall.questions || 0)}</strong></div>
+        <div><span>Rounds</span><strong>${Number(overall.rounds || 0)}</strong></div>
+        <div><span>Students</span><strong>${Number(overall.participatingStudents || 0)} / ${Number(overall.activeStudents || 0)}</strong></div>
+        <div><span>Participation</span><strong>${Number(overall.participation || 0)}%</strong></div>
+      </div>
+    </div>
+
+    <div class="category-detail-feedback-v5">
+      <span>Compiled class feedback</span>
+      <p>${escapeHtml(hasEvidence ? overall.compiledFeedback : config.emptyFeedback)}</p>
+    </div>
+
+    <section class="category-detail-apps-v5">
+      <div class="category-detail-section-heading-v5">
+        <div><p class="card-eyebrow">All applications</p><h3>Detailed app feedback</h3></div>
+        <span>${escapeHtml(config.title)}</span>
+      </div>
+      ${renderClassModules(category?.modules || [], false)}
+    </section>
+  `;
+}
+
+function openCategoryDetail(categoryKey) {
+  const config = CLASS_CATEGORY_CONFIG[categoryKey];
+  if (!config || !els.categoryDetailDialog) return;
+
+  const categories = state.classProgress?.categories || {};
+  const category = categoryKey === "homework"
+    ? (categories.homework || { overall: {} })
+    : (categories[categoryKey] || { overall: {}, modules: [] });
+
+  els.categoryDetailEyebrow.textContent = config.eyebrow;
+  els.categoryDetailTitle.textContent = config.title;
+  els.categoryDetailSubtitle.textContent = config.detailSubtitle;
+  els.categoryDetailContent.innerHTML = detailedCategoryMarkup(categoryKey, category);
+  els.categoryDetailDialog.showModal();
+}
+
+function renderClassProgress() {
+  const progress = state.classProgress;
+  if (!progress) return;
+  const overall = progress.overall;
+  els.classLevel.textContent = overall.level;
+  els.classPercentage.textContent = overall.questions ? `${overall.percentage}%` : "—";
+  els.classScore.textContent = `${formatMark(overall.score)} / ${formatMark(overall.maximumScore)} marks`;
+  els.classQuestions.textContent = String(overall.questions);
+  els.classRounds.textContent = String(overall.rounds);
+  els.classStudents.textContent = `${overall.participatingStudents} / ${overall.activeStudents}`;
+  els.classParticipation.textContent = `${overall.participation}%`;
+  els.classFeedback.textContent = overall.compiledFeedback;
+
+  const categories = progress.categories || { practice: progress, quizzes: { overall: {}, modules: [] } };
+  renderClassCategory("teacherPracticeContent", "practice", categories.practice);
+  renderClassCategory("teacherQuizContent", "quizzes", categories.quizzes);
+  renderClassCategory("teacherHomeworkContent", "homework", categories.homework || { overall: {} });
+  renderStudents();
+}
+
+async function loadClassProgress(showStatus = false) {
+  if (showStatus) els.classProgressStatus.textContent = "Refreshing class results…";
+  state.classProgress = await api("/api/teacher/progress/class");
+  renderClassProgress();
+  els.classProgressStatus.textContent = showStatus ? "Class results refreshed." : "";
+}
+
+function renderIndividualModules(modules = []) {
+  return `<div class="individual-module-list-v2">${modules.map((module) => `
+    <div class="individual-module-row-v2 ${scoreClass(module.percentage, module.questions)}">
+      <img src="${escapeHtml(module.icon)}" alt="" />
+      <div><strong>${escapeHtml(module.title)}</strong><small>${module.questions} questions · ${module.rounds} rounds</small></div>
+      <span>${module.questions ? `${module.percentage}%` : "—"}</span>
+      <p>${escapeHtml(module.questions ? module.nextStep : "No evidence yet.")}</p>
+    </div>
+  `).join("")}</div>`;
+}
+
+function renderIndividualRounds(rounds = []) {
+  if (!rounds.length) return '<div class="progress-empty-state">No completed rounds yet.</div>';
+  return `<div class="category-history-list-v2">${rounds.map((round) => `
+    <div class="category-history-row-v2">
+      <div><strong>${escapeHtml(round.title)}</strong><small>${escapeHtml(formatDateTime(round.completedAt))} · ${round.questions} questions</small></div>
+      <span class="round-score-badge ${scoreClass(round.percentage, round.questions)}">${formatMark(round.score)}/${formatMark(round.maximumScore)} · ${round.percentage}%</span>
+      ${round.feedback ? `<p>${escapeHtml(round.feedback)}</p>` : ""}
+    </div>
+  `).join("")}</div>`;
+}
+
+function renderIndividualQuestions(questions = []) {
+  if (!questions.length) return '<div class="progress-empty-state">No question feedback yet.</div>';
+  return `<div class="category-history-list-v2">${questions.map((question) => {
+    const detail = question.answerData?.title || question.answerData?.correctInstrument || question.answerData?.correctAnswer || question.questionId || "Question";
+    const full = Number(question.score) >= Number(question.maximumScore) && Number(question.maximumScore) > 0;
+    return `
+      <div class="category-history-row-v2">
+        <div><strong>${escapeHtml(question.moduleTitle)}</strong><small>${escapeHtml(detail)} · ${escapeHtml(formatDateTime(question.completedAt))}</small></div>
+        <span class="question-mark ${full ? "is-full" : "is-review"}">${formatMark(question.score)}/${formatMark(question.maximumScore)}</span>
+        <p>${escapeHtml(question.feedback || (full ? "Secure response." : "Review this question and try it again."))}</p>
+      </div>
+    `;
+  }).join("")}</div>`;
+}
+
+function individualCategory(title, subtitle, category, featured = false) {
+  const overall = category?.overall || {};
+  const hasEvidence = Number(overall.questions || 0) > 0;
+  return `
+    <section class="individual-category-panel-v2 ${featured ? "is-featured" : ""}">
+      <div class="ea-panel-heading-v2">
+        <div class="ea-panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div><p>${escapeHtml(subtitle)}</p><h3>${escapeHtml(title)}</h3></div>
+      </div>
+      ${title === "Homework" ? `
+        <div class="homework-placeholder-v2 compact-homework-v2"><p class="card-eyebrow">Coming next</p><h3>No homework assigned</h3><p>Assigned work and submissions will appear here.</p></div>
+      ` : `
+        <div class="individual-score-v2 ${scoreClass(overall.percentage, overall.questions)}">
+          <strong>${hasEvidence ? `${overall.percentage}%` : "—"}</strong>
+          <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds</span>
+        </div>
+        <div class="category-feedback-v2"><span>Compiled feedback</span><p>${escapeHtml(hasEvidence ? overall.compiledFeedback : "No evidence in this section yet.")}</p></div>
+        ${renderIndividualModules(category?.modules || [])}
+        <details class="category-details-v2" open><summary>Recent rounds</summary>${renderIndividualRounds(category?.recentRounds || [])}</details>
+        <details class="category-details-v2"><summary>Question feedback</summary>${renderIndividualQuestions(category?.recentQuestions || [])}</details>
+      `}
+    </section>
+  `;
+}
+
+function renderStudentProgress(progress) {
+  const overall = progress.overall;
+  const categories = progress.categories || { practice: progress, quizzes: { overall: {}, modules: [], recentRounds: [], recentQuestions: [] }, homework: { overall: {} } };
+  els.studentProgressContent.innerHTML = `
+    <div class="individual-overall-strip-v2">
+      <div class="individual-overall-score-v2 ${scoreClass(overall.percentage, overall.questions)}">
+        <span>${escapeHtml(overall.level)}</span><strong>${overall.questions ? `${overall.percentage}%` : "—"}</strong><small>${formatMark(overall.score)} / ${formatMark(overall.maximumScore)} marks</small>
+      </div>
+      <div class="individual-overall-metrics-v2">
+        <div><span>Questions</span><strong>${overall.questions}</strong></div>
+        <div><span>Rounds</span><strong>${overall.rounds}</strong></div>
+        <div><span>Apps started</span><strong>${overall.modulesStarted} / 4</strong></div>
+      </div>
+      <p>${escapeHtml(overall.compiledFeedback)}</p>
+    </div>
+    <div class="individual-category-grid-v2">
+      ${individualCategory("Practice", "Independent learning", categories.practice, false)}
+      ${individualCategory("Live Quizzes", "Teacher-led learning", categories.quizzes, true)}
+      ${individualCategory("Homework", "Assigned learning", categories.homework, false)}
+    </div>
+  `;
+}
+
+async function openStudentProgress(student) {
+  els.progressStudentName.textContent = student.displayName;
+  els.progressStudentMeta.textContent = `Username: ${student.username}`;
+  els.studentProgressContent.innerHTML = '<div class="progress-empty-state">Loading student feedback…</div>';
+  els.studentProgressDialog.showModal();
+  try {
+    const result = await api(`/api/teacher/students/${student.id}/progress`);
+    els.progressStudentMeta.textContent = `Username: ${result.student.username} · ${result.student.active ? "Active account" : "Inactive account"}`;
+    renderStudentProgress(result.progress);
+  } catch (error) {
+    els.studentProgressContent.innerHTML = `<div class="progress-empty-state">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+async function loadDashboard() {
+  try {
+    const me = await api("/api/auth/me?role=teacher");
+    if (me.role !== "teacher") throw new Error("Teacher login required.");
+    state.teacher = me.teacher;
+    renderAccount();
+
+    const [studentResult] = await Promise.all([
+      api("/api/teacher/students"),
+      loadClasses()
+    ]);
+
+    state.students = studentResult.students || [];
+    state.teacher.licence.seatLimit = studentResult.seatLimit;
+    renderStudents();
+    await loadClassProgress(false);
+  } catch (error) {
+    if (error.status === 401 || error.status === 403) {
+      window.location.replace("/account/teacher-login/");
+      return;
+    }
+    els.studentList.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    els.classProgressStatus.textContent = error.message;
+  }
+}
+
+els.studentCreateForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  setMessage(els.studentFormMessage);
+  setMessage(els.studentDialogMessage);
+  els.createStudentButton.disabled = true;
+  els.createStudentButton.textContent = "Adding…";
+
+  try {
+    await api("/api/teacher/students", {
+      method: "POST",
+      body: JSON.stringify({
+        classId: els.studentCreateForm.classId.value,
+        displayName: els.studentCreateForm.displayName.value,
+        username: els.studentCreateForm.username.value,
+        pin: els.studentCreateForm.pin.value
+      })
+    });
+
+    els.studentCreateForm.reset();
+    const [studentResult] = await Promise.all([
+      api("/api/teacher/students"),
+      loadClasses()
+    ]);
+    state.students = studentResult.students || [];
+    renderStudents();
+    await loadClassProgress(false);
+    setMessage(els.studentFormMessage, "Student account created.", "success");
+    els.studentDialog.close();
+  } catch (error) {
+    setMessage(els.studentDialogMessage, error.message, "error");
+  } finally {
+    els.createStudentButton.textContent = "Add student";
+    renderClassSummary();
+  }
+});
+
+els.studentList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-action]");
+  const row = event.target.closest("[data-student-id]");
+  if (!button || !row) return;
+  const student = state.students.find((item) => item.id === row.dataset.studentId);
+  if (!student) return;
+
+  if (button.dataset.action === "view-progress") {
+    await openStudentProgress(student);
+    return;
+  }
+
+  if (button.dataset.action === "reset-pin") {
+    state.resetStudent = student;
+    els.pinDialogStudent.textContent = `Choose a new PIN for ${student.displayName}.`;
+    setMessage(els.pinMessage);
+    els.pinForm.reset();
+    els.pinDialog.showModal();
+    return;
+  }
+
+  if (button.dataset.action === "toggle") {
+    button.disabled = true;
+    try {
+      await api(`/api/teacher/students/${student.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ active: !student.active })
+      });
+      const [result] = await Promise.all([
+        api("/api/teacher/students"),
+        loadClasses()
+      ]);
+      state.students = result.students || [];
+      renderStudents();
+      await loadClassProgress(false);
+    } catch (error) {
+      setMessage(els.studentFormMessage, error.message, "error");
+      button.disabled = false;
+    }
+  }
+});
+
+els.pinForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!state.resetStudent) return;
+  setMessage(els.pinMessage);
+  try {
+    await api(`/api/teacher/students/${state.resetStudent.id}/reset-pin`, {
+      method: "POST",
+      body: JSON.stringify({ pin: els.pinForm.pin.value })
+    });
+    els.pinDialog.close();
+    setMessage(els.studentFormMessage, `PIN reset for ${state.resetStudent.displayName}.`, "success");
+    state.resetStudent = null;
+  } catch (error) {
+    setMessage(els.pinMessage, error.message, "error");
+  }
+});
+
+
+els.openClassDialog.addEventListener("click", openClassSetup);
+els.closeClassDialog.addEventListener("click", () => els.classDialog.close());
+els.cancelClassButton.addEventListener("click", () => els.classDialog.close());
+els.classDialog.addEventListener("click", (event) => {
+  if (event.target === els.classDialog) els.classDialog.close();
+});
+
+els.classDetailsForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  setMessage(els.classDetailsMessage);
+
+  const className = String(els.classDetailsForm.elements.className.value || "").trim();
+  if (!className) {
+    setMessage(els.classDetailsMessage, "Enter a class name.", "error");
+    return;
+  }
+
+  state.classDraft = {
+    className,
+    yearGroup: String(els.classDetailsForm.elements.yearGroup.value || "").trim(),
+    examBoard: String(els.classDetailsForm.elements.examBoard.value || "").trim()
+  };
+
+  els.draftClassName.textContent = state.classDraft.className;
+  showClassWizardStep("students");
+  renderDraftStudents();
+});
+
+els.backToClassDetails.addEventListener("click", () => {
+  showClassWizardStep("details");
+});
+
+els.classStudentForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  setMessage(els.classStudentMessage);
+
+  const displayName = String(els.classStudentForm.elements.displayName.value || "").trim();
+  const username = cleanDraftUsername(els.classStudentForm.elements.username.value);
+  const pin = String(els.classStudentForm.elements.pin.value || "").trim();
+
+  if (!displayName) {
+    setMessage(els.classStudentMessage, "Enter the student’s name.", "error");
+    return;
+  }
+  if (username.length < 2) {
+    setMessage(els.classStudentMessage, "Use a username of at least two characters.", "error");
+    return;
+  }
+  if (!/^[0-9]{4,6}$/.test(pin)) {
+    setMessage(els.classStudentMessage, "Use a four-to-six digit PIN.", "error");
+    return;
+  }
+
+  const usernameUsed = state.students.some((student) => student.username.toLowerCase() === username)
+    || state.draftStudents.some((student) => student.username === username);
+  if (usernameUsed) {
+    setMessage(els.classStudentMessage, `The username "${username}" is already in use.`, "error");
+    return;
+  }
+
+  const capacity = Math.min(20, Number(state.classMeta.seatsRemaining || 0));
+  if (state.draftStudents.length >= capacity) {
+    setMessage(els.classStudentMessage, "No more active student seats are available for this class.", "error");
+    return;
+  }
+
+  state.draftStudents.push({ displayName, username, pin });
+  els.classStudentForm.reset();
+  renderDraftStudents();
+  window.setTimeout(() => els.classStudentForm.elements.displayName.focus(), 0);
+});
+
+els.classDraftStudentList.addEventListener("click", (event) => {
+  const button = event.target.closest('[data-action="remove-draft-student"]');
+  const row = event.target.closest("[data-draft-index]");
+  if (!button || !row) return;
+  const index = Number(row.dataset.draftIndex);
+  if (!Number.isInteger(index)) return;
+  state.draftStudents.splice(index, 1);
+  renderDraftStudents();
+});
+
+els.finishClassButton.addEventListener("click", async () => {
+  if (!state.classDraft || !state.draftStudents.length) return;
+
+  setMessage(els.classStudentMessage);
+  els.finishClassButton.disabled = true;
+  els.finishClassButton.textContent = "Creating class…";
+
+  try {
+    const result = await api("/api/teacher/classes", {
+      method: "POST",
+      body: JSON.stringify({
+        ...state.classDraft,
+        students: state.draftStudents
+      })
+    });
+
+    const [studentResult] = await Promise.all([
+      api("/api/teacher/students"),
+      loadClasses()
+    ]);
+    state.students = studentResult.students || [];
+    renderStudents();
+    await loadClassProgress(false);
+
+    els.classDialog.close();
+    showGeneratedLogins(result);
+    resetClassWizard();
+  } catch (error) {
+    setMessage(els.classStudentMessage, error.message, "error");
+  } finally {
+    els.finishClassButton.textContent = "Finish class";
+    renderDraftStudents();
+  }
+});
+
+els.closeGeneratedLogins.addEventListener("click", () => els.generatedLoginsDialog.close());
+els.generatedLoginsDialog.addEventListener("click", (event) => {
+  if (event.target === els.generatedLoginsDialog) els.generatedLoginsDialog.close();
+});
+els.printGeneratedLogins.addEventListener("click", printLoginSheet);
+els.copyGeneratedLogins.addEventListener("click", async () => {
+  if (!state.generatedCredentials) return;
+  try {
+    await navigator.clipboard.writeText(credentialsText(state.generatedCredentials));
+    els.copyGeneratedLogins.textContent = "Copied";
+    window.setTimeout(() => { els.copyGeneratedLogins.textContent = "Copy all logins"; }, 1200);
+  } catch (_error) {
+    els.copyGeneratedLogins.textContent = "Copy failed";
+  }
+});
+
+els.openStudentDialog.addEventListener("click", () => {
+  const classes = activeClasses();
+  const { seatsRemaining: remainingSeats } = currentSeatAvailability();
+
+  if (!classes.length) {
+    openClassSetup();
+    return;
+  }
+  if (remainingSeats <= 0) return;
+
+  els.studentCreateForm.reset();
+  populateClassSelect(classes[0].id);
+  setMessage(els.studentDialogMessage);
+  els.studentDialog.showModal();
+  window.setTimeout(() => els.studentCreateForm.displayName.focus(), 0);
+});
+els.cancelStudentButton.addEventListener("click", () => els.studentDialog.close());
+els.studentDialog.addEventListener("click", (event) => {
+  if (event.target === els.studentDialog) els.studentDialog.close();
+});
+
+els.learningSummaryList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-category-detail]");
+  if (!button) return;
+  openCategoryDetail(button.dataset.categoryDetail);
+});
+
+els.closeCategoryDetail.addEventListener("click", () => els.categoryDetailDialog.close());
+els.categoryDetailDialog.addEventListener("click", (event) => {
+  if (event.target === els.categoryDetailDialog) els.categoryDetailDialog.close();
+});
+
+els.openPasswordDialog.addEventListener("click", () => {
+  els.passwordForm.reset();
+  setMessage(els.passwordMessage);
+  els.passwordDialog.showModal();
+});
+els.cancelPasswordButton.addEventListener("click", () => els.passwordDialog.close());
+els.cancelPinButton.addEventListener("click", () => els.pinDialog.close());
+els.closeStudentProgress.addEventListener("click", () => els.studentProgressDialog.close());
+els.studentProgressDialog.addEventListener("click", (event) => {
+  if (event.target === els.studentProgressDialog) els.studentProgressDialog.close();
+});
+els.refreshClassProgress.addEventListener("click", async () => {
+  els.refreshClassProgress.disabled = true;
+  try { await loadClassProgress(true); }
+  catch (error) { els.classProgressStatus.textContent = error.message || "Could not refresh results."; }
+  finally { els.refreshClassProgress.disabled = false; }
+});
+
+els.passwordForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const currentPassword = els.passwordForm.currentPassword.value;
+  const newPassword = els.passwordForm.newPassword.value;
+  const confirmPassword = els.passwordForm.confirmPassword.value;
+  if (newPassword !== confirmPassword) {
+    setMessage(els.passwordMessage, "The new passwords do not match.", "error");
+    return;
+  }
+
+  try {
+    await api("/api/auth/teacher/change-password", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    state.teacher.mustChangePassword = false;
+    els.passwordNotice.hidden = true;
+    setMessage(els.passwordMessage, "Password updated.", "success");
+    window.setTimeout(() => els.passwordDialog.close(), 650);
+  } catch (error) {
+    setMessage(els.passwordMessage, error.message, "error");
+  }
+});
+
+els.logoutButton.addEventListener("click", async () => {
+  try { await api("/api/auth/teacher/logout", { method: "POST" }); }
+  finally { window.location.assign("/account/teacher-login/"); }
+});
+
+loadDashboard();

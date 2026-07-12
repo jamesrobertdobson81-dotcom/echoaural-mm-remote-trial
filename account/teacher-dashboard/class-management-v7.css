@@ -1,0 +1,423 @@
+/*
+  EchoAural class workflow v7
+  Three classes, named student entry and grouped student accounts.
+  This stylesheet changes only class/student account management presentation.
+*/
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 {
+  flex: 0 0 auto;
+  min-height: 46px;
+  margin: 8px 0 9px;
+  padding: 8px 10px;
+  border: 1px solid #e0e7f1;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(139, 92, 246, .08), transparent 42%),
+    #f8fafd;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 > div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 7px;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 span {
+  color: #7889a0;
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 strong {
+  color: #172b49;
+  font-size: .9rem;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 small {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  color: #6c7e95;
+  font-size: .67rem;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 button {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 0 11px;
+  font-size: .68rem;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 button:disabled {
+  opacity: .58;
+  cursor: not-allowed;
+}
+
+.teacher-dashboard-v5 .class-grouped-student-list-v7 {
+  display: block;
+}
+
+.teacher-dashboard-v5 .student-class-group-v7 {
+  overflow: hidden;
+  margin: 0 0 9px;
+  border: 1px solid #dde5f0;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, .92);
+}
+
+.teacher-dashboard-v5 .student-class-heading-v7 {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-height: 40px;
+  padding: 7px 9px 7px 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  border-bottom: 1px solid #e3e9f2;
+  background:
+    linear-gradient(120deg, rgba(225, 238, 255, .96), rgba(245, 240, 255, .96));
+  backdrop-filter: blur(8px);
+}
+
+.teacher-dashboard-v5 .student-class-heading-v7 > div {
+  min-width: 0;
+}
+
+.teacher-dashboard-v5 .student-class-heading-v7 strong {
+  display: block;
+  overflow: hidden;
+  color: #152946;
+  font-size: .8rem;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-dashboard-v5 .student-class-heading-v7 span {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: #6f8097;
+  font-size: .61rem;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-dashboard-v5 .student-class-heading-v7 b {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 7px;
+  border: 1px solid rgba(124, 58, 237, .16);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #6d28d9;
+  background: #fff;
+  font-size: .7rem;
+}
+
+.teacher-dashboard-v5 .student-class-group-v7.is-unassigned .student-class-heading-v7 {
+  background: #fff8ec;
+}
+
+.teacher-dashboard-v5 .student-class-members-v7 {
+  padding: 6px;
+}
+
+.teacher-dashboard-v5 .student-class-members-v7 .student-row-v2 {
+  margin-bottom: 6px;
+}
+
+.teacher-dashboard-v5 .student-class-members-v7 .student-row-v2:last-child {
+  margin-bottom: 0;
+}
+
+.teacher-dashboard-v5 .class-empty-students-v7 {
+  padding: 13px 10px;
+  color: #73839a;
+  font-size: .7rem;
+  text-align: center;
+}
+
+#studentDialog select {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid #d0d5dd;
+  border-radius: 14px;
+  color: #172b49;
+  background: #fff;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+/* Class creation wizard */
+#classDialog.class-wizard-dialog-v7 {
+  width: min(820px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 24px);
+  overflow: hidden;
+}
+
+#classDialog .class-wizard-inner-v7 {
+  width: 100%;
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  padding: clamp(22px, 3vw, 30px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+
+#classDialog [hidden] {
+  display: none !important;
+}
+
+.class-wizard-heading-v7 {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.class-wizard-heading-v7 > div {
+  min-width: 0;
+}
+
+.class-wizard-progress-v7 {
+  margin: 18px 0 22px;
+  display: grid;
+  grid-template-columns: auto minmax(30px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.class-wizard-progress-v7 > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #7a889c;
+  font-size: .72rem;
+  font-weight: 850;
+}
+
+.class-wizard-progress-v7 > span b {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9e1ec;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #6f8097;
+  background: #fff;
+  font-size: .7rem;
+}
+
+.class-wizard-progress-v7 > span.is-active {
+  color: #172b49;
+}
+
+.class-wizard-progress-v7 > span.is-active b {
+  border-color: transparent;
+  color: #fff;
+  background: linear-gradient(135deg, #2878ff, #8b5cf6 58%, #ed4f9a);
+  box-shadow: 0 8px 20px rgba(80, 80, 210, .2);
+}
+
+.class-wizard-progress-v7 > span.is-complete b {
+  color: #fff;
+  border-color: #0ea5a4;
+  background: #0ea5a4;
+}
+
+.class-wizard-progress-v7 > i {
+  height: 2px;
+  background: linear-gradient(90deg, #d7e3f2, #e5dff8);
+}
+
+.class-student-step-heading-v7 {
+  min-height: 52px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid #e0e7f1;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f7f9fc;
+}
+
+.class-student-step-heading-v7 span,
+.class-student-step-heading-v7 strong {
+  display: block;
+}
+
+.class-student-step-heading-v7 span {
+  color: #172b49;
+  font-size: .9rem;
+  font-weight: 900;
+}
+
+.class-student-step-heading-v7 strong {
+  margin-top: 2px;
+  color: #6e7f95;
+  font-size: .68rem;
+}
+
+.class-student-entry-v7 {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr .62fr auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.class-student-entry-v7 .field {
+  min-width: 0;
+  margin: 0;
+}
+
+.class-student-entry-v7 input {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.class-student-entry-v7 > button {
+  min-height: 52px;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
+.class-draft-list-v7 {
+  min-height: 120px;
+  max-height: min(34vh, 300px);
+  margin-top: 12px;
+  padding: 7px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #e0e7f1;
+  border-radius: 16px;
+  background: #f8fafd;
+}
+
+.class-draft-student-v7 {
+  min-height: 50px;
+  margin-bottom: 6px;
+  padding: 8px 9px 8px 12px;
+  border: 1px solid #e0e7f1;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff;
+}
+
+.class-draft-student-v7:last-child {
+  margin-bottom: 0;
+}
+
+.class-draft-student-v7 > div {
+  min-width: 0;
+}
+
+.class-draft-student-v7 strong,
+.class-draft-student-v7 span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.class-draft-student-v7 strong {
+  color: #172b49;
+  font-size: .8rem;
+}
+
+.class-draft-student-v7 span {
+  margin-top: 2px;
+  color: #718198;
+  font-size: .66rem;
+}
+
+.class-wizard-finish-v7 {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.class-wizard-finish-v7 span {
+  color: #6f8096;
+  font-size: .72rem;
+  font-weight: 750;
+}
+
+.class-wizard-finish-v7 .primary-button {
+  min-width: 150px;
+}
+
+@media (max-width: 760px) {
+  .class-student-entry-v7 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .class-student-entry-v7 > button {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  #classDialog.class-wizard-dialog-v7 {
+    width: calc(100vw - 18px);
+    max-width: calc(100vw - 18px);
+    max-height: calc(100dvh - 12px);
+  }
+
+  #classDialog .class-wizard-inner-v7 {
+    max-height: calc(100dvh - 12px);
+    padding: 20px 17px;
+  }
+
+  .class-wizard-progress-v7 {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .class-wizard-progress-v7 > i {
+    display: none;
+  }
+
+  .class-student-entry-v7 {
+    grid-template-columns: 1fr;
+  }
+
+  .class-student-entry-v7 > button {
+    grid-column: auto;
+  }
+
+  .class-wizard-finish-v7 {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .class-wizard-finish-v7 .primary-button {
+    width: 100%;
+  }
+}

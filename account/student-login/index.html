@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Login | EchoAural</title>
+  <link rel="stylesheet" href="/account/account.css" />
+</head>
+<body>
+  <div class="account-shell">
+    <header class="account-hero">
+      <nav class="account-nav" aria-label="EchoAural account navigation">
+        <a class="account-logo" href="/" aria-label="EchoAural home">
+          <span class="account-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <strong class="account-wordmark"><span class="account-wordmark-echo">Echo</span><span class="account-wordmark-aural">Aural</span></strong>
+        </a>
+        <a class="nav-link" href="/account/teacher-login/">Teacher login</a>
+      </nav>
+      <section class="account-hero-content">
+        <div class="hero-copy">
+          <p class="hero-kicker">Student access</p>
+          <h1 class="hero-title">Listen. Identify. <span class="gradient">Improve.</span></h1>
+          <p class="hero-text">Use the teacher code, username and PIN given to you by your music teacher.</p>
+        </div>
+      </section>
+    </header>
+
+    <main class="account-main">
+      <div class="account-panel-wrap">
+        <section class="account-card login-card" aria-labelledby="studentLoginTitle">
+          <p class="card-eyebrow">Student login</p>
+          <h2 class="card-title" id="studentLoginTitle">Open your account.</h2>
+          <p class="card-intro">You do not need an email address. Your teacher creates and manages this account.</p>
+
+          <form class="account-form" id="studentLoginForm">
+            <div class="field">
+              <label for="teacherCode">Teacher code</label>
+              <input id="teacherCode" name="teacherCode" type="text" maxlength="12" autocapitalize="characters" autocomplete="off" required />
+            </div>
+            <div class="field">
+              <label for="username">Username</label>
+              <input id="username" name="username" type="text" maxlength="24" autocomplete="username" required />
+            </div>
+            <div class="field">
+              <label for="pin">PIN</label>
+              <input id="pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" maxlength="6" autocomplete="current-password" required />
+            </div>
+            <button class="primary-button" id="studentLoginButton" type="submit">Log in</button>
+            <p class="form-message" id="studentLoginMessage" aria-live="polite"></p>
+          </form>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="/account/account-common.js"></script>
+  <script src="/account/student-login/student-login.js"></script>
+</body>
+</html>

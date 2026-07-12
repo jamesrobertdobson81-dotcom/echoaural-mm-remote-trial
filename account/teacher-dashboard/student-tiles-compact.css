@@ -1,0 +1,106 @@
+/*
+  EchoAural compact teacher-dashboard student tiles.
+  Changes only the student account tile presentation.
+*/
+
+.teacher-dashboard-v5 .student-list-v4 .student-row-compact-v6 {
+  min-height: 0;
+  padding: 8px 9px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "identity overall"
+    "actions actions";
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-summary-button-v6 {
+  grid-area: identity;
+  align-self: center;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-summary-button-v6 .student-name {
+  font-size: .84rem;
+  line-height: 1.12;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-summary-button-v6 .student-username {
+  margin-top: 2px;
+  font-size: .66rem;
+  line-height: 1.1;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-overall-result-v6 {
+  grid-area: overall;
+  min-width: 78px;
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-overall-result-v6 > span:first-child {
+  color: var(--muted);
+  font-size: .55rem;
+  font-weight: 850;
+  letter-spacing: .05em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-overall-result-v6 .student-progress-summary {
+  min-width: 58px;
+  margin: 0;
+  padding: 4px 8px;
+  text-align: center;
+  font-size: .68rem;
+  line-height: 1;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-actions-compact-v6 {
+  grid-area: actions;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, .8fr) minmax(0, .8fr);
+  gap: 4px;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-actions-compact-v6 button {
+  min-height: 25px;
+  padding: 0 6px;
+  font-size: .58rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-actions-compact-v6 .detailed-progress-button-v6 {
+  font-weight: 850;
+}
+
+.teacher-dashboard-v5 .student-list-v4 .student-row-compact-v6.inactive {
+  opacity: .66;
+}
+
+@media (max-width: 1180px) and (min-width: 1001px) {
+  .teacher-dashboard-v5 .student-list-v4 .student-actions-compact-v6 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .teacher-dashboard-v5 .student-list-v4 .student-actions-compact-v6 .detailed-progress-button-v6 {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 650px) {
+  .teacher-dashboard-v5 .student-list-v4 .student-row-compact-v6 {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .teacher-dashboard-v5 .student-list-v4 .student-actions-compact-v6 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .teacher-dashboard-v5 .student-list-v4 .student-actions-compact-v6 .detailed-progress-button-v6 {
+    grid-column: auto;
+  }
+}
