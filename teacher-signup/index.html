@@ -78,6 +78,20 @@
   </div>
   <script src="/account/account-common.js"></script>
   <script src="/shared/js/login-modals.js"></script>
-  <script src="/teacher-signup/teacher-signup.js"></script>
+  <script>
+    (() => {
+      const signupParams = new URLSearchParams(window.location.search);
+      if (signupParams.get('mode') !== 'development' && !signupParams.get('code')) return;
+
+      const pilotCodeInput = document.getElementById('pilotCode');
+      const pilotCodeField = pilotCodeInput?.closest('.field');
+      if (pilotCodeField) pilotCodeField.hidden = false;
+      if (pilotCodeInput) {
+        pilotCodeInput.required = true;
+        pilotCodeInput.setAttribute('aria-required', 'true');
+      }
+    })();
+  </script>
+  <script src="/teacher-signup/teacher-signup.js?v=20260716-dev-signup"></script>
 </body>
 </html>
