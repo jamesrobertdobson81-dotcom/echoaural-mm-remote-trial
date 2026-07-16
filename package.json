@@ -15,6 +15,7 @@
     "db:status": "bash tools/db-status.sh",
     "db:check": "node db/check-connection.js",
     "db:migrate": "node db/run-schema.js",
+    "progress:migrate": "node db/run-progress-schema.js",
     "account:create-teacher": "node tools/create-teacher.js",
     "account:list": "node tools/list-accounts.js",
     "onboarding:migrate": "node db/run-onboarding-schema.js",
