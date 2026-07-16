@@ -20,6 +20,7 @@ function allowedAccountOrigin(origin) {
   const allowed = new Set([
     'https://echoaural.com',
     'https://www.echoaural.com',
+    'https://jamesrobertdobson81-dotcom-echoaural-mm.onrender.com',
     String(process.env.PUBLIC_SITE_URL || '').trim().replace(/\/+$/, ''),
     String(process.env.APP_BASE_URL || '').trim().replace(/\/+$/, ''),
     ...configuredOrigins
