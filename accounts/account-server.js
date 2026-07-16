@@ -15,11 +15,16 @@ const loginAttempts = new Map();
 function allowedAccountOrigin(origin) {
   const value = String(origin || '').trim().replace(/\/+$/, '');
   if (!value) return '';
+  const configuredOrigins = String(process.env.ACCOUNT_ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((originValue) => originValue.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
   const allowed = new Set([
     'https://echoaural.com',
     'https://www.echoaural.com',
     String(process.env.PUBLIC_SITE_URL || '').trim().replace(/\/+$/, ''),
-    String(process.env.APP_BASE_URL || '').trim().replace(/\/+$/, '')
+    String(process.env.APP_BASE_URL || '').trim().replace(/\/+$/, ''),
+    ...configuredOrigins
   ].filter(Boolean));
   if (allowed.has(value)) return value;
   if (/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/i.test(value)) return value;
