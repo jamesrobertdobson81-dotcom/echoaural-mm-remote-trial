@@ -11,6 +11,8 @@ services:
         value: production
       - key: DATABASE_URL
         sync: false
+      - key: PILOT_SIGNUP_CODE
+        sync: false
       - key: PUBLIC_SITE_URL
         value: https://echoaural.com
       - key: PUBLIC_API_URL
