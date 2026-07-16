@@ -50,7 +50,7 @@
           <div class="onboarding-form-panel">
             <p class="card-eyebrow">Teacher signup</p>
             <h2 class="card-title" id="signupTitle">Become a Founding Partner.</h2>
-            <p class="card-intro">Enter your school details. If EchoAural sent you an invitation code, add it below; otherwise leave it blank and sign up directly while places remain. EchoAural will email a secure one-time link so you can choose your own password.</p>
+            <p class="card-intro">Enter your school details. If EchoAural sent you a development or invitation code, add it below. EchoAural will email a secure one-time link so you can choose your own password.</p>
 
             <form class="account-form" id="teacherSignupForm">
               <div class="onboarding-grid">
@@ -59,13 +59,13 @@
                 <div class="field field-wide"><label for="schoolName">School name</label><input id="schoolName" name="schoolName" type="text" autocomplete="organization" maxlength="120" required /></div>
                 <div class="field"><label for="country">Country</label><input id="country" name="country" type="text" autocomplete="country-name" maxlength="80" required /></div>
                 <div class="field"><label for="examBoard">Exam board</label><select id="examBoard" name="examBoard" required><option value="">Choose one</option><option>AQA</option><option>Edexcel</option><option>Eduqas / WJEC</option><option>OCR</option><option>Cambridge IGCSE</option><option>Other / international</option></select></div>
-                <div class="field field-wide"><label for="pilotCode">Invitation code <span aria-hidden="true">(optional)</span></label><input id="pilotCode" name="pilotCode" type="text" autocomplete="off" maxlength="80" /><p class="field-help">Enter the code from your EchoAural invitation email, or leave this blank to claim an available Founding Partner place.</p></div>
+                <div class="field field-wide"><label for="pilotCode">Development / invitation code</label><input id="pilotCode" name="pilotCode" type="text" autocomplete="off" maxlength="80" /><p class="field-help">Development access requires the code supplied by EchoAural. Founding Partner signups can leave this blank only while places remain open.</p></div>
               </div>
 
               <label class="onboarding-check"><input id="acceptedTerms" name="acceptedTerms" type="checkbox" required /><span>I agree to the EchoAural terms and privacy notice and confirm that I am creating this account for legitimate educational use.</span></label>
 
               <div class="onboarding-actions">
-                <button class="primary-button" id="signupButton" type="submit">Create Founding Partner account</button>
+                <button class="primary-button" id="signupButton" type="submit">Create teacher account</button>
                 <a class="secondary-button" href="/?login=teacher" data-ea-login="teacher" style="min-height:46px;padding:0 18px;display:inline-flex;align-items:center">I already have an account</a>
               </div>
               <p class="form-message" id="signupMessage" aria-live="polite"></p>

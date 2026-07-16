@@ -3,6 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 
+const DEFAULT_EMAIL_FROM = 'EchoAural <welcome@echoaural.com>';
+const DEFAULT_REPLY_TO = 'hello@echoaural.com';
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -75,6 +78,51 @@ function welcomeEmail({ teacherName, teacherEmail, teacherCode, setupUrl }) {
   return { subject, text, html };
 }
 
+function unquoteEnvValue(value) {
+  const trimmed = String(value || '').trim();
+  if (trimmed.length < 2) return trimmed;
+  const first = trimmed.at(0);
+  const last = trimmed.at(-1);
+  if (
+    (first === '"' && last === '"') ||
+    (first === "'" && last === "'") ||
+    (first === '“' && last === '”') ||
+    (first === '‘' && last === '’')
+  ) {
+    return trimmed.slice(1, -1).trim();
+  }
+  return trimmed;
+}
+
+function validEmailAddress(value) {
+  return /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(String(value || '').trim());
+}
+
+function validFromAddress(value) {
+  const trimmed = String(value || '').trim();
+  if (validEmailAddress(trimmed)) return true;
+  const match = trimmed.match(/^([^<>]+)<([^<>]+)>$/);
+  return Boolean(match && match[1].trim() && validEmailAddress(match[2]));
+}
+
+function emailFromAddress() {
+  const configured = unquoteEnvValue(process.env.EMAIL_FROM);
+  if (validFromAddress(configured)) return configured;
+  if (configured) {
+    console.warn('[EchoAural email] Ignoring invalid EMAIL_FROM value; using default sender.');
+  }
+  return DEFAULT_EMAIL_FROM;
+}
+
+function replyToAddress() {
+  const configured = unquoteEnvValue(process.env.EMAIL_REPLY_TO);
+  if (validEmailAddress(configured)) return configured;
+  if (configured) {
+    console.warn('[EchoAural email] Ignoring invalid EMAIL_REPLY_TO value; using default reply-to.');
+  }
+  return DEFAULT_REPLY_TO;
+}
+
 async function sendWithResend({ to, subject, html, text }) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 12_000);
@@ -87,9 +135,9 @@ async function sendWithResend({ to, subject, html, text }) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: process.env.EMAIL_FROM || 'EchoAural <welcome@echoaural.com>',
+        from: emailFromAddress(),
         to: [to],
-        reply_to: process.env.EMAIL_REPLY_TO || 'hello@echoaural.com',
+        reply_to: replyToAddress(),
         subject,
         html,
         text
