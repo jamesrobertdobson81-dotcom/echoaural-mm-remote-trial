@@ -1,19 +1,22 @@
-# EchoAural 2 — current development baseline
+# EchoAural — Current Stable Baseline
 
-Current baseline: **5 July 2026 wrap-up build**.
+Stable baseline commit: `fe32c27` — `Stable EchoAural baseline before cleanup audit`
 
-EchoAural is a premium GCSE Music listening and revision platform. This build contains:
+EchoAural is a GCSE Music listening platform with student accounts, teacher accounts, classroom live sessions, practice mode, progress mode, homework foundations, and levelled listening activities.
 
-- the EchoAural landing page
+## Current Application Areas
+
+- Public landing page and Founding Partners page
+- Teacher signup, login and onboarding
+- Student login and dashboard
+- Teacher dashboard with class, student and progress views
+- Shared live-session Teacher Mode and student join flow
 - Instrument Identifier
-- Texture Trainer MVP with typed-answer rule-based marking
-- Melody Master solo app
-- Melody Master Teacher Mode and student classroom flow
-- resource-data tooling for Instrument Identifier and Melody Master
+- Melody Master Dictation
+- Melodic Intervals
+- Texture Trainer
 
-## Run locally
-
-From the project folder:
+## Local Development
 
 ```bash
 npm start
@@ -25,24 +28,72 @@ Then open:
 http://localhost:3000/
 ```
 
-Useful direct pages:
+Useful direct routes:
 
 ```text
-http://localhost:3000/modules/melody-master/index.html
-http://localhost:3000/modules/melody-master/teacher-mode.html
-http://localhost:3000/modules/instrument-identifier/index.html
-http://localhost:3000/modules/texture-trainer/index.html
+http://localhost:3000/account/teacher-login/
+http://localhost:3000/account/student-login/
+http://localhost:3000/account/teacher-dashboard/
+http://localhost:3000/account/student-home/
+http://localhost:3000/teacher/
+http://localhost:3000/join
 ```
 
-## Check the project before making changes
+## Validation
+
+Run this before and after application changes:
 
 ```bash
 npm run check
 ```
 
-This checks required pages, JavaScript syntax, the Texture Trainer home-page link and the starter Texture Trainer answer-card data.
+The check validates required files, JavaScript syntax, Texture Trainer starter data, and the four Melodic Intervals progression levels.
 
-## Regenerate data files
+## Core Files
+
+```text
+server.js
+accounts/
+account/
+classroom/
+teacher/
+student/
+modules/
+shared/
+tools/
+db/
+resources/
+```
+
+## Progress Modes
+
+Student dashboard app launches are split into:
+
+- `Practice Mode` — students practise independently; account score results are not recorded, but practice time is logged.
+- `Progress Mode` — students work through Foundation, Developing, Securing and Mastering; results are recorded for student and teacher dashboards.
+- `Join live session` — students enter a live-session room code and use the shared classroom flow.
+
+Currently levelled:
+
+- Instrument Identifier
+- Melody Master Dictation
+- Melodic Intervals
+
+Texture Trainer remains present in the app set, with future level progression still to be developed.
+
+## Teacher Dashboard
+
+The teacher dashboard is now the launch hub for:
+
+- live sessions
+- homework setup foundations
+- class progress
+- individual student progress
+- student account/class management
+
+The internal `/teacher/` route remains the stable live-session runtime for room codes, live leaderboard, audio controls and submissions.
+
+## Resource Generation
 
 Instrument Identifier:
 
@@ -56,145 +107,42 @@ Melody Master:
 npm run generate:mm
 ```
 
-Do not regenerate Melody Master unless the CSV and the existing working layout metadata are both present. The generator is designed to preserve gameplay metadata while refreshing composer/track/licence/resource fields.
+Only regenerate resources when the source data and layout metadata are available and the generated output can be checked visually.
 
-## Main working areas
-
-```text
-modules/instrument-identifier/
-modules/texture-trainer/
-modules/melody-master/
-shared/css/brand.css
-tools/
-```
-
-## Texture Trainer MVP notes
-
-Texture Trainer now has TT001 wired to an existing Instrument Identifier solo flute clip:
-
-```text
-TT001 -> ../instrument-identifier/audio/II201.mp3
-Source clip -> modules/instrument-identifier/audio/II201.mp3
-```
-
-Remaining starter questions still use placeholder audio paths:
-
-```text
-modules/texture-trainer/audio/tt002.mp3
-modules/texture-trainer/audio/tt003.mp3
-modules/texture-trainer/audio/tt004.mp3
-modules/texture-trainer/audio/tt005.mp3
-modules/texture-trainer/audio/tt006.mp3
-```
-
-The new resource tracker is here:
-
-```text
-resources/Texture_Trainer_Resources.xlsx
-```
-
-The answer system is deterministic and client-side only; it does not use OpenAI or any external API. Licensing/source URLs still need final verification before commercial release.
-
-## Current Melody Master principle
-
-The main Melody Master app is now the source for the solo scoring/feedback workflow. Teacher Mode should not be changed until the solo flow is fully approved, then the scoring/feedback logic can be copied across deliberately.
-
-
-## Texture Trainer icon update
-
-- Texture Trainer MVP is available at `modules/texture-trainer/index.html`.
-- The module uses the existing `assets/icons/modules/texture-trainer.svg` icon on the home card and Texture Trainer interface.
-
-## Shared Teacher Mode refactor
-
-The live classroom layer is now separated from Melody Master-specific code. Run the same local server:
+## Email Testing
 
 ```bash
-node server.js
+npm run email:test -- recipient@example.com
 ```
 
-Then open:
+Email delivery uses environment variables. Do not commit `.env`.
 
-```text
-http://localhost:3000/teacher/
-http://localhost:3000/join
-```
-
-The shared teacher page can create local classroom sessions for:
-
-- Instrument Identifier
-- Melody Master
-- Texture Trainer
-
-Core classroom files:
-
-```text
-classroom/classroom-server.js
-classroom/room-manager.js
-classroom/scoring.js
-classroom/classroom-events.js
-teacher/index.html
-teacher/teacher.css
-teacher/teacher.js
-student/join.html
-student/student-shell.html
-student/student.css
-student/student.js
-```
-
-Each current module exposes a teacher adapter:
-
-```text
-modules/melody-master/teacher-adapter.js
-modules/instrument-identifier/teacher-adapter.js
-modules/texture-trainer/teacher-adapter.js
-```
-
-The old Melody Master Teacher Mode URL redirects to the shared teacher page with Melody Master preselected:
-
-```text
-http://localhost:3000/modules/melody-master/teacher-mode.html
-```
-
-## Online Teacher Mode / Cloudflare frontend + hosted classroom API
-
-This build is prepared for the next step: keeping the main EchoAural site on Cloudflare while running the live classroom server online as a Node web service.
-
-Recommended production shape:
-
-```text
-https://echoaural.com                  -> Cloudflare static/frontend site
-https://teacher-api.echoaural.com      -> hosted Node classroom API/server
-```
-
-Local use still works without environment variables:
+## Database
 
 ```bash
-node server.js
+npm run db:check
+npm run db:migrate
+npm run onboarding:migrate
 ```
 
-Cloudflare/public classroom pages now use `shared/js/classroom-client.js` to decide where classroom API requests should go:
+Local database helper scripts remain in `tools/`.
 
-- localhost/private IP pages use same-origin `/api/classroom/...`
-- public pages default to `https://teacher-api.echoaural.com`
-- temporary testing can override the API with `?classroomApi=https://YOUR-RENDER-SERVICE.onrender.com`
+## Deployment Notes
 
-For Render, create a Node Web Service using:
+Render deployment configuration is in:
 
 ```text
-Build command: npm install
-Start command: npm start
+render.yaml
 ```
 
-Set these environment variables:
+Do not push or deploy without explicit permission.
+
+## Documentation Archive
+
+Historical development notes have been condensed into:
 
 ```text
-NODE_ENV=production
-PUBLIC_SITE_URL=https://echoaural.com
-PUBLIC_API_URL=https://teacher-api.echoaural.com
-PUBLIC_HOST=teacher-api.echoaural.com
-PUBLIC_PROTOCOL=https
-ROOM_MAX_AGE_MS=43200000
+documentation/archive/INDEX.md
 ```
 
-Then add `teacher-api.echoaural.com` as a Render custom domain and create the matching Cloudflare CNAME to the Render service URL.
+Detailed historical content is also recoverable through Git history before and at the stable baseline commit.
