@@ -21,5 +21,7 @@ services:
         value: teacher-api.echoaural.com
       - key: PUBLIC_PROTOCOL
         value: https
+      - key: ACCOUNT_ALLOWED_ORIGINS
+        value: https://echoaural.com,https://www.echoaural.com,https://jamesrobertdobson81-dotcom-echoaural-mm.onrender.com
       - key: ROOM_MAX_AGE_MS
         value: "43200000"
