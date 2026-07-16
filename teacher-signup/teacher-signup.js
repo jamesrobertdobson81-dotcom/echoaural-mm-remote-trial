@@ -6,8 +6,17 @@ const form = document.getElementById('teacherSignupForm');
 const button = document.getElementById('signupButton');
 const message = document.getElementById('signupMessage');
 const success = document.getElementById('signupSuccess');
+const countryInput = document.getElementById('country');
+const pilotCodeInput = document.getElementById('pilotCode');
+const pilotCodeField = pilotCodeInput?.closest('.field');
+const acceptedTermsInput = document.getElementById('acceptedTerms');
 const teacherDashboardUrl = '/account/teacher-dashboard/';
 let teacherActivationWatcher = null;
+const countryOptions = new Set(
+  Array.from(document.querySelectorAll('#countryList option'))
+    .map((option) => option.value.trim().toLowerCase())
+    .filter(Boolean)
+);
 
 async function openDashboardWhenTeacherIsActive() {
   try {
@@ -37,13 +46,35 @@ function watchForTeacherActivation() {
     1500
   );
 }
+
+function validateCountryInput() {
+  if (!countryInput || !countryOptions.size) return true;
+
+  const country = countryInput.value.trim();
+  countryInput.value = country;
+
+  if (!country || countryOptions.has(country.toLowerCase())) {
+    countryInput.setCustomValidity('');
+    return true;
+  }
+
+  countryInput.setCustomValidity('Choose a country from the list.');
+  return false;
+}
+
+countryInput?.addEventListener('input', () => {
+  countryInput.setCustomValidity('');
+});
+
+countryInput?.addEventListener('change', validateCountryInput);
+
 const invitationCode = signupParams.get('code');
-const signupMode = signupParams.get('mode') === 'development'
+const signupMode = signupParams.get('mode') === 'development' || invitationCode
   ? 'development'
   : 'founding';
 
-if (invitationCode && form?.pilotCode) {
-  form.pilotCode.value = invitationCode;
+if (invitationCode && pilotCodeInput) {
+  pilotCodeInput.value = invitationCode;
 }
 
 if (signupMode === 'development') {
@@ -56,7 +87,6 @@ if (signupMode === 'development') {
   const intro = document.querySelector('.onboarding-form-panel .card-intro');
   const codeLabel = document.querySelector('label[for="pilotCode"]');
   const codeHelp = document.querySelector('#pilotCode + .field-help');
-  const codeField = form?.pilotCode?.closest('.field');
 
   if (heroKicker) heroKicker.textContent = 'Development teacher access';
   if (heroTitle) {
@@ -77,12 +107,12 @@ if (signupMode === 'development') {
     codeHelp.textContent =
       'Enter the code supplied in your EchoAural development-access invitation.';
   }
-  if (codeField) codeField.hidden = false;
+  if (pilotCodeField) pilotCodeField.hidden = false;
 
-  if (form?.pilotCode) {
-    form.pilotCode.required = true;
-    form.pilotCode.setAttribute('aria-required', 'true');
-    form.pilotCode.placeholder = 'Enter development code';
+  if (pilotCodeInput) {
+    pilotCodeInput.required = true;
+    pilotCodeInput.setAttribute('aria-required', 'true');
+    pilotCodeInput.placeholder = 'Enter development code';
   }
 
   if (button) button.textContent = 'Create teacher account';
@@ -98,29 +128,32 @@ document.addEventListener('visibilitychange', () => {
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+  validateCountryInput();
   if (!form.reportValidity()) return;
   setMessage(message);
   success.hidden = true;
   button.disabled = true;
   button.textContent = 'Creating account…';
   try {
+    const formData = new FormData(form);
+    const teacherEmail = formData.get('email') || '';
     const result = await api('/api/signup/teacher', {
       method: 'POST',
       body: JSON.stringify({
-        displayName: form.displayName.value,
-        email: form.email.value,
-        schoolName: form.schoolName.value,
-        country: form.country.value,
-        examBoard: form.examBoard.value,
-        pilotCode: form.pilotCode.value,
+        displayName: formData.get('displayName') || '',
+        email: teacherEmail,
+        schoolName: formData.get('schoolName') || '',
+        country: formData.get('country') || '',
+        examBoard: formData.get('examBoard') || '',
+        pilotCode: pilotCodeInput?.value || '',
         signupMode,
-        acceptedTerms: form.acceptedTerms.checked
+        acceptedTerms: Boolean(acceptedTermsInput?.checked)
       })
     });
     const delivery = result.delivery || {};
     success.innerHTML = `
       <strong>Check your email to activate EchoAural.</strong><br />
-      Your EchoAural teacher account has been prepared for ${escapeHtml(form.email.value)}.
+      Your EchoAural teacher account has been prepared for ${escapeHtml(teacherEmail)}.
       The welcome email contains your teacher code and a secure one-time link to create your password.
       ${delivery.method === 'local_preview' ? `<br /><a class="onboarding-preview-link" href="${escapeHtml(delivery.previewUrl)}" target="_blank" rel="noopener">Open the local test email →</a>` : ''}
     `;
