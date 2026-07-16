@@ -73,7 +73,7 @@
           Become a Founding Partner
         </a>
         <a class="ea-login-access-button ea-login-access-button-secondary" href="/teacher-signup/?mode=development">
-          I have a development code
+          Enter development code
         </a>
       `
     },

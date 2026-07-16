@@ -80,6 +80,7 @@ if (signupMode === 'development') {
   if (form?.pilotCode) {
     form.pilotCode.required = true;
     form.pilotCode.setAttribute('aria-required', 'true');
+    form.pilotCode.placeholder = 'Enter development code';
   }
 
   if (button) button.textContent = 'Create teacher account';
@@ -133,6 +134,6 @@ form.addEventListener('submit', async (event) => {
   } catch (error) {
     setMessage(message, error.message, 'error');
     button.disabled = false;
-    button.textContent = 'Create Founding Partner account';
+    button.textContent = 'Create teacher account';
   }
 });
