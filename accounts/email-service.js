@@ -44,26 +44,66 @@ function welcomeEmail({ teacherName, teacherEmail, teacherCode, setupUrl }) {
 
   const html = `<!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${subject}</title></head>
-<body style="margin:0;background:#eef3f8;font-family:Inter,Arial,sans-serif;color:#10233f">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#eef3f8;padding:28px 14px">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${subject}</title>
+  <style>
+    @keyframes eaEmailWave {
+      0%, 100% { transform: scaleY(.72); opacity: .74; }
+      45% { transform: scaleY(1.08); opacity: 1; }
+    }
+    .ea-email-wave-bar {
+      transform-origin: center bottom;
+      animation: eaEmailWave 1.45s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ea-email-wave-bar { animation: none !important; }
+    }
+    @media screen and (max-width: 520px) {
+      .ea-shell { border-radius: 20px !important; }
+      .ea-banner { padding: 28px 24px !important; }
+      .ea-body { padding: 30px 24px !important; }
+      .ea-wordmark { font-size: 31px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;background:#edf5ff;font-family:Inter,Arial,sans-serif;color:#10233f">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#edf5ff;background-image:radial-gradient(circle at 15% 0%, rgba(56,189,248,.12), transparent 30%),radial-gradient(circle at 85% 12%, rgba(139,92,246,.12), transparent 28%);padding:28px 14px">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 20px 60px rgba(7,17,31,.12)">
-        <tr><td style="background:#07111f;padding:32px 38px;color:#fff">
-          <div style="font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#91a5c1;margin-bottom:10px">Listen. Identify. Improve.</div>
-          <div style="font-size:30px;font-weight:800"><span style="color:#fff">Echo</span><span style="color:#38bdf8">Aural</span></div>
+      <table class="ea-shell" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#fff;border-radius:28px;overflow:hidden;box-shadow:0 22px 64px rgba(7,17,31,.14)">
+        <tr><td class="ea-banner" style="background:#07111f;background-image:radial-gradient(circle at 78% 18%, rgba(56,189,248,.30), transparent 31%),radial-gradient(circle at 16% 82%, rgba(168,85,247,.24), transparent 36%),linear-gradient(135deg,#050b16,#07111f 48%,#101f3d);padding:34px 38px 32px;color:#fff">
+          <table role="presentation" cellspacing="0" cellpadding="0" style="width:100%">
+            <tr>
+              <td style="vertical-align:middle;width:78px">
+                <span aria-hidden="true" style="display:inline-block;height:52px;white-space:nowrap">
+                  <span class="ea-email-wave-bar" style="display:inline-block;width:5px;height:14px;margin:0 2px;border-radius:999px;vertical-align:middle;background:linear-gradient(180deg,#38bdf8,#4a90e2);animation-delay:0s"></span>
+                  <span class="ea-email-wave-bar" style="display:inline-block;width:5px;height:27px;margin:0 2px;border-radius:999px;vertical-align:middle;background:linear-gradient(180deg,#38bdf8,#4a90e2);animation-delay:.08s"></span>
+                  <span class="ea-email-wave-bar" style="display:inline-block;width:5px;height:39px;margin:0 2px;border-radius:999px;vertical-align:middle;background:linear-gradient(180deg,#60a5fa,#4a90e2 48%,#8b5cf6);animation-delay:.16s"></span>
+                  <span class="ea-email-wave-bar" style="display:inline-block;width:5px;height:48px;margin:0 2px;border-radius:999px;vertical-align:middle;background:linear-gradient(180deg,#7dd3fc,#4a90e2 38%,#8b5cf6 76%,#a855f7);animation-delay:.24s"></span>
+                  <span class="ea-email-wave-bar" style="display:inline-block;width:5px;height:35px;margin:0 2px;border-radius:999px;vertical-align:middle;background:linear-gradient(180deg,#a78bfa,#8b5cf6 52%,#c084fc);animation-delay:.32s"></span>
+                  <span class="ea-email-wave-bar" style="display:inline-block;width:5px;height:23px;margin:0 2px;border-radius:999px;vertical-align:middle;background:linear-gradient(180deg,#c084fc,#a855f7 58%,#fb7185);animation-delay:.4s"></span>
+                  <span class="ea-email-wave-bar" style="display:inline-block;width:5px;height:15px;margin:0 2px;border-radius:999px;vertical-align:middle;background:linear-gradient(180deg,#d946ef,#fb7185);animation-delay:.48s"></span>
+                </span>
+              </td>
+              <td style="vertical-align:middle">
+                <div class="ea-wordmark" style="font-size:36px;font-weight:900;letter-spacing:-.06em;line-height:.92"><span style="color:#fff">Echo</span><span style="color:#38bdf8;background:linear-gradient(135deg,#38bdf8 0%,#4a90e2 34%,#8b5cf6 72%,#fb7185 100%);background-clip:text">Aural</span></div>
+                <div style="margin-top:10px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#9edbff;font-weight:800">Listen. Identify. Improve.</div>
+              </td>
+            </tr>
+          </table>
         </td></tr>
-        <tr><td style="padding:38px">
-          <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#6b7d96;font-weight:800">Teacher access</div>
+        <tr><td class="ea-body" style="padding:38px">
+          <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#4a90e2;font-weight:900">Teacher access</div>
           <h1 style="font-size:30px;line-height:1.1;margin:10px 0 14px">Welcome, ${safeName}.</h1>
           <p style="font-size:16px;line-height:1.65;margin:0 0 20px;color:#53657f">Your EchoAural pilot account is ready to activate.</p>
-          <div style="background:#f5f8fc;border:1px solid #dfe7f0;border-radius:18px;padding:18px 20px;margin:0 0 22px">
-            <div style="font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#7789a2;font-weight:800">Account details</div>
+          <div style="background:#f8fbff;background-image:radial-gradient(circle at 92% 8%, rgba(139,92,246,.08), transparent 38%),linear-gradient(145deg,#fbfcfe,#f8f7ff);border:1px solid #dfe7f0;border-radius:18px;padding:18px 20px;margin:0 0 22px">
+            <div style="font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#657da0;font-weight:850">Account details</div>
             <p style="margin:10px 0 4px"><strong>Email:</strong> ${safeEmail}</p>
             <p style="margin:4px 0"><strong>Teacher code:</strong> ${safeCode}</p>
             <p style="margin:4px 0"><strong>Student seats:</strong> 20</p>
           </div>
-          <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 20px"><tr><td style="background:#1589ff;border-radius:999px">
+          <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 20px"><tr><td style="background:#1589ff;background-image:linear-gradient(135deg,#38bdf8 0%,#4a90e2 34%,#8b5cf6 72%,#fb7185 100%);border-radius:999px">
             <a href="${safeUrl}" style="display:inline-block;color:#fff;text-decoration:none;font-weight:800;padding:15px 24px;border-radius:999px">Set up my EchoAural account</a>
           </td></tr></table>
           <p style="font-size:13px;line-height:1.55;color:#7a8ba2;margin:0 0 20px">If the button is not visible, copy and paste this secure setup link into your browser:<br /><a href="${safeUrl}" style="color:#1589ff;word-break:break-all">${safeUrl}</a></p>

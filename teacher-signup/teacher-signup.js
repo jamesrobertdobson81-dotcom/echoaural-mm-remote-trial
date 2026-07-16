@@ -56,6 +56,7 @@ if (signupMode === 'development') {
   const intro = document.querySelector('.onboarding-form-panel .card-intro');
   const codeLabel = document.querySelector('label[for="pilotCode"]');
   const codeHelp = document.querySelector('#pilotCode + .field-help');
+  const codeField = form?.pilotCode?.closest('.field');
 
   if (heroKicker) heroKicker.textContent = 'Development teacher access';
   if (heroTitle) {
@@ -76,6 +77,7 @@ if (signupMode === 'development') {
     codeHelp.textContent =
       'Enter the code supplied in your EchoAural development-access invitation.';
   }
+  if (codeField) codeField.hidden = false;
 
   if (form?.pilotCode) {
     form.pilotCode.required = true;
