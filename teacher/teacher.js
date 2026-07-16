@@ -34,8 +34,42 @@ const els = {
   closeFinalLeaderboardButton: document.getElementById('closeFinalLeaderboardButton')
 };
 
+const launchParams = new URLSearchParams(window.location.search);
+const QUESTION_LEVEL_LABELS = {
+  all: 'All levels',
+  foundation: 'Foundation',
+  developing: 'Developing',
+  securing: 'Securing',
+  mastering: 'Mastering'
+};
+
+function normaliseQuestionLevel(value) {
+  const level = String(value || '').trim().toLowerCase();
+  return Object.prototype.hasOwnProperty.call(QUESTION_LEVEL_LABELS, level) ? level : 'all';
+}
+
+function numberFromParam(name, fallback, allowedValues = []) {
+  const value = Number(launchParams.get(name));
+  if (!Number.isFinite(value)) return fallback;
+  if (allowedValues.length && !allowedValues.includes(value)) return fallback;
+  return value;
+}
+
+const dashboardLaunch = {
+  enabled: launchParams.get('dashboardLaunch') === '1',
+  mode: launchParams.get('launch') === 'homework' ? 'homework' : 'live',
+  autoCreate: launchParams.get('autoCreate') === '1',
+  questionLevel: normaliseQuestionLevel(launchParams.get('questionLevel')),
+  quizLength: numberFromParam('quizLength', 3, [3, 5, 10, 15]),
+  maxListens: numberFromParam('maxListens', 4, [1, 2, 3, 4, 5, 6, 7, 8])
+};
+
+if (dashboardLaunch.enabled) {
+  document.body.classList.add('dashboard-launched', dashboardLaunch.mode === 'homework' ? 'homework-launch' : 'live-launch');
+}
+
 let modules = [];
-let selectedModuleId = new URLSearchParams(window.location.search).get('module') || 'melody-master';
+let selectedModuleId = launchParams.get('module') || 'melody-master';
 let roomCode = '';
 let currentState = null;
 let pollTimer = null;
@@ -43,11 +77,13 @@ let isPolling = false;
 let primaryAction = 'settings';
 let isTeacherAudioPlaying = false;
 let quizSettings = {
-  quizLength: 3,
-  maxListens: 4,
+  quizLength: dashboardLaunch.quizLength,
+  maxListens: dashboardLaunch.maxListens,
+  questionLevel: dashboardLaunch.questionLevel,
   saved: false
 };
 let isEditingQuizSettings = false;
+let dashboardAutoCreateAttempted = false;
 
 const TEACHER_MODULE_CATALOG = [
   { id: 'instrument-identifier', title: 'Instrument Identifier', shortLabel: 'II', active: true, status: 'Live' },
@@ -314,7 +350,13 @@ function getQuizInfo(state = currentState) {
 
 function updateSettingsSummary() {
   const moduleTitle = getSelectedModule().title || 'EchoAural';
-  els.settingsSummary.textContent = `${moduleTitle} · ${quizSettings.quizLength} ${pluralise(quizSettings.quizLength, 'question')} · ${quizSettings.maxListens} ${pluralise(quizSettings.maxListens, 'play')} per question`;
+  const levelLabel = quizSettings.questionLevel && quizSettings.questionLevel !== 'all'
+    ? ` · ${QUESTION_LEVEL_LABELS[quizSettings.questionLevel] || 'Levelled'}`
+    : '';
+  const launchLabel = dashboardLaunch.enabled
+    ? ` · ${dashboardLaunch.mode === 'homework' ? 'Homework setup' : 'Live session'}`
+    : '';
+  els.settingsSummary.textContent = `${moduleTitle} · ${quizSettings.quizLength} ${pluralise(quizSettings.quizLength, 'question')}${levelLabel} · ${quizSettings.maxListens} ${pluralise(quizSettings.maxListens, 'play')} per question${launchLabel}`;
 }
 
 function selectOption(groupEl, value) {
@@ -345,16 +387,9 @@ async function saveSettings() {
   }
   els.saveSettingsButton.disabled = true;
   try {
-    const response = await api('/api/classroom/settings', {
-      roomCode,
-      moduleId: selectedModuleId,
-      quizLength: quizSettings.quizLength,
-      maxListens: quizSettings.maxListens
-    });
-    quizSettings.saved = true;
+    const response = await applyRoomSettings();
     closeSettingsModal();
-    renderState(response.state);
-    updateTeacherStatus(response.state);
+    if (response?.state) updateTeacherStatus(response.state);
   } catch (error) {
     setNotice(error.message || 'Could not save quiz settings.', 'bad');
   } finally {
@@ -436,12 +471,30 @@ function updateSessionCard(payload) {
   roomCode = payload.roomCode;
   selectedModuleId = payload.moduleId || selectedModuleId;
   quizSettings.saved = false;
+  document.body.classList.add('session-created');
   renderModuleSelector();
   els.sessionCard.classList.remove('is-muted');
   els.roomCode.textContent = roomCode;
   els.joinLink.value = payload.shortJoinUrl || payload.laptopJoinUrl || payload.joinUrl || 'Create a session first';
   els.copyLinkButton.disabled = false;
-  setNotice('Select Settings', 'good');
+  setNotice(dashboardLaunch.enabled ? 'Dashboard launch ready. Settings are being applied…' : 'Select Settings', 'good');
+}
+
+function classroomSettingsPayload() {
+  return {
+    roomCode,
+    moduleId: selectedModuleId,
+    quizLength: quizSettings.quizLength,
+    maxListens: quizSettings.maxListens,
+    questionLevel: quizSettings.questionLevel
+  };
+}
+
+async function applyRoomSettings() {
+  const response = await api('/api/classroom/settings', classroomSettingsPayload());
+  quizSettings.saved = true;
+  renderState(response.state);
+  return response;
 }
 
 function getListDensityClass(count) {
@@ -597,8 +650,10 @@ function renderState(state) {
     if (!isEditingQuizSettings) {
       if (Number(state.quiz.totalQuestions)) quizSettings.quizLength = Number(state.quiz.totalQuestions);
       if (Number(state.maxListens)) quizSettings.maxListens = Number(state.maxListens);
+      if (state.questionLevel) quizSettings.questionLevel = normaliseQuestionLevel(state.questionLevel);
     }
     if (state.quiz.started || state.active) quizSettings.saved = true;
+    updateSettingsSummary();
   }
 
   renderQuestionInfo(state);
@@ -637,12 +692,18 @@ async function createSession() {
   try {
     const response = await api('/api/classroom/create', {
       moduleId: selectedModuleId,
+      questionLevel: quizSettings.questionLevel,
       frontendBase: window.EchoAuralClassroom.getFrontendBase(),
       apiBase: window.EchoAuralClassroom.getApiBase()
     });
     updateSessionCard(response);
     renderState(response.state);
-    updateTeacherStatus(response.state);
+    if (dashboardLaunch.enabled) {
+      const settingsResponse = await applyRoomSettings();
+      updateTeacherStatus(settingsResponse.state);
+    } else {
+      updateTeacherStatus(response.state);
+    }
     startPolling();
   } catch (error) {
     els.createSessionButton.disabled = false;
@@ -660,7 +721,8 @@ async function startQuiz() {
       questionIndex: 0,
       resetQuiz: true,
       quizLength: quizSettings.quizLength,
-      maxListens: quizSettings.maxListens
+      maxListens: quizSettings.maxListens,
+      questionLevel: quizSettings.questionLevel
     });
     renderState(response.state);
     updateTeacherStatus(response.state);
@@ -787,7 +849,8 @@ async function checkServer() {
     renderModuleSelector();
     updateSettingsSummary();
     setConnectedUI(true);
-    setNotice('Create a Class Session', 'good');
+    setNotice(dashboardLaunch.enabled ? 'Dashboard setup loaded.' : 'Create a Class Session', 'good');
+    await maybeAutoCreateDashboardSession();
   } catch (_error) {
     modules = [
       { id: 'instrument-identifier', title: 'Instrument Identifier', description: 'Identify the featured instrument.' },
@@ -798,6 +861,12 @@ async function checkServer() {
     renderModuleSelector();
     setConnectedUI(false);
   }
+}
+
+async function maybeAutoCreateDashboardSession() {
+  if (!dashboardLaunch.enabled || !dashboardLaunch.autoCreate || dashboardAutoCreateAttempted || roomCode) return;
+  dashboardAutoCreateAttempted = true;
+  await createSession();
 }
 
 els.moduleGrid.addEventListener('click', (event) => {

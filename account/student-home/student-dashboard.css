@@ -116,6 +116,10 @@
   box-shadow: 0 22px 52px rgba(15,23,42,.11);
 }
 
+.student-dashboard-v3 .student-progress-console-v3 {
+  overflow: visible;
+}
+
 .student-dashboard-v3 .student-learning-console-v3 {
   border-color: rgba(139,92,246,.2);
   box-shadow: 0 25px 60px rgba(54,41,115,.14);
@@ -247,16 +251,88 @@
   margin-top: auto;
   padding-top: 10px;
   display: grid;
+  grid-template-columns: 1fr;
   gap: 7px;
 }
 
-.student-dashboard-v3 .student-quick-actions-v3 a {
-  min-height: 40px;
-  padding: 0 12px;
+.student-dashboard-v3 .student-action-wrap-v3 {
+  position: relative;
+}
+
+.student-dashboard-v3 .student-mode-button-v3 {
+  width: 100%;
+  min-height: 45px;
+  padding: 0 13px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  gap: 10px;
+  text-align: left;
+  line-height: 1.12;
   font-size: .8rem;
+}
+
+.student-dashboard-v3 .student-mode-icon-v3 {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 10px;
+  display: inline-grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 68% 22%, rgba(56, 189, 248, .24), transparent 38%),
+    radial-gradient(circle at 22% 88%, rgba(168, 85, 247, .2), transparent 42%),
+    linear-gradient(145deg, rgba(7, 17, 31, .98), rgba(13, 30, 60, .94));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .035), 0 14px 30px rgba(0, 0, 0, .12);
+  opacity: 1;
+}
+
+.student-dashboard-v3 .student-mode-icon-v3::before {
+  content: "";
+  width: 21px;
+  height: 21px;
+  display: block;
+  background: #fff;
+  -webkit-mask: var(--ea-icon) center / contain no-repeat;
+  mask: var(--ea-icon) center / contain no-repeat;
+}
+
+.student-dashboard-v3 .student-mode-button-v3 span {
+  min-width: 0;
+  font-weight: 850;
+}
+
+.student-dashboard-v3 .student-app-menu-v3 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 7px);
+  z-index: 25;
+  padding: 7px;
+  border: 1px solid rgba(210,220,234,.95);
+  border-radius: 16px;
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 18px 42px rgba(15,23,42,.16);
+}
+
+.student-dashboard-v3 .student-app-menu-v3 a {
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  color: #18233a;
+  font-size: .78rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.student-dashboard-v3 .student-app-menu-v3 a:hover,
+.student-dashboard-v3 .student-app-menu-v3 a:focus-visible {
+  color: #0f172a;
+  background: #f3f6ff;
+  outline: none;
 }
 
 .student-dashboard-v3 .student-dashboard-status-v3 {
@@ -269,15 +345,15 @@
 .student-dashboard-v3 .student-learning-summary-list-v3 {
   flex: 1 1 auto;
   min-height: 0;
-  margin-top: 8px;
+  margin-top: 7px;
   display: grid;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 9px;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 7px;
 }
 
 .student-dashboard-v3 .student-learning-summary-card-v3 {
   min-height: 0;
-  padding: 14px 15px;
+  padding: 11px 13px;
   border: 1px solid var(--line);
   border-radius: 18px;
   display: flex;
@@ -286,6 +362,13 @@
   background:
     radial-gradient(circle at 92% 8%, rgba(139,92,246,.055), transparent 38%),
     #fbfcfe;
+}
+
+.student-dashboard-v3 .progress-mode-summary-v3 {
+  border-color: rgba(56,189,248,.24);
+  background:
+    radial-gradient(circle at 92% 8%, rgba(56,189,248,.08), transparent 38%),
+    #fff;
 }
 
 .student-dashboard-v3 .quiz-summary-v3 {
@@ -314,23 +397,36 @@
 .student-dashboard-v3 .student-learning-icon-slot-v3 {
   width: 46px;
   height: 46px;
-  border: 1px solid rgba(139,92,246,.18);
+  border: 1px solid rgba(255, 255, 255, .16);
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 3px;
-  background: linear-gradient(145deg, #fff, #f7f5ff);
+  background:
+    radial-gradient(circle at 68% 22%, rgba(56, 189, 248, .24), transparent 38%),
+    radial-gradient(circle at 22% 88%, rgba(168, 85, 247, .2), transparent 42%),
+    linear-gradient(145deg, rgba(7, 17, 31, .98), rgba(13, 30, 60, .94));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .035), 0 14px 30px rgba(0, 0, 0, .12);
 }
 
-.student-dashboard-v3 .student-learning-icon-slot-v3 span {
+.student-dashboard-v3 .student-learning-icon-slot-v3 span:not(.student-dashboard-line-icon-v3) {
   width: 3px;
   border-radius: 99px;
-  background: var(--brand-gradient);
+  background: #fff;
 }
-.student-dashboard-v3 .student-learning-icon-slot-v3 span:nth-child(1) { height: 12px; }
-.student-dashboard-v3 .student-learning-icon-slot-v3 span:nth-child(2) { height: 24px; }
-.student-dashboard-v3 .student-learning-icon-slot-v3 span:nth-child(3) { height: 16px; }
+.student-dashboard-v3 .student-learning-icon-slot-v3 span:not(.student-dashboard-line-icon-v3):nth-child(1) { height: 12px; }
+.student-dashboard-v3 .student-learning-icon-slot-v3 span:not(.student-dashboard-line-icon-v3):nth-child(2) { height: 24px; }
+.student-dashboard-v3 .student-learning-icon-slot-v3 span:not(.student-dashboard-line-icon-v3):nth-child(3) { height: 16px; }
+
+.student-dashboard-v3 .student-learning-icon-slot-v3 .student-dashboard-line-icon-v3 {
+  width: 28px;
+  height: 28px;
+  display: block;
+  background: #fff;
+  -webkit-mask: var(--ea-icon) center / contain no-repeat;
+  mask: var(--ea-icon) center / contain no-repeat;
+}
 
 .student-dashboard-v3 .student-learning-title-v3 {
   min-width: 0;
@@ -593,6 +689,24 @@
 
 .student-category-detail-dialog-v3 .student-detail-module-list-v3 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.student-category-detail-dialog-v3 .student-module-level-tile-v3 {
+  width: fit-content;
+  margin-top: 6px;
+  padding: 4px 8px;
+  border: 1px solid rgba(124, 58, 237, .18);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  color: #6d28d9;
+  background: rgba(139, 92, 246, .08);
+  font-size: .6rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: .08em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .student-category-detail-dialog-v3 .student-detail-questions-v3 {

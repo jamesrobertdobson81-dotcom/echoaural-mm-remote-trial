@@ -10,6 +10,29 @@ const TEACHER_SESSION_DAYS = 7;
 const SETUP_TOKEN_HOURS = 24;
 const requestLog = new Map();
 
+function allowedAccountOrigin(origin) {
+  const value = String(origin || '').trim().replace(/\/+$/, '');
+  if (!value) return '';
+  const allowed = new Set([
+    'https://echoaural.com',
+    'https://www.echoaural.com',
+    String(process.env.PUBLIC_SITE_URL || '').trim().replace(/\/+$/, ''),
+    String(process.env.APP_BASE_URL || '').trim().replace(/\/+$/, '')
+  ].filter(Boolean));
+  if (allowed.has(value)) return value;
+  if (/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/i.test(value)) return value;
+  if (/^http:\/\/(?:10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[0-1])\.\d+\.\d+)(?::\d+)?$/i.test(value)) return value;
+  return '';
+}
+
+function setAccountCorsHeaders(req, res) {
+  const origin = allowedAccountOrigin(req.headers.origin);
+  if (!origin) return;
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Vary', 'Origin');
+}
+
 function sendJson(res, statusCode, payload, extraHeaders = {}) {
   const body = JSON.stringify(payload);
   res.writeHead(statusCode, {
@@ -132,7 +155,7 @@ function normaliseAccessCode(value) {
   return String(value || '')
     .trim()
     .toUpperCase()
-    .replace(/\s+/g, '');
+    .replace(/[^A-Z0-9]/g, '');
 }
 
 function developmentCodeAccepted(providedCode) {
@@ -302,11 +325,30 @@ async function handleTeacherSignup(req, res, projectRoot) {
       client.release();
     }
   } else {
-    await getPool().query(`
+    const client = await getPool().connect();
+    try {
+      await client.query('BEGIN');
+      await client.query(`
       UPDATE teachers
       SET display_name = $1, school_name = $2, country = $3, exam_board = $4, signup_status = 'pending'
       WHERE id = $5
     `, [displayName, schoolName, country, examBoard, teacher.id]);
+      await client.query(`
+        INSERT INTO licences (teacher_id, plan, seat_limit, status)
+        SELECT $1, 'founding_partner', 20, 'pending'
+        WHERE NOT EXISTS (
+          SELECT 1 FROM licences
+          WHERE teacher_id = $1
+            AND status IN ('pending', 'trial', 'active')
+        )
+      `, [teacher.id]);
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
     teacher = { ...teacher, display_name: displayName, school_name: schoolName, country, exam_board: examBoard };
   }
 
@@ -674,6 +716,7 @@ function createOnboardingServer({ projectRoot }) {
     const pathname = parsedUrl.pathname;
     const relevant = pathname.startsWith('/api/signup/') || pathname === '/api/teacher/classes' || /^\/api\/teacher\/classes\/[0-9a-f-]+\/generate-students$/i.test(pathname);
     if (!relevant) return false;
+    setAccountCorsHeaders(req, res);
 
     try {
       if (req.method === 'OPTIONS') {

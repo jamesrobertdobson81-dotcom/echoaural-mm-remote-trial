@@ -39,19 +39,25 @@
   function loadQuestions() {
     if (cachedQuestions) return cachedQuestions;
     if (context.browserGlobal) {
-      cachedQuestions = Array.isArray(context.browserGlobal.melodyClips)
-        ? context.browserGlobal.melodyClips.slice()
-        : Array.isArray(context.browserGlobal.clips) ? context.browserGlobal.clips.slice() : fallbackQuestions();
+      const levelledQuestions = Array.isArray(context.browserGlobal.melodyMasterLevelledClips) ? context.browserGlobal.melodyMasterLevelledClips : [];
+      const sourceQuestions = Array.isArray(context.browserGlobal.melodyClips) ? context.browserGlobal.melodyClips : [];
+      const legacyQuestions = Array.isArray(context.browserGlobal.clips) ? context.browserGlobal.clips : [];
+      cachedQuestions = (context.useLevelledQuestions && levelledQuestions.length ? levelledQuestions : sourceQuestions.length ? sourceQuestions : legacyQuestions.length ? legacyQuestions : fallbackQuestions()).slice();
       return cachedQuestions;
     }
 
     try {
       const source = fs.readFileSync(clipsPath, 'utf8');
       const sandbox = {};
-      const questions = vm.runInNewContext(`${source}\n;Array.isArray(melodyClips) ? melodyClips : (Array.isArray(clips) ? clips : []);`, sandbox, {
+      const loadedQuestions = vm.runInNewContext(`${source}\n;({ sourceQuestions: typeof melodyClips !== 'undefined' && Array.isArray(melodyClips) ? melodyClips : [], levelledQuestions: typeof melodyMasterLevelledClips !== 'undefined' && Array.isArray(melodyMasterLevelledClips) ? melodyMasterLevelledClips : [], legacyQuestions: typeof clips !== 'undefined' && Array.isArray(clips) ? clips : [] });`, sandbox, {
         filename: clipsPath,
         timeout: 1000
       });
+      const questions = context.useLevelledQuestions && loadedQuestions.levelledQuestions.length
+        ? loadedQuestions.levelledQuestions
+        : loadedQuestions.sourceQuestions.length
+          ? loadedQuestions.sourceQuestions
+          : loadedQuestions.legacyQuestions;
       if (!Array.isArray(questions) || !questions.length) throw new Error('No melodyClips array found.');
       cachedQuestions = questions.slice();
     } catch (error) {

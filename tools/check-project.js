@@ -10,6 +10,10 @@ const requiredFiles = [
   'modules/instrument-identifier/script.js',
   'modules/instrument-identifier/progression.js',
   'modules/instrument-identifier/clips.js',
+  'modules/melodic-intervals/index.html',
+  'modules/melodic-intervals/interval-data.js',
+  'modules/melodic-intervals/script.js',
+  'modules/melodic-intervals/teacher-adapter.js',
   'modules/melody-master/index.html',
   'modules/melody-master/script.js',
   'modules/melody-master/clips.js',
@@ -65,4 +69,113 @@ for (const question of questions) {
   }
 }
 
-console.log(`EchoAural project check passed. Texture Trainer questions validated: ${questions.length}.`);
+const intervalData = require(path.join(root, 'modules/melodic-intervals/interval-data.js'));
+const intervalLevels = intervalData.levelDefinitionsList();
+if (!Array.isArray(intervalLevels) || intervalLevels.length !== 4) {
+  fail('Melodic Intervals must expose four progression levels.');
+}
+
+function directionSet(items) {
+  return new Set(items.map((item) => item.direction));
+}
+
+function answerSet(items) {
+  return new Set(items.map((item) => item.correctAnswer));
+}
+
+function qualitySet(items) {
+  return new Set(items.map((item) => item.intervalQuality));
+}
+
+function assertChoicesContainAnswers(items, label) {
+  for (const question of items) {
+    if (!Array.isArray(question.choices) || !question.choices.some((choice) => intervalData.sameInterval(choice, question.correctAnswer))) {
+      fail(`${label} question ${question.id} does not include its correct answer choice.`);
+    }
+  }
+}
+
+const intervalQuestionsByLevel = Object.fromEntries(intervalLevels.map((level) => [
+  level.key,
+  intervalData.buildQuestions({ level: level.key })
+]));
+
+for (const [levelKey, questionsForLevel] of Object.entries(intervalQuestionsByLevel)) {
+  if (questionsForLevel.some((question) => question.hasAccidentals || /[♯♭♮]/.test(`${question.startNoteLabel}${question.targetNoteLabel}`))) {
+    fail(`Melodic Intervals ${levelKey} generated written-note accidentals.`);
+  }
+}
+
+const foundation = intervalQuestionsByLevel.foundation;
+if (!foundation.length) fail('Melodic Intervals Foundation generated no questions.');
+if ([...answerSet(foundation)].some((answer) => answer === '6th' || answer === '7th')) fail('Foundation generated 6ths or 7ths.');
+if ([...directionSet(foundation)].some((direction) => direction !== 'ascending')) fail('Foundation generated descending intervals.');
+if ([...qualitySet(foundation)].some((quality) => quality === 'Augmented' || quality === 'Diminished')) {
+  fail('Foundation generated augmented or diminished intervals.');
+}
+if (foundation.some((question) => question.answerMode !== 'number' || question.hasAccidentals || question.keySignatureId !== 'c-major')) {
+  fail('Foundation generated accidentals, key signatures or quality-answer questions.');
+}
+assertChoicesContainAnswers(foundation, 'Foundation');
+
+const developing = intervalQuestionsByLevel.developing;
+if (!developing.length) fail('Melodic Intervals Developing generated no questions.');
+for (const answer of ['Unison', '2nd', '3rd', '4th', '5th', '6th', '7th', 'Octave']) {
+  if (!answerSet(developing).has(answer)) fail(`Developing did not generate ${answer}.`);
+}
+if (!directionSet(developing).has('ascending') || !directionSet(developing).has('descending')) fail('Developing must generate both directions.');
+if (developing.some((question) => question.answerMode !== 'number' || question.keySignatureAccidentals > 2)) {
+  fail('Developing generated quality-answer questions or key signatures beyond two accidentals.');
+}
+assertChoicesContainAnswers(developing, 'Developing');
+
+const securing = intervalQuestionsByLevel.securing;
+if (!securing.length) fail('Melodic Intervals Securing generated no questions.');
+if (!directionSet(securing).has('ascending') || !directionSet(securing).has('descending')) fail('Securing must generate both directions.');
+if (securing.some((question) => question.answerMode !== 'quality' || question.keySignatureAccidentals > 4)) {
+  fail('Securing generated number-only questions or key signatures beyond four accidentals.');
+}
+if ([...qualitySet(securing)].some((quality) => quality === 'Augmented' || quality === 'Diminished')) {
+  fail('Securing generated augmented or diminished intervals.');
+}
+for (const quality of ['Major', 'Minor', 'Perfect']) {
+  if (!qualitySet(securing).has(quality)) fail(`Securing did not generate ${quality} intervals.`);
+}
+assertChoicesContainAnswers(securing, 'Securing');
+
+const mastering = intervalQuestionsByLevel.mastering;
+if (!mastering.length) fail('Melodic Intervals Mastering generated no questions.');
+if (!directionSet(mastering).has('ascending') || !directionSet(mastering).has('descending')) fail('Mastering must generate both directions.');
+for (const quality of ['Major', 'Minor', 'Perfect', 'Augmented', 'Diminished']) {
+  if (!qualitySet(mastering).has(quality)) fail(`Mastering did not generate ${quality} intervals.`);
+}
+if (mastering.some((question) => question.chromatic)) {
+  fail('Mastering generated chromatic questions.');
+}
+assertChoicesContainAnswers(mastering, 'Mastering');
+
+const spellingExamples = [
+  ['C4', 'Ef4', 'Minor 3rd'],
+  ['C4', 'Ds4', 'Augmented 2nd'],
+  ['C4', 'Fs4', 'Augmented 4th'],
+  ['C4', 'Gf4', 'Diminished 5th'],
+  [
+    { id: 'B4-test', label: 'B4', letter: 'B', octave: 4, midi: 71 },
+    { id: 'F5-test', label: 'F5', letter: 'F', octave: 5, midi: 77 },
+    'Diminished 5th'
+  ],
+  ['Cs4', 'G4', 'Diminished 5th']
+];
+
+for (const [start, target, expected] of spellingExamples) {
+  const result = intervalData.calculateInterval(
+    typeof start === 'string' ? intervalData.findNote(start) : start,
+    typeof target === 'string' ? intervalData.findNote(target) : target,
+    intervalData.findKeySignature('c-major')
+  );
+  if (!result || !intervalData.sameInterval(result.intervalFullLabel, expected)) {
+    fail(`Interval spelling example ${expected} was calculated incorrectly.`);
+  }
+}
+
+console.log(`EchoAural project check passed. Texture Trainer questions validated: ${questions.length}. Melodic Intervals levels validated: ${intervalLevels.length}.`);

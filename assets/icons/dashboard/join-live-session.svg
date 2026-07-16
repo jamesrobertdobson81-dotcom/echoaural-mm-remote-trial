@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title-join-live-session" fill="none">
+  <title id="title-join-live-session">Join live session</title>
+  <g stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M76 37V28a14 14 0 0 0-14-14H30a14 14 0 0 0-14 14v72a14 14 0 0 0 14 14h32a14 14 0 0 0 14-14v-9"/>
+    <path d="M54 64h54"/>
+    <path d="M91 47l17 17-17 17"/>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title-homework" fill="none">
+  <title id="title-homework">Homework</title>
+  <g stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 29c13-7 30-7 46 4 16-11 33-11 46-4v72c-13-7-30-7-46 4-16-11-33-11-46-4z"/>
+    <path d="M64 33v72"/>
+    <path d="M31 100c11-4 22-4 33 5"/>
+    <path d="M64 105c11-9 22-9 33-5"/>
+    <path d="M43 39v37"/>
+    <path d="M43 39c9 9 9 19 0 27"/>
+    <path d="M36 66c4 5 10 6 16 2"/>
+    <path d="M77 47h3"/>
+    <path d="M77 62h3"/>
+    <path d="M77 77h3"/>
+    <path d="M89 47h18"/>
+    <path d="M89 62h18"/>
+    <path d="M89 77h18"/>
+  </g>
+</svg>

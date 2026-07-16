@@ -12,6 +12,29 @@ const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_MAX_ATTEMPTS = 8;
 const loginAttempts = new Map();
 
+function allowedAccountOrigin(origin) {
+  const value = String(origin || '').trim().replace(/\/+$/, '');
+  if (!value) return '';
+  const allowed = new Set([
+    'https://echoaural.com',
+    'https://www.echoaural.com',
+    String(process.env.PUBLIC_SITE_URL || '').trim().replace(/\/+$/, ''),
+    String(process.env.APP_BASE_URL || '').trim().replace(/\/+$/, '')
+  ].filter(Boolean));
+  if (allowed.has(value)) return value;
+  if (/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/i.test(value)) return value;
+  if (/^http:\/\/(?:10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[0-1])\.\d+\.\d+)(?::\d+)?$/i.test(value)) return value;
+  return '';
+}
+
+function setAccountCorsHeaders(req, res) {
+  const origin = allowedAccountOrigin(req.headers.origin);
+  if (!origin) return;
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Vary', 'Origin');
+}
+
 function sendJson(res, statusCode, payload, extraHeaders = {}) {
   const body = JSON.stringify(payload);
   res.writeHead(statusCode, {
@@ -338,12 +361,64 @@ const PROGRESS_MODULE_ORDER = [
   'texture-trainer'
 ];
 
+const PROGRESSION_LEVEL_LABELS = ['Foundation', 'Developing', 'Securing', 'Mastering'];
+const PROGRESSION_PASS_MARKS = {
+  'melody-master': [100, 100, 100, 100],
+  'melodic-intervals': [100, 100, 100, 100],
+  'instrument-identifier': [70, 70, 80, 80]
+};
+
 function progressNumber(value) {
   return Number(value || 0);
 }
 
 function progressPercentage(score, maximum) {
   return maximum > 0 ? Math.round((score / maximum) * 100) : 0;
+}
+
+function progressionStageForModule(moduleId, moduleRounds) {
+  const passMarks = PROGRESSION_PASS_MARKS[moduleId];
+  if (!passMarks) return null;
+
+  const levels = passMarks.map((passMark) => ({
+    attempts: 0,
+    bestPercentage: 0,
+    lastPercentage: null,
+    passed: false,
+    passMark
+  }));
+
+  moduleRounds
+    .filter((round) => progressSource(round) === 'progress')
+    .slice()
+    .reverse()
+    .forEach((round) => {
+      const metadata = round.metadata || {};
+      const level = Math.max(0, Math.min(passMarks.length - 1, Number(metadata.progressionLevel) || 0));
+      const percentage = progressPercentage(progressNumber(round.score), progressNumber(round.maximum_score));
+      const state = levels[level];
+
+      state.attempts += 1;
+      state.lastPercentage = percentage;
+      state.bestPercentage = Math.max(state.bestPercentage, percentage);
+      state.passed = state.passed || percentage >= state.passMark;
+      state.lastCompletedAt = round.completed_at;
+    });
+
+  const highestPassedLevel = levels
+    .map((state, level) => ({ state, level }))
+    .filter(({ state }) => state.passed)
+    .map(({ level }) => level)
+    .sort((a, b) => b - a)[0];
+  const currentLevel = highestPassedLevel === undefined
+    ? 0
+    : Math.min(passMarks.length - 1, highestPassedLevel + 1);
+
+  return {
+    currentLevel,
+    label: PROGRESSION_LEVEL_LABELS[currentLevel] || `Level ${currentLevel + 1}`,
+    levels
+  };
 }
 
 function progressLevel(value, questions) {
@@ -355,10 +430,41 @@ function progressLevel(value, questions) {
 }
 
 function progressSource(round) {
-  const source = String(round?.metadata?.source || '').trim().toLowerCase();
+  const metadata = round?.metadata || {};
+  const source = String(metadata.source || '').trim().toLowerCase();
+  const learningMode = String(metadata.learningMode || '').trim().toLowerCase();
   if (source === 'teacher_mode') return 'quizzes';
   if (source === 'homework') return 'homework';
+  if (
+    source === 'student_progression' ||
+    source === 'progression' ||
+    source === 'progress_mode' ||
+    learningMode === 'progression' ||
+    metadata.progressionLevel !== undefined
+  ) return 'progress';
   return 'practice';
+}
+
+function practiceDurationSeconds(round) {
+  const metadata = round?.metadata || {};
+  const source = String(metadata.source || '').trim().toLowerCase();
+  if (source !== 'practice_time') return 0;
+
+  const seconds = Number(metadata.durationSeconds ?? metadata.practiceSeconds ?? 0);
+  if (!Number.isFinite(seconds) || seconds <= 0) return 0;
+  return Math.max(0, Math.min(12 * 60 * 60, Math.round(seconds)));
+}
+
+function isPracticeTimeRound(round) {
+  return (
+    practiceDurationSeconds(round) > 0 &&
+    Number(round?.question_count || 0) === 0 &&
+    progressNumber(round?.maximum_score) === 0
+  );
+}
+
+function isPracticeScoreRound(round) {
+  return progressSource(round) === 'practice' && !isPracticeTimeRound(round);
 }
 
 function filterProgressBySource(allRounds, allAttempts, source) {
@@ -369,24 +475,34 @@ function filterProgressBySource(allRounds, allAttempts, source) {
 }
 
 function buildProgressCategories(allRounds, allAttempts) {
-  const practice = filterProgressBySource(allRounds, allAttempts, 'practice');
+  const progress = filterProgressBySource(allRounds, allAttempts, 'progress');
+  const practiceRounds = allRounds.filter(isPracticeTimeRound);
   const quizzes = filterProgressBySource(allRounds, allAttempts, 'quizzes');
   const homework = filterProgressBySource(allRounds, allAttempts, 'homework');
   return {
-    practice: buildProgressSummary(practice.rounds, practice.attempts),
+    progress: buildProgressSummary(progress.rounds, progress.attempts),
+    practice: buildProgressSummary(practiceRounds, []),
     quizzes: buildProgressSummary(quizzes.rounds, quizzes.attempts),
     homework: buildProgressSummary(homework.rounds, homework.attempts)
   };
 }
 
 function buildProgressSummary(allRounds, allAttempts) {
+  const scoredRounds = allRounds.filter((round) => !isPracticeTimeRound(round) && !isPracticeScoreRound(round));
+  const practiceTimeRounds = allRounds.filter(isPracticeTimeRound);
+  const totalPracticeSeconds = practiceTimeRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
+
   const moduleSummaries = PROGRESS_MODULE_ORDER.map((moduleId) => {
     const definition = PROGRESS_MODULE_DEFINITIONS[moduleId];
-    const rounds = allRounds.filter((round) => round.module_id === moduleId);
+    const moduleRounds = allRounds.filter((round) => round.module_id === moduleId);
+    const rounds = scoredRounds.filter((round) => round.module_id === moduleId);
     const attempts = allAttempts.filter((attempt) => attempt.module_id === moduleId);
+    const progressionStage = progressionStageForModule(moduleId, moduleRounds);
     const score = rounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
     const maximumScore = rounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
     const questionCount = rounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
+    const practiceSeconds = moduleRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
+    const practiceSessions = moduleRounds.filter(isPracticeTimeRound).length;
     const accuracy = progressPercentage(score, maximumScore);
     let feedback = 'Complete a round to start building personalised feedback.';
     let strength = 'No evidence yet';
@@ -471,17 +587,21 @@ function buildProgressSummary(allRounds, allAttempts) {
       percentage: accuracy,
       rounds: rounds.length,
       questions: questionCount,
+      practiceSeconds,
+      practiceSessions,
       level: progressLevel(accuracy, questionCount),
       strength,
       nextStep,
       feedback,
-      lastCompletedAt: rounds[0]?.completed_at || null
+      progressionStage,
+      lastCompletedAt: rounds[0]?.completed_at || null,
+      lastPracticeAt: moduleRounds.find(isPracticeTimeRound)?.completed_at || null
     };
   });
 
-  const totalScore = allRounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
-  const totalMaximum = allRounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
-  const totalQuestions = allRounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
+  const totalScore = scoredRounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
+  const totalMaximum = scoredRounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
+  const totalQuestions = scoredRounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
   const overallPercentage = progressPercentage(totalScore, totalMaximum);
   const startedModules = moduleSummaries.filter((module) => module.questions > 0);
   const strongestModule = startedModules.slice().sort((a, b) => b.percentage - a.percentage)[0] || null;
@@ -514,17 +634,20 @@ function buildProgressSummary(allRounds, allAttempts) {
       score: totalScore,
       maximumScore: totalMaximum,
       percentage: overallPercentage,
-      rounds: allRounds.length,
+      rounds: scoredRounds.length,
       questions: totalQuestions,
+      practiceSeconds: totalPracticeSeconds,
+      practiceSessions: practiceTimeRounds.length,
       modulesStarted: startedModules.length,
       level: progressLevel(overallPercentage, totalQuestions),
       compiledFeedback,
       strongestModule: strongestModule?.title || null,
       focusModule: focusModule?.title || null,
-      lastCompletedAt: allRounds[0]?.completed_at || null
+      lastCompletedAt: scoredRounds[0]?.completed_at || null,
+      lastPracticeAt: practiceTimeRounds[0]?.completed_at || null
     },
     modules: moduleSummaries,
-    recentRounds: allRounds.slice(0, 10).map((round) => ({
+    recentRounds: scoredRounds.slice(0, 10).map((round) => ({
       id: round.id,
       moduleId: round.module_id,
       title: round.module_title,
@@ -594,7 +717,79 @@ async function loadStudentProgress(studentId) {
   };
 }
 
+async function loadStudentProgressionState(studentId, moduleId) {
+  const normalisedModuleId = String(moduleId || '').trim().toLowerCase();
+  const modulePassMarks = PROGRESSION_PASS_MARKS[normalisedModuleId];
+
+  if (!modulePassMarks) {
+    return {
+      moduleId: normalisedModuleId,
+      unlockedLevel: 0,
+      levels: {}
+    };
+  }
+
+  const result = await getPool().query(`
+    SELECT
+      score,
+      maximum_score,
+      metadata,
+      completed_at
+    FROM rounds
+    WHERE student_id = $1
+      AND module_id = $2
+      AND (
+        LOWER(COALESCE(metadata->>'source', '')) IN ('student_progression', 'progression', 'progress_mode')
+        OR LOWER(COALESCE(metadata->>'learningMode', '')) = 'progression'
+        OR metadata ? 'progressionLevel'
+      )
+    ORDER BY completed_at DESC
+    LIMIT 500
+  `, [studentId, normalisedModuleId]);
+
+  const levels = {};
+  modulePassMarks.forEach((passMark, level) => {
+    levels[level] = {
+      attempts: 0,
+      bestPercentage: 0,
+      lastPercentage: null,
+      passed: false,
+      passMark
+    };
+  });
+
+  result.rows.slice().reverse().forEach((round) => {
+    const metadata = round.metadata || {};
+    const level = Math.max(0, Math.min(modulePassMarks.length - 1, Number(metadata.progressionLevel) || 0));
+    const maximumScore = progressNumber(round.maximum_score);
+    const score = progressNumber(round.score);
+    const percentage = progressPercentage(score, maximumScore);
+    const state = levels[level];
+
+    state.attempts += 1;
+    state.lastPercentage = percentage;
+    state.bestPercentage = Math.max(state.bestPercentage, percentage);
+    state.passed = state.passed || percentage >= state.passMark;
+    state.lastCompletedAt = round.completed_at;
+  });
+
+  const highestPassedLevel = Object.entries(levels)
+    .filter(([, state]) => state.passed)
+    .map(([level]) => Number(level))
+    .sort((a, b) => b - a)[0];
+  const unlockedLevel = highestPassedLevel === undefined
+    ? 0
+    : Math.min(modulePassMarks.length - 1, highestPassedLevel + 1);
+
+  return {
+    moduleId: normalisedModuleId,
+    unlockedLevel,
+    levels
+  };
+}
+
 function buildClassModuleFeedback(moduleSummary) {
+  if (!moduleSummary.questions && moduleSummary.practiceSeconds) return `${moduleSummary.title} practice time has been logged, but no progress-mode results have been saved yet.`;
   if (!moduleSummary.questions) return 'No class evidence yet. Students need to complete a round in this activity.';
   if (moduleSummary.percentage >= 85) return `${moduleSummary.title} is secure across the work completed by the class.`;
   if (moduleSummary.percentage >= 70) return `${moduleSummary.title} is a current class strength, with some individual gaps still worth checking.`;
@@ -603,8 +798,12 @@ function buildClassModuleFeedback(moduleSummary) {
 }
 
 function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
+  const scoredRounds = allRounds.filter((round) => !isPracticeTimeRound(round) && !isPracticeScoreRound(round));
+  const practiceTimeRounds = allRounds.filter(isPracticeTimeRound);
+  const totalPracticeSeconds = practiceTimeRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
   const activeStudents = allStudents.filter((student) => student.active);
-  const participatingIds = new Set(allRounds.map((round) => String(round.student_id)));
+  const participatingIds = new Set(scoredRounds.map((round) => String(round.student_id)));
+  const practiceStudentIds = new Set(practiceTimeRounds.map((round) => String(round.student_id)));
 
   const students = allStudents.map((student) => {
     const progress = buildProgressSummary(
@@ -624,11 +823,19 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
 
   const modules = PROGRESS_MODULE_ORDER.map((moduleId) => {
     const definition = PROGRESS_MODULE_DEFINITIONS[moduleId];
-    const rounds = allRounds.filter((round) => round.module_id === moduleId);
+    const moduleRounds = allRounds.filter((round) => round.module_id === moduleId);
+    const rounds = scoredRounds.filter((round) => round.module_id === moduleId);
     const score = rounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
     const maximumScore = rounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
     const questions = rounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
+    const practiceSeconds = moduleRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
+    const practiceSessions = moduleRounds.filter(isPracticeTimeRound).length;
     const studentCount = new Set(rounds.map((round) => String(round.student_id))).size;
+    const practiceStudentCount = new Set(
+      moduleRounds
+        .filter(isPracticeTimeRound)
+        .map((round) => String(round.student_id))
+    ).size;
     const value = progressPercentage(score, maximumScore);
     const summary = {
       moduleId,
@@ -641,15 +848,19 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
       questions,
       rounds: rounds.length,
       students: studentCount,
+      practiceSeconds,
+      practiceSessions,
+      practiceStudents: practiceStudentCount,
       level: progressLevel(value, questions),
-      lastCompletedAt: rounds[0]?.completed_at || null
+      lastCompletedAt: rounds[0]?.completed_at || null,
+      lastPracticeAt: moduleRounds.find(isPracticeTimeRound)?.completed_at || null
     };
     return { ...summary, feedback: buildClassModuleFeedback(summary) };
   });
 
-  const totalScore = allRounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
-  const totalMaximum = allRounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
-  const totalQuestions = allRounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
+  const totalScore = scoredRounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
+  const totalMaximum = scoredRounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
+  const totalQuestions = scoredRounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
   const overallPercentage = progressPercentage(totalScore, totalMaximum);
   const startedModules = modules.filter((module) => module.questions > 0);
   const strongestModule = startedModules.slice().sort((a, b) => b.percentage - a.percentage)[0] || null;
@@ -686,7 +897,10 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
       maximumScore: totalMaximum,
       percentage: overallPercentage,
       questions: totalQuestions,
-      rounds: allRounds.length,
+      rounds: scoredRounds.length,
+      practiceSeconds: totalPracticeSeconds,
+      practiceSessions: practiceTimeRounds.length,
+      practiceStudents: practiceStudentIds.size,
       activeStudents: activeStudents.length,
       participatingStudents: participatingActiveStudents,
       participation,
@@ -694,7 +908,8 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
       compiledFeedback,
       strongestModule: strongestModule?.title || null,
       focusModule: focusModule?.title || null,
-      lastCompletedAt: allRounds[0]?.completed_at || null
+      lastCompletedAt: scoredRounds[0]?.completed_at || null,
+      lastPracticeAt: practiceTimeRounds[0]?.completed_at || null
     },
     modules,
     students
@@ -702,11 +917,13 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
 }
 
 function buildClassProgressCategories(allStudents, allRounds, allAttempts) {
-  const practice = filterProgressBySource(allRounds, allAttempts, 'practice');
+  const progress = filterProgressBySource(allRounds, allAttempts, 'progress');
+  const practiceRounds = allRounds.filter(isPracticeTimeRound);
   const quizzes = filterProgressBySource(allRounds, allAttempts, 'quizzes');
   const homework = filterProgressBySource(allRounds, allAttempts, 'homework');
   return {
-    practice: buildClassProgressSummary(allStudents, practice.rounds, practice.attempts),
+    progress: buildClassProgressSummary(allStudents, progress.rounds, progress.attempts),
+    practice: buildClassProgressSummary(allStudents, practiceRounds, []),
     quizzes: buildClassProgressSummary(allStudents, quizzes.rounds, quizzes.attempts),
     homework: buildClassProgressSummary(allStudents, homework.rounds, homework.attempts)
   };
@@ -715,6 +932,7 @@ function buildClassProgressCategories(allStudents, allRounds, allAttempts) {
 async function handleAccountApi(req, res, parsedUrl) {
   const pathname = parsedUrl.pathname;
   if (!pathname.startsWith('/api/auth/') && !pathname.startsWith('/api/teacher/') && !pathname.startsWith('/api/student/')) return false;
+  setAccountCorsHeaders(req, res);
 
   try {
     if (req.method === 'OPTIONS') {
@@ -935,6 +1153,72 @@ async function handleAccountApi(req, res, parsedUrl) {
       return sendJson(res, 401, { ok: false, error: 'Not logged in.' });
     }
 
+    if (req.method === 'POST' && pathname === '/api/student/practice-time') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const body = await readJsonBody(req, 16_000);
+      const moduleDefinitions = {
+        'instrument-identifier': 'Instrument Identifier'
+      };
+      const moduleId = String(body.moduleId || '').trim().toLowerCase();
+      const moduleTitle = moduleDefinitions[moduleId];
+      const durationSeconds = Math.max(0, Math.min(12 * 60 * 60, Math.round(Number(body.durationSeconds) || 0)));
+      const clientRoundId = String(body.clientSessionId || body.clientRoundId || '').trim().slice(0, 120);
+
+      if (!moduleTitle) return sendJson(res, 400, { ok: false, error: 'Unknown EchoAural practice module.' });
+      if (!clientRoundId) return sendJson(res, 400, { ok: false, error: 'Practice session identifier is required.' });
+      if (durationSeconds < 5) return sendJson(res, 200, { ok: true, ignored: true });
+
+      const metadata = {
+        source: 'practice_time',
+        mode: 'practice',
+        durationSeconds,
+        startedAt: String(body.startedAt || '').slice(0, 40) || null,
+        endedAt: new Date().toISOString()
+      };
+
+      try {
+        const result = await getPool().query(`
+          INSERT INTO rounds (
+            teacher_id,
+            student_id,
+            module_id,
+            module_title,
+            score,
+            maximum_score,
+            question_count,
+            round_feedback,
+            metadata,
+            client_round_id
+          )
+          VALUES ($1,$2,$3,$4,0,0,0,NULL,$5,$6)
+          RETURNING id, completed_at
+        `, [
+          student.teacher_id,
+          student.id,
+          moduleId,
+          moduleTitle,
+          metadata,
+          clientRoundId
+        ]);
+
+        return sendJson(res, 201, {
+          ok: true,
+          practiceSessionId: result.rows[0].id,
+          completedAt: result.rows[0].completed_at
+        });
+      } catch (error) {
+        if (error.code === '23505') {
+          const duplicate = await getPool().query(`
+            SELECT id FROM rounds WHERE student_id = $1 AND client_round_id = $2 LIMIT 1
+          `, [student.id, clientRoundId]);
+          return sendJson(res, 200, { ok: true, duplicate: true, practiceSessionId: duplicate.rows[0]?.id || null });
+        }
+        throw error;
+      }
+    }
+
     if (req.method === 'POST' && pathname === '/api/student/rounds') {
       const student = await requireStudent(req, res);
       if (!student) return true;
@@ -987,6 +1271,21 @@ async function handleAccountApi(req, res, parsedUrl) {
       const maximumScore = Math.abs(calculatedMaximum - suppliedMaximum) <= 0.01 ? suppliedMaximum : calculatedMaximum;
       const roundFeedback = cleanShortText(body.roundFeedback, 1600);
       const metadata = cleanJson(body.metadata);
+      const metadataSource = String(metadata.source || '').trim().toLowerCase();
+      const metadataLearningMode = String(metadata.learningMode || '').trim().toLowerCase();
+      if (
+        PROGRESSION_PASS_MARKS[moduleId] &&
+        (
+          metadataSource === 'student_progression' ||
+          metadataSource === 'progression' ||
+          metadataSource === 'progress_mode' ||
+          metadataLearningMode === 'progression' ||
+          metadata.progressionLevel !== undefined
+        )
+      ) {
+        metadata.source = 'student_progression';
+        metadata.learningMode = 'progression';
+      }
 
       const client = await getPool().connect();
       try {
@@ -1081,6 +1380,14 @@ async function handleAccountApi(req, res, parsedUrl) {
       const student = await requireStudent(req, res);
       if (!student) return true;
       const progress = await loadStudentProgress(student.id);
+      return sendJson(res, 200, { ok: true, ...progress });
+    }
+
+    if (req.method === 'GET' && pathname === '/api/student/progression-state') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+      const moduleId = String(parsedUrl.searchParams.get('moduleId') || 'instrument-identifier').trim().toLowerCase();
+      const progress = await loadStudentProgressionState(student.id, moduleId);
       return sendJson(res, 200, { ok: true, ...progress });
     }
 

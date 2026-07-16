@@ -48,7 +48,7 @@ function welcomeEmail({ teacherName, teacherEmail, teacherCode, setupUrl }) {
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 20px 60px rgba(7,17,31,.12)">
         <tr><td style="background:#07111f;padding:32px 38px;color:#fff">
           <div style="font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#91a5c1;margin-bottom:10px">Listen. Identify. Improve.</div>
-          <div style="font-size:30px;font-weight:800"><span style="color:#fff">Echo</span><span style="background:linear-gradient(90deg,#38bdf8,#8b5cf6,#ec4899);-webkit-background-clip:text;color:transparent">Aural</span></div>
+          <div style="font-size:30px;font-weight:800"><span style="color:#fff">Echo</span><span style="color:#38bdf8">Aural</span></div>
         </td></tr>
         <tr><td style="padding:38px">
           <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#6b7d96;font-weight:800">Teacher access</div>
@@ -60,8 +60,11 @@ function welcomeEmail({ teacherName, teacherEmail, teacherCode, setupUrl }) {
             <p style="margin:4px 0"><strong>Teacher code:</strong> ${safeCode}</p>
             <p style="margin:4px 0"><strong>Student seats:</strong> 20</p>
           </div>
-          <a href="${safeUrl}" style="display:inline-block;background:linear-gradient(90deg,#1589ff,#7b61ff,#ef4d95);color:#fff;text-decoration:none;font-weight:800;padding:15px 24px;border-radius:999px">Set up my EchoAural account</a>
-          <p style="font-size:13px;line-height:1.55;color:#7a8ba2;margin:20px 0 0">This secure one-time link expires after 24 hours. EchoAural is currently optimised for laptops, desktops and Chromebooks.</p>
+          <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 20px"><tr><td style="background:#1589ff;border-radius:999px">
+            <a href="${safeUrl}" style="display:inline-block;color:#fff;text-decoration:none;font-weight:800;padding:15px 24px;border-radius:999px">Set up my EchoAural account</a>
+          </td></tr></table>
+          <p style="font-size:13px;line-height:1.55;color:#7a8ba2;margin:0 0 20px">If the button is not visible, copy and paste this secure setup link into your browser:<br /><a href="${safeUrl}" style="color:#1589ff;word-break:break-all">${safeUrl}</a></p>
+          <p style="font-size:13px;line-height:1.55;color:#7a8ba2;margin:0">This secure one-time link expires after 24 hours. EchoAural is currently optimised for laptops, desktops and Chromebooks.</p>
         </td></tr>
       </table>
     </td></tr>
@@ -116,7 +119,12 @@ function saveDevelopmentEmail({ projectRoot, recipient, html, text }) {
 async function sendWelcomeEmail({ projectRoot, teacherName, teacherEmail, teacherCode, setupUrl }) {
   const message = welcomeEmail({ teacherName, teacherEmail, teacherCode, setupUrl });
   if (process.env.RESEND_API_KEY) {
-    return sendWithResend({ to: teacherEmail, ...message });
+    try {
+      return await sendWithResend({ to: teacherEmail, ...message });
+    } catch (error) {
+      if (String(process.env.NODE_ENV || '').trim().toLowerCase() === 'production') throw error;
+      console.warn('[EchoAural email] Resend failed; using local preview email:', error.message || error);
+    }
   }
   return saveDevelopmentEmail({ projectRoot, recipient: teacherEmail, html: message.html, text: message.text });
 }

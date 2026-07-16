@@ -16,8 +16,15 @@ const state = {
   classDraft: null,
   draftStudents: [],
   generatedCredentials: null,
-  resetStudent: null
+  resetStudent: null,
+  progressStudent: null,
+  studentProgressRefreshTimer: null,
+  studentProgressRefreshInFlight: false,
+  expandedClassIds: new Set()
 };
+
+const PROGRESSION_LEVEL_LABELS = ["Foundation", "Developing", "Securing", "Mastering"];
+const STUDENT_PROGRESS_REFRESH_MS = 12000;
 
 const els = {
   heroTeacherName: document.getElementById("heroTeacherName"),
@@ -62,6 +69,7 @@ const els = {
   categoryDetailEyebrow: document.getElementById("categoryDetailEyebrow"),
   categoryDetailTitle: document.getElementById("categoryDetailTitle"),
   categoryDetailSubtitle: document.getElementById("categoryDetailSubtitle"),
+  categoryDetailIcon: document.getElementById("categoryDetailIcon"),
   categoryDetailContent: document.getElementById("categoryDetailContent"),
   studentProgressDialog: document.getElementById("studentProgressDialog"),
   closeStudentProgress: document.getElementById("closeStudentProgress"),
@@ -98,12 +106,118 @@ const els = {
   generatedLoginSheet: document.getElementById("generatedLoginSheet"),
   closeGeneratedLogins: document.getElementById("closeGeneratedLogins"),
   printGeneratedLogins: document.getElementById("printGeneratedLogins"),
-  copyGeneratedLogins: document.getElementById("copyGeneratedLogins")
+  copyGeneratedLogins: document.getElementById("copyGeneratedLogins"),
+  openLiveLaunchDialog: document.getElementById("openLiveLaunchDialog"),
+  openHomeworkLaunchDialog: document.getElementById("openHomeworkLaunchDialog"),
+  teacherLaunchDialog: document.getElementById("teacherLaunchDialog"),
+  closeTeacherLaunchDialog: document.getElementById("closeTeacherLaunchDialog"),
+  teacherLaunchForm: document.getElementById("teacherLaunchForm"),
+  teacherLaunchEyebrow: document.getElementById("teacherLaunchEyebrow"),
+  teacherLaunchTitle: document.getElementById("teacherLaunchTitle"),
+  teacherLaunchSubtitle: document.getElementById("teacherLaunchSubtitle"),
+  teacherLaunchModule: document.getElementById("teacherLaunchModule"),
+  teacherLaunchQuestionCount: document.getElementById("teacherLaunchQuestionCount"),
+  teacherLaunchLevel: document.getElementById("teacherLaunchLevel"),
+  teacherLaunchHelper: document.getElementById("teacherLaunchHelper"),
+  teacherLaunchMessage: document.getElementById("teacherLaunchMessage"),
+  teacherLaunchSubmit: document.getElementById("teacherLaunchSubmit"),
+  cancelTeacherLaunch: document.getElementById("cancelTeacherLaunch")
 };
+
+const TEACHER_LAUNCH_COPY = {
+  live: {
+    eyebrow: "Live classroom",
+    title: "Start live session",
+    subtitle: "Choose the app and question count, then open Teacher Mode with a room code already prepared.",
+    helper: "Level filters apply to Instrument Identifier and Melodic Intervals; Melody Master uses its normal mixed question bank here.",
+    submit: "Open live room",
+    autoCreate: "1"
+  },
+  homework: {
+    eyebrow: "Homework setup",
+    title: "Set homework",
+    subtitle: "Choose the app and question count. This opens the same question engine preconfigured while homework publishing is added.",
+    helper: "Homework assignment storage is the next layer; this keeps the question setup and existing Teacher Mode runtime stable.",
+    submit: "Prepare homework set",
+    autoCreate: "0"
+  }
+};
+
+let teacherLaunchMode = "live";
 
 function formatMark(value) {
   const number = Number(value || 0);
   return Number.isInteger(number) ? String(number) : number.toFixed(1).replace(/\.0$/, "");
+}
+
+function openTeacherLaunchDialog(mode = "live") {
+  teacherLaunchMode = TEACHER_LAUNCH_COPY[mode] ? mode : "live";
+  const copy = TEACHER_LAUNCH_COPY[teacherLaunchMode];
+
+  els.teacherLaunchForm.reset();
+  setTeacherLaunchValue(els.teacherLaunchModule, "instrument-identifier");
+  setTeacherLaunchValue(els.teacherLaunchQuestionCount, "5");
+  setTeacherLaunchValue(els.teacherLaunchLevel, teacherLaunchMode === "live" ? "all" : "foundation");
+  els.teacherLaunchEyebrow.textContent = copy.eyebrow;
+  els.teacherLaunchTitle.textContent = copy.title;
+  els.teacherLaunchSubtitle.textContent = copy.subtitle;
+  els.teacherLaunchSubmit.textContent = copy.submit;
+  updateTeacherLaunchHelper();
+  setMessage(els.teacherLaunchMessage);
+  els.teacherLaunchDialog.showModal();
+  window.setTimeout(() => els.teacherLaunchDialog.querySelector("[data-launch-option]:not(:disabled)")?.focus(), 0);
+}
+
+function closeTeacherLaunchDialog() {
+  els.teacherLaunchDialog.close();
+}
+
+function setTeacherLaunchValue(input, value) {
+  input.value = String(value || "");
+  els.teacherLaunchForm.querySelectorAll(`[data-launch-option][data-target="${input.id}"]`).forEach((button) => {
+    const selected = button.dataset.value === input.value;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function updateTeacherLaunchHelper() {
+  const copy = TEACHER_LAUNCH_COPY[teacherLaunchMode] || TEACHER_LAUNCH_COPY.live;
+  const supportsLevelFilters = ["instrument-identifier", "melodic-intervals"].includes(els.teacherLaunchModule.value);
+  els.teacherLaunchHelper.textContent = supportsLevelFilters
+    ? copy.helper
+    : "Melody Master uses its normal question bank; level filters are available for Instrument Identifier and Melodic Intervals.";
+
+  els.teacherLaunchForm.querySelectorAll('[data-target="teacherLaunchLevel"]').forEach((button) => {
+    button.disabled = !supportsLevelFilters;
+    button.classList.toggle("is-disabled", !supportsLevelFilters);
+  });
+
+  if (!supportsLevelFilters) setTeacherLaunchValue(els.teacherLaunchLevel, "all");
+}
+
+function selectTeacherLaunchOption(button) {
+  if (!button || button.disabled) return;
+  const input = document.getElementById(button.dataset.target);
+  if (!input) return;
+  setTeacherLaunchValue(input, button.dataset.value);
+  if (input === els.teacherLaunchModule) updateTeacherLaunchHelper();
+}
+
+function submitTeacherLaunch(event) {
+  event.preventDefault();
+  const copy = TEACHER_LAUNCH_COPY[teacherLaunchMode] || TEACHER_LAUNCH_COPY.live;
+  const params = new URLSearchParams({
+    dashboardLaunch: "1",
+    launch: teacherLaunchMode,
+    module: els.teacherLaunchModule.value || "instrument-identifier",
+    quizLength: els.teacherLaunchQuestionCount.value || "5",
+    maxListens: "4",
+    questionLevel: els.teacherLaunchLevel.value || "all",
+    autoCreate: copy.autoCreate
+  });
+
+  window.location.assign(`/teacher/?${params.toString()}`);
 }
 
 function formatDateTime(value) {
@@ -116,6 +230,19 @@ function formatDateTime(value) {
     hour: "2-digit",
     minute: "2-digit"
   }).format(date);
+}
+
+function formatDuration(seconds) {
+  const totalSeconds = Math.max(0, Math.round(Number(seconds || 0)));
+  if (!totalSeconds) return "0 min";
+  if (totalSeconds < 60) return `${totalSeconds}s`;
+
+  const totalMinutes = Math.round(totalSeconds / 60);
+  if (totalMinutes < 60) return `${totalMinutes} min`;
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return minutes ? `${hours} hr ${minutes} min` : `${hours} hr`;
 }
 
 function scoreClass(percentage, questions) {
@@ -378,12 +505,18 @@ function overallStudent(studentId) {
 function progressPill(progress, fallback = "No results") {
   const questions = Number(progress?.questions || 0);
   const percentage = Number(progress?.percentage || 0);
-  return `<span class="student-progress-summary ${scoreClass(percentage, questions)}">${questions ? `${percentage}% · ${questions}q` : fallback}</span>`;
+  const practiceSeconds = Number(progress?.practiceSeconds || 0);
+  const label = questions
+    ? `${percentage}% · ${questions}q`
+    : practiceSeconds
+      ? `${formatDuration(practiceSeconds)} practice`
+      : fallback;
+  return `<span class="student-progress-summary ${scoreClass(percentage, questions)}">${escapeHtml(label)}</span>`;
 }
 
 function studentRowMarkup(student) {
   const overall = overallStudent(student.id);
-  const practice = categoryStudent("practice", student.id);
+  const progress = categoryStudent("progress", student.id);
   const quizzes = categoryStudent("quizzes", student.id);
 
   return `
@@ -394,8 +527,8 @@ function studentRowMarkup(student) {
       </button>
       <div class="student-category-results-v2">
         <div><span>Overall</span>${progressPill(overall)}</div>
-        <div><span>Practice</span>${progressPill(practice, "Not started")}</div>
-        <div><span>Live quizzes</span>${progressPill(quizzes, "No quizzes")}</div>
+        <div><span>Progress Mode</span>${progressPill(progress, "No progress")}</div>
+        <div><span>Live Sessions</span>${progressPill(quizzes, "No sessions")}</div>
       </div>
       <div class="student-status">${student.active ? "Active seat" : "Inactive"}</div>
       <div class="student-actions">
@@ -410,17 +543,23 @@ function studentRowMarkup(student) {
 function classGroupMarkup(classItem, students) {
   const activeCount = students.filter((student) => student.active).length;
   const details = [classItem.yearGroup, classItem.examBoard].filter(Boolean).join(" · ");
+  const classId = String(classItem.id || "");
+  const expanded = state.expandedClassIds.has(classId);
+  const membersId = `classMembers-${classId.replace(/[^a-z0-9_-]/gi, "") || "class"}`;
 
   return `
-    <section class="student-class-group-v7" data-class-id="${escapeHtml(classItem.id)}">
+    <section class="student-class-group-v7 ${expanded ? "is-expanded" : "is-collapsed"}" data-class-id="${escapeHtml(classId)}">
       <div class="student-class-heading-v7">
         <div>
           <strong>${escapeHtml(classItem.className)}</strong>
           <span>${details ? escapeHtml(details) : "EchoAural class"}</span>
         </div>
-        <b>${activeCount}</b>
+        <div class="student-class-controls-v7">
+          <b title="${activeCount} active student${activeCount === 1 ? "" : "s"}">${activeCount}</b>
+          <button class="student-class-toggle-v7" type="button" data-action="toggle-class" aria-expanded="${expanded ? "true" : "false"}" aria-controls="${escapeHtml(membersId)}" aria-label="${expanded ? "Hide" : "Show"} ${escapeHtml(classItem.className)} students">${expanded ? "−" : "+"}</button>
+        </div>
       </div>
-      <div class="student-class-members-v7">
+      <div class="student-class-members-v7" id="${escapeHtml(membersId)}" ${expanded ? "" : "hidden"}>
         ${students.length
           ? students.map(studentRowMarkup).join("")
           : '<div class="class-empty-students-v7">No students in this class yet.</div>'}
@@ -451,13 +590,19 @@ function renderStudents() {
 
   const unassigned = state.students.filter((student) => !student.classId);
   if (unassigned.length) {
+    const unassignedId = "__unassigned";
+    const expanded = state.expandedClassIds.has(unassignedId);
+    const activeUnassigned = unassigned.filter((student) => student.active).length;
     markup.push(`
-      <section class="student-class-group-v7 is-unassigned">
+      <section class="student-class-group-v7 is-unassigned ${expanded ? "is-expanded" : "is-collapsed"}" data-class-id="${unassignedId}">
         <div class="student-class-heading-v7">
           <div><strong>Unassigned students</strong><span>Legacy accounts not yet attached to a class</span></div>
-          <b>${unassigned.filter((student) => student.active).length}</b>
+          <div class="student-class-controls-v7">
+            <b title="${activeUnassigned} active student${activeUnassigned === 1 ? "" : "s"}">${activeUnassigned}</b>
+            <button class="student-class-toggle-v7" type="button" data-action="toggle-class" aria-expanded="${expanded ? "true" : "false"}" aria-controls="classMembers-unassigned" aria-label="${expanded ? "Hide" : "Show"} unassigned students">${expanded ? "−" : "+"}</button>
+          </div>
         </div>
-        <div class="student-class-members-v7">${unassigned.map(studentRowMarkup).join("")}</div>
+        <div class="student-class-members-v7" id="classMembers-unassigned" ${expanded ? "" : "hidden"}>${unassigned.map(studentRowMarkup).join("")}</div>
       </section>
     `);
   }
@@ -471,7 +616,7 @@ function renderClassModules(modules = [], compact = false) {
       <span class="category-module-icon-v2"><img src="${escapeHtml(module.icon)}" alt="" /></span>
       <div class="class-module-copy-v2">
         <span>${escapeHtml(module.title)}</span>
-        <small>${module.questions ? `${module.students} students · ${module.questions} questions` : "No class evidence"}</small>
+        <small>${escapeHtml(module.questions ? `${module.students} students · ${module.questions} questions` : module.practiceSeconds ? `${formatDuration(module.practiceSeconds)} practice · ${module.practiceStudents} students` : "No class evidence")}</small>
       </div>
       <strong>${module.questions ? `${module.percentage}%` : "—"}</strong>
       <span class="category-module-bar-v2" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, module.percentage || 0))}%"></i></span>
@@ -481,24 +626,27 @@ function renderClassModules(modules = [], compact = false) {
 }
 
 const CLASS_CATEGORY_CONFIG = {
-  practice: {
-    title: "Practice",
+  progress: {
+    title: "Progress Mode",
+    icon: "/assets/icons/dashboard/progress-mode.svg",
     headingId: "teacherPracticeHeading",
-    eyebrow: "Independent learning",
-    subtitle: "Class progress from student-selected activities.",
-    detailSubtitle: "Detailed practice feedback across all EchoAural apps.",
-    emptyFeedback: "Class practice feedback will appear after students complete independent rounds."
+    eyebrow: "Levelled learning",
+    subtitle: "Class progress from levelled student app work.",
+    detailSubtitle: "Detailed Progress Mode feedback across all EchoAural apps.",
+    emptyFeedback: "Progress Mode feedback will appear after students complete levelled rounds."
   },
   quizzes: {
-    title: "Live Quizzes",
+    title: "Live Sessions",
+    icon: "/assets/icons/dashboard/join-live-session.svg",
     headingId: "teacherQuizHeading",
     eyebrow: "Teacher-led learning",
     subtitle: "Saved results from live Teacher Mode rounds.",
-    detailSubtitle: "Detailed live-quiz feedback across all EchoAural apps.",
-    emptyFeedback: "Live-quiz feedback will appear after a logged-in Teacher Mode round."
+    detailSubtitle: "Detailed live-session feedback across all EchoAural apps.",
+    emptyFeedback: "Live-session feedback will appear after a logged-in Teacher Mode round."
   },
   homework: {
     title: "Homework",
+    icon: "/assets/icons/dashboard/homework.svg",
     headingId: "teacherHomeworkHeading",
     eyebrow: "Assigned learning",
     subtitle: "Teacher-set activities completed outside live lessons.",
@@ -511,14 +659,21 @@ function classCategorySummaryMarkup(categoryKey, category) {
   const config = CLASS_CATEGORY_CONFIG[categoryKey];
   const overall = category?.overall || {};
   const hasEvidence = Number(overall.questions || 0) > 0;
+  const practiceSeconds = categoryKey === "practice" ? Number(overall.practiceSeconds || 0) : 0;
+  const practiceTimeText = practiceSeconds ? ` · ${formatDuration(practiceSeconds)} practice` : "";
+  const studentCount = practiceSeconds && !hasEvidence
+    ? Number(overall.practiceStudents || 0)
+    : Number(overall.participatingStudents || 0);
   const percentage = hasEvidence ? `${Number(overall.percentage || 0)}%` : "—";
   const feedback = hasEvidence
     ? overall.compiledFeedback
-    : config.emptyFeedback;
+    : practiceSeconds
+      ? "Students have logged practice time. Progress-mode scores will appear here when they complete levelled rounds."
+      : config.emptyFeedback;
 
   return `
     <div class="learning-summary-heading-v5">
-      <div class="learning-summary-icon-slot-v5" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="learning-summary-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" style="--ea-icon:url('${config.icon}')"></span></div>
       <div class="learning-summary-title-v5">
         <p>${escapeHtml(config.eyebrow)}</p>
         <h3 id="${escapeHtml(config.headingId)}">${escapeHtml(config.title)}</h3>
@@ -532,7 +687,7 @@ function classCategorySummaryMarkup(categoryKey, category) {
     </div>
 
     <div class="learning-summary-footer-v5">
-      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds · ${Number(overall.participatingStudents || 0)} students</span>
+      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds${practiceTimeText} · ${studentCount} students</span>
       <button class="secondary-button learning-detail-button-v5" type="button" data-category-detail="${escapeHtml(categoryKey)}">Detailed feedback</button>
     </div>
   `;
@@ -548,6 +703,12 @@ function detailedCategoryMarkup(categoryKey, category) {
   const config = CLASS_CATEGORY_CONFIG[categoryKey];
   const overall = category?.overall || {};
   const hasEvidence = Number(overall.questions || 0) > 0;
+  const practiceSeconds = categoryKey === "practice" ? Number(overall.practiceSeconds || 0) : 0;
+  const feedbackText = hasEvidence
+    ? overall.compiledFeedback
+    : practiceSeconds
+      ? "Students have logged practice time. Progress-mode scores will appear here when they complete levelled rounds."
+      : config.emptyFeedback;
 
   if (categoryKey === "homework") {
     return `
@@ -577,7 +738,7 @@ function detailedCategoryMarkup(categoryKey, category) {
 
     <div class="category-detail-feedback-v5">
       <span>Compiled class feedback</span>
-      <p>${escapeHtml(hasEvidence ? overall.compiledFeedback : config.emptyFeedback)}</p>
+      <p>${escapeHtml(feedbackText)}</p>
     </div>
 
     <section class="category-detail-apps-v5">
@@ -602,6 +763,7 @@ function openCategoryDetail(categoryKey) {
   els.categoryDetailEyebrow.textContent = config.eyebrow;
   els.categoryDetailTitle.textContent = config.title;
   els.categoryDetailSubtitle.textContent = config.detailSubtitle;
+  els.categoryDetailIcon?.style.setProperty("--ea-icon", `url('${config.icon}')`);
   els.categoryDetailContent.innerHTML = detailedCategoryMarkup(categoryKey, category);
   els.categoryDetailDialog.showModal();
 }
@@ -619,8 +781,8 @@ function renderClassProgress() {
   els.classParticipation.textContent = `${overall.participation}%`;
   els.classFeedback.textContent = overall.compiledFeedback;
 
-  const categories = progress.categories || { practice: progress, quizzes: { overall: {}, modules: [] } };
-  renderClassCategory("teacherPracticeContent", "practice", categories.practice);
+  const categories = progress.categories || { progress, quizzes: { overall: {}, modules: [] } };
+  renderClassCategory("teacherPracticeContent", "progress", categories.progress);
   renderClassCategory("teacherQuizContent", "quizzes", categories.quizzes);
   renderClassCategory("teacherHomeworkContent", "homework", categories.homework || { overall: {} });
   renderStudents();
@@ -633,15 +795,38 @@ async function loadClassProgress(showStatus = false) {
   els.classProgressStatus.textContent = showStatus ? "Class results refreshed." : "";
 }
 
-function renderIndividualModules(modules = []) {
-  return `<div class="individual-module-list-v2">${modules.map((module) => `
+function individualProgressionLevelLabel(module) {
+  const stage = module?.progressionStage || {};
+  const labelIndex = PROGRESSION_LEVEL_LABELS.findIndex((label) => (
+    label.toLowerCase() === String(stage.label || "").trim().toLowerCase()
+  ));
+  const numericLevel = Number.isFinite(Number(stage.currentLevel))
+    ? Number(stage.currentLevel)
+    : labelIndex;
+  const levelIndex = Math.max(
+    0,
+    Math.min(PROGRESSION_LEVEL_LABELS.length - 1, Number.isFinite(numericLevel) ? numericLevel : 0)
+  );
+
+  return PROGRESSION_LEVEL_LABELS[levelIndex] || "Foundation";
+}
+
+function renderIndividualModules(categoryKey, modules = []) {
+  return `<div class="individual-module-list-v2">${modules.map((module) => {
+    const levelLabel = categoryKey === "progress" ? individualProgressionLevelLabel(module) : "";
+    return `
     <div class="individual-module-row-v2 ${scoreClass(module.percentage, module.questions)}">
       <img src="${escapeHtml(module.icon)}" alt="" />
-      <div><strong>${escapeHtml(module.title)}</strong><small>${module.questions} questions · ${module.rounds} rounds</small></div>
+      <div>
+        <strong>${escapeHtml(module.title)}</strong>
+        <small>${escapeHtml(module.questions ? `${module.questions} questions · ${module.rounds} rounds` : module.practiceSeconds ? `${formatDuration(module.practiceSeconds)} practice · no scored results` : "No evidence yet")}</small>
+        ${levelLabel ? `<em class="individual-module-level-v2">${escapeHtml(levelLabel)}</em>` : ""}
+      </div>
       <span>${module.questions ? `${module.percentage}%` : "—"}</span>
-      <p>${escapeHtml(module.questions ? module.nextStep : "No evidence yet.")}</p>
+      <p>${escapeHtml(module.questions ? module.nextStep : module.practiceSeconds ? "Practice time logged. Progress results will appear after a progress round." : "No evidence yet.")}</p>
     </div>
-  `).join("")}</div>`;
+  `;
+  }).join("")}</div>`;
 }
 
 function renderIndividualRounds(rounds = []) {
@@ -670,13 +855,13 @@ function renderIndividualQuestions(questions = []) {
   }).join("")}</div>`;
 }
 
-function individualCategory(title, subtitle, category, featured = false) {
+function individualCategory(title, subtitle, category, featured = false, icon = "/assets/icons/dashboard/progress-mode.svg", categoryKey = "") {
   const overall = category?.overall || {};
   const hasEvidence = Number(overall.questions || 0) > 0;
   return `
     <section class="individual-category-panel-v2 ${featured ? "is-featured" : ""}">
       <div class="ea-panel-heading-v2">
-        <div class="ea-panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="ea-panel-heading-wave dashboard-panel-icon-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" style="--ea-icon:url('${icon}')"></span></div>
         <div><p>${escapeHtml(subtitle)}</p><h3>${escapeHtml(title)}</h3></div>
       </div>
       ${title === "Homework" ? `
@@ -687,7 +872,7 @@ function individualCategory(title, subtitle, category, featured = false) {
           <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds</span>
         </div>
         <div class="category-feedback-v2"><span>Compiled feedback</span><p>${escapeHtml(hasEvidence ? overall.compiledFeedback : "No evidence in this section yet.")}</p></div>
-        ${renderIndividualModules(category?.modules || [])}
+        ${renderIndividualModules(categoryKey, category?.modules || [])}
         <details class="category-details-v2" open><summary>Recent rounds</summary>${renderIndividualRounds(category?.recentRounds || [])}</details>
         <details class="category-details-v2"><summary>Question feedback</summary>${renderIndividualQuestions(category?.recentQuestions || [])}</details>
       `}
@@ -697,7 +882,7 @@ function individualCategory(title, subtitle, category, featured = false) {
 
 function renderStudentProgress(progress) {
   const overall = progress.overall;
-  const categories = progress.categories || { practice: progress, quizzes: { overall: {}, modules: [], recentRounds: [], recentQuestions: [] }, homework: { overall: {} } };
+  const categories = progress.categories || { progress, quizzes: { overall: {}, modules: [], recentRounds: [], recentQuestions: [] }, homework: { overall: {} } };
   els.studentProgressContent.innerHTML = `
     <div class="individual-overall-strip-v2">
       <div class="individual-overall-score-v2 ${scoreClass(overall.percentage, overall.questions)}">
@@ -711,25 +896,58 @@ function renderStudentProgress(progress) {
       <p>${escapeHtml(overall.compiledFeedback)}</p>
     </div>
     <div class="individual-category-grid-v2">
-      ${individualCategory("Practice", "Independent learning", categories.practice, false)}
-      ${individualCategory("Live Quizzes", "Teacher-led learning", categories.quizzes, true)}
-      ${individualCategory("Homework", "Assigned learning", categories.homework, false)}
+      ${individualCategory("Progress Mode", "Levelled learning", categories.progress, false, "/assets/icons/dashboard/progress-mode.svg", "progress")}
+      ${individualCategory("Live Sessions", "Teacher-led learning", categories.quizzes, true, "/assets/icons/dashboard/join-live-session.svg", "quizzes")}
+      ${individualCategory("Homework", "Assigned learning", categories.homework, false, "/assets/icons/dashboard/homework.svg", "homework")}
     </div>
   `;
 }
 
 async function openStudentProgress(student) {
+  state.progressStudent = student;
   els.progressStudentName.textContent = student.displayName;
   els.progressStudentMeta.textContent = `Username: ${student.username}`;
   els.studentProgressContent.innerHTML = '<div class="progress-empty-state">Loading student feedback…</div>';
   els.studentProgressDialog.showModal();
+  await refreshOpenStudentProgress(false);
+  scheduleStudentProgressRefresh();
+}
+
+async function refreshOpenStudentProgress(silent = true) {
+  const student = state.progressStudent;
+  if (!student?.id || !els.studentProgressDialog.open || state.studentProgressRefreshInFlight) return;
+  state.studentProgressRefreshInFlight = true;
+
   try {
     const result = await api(`/api/teacher/students/${student.id}/progress`);
     els.progressStudentMeta.textContent = `Username: ${result.student.username} · ${result.student.active ? "Active account" : "Inactive account"}`;
     renderStudentProgress(result.progress);
   } catch (error) {
-    els.studentProgressContent.innerHTML = `<div class="progress-empty-state">${escapeHtml(error.message)}</div>`;
+    if (!silent) els.studentProgressContent.innerHTML = `<div class="progress-empty-state">${escapeHtml(error.message)}</div>`;
+    else console.warn(error);
+  } finally {
+    state.studentProgressRefreshInFlight = false;
   }
+}
+
+function scheduleStudentProgressRefresh() {
+  clearStudentProgressRefresh();
+  if (!state.progressStudent?.id || !els.studentProgressDialog.open) return;
+  state.studentProgressRefreshTimer = window.setInterval(() => {
+    refreshOpenStudentProgress(true);
+  }, STUDENT_PROGRESS_REFRESH_MS);
+}
+
+function clearStudentProgressRefresh() {
+  if (!state.studentProgressRefreshTimer) return;
+  window.clearInterval(state.studentProgressRefreshTimer);
+  state.studentProgressRefreshTimer = null;
+}
+
+function closeStudentProgressDialog() {
+  clearStudentProgressRefresh();
+  state.progressStudent = null;
+  els.studentProgressDialog.close();
 }
 
 async function loadDashboard() {
@@ -796,6 +1014,16 @@ els.studentCreateForm.addEventListener("submit", async (event) => {
 
 els.studentList.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-action]");
+  if (button?.dataset.action === "toggle-class") {
+    const classGroup = button.closest("[data-class-id]");
+    const classId = classGroup?.dataset.classId;
+    if (!classId) return;
+    if (state.expandedClassIds.has(classId)) state.expandedClassIds.delete(classId);
+    else state.expandedClassIds.add(classId);
+    renderStudents();
+    return;
+  }
+
   const row = event.target.closest("[data-student-id]");
   if (!button || !row) return;
   const student = state.students.find((item) => item.id === row.dataset.studentId);
@@ -1014,6 +1242,20 @@ els.learningSummaryList.addEventListener("click", (event) => {
   openCategoryDetail(button.dataset.categoryDetail);
 });
 
+els.openLiveLaunchDialog.addEventListener("click", () => openTeacherLaunchDialog("live"));
+els.openHomeworkLaunchDialog.addEventListener("click", () => openTeacherLaunchDialog("homework"));
+els.closeTeacherLaunchDialog.addEventListener("click", closeTeacherLaunchDialog);
+els.cancelTeacherLaunch.addEventListener("click", closeTeacherLaunchDialog);
+els.teacherLaunchDialog.addEventListener("click", (event) => {
+  const option = event.target.closest("[data-launch-option]");
+  if (option) {
+    selectTeacherLaunchOption(option);
+    return;
+  }
+  if (event.target === els.teacherLaunchDialog) closeTeacherLaunchDialog();
+});
+els.teacherLaunchForm.addEventListener("submit", submitTeacherLaunch);
+
 els.closeCategoryDetail.addEventListener("click", () => els.categoryDetailDialog.close());
 els.categoryDetailDialog.addEventListener("click", (event) => {
   if (event.target === els.categoryDetailDialog) els.categoryDetailDialog.close();
@@ -1026,9 +1268,16 @@ els.openPasswordDialog.addEventListener("click", () => {
 });
 els.cancelPasswordButton.addEventListener("click", () => els.passwordDialog.close());
 els.cancelPinButton.addEventListener("click", () => els.pinDialog.close());
-els.closeStudentProgress.addEventListener("click", () => els.studentProgressDialog.close());
+els.closeStudentProgress.addEventListener("click", closeStudentProgressDialog);
 els.studentProgressDialog.addEventListener("click", (event) => {
-  if (event.target === els.studentProgressDialog) els.studentProgressDialog.close();
+  if (event.target === els.studentProgressDialog) closeStudentProgressDialog();
+});
+els.studentProgressDialog.addEventListener("close", () => {
+  clearStudentProgressRefresh();
+  state.progressStudent = null;
+});
+window.addEventListener("focus", () => {
+  refreshOpenStudentProgress(true);
 });
 els.refreshClassProgress.addEventListener("click", async () => {
   els.refreshClassProgress.disabled = true;

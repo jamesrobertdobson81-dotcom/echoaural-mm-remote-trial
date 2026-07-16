@@ -70,9 +70,12 @@
           <div class="teacher-console-heading-v3 learning-console-heading-v3">
             <div>
               <p class="card-eyebrow">Class learning</p>
-              <h2 id="learningActivityHeading">Practice, quizzes & homework</h2>
+              <h2 id="learningActivityHeading">Progress, sessions & homework</h2>
             </div>
-            <a class="primary-button compact-primary-v3" href="/teacher/">Open Teacher Mode</a>
+            <div class="teacher-launch-actions-v8" aria-label="Teacher launch actions">
+              <button class="primary-button compact-primary-v3" id="openLiveLaunchDialog" type="button">Start live session</button>
+              <button class="secondary-button compact-primary-v3" id="openHomeworkLaunchDialog" type="button">Set homework</button>
+            </div>
           </div>
 
           <p class="progress-status dashboard-status-v2 compact-dashboard-status-v3" id="classProgressStatus" aria-live="polite"></p>
@@ -248,6 +251,72 @@
     </div>
   </dialog>
 
+  <dialog class="dialog teacher-launch-dialog-v8" id="teacherLaunchDialog">
+    <div class="dialog-inner teacher-launch-dialog-inner-v8">
+      <div class="student-progress-dialog-heading">
+        <div>
+          <p class="card-eyebrow" id="teacherLaunchEyebrow">Teacher tools</p>
+          <h2 class="section-title" id="teacherLaunchTitle">Start live session</h2>
+          <p class="section-copy" id="teacherLaunchSubtitle">Choose the app and question count, then open Teacher Mode with the room prepared.</p>
+        </div>
+        <button class="dialog-close-button" id="closeTeacherLaunchDialog" type="button" aria-label="Close teacher launcher">×</button>
+      </div>
+
+      <form class="account-form teacher-launch-form-v8" id="teacherLaunchForm">
+        <input id="teacherLaunchModule" name="module" type="hidden" value="instrument-identifier" />
+        <input id="teacherLaunchQuestionCount" name="questionCount" type="hidden" value="5" />
+        <input id="teacherLaunchLevel" name="questionLevel" type="hidden" value="all" />
+
+        <section class="teacher-launch-section-v8">
+          <div class="teacher-launch-section-heading-v8">
+            <span>Question source</span>
+            <p>Pick the EchoAural app for this round.</p>
+          </div>
+          <div class="teacher-launch-option-grid-v8 module-options-v8" data-launch-group="module">
+            <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchModule" data-value="instrument-identifier" aria-pressed="true"><strong>Instrument Identifier</strong><span>Levelled II question bank</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="melody-master" aria-pressed="false"><strong>Melody Master</strong><span>Melodic dictation rounds</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="melodic-intervals" aria-pressed="false"><strong>Melodic Intervals</strong><span>Levelled interval recognition</span></button>
+            <button class="teacher-launch-option-v8 is-disabled" type="button" disabled><strong>Mixed apps</strong><span>Coming next</span></button>
+          </div>
+        </section>
+
+        <section class="teacher-launch-section-v8">
+          <div class="teacher-launch-section-heading-v8">
+            <span>Questions</span>
+            <p>Choose the length of the round.</p>
+          </div>
+          <div class="teacher-launch-option-grid-v8 count-options-v8" data-launch-group="question-count">
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchQuestionCount" data-value="3" aria-pressed="false"><strong>3</strong><span>Quick check</span></button>
+            <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchQuestionCount" data-value="5" aria-pressed="true"><strong>5</strong><span>Short round</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchQuestionCount" data-value="10" aria-pressed="false"><strong>10</strong><span>Full quiz</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchQuestionCount" data-value="15" aria-pressed="false"><strong>15</strong><span>Extended</span></button>
+          </div>
+        </section>
+
+        <section class="teacher-launch-section-v8">
+          <div class="teacher-launch-section-heading-v8">
+            <span>Level</span>
+            <p>Use II progression levels where available.</p>
+          </div>
+          <div class="teacher-launch-option-grid-v8 level-options-v8" data-launch-group="level">
+            <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="all" aria-pressed="true"><strong>All</strong><span>Mixed levelled questions</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="foundation" aria-pressed="false"><strong>Foundation</strong><span>Starter level</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="developing" aria-pressed="false"><strong>Developing</strong><span>Building level</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="securing" aria-pressed="false"><strong>Securing</strong><span>Secure level</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="mastering" aria-pressed="false"><strong>Mastering</strong><span>Challenge level</span></button>
+          </div>
+        </section>
+
+        <p class="launch-helper-v8" id="teacherLaunchHelper">Level filters apply to Instrument Identifier and Melodic Intervals; Melody Master uses its normal mixed question bank here.</p>
+        <p class="form-message" id="teacherLaunchMessage" aria-live="polite"></p>
+        <div class="dialog-actions">
+          <button class="secondary-button" id="cancelTeacherLaunch" type="button">Cancel</button>
+          <button class="primary-button" id="teacherLaunchSubmit" type="submit">Open live room</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
   <dialog class="dialog" id="passwordDialog">
     <div class="dialog-inner">
       <p class="card-eyebrow">Account security</p>
@@ -279,7 +348,7 @@
     <div class="dialog-inner category-detail-dialog-inner-v5">
       <div class="category-detail-heading-v5">
         <div class="category-detail-title-wrap-v5">
-          <div class="category-detail-icon-slot-v5" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="category-detail-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" id="categoryDetailIcon" style="--ea-icon:url('/assets/icons/dashboard/progress-mode.svg')"></span></div>
           <div>
             <p class="card-eyebrow" id="categoryDetailEyebrow">Class learning</p>
             <h2 class="section-title" id="categoryDetailTitle">Detailed feedback</h2>

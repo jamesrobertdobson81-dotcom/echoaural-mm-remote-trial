@@ -126,6 +126,51 @@
   font-size: .7rem;
 }
 
+.teacher-dashboard-v5 .student-class-controls-v7 {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.teacher-dashboard-v5 .student-class-toggle-v7 {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(56, 189, 248, .26);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #0f5f96;
+  background:
+    radial-gradient(circle at 70% 15%, rgba(56,189,248,.14), transparent 42%),
+    #fff;
+  font-size: 1.08rem;
+  font-weight: 950;
+  line-height: 1;
+  box-shadow: 0 8px 18px rgba(56, 189, 248, .09);
+}
+
+.teacher-dashboard-v5 .student-class-toggle-v7:hover,
+.teacher-dashboard-v5 .student-class-toggle-v7:focus-visible {
+  border-color: rgba(56, 189, 248, .52);
+  color: #075985;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.teacher-dashboard-v5 .student-class-group-v7.is-expanded .student-class-toggle-v7 {
+  color: #6d28d9;
+  border-color: rgba(124, 58, 237, .24);
+  background:
+    radial-gradient(circle at 70% 15%, rgba(139,92,246,.14), transparent 42%),
+    #fff;
+}
+
+.teacher-dashboard-v5 .student-class-group-v7.is-collapsed .student-class-heading-v7 {
+  border-bottom: 0;
+}
+
 .teacher-dashboard-v5 .student-class-group-v7.is-unassigned .student-class-heading-v7 {
   background: #fff8ec;
 }

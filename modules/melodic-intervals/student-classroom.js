@@ -97,6 +97,13 @@
     return sequence.map(resolveAudioPath).filter(Boolean);
   }
 
+  function resolveStaffAsset(raw = '') {
+    const clean = String(raw || '').trim();
+    if (!clean) return SCORE_ASSET;
+    if (/^(https?:)?\/\//i.test(clean) || clean.startsWith('/')) return clean;
+    return `/modules/melodic-intervals/${clean.replace(/^\.\//, '')}`;
+  }
+
   function playAudioFile(url) {
     return new Promise((resolve, reject) => {
       els.studentAudio.pause();
@@ -172,7 +179,7 @@
     if (!startNote || !targetNote) return '<p class="muted">No stave data available.</p>';
 
     return `
-      <img class="mi-score-bg" src="${SCORE_ASSET}" alt="" aria-hidden="true" draggable="false" />
+      <img class="mi-score-bg" src="${escapeHTML(resolveStaffAsset(question.staffAsset))}" alt="" aria-hidden="true" draggable="false" />
       ${noteMarkup(startNote, NOTE_START_X, clef)}
       ${noteMarkup(targetNote, NOTE_TARGET_X, clef)}
     `;

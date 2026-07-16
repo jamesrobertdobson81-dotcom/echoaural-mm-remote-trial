@@ -19,7 +19,8 @@
     answers: document.getElementById('answers'),
     answerCard: document.getElementById('answerCard'),
     audio: document.getElementById('intervalAudio'),
-    quizPanel: document.getElementById('gameScreen')
+    quizPanel: document.getElementById('gameScreen'),
+    setupMessage: document.getElementById('setupMessage')
   };
 
   const NOTE_ASSET = '../melody-master/assets/icons/notes/crotchet-sibelius.png';
@@ -49,6 +50,20 @@
   let roundFeedbackOverlay = null;
   let launchParams = {};
   let eaProgressRoundId = "";
+  const pageParams = new URLSearchParams(window.location.search || '');
+  const rawLearningMode = String(pageParams.get('eaMode') || '').trim().toLowerCase();
+  const learningMode = rawLearningMode === 'progress' ? 'progression' : rawLearningMode;
+  const dashboardPath = pageParams.get('eaDashboard') || '/account/student-home/';
+  const PROGRESSION_LEVELS = [
+    { id: 0, key: 'foundation', name: 'Foundation', questions: 5, passMark: 100, description: 'ascending natural-note interval numbers from unison to octave, excluding 6ths and 7ths' },
+    { id: 1, key: 'developing', name: 'Developing', questions: 5, passMark: 100, description: 'ascending and descending interval numbers from unison to octave' },
+    { id: 2, key: 'securing', name: 'Securing', questions: 5, passMark: 100, description: 'major, minor and perfect interval names in both directions' },
+    { id: 3, key: 'mastering', name: 'Mastering', questions: 5, passMark: 100, description: 'complete diatonic interval names in the written key, including the augmented 4th and diminished 5th' }
+  ];
+  let currentProgressionLevel = 0;
+  let activeProgressionLevel = PROGRESSION_LEVELS[0];
+  let accountProgressionState = null;
+  let recordedProgressionRound = false;
 
   function escapeHTML(value) {
     return String(value || '')
@@ -61,6 +76,48 @@
 
   function delay(ms) {
     return new Promise((resolve) => window.setTimeout(resolve, Math.max(0, Number(ms) || 0)));
+  }
+
+  function isProgressionMode() {
+    return learningMode === 'progression';
+  }
+
+  function isPracticeMode() {
+    return learningMode === 'practice';
+  }
+
+  function applyDashboardLinks() {
+    if (!isProgressionMode() && !isPracticeMode()) return;
+    document.querySelectorAll('.topbar-home-link, .brand[href], a[aria-label*="EchoAural home"]').forEach((link) => {
+      link.href = dashboardPath;
+    });
+  }
+
+  function initialisePracticeTimeTracking() {
+    if (!isPracticeMode() || !window.EchoAuralTracking?.savePracticeTime) return;
+
+    const startedAt = new Date();
+    const startedMs = Date.now();
+    const clientSessionId = window.EchoAuralTracking.createClientRoundId('melodic-intervals-practice');
+    let saved = false;
+
+    function savePracticeTime() {
+      if (saved) return;
+      const durationSeconds = Math.round((Date.now() - startedMs) / 1000);
+      if (durationSeconds < 5) return;
+      saved = true;
+      void window.EchoAuralTracking.savePracticeTime({
+        moduleId: 'melodic-intervals',
+        clientSessionId,
+        durationSeconds,
+        startedAt: startedAt.toISOString()
+      }, { keepalive: true });
+    }
+
+    window.addEventListener('pagehide', savePracticeTime);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') savePracticeTime();
+    });
   }
 
   function shuffle(items = []) {
@@ -76,6 +133,10 @@
     if (!els.quizPanel) return;
     els.quizPanel.classList.remove('is-ready', 'is-active', 'is-complete');
     els.quizPanel.classList.add(`is-${state}`);
+  }
+
+  function setDenseAnswerLayout(choiceCount = 0) {
+    els.quizPanel?.classList.toggle('is-dense-answer-set', Number(choiceCount) >= 12);
   }
 
   function getSelectedRadio(name, fallback) {
@@ -106,6 +167,85 @@
     if (input) input.checked = true;
   }
 
+  async function readAccountProgressionState() {
+    try {
+      const response = await fetch('/api/student/progression-state?moduleId=melodic-intervals', {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' }
+      });
+      if (!response.ok) return null;
+      const payload = await response.json();
+      return payload?.ok === false ? null : payload;
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function setCurrentProgressionLevelFromProgress(accountState = null) {
+    const saved = window.EAProgressionStore?.getModule?.('melodic-intervals') || { unlockedLevel: 0 };
+    const localUnlocked = Math.max(0, Math.min(PROGRESSION_LEVELS.length - 1, Number(saved.unlockedLevel) || 0));
+    const accountUnlocked = Math.max(0, Math.min(PROGRESSION_LEVELS.length - 1, Number(accountState?.unlockedLevel) || 0));
+    const unlockedLevel = Math.max(localUnlocked, accountUnlocked);
+    const requestedLevel = pageParams.has('eaLevel')
+      ? Math.max(0, Math.min(PROGRESSION_LEVELS.length - 1, Number(pageParams.get('eaLevel')) || 0))
+      : unlockedLevel;
+    currentProgressionLevel = Math.min(requestedLevel, unlockedLevel);
+    activeProgressionLevel = PROGRESSION_LEVELS[currentProgressionLevel] || PROGRESSION_LEVELS[0];
+  }
+
+  function setProgressionMessage() {
+    if (!els.setupMessage || !isProgressionMode()) return;
+    els.setupMessage.textContent =
+      `Progression · Level ${currentProgressionLevel} — ${activeProgressionLevel.name}. ` +
+      `${activeProgressionLevel.description}. Complete ${activeProgressionLevel.questions} questions and get every answer correct to progress.`;
+  }
+
+  function renderProgressionLevelTile() {
+    if (!isProgressionMode()) return;
+    const modeGrid = document.querySelector('.mi-mode-grid') || document.querySelector('.progression-level-grid');
+    if (!modeGrid) return;
+
+    const heading = modeGrid.previousElementSibling;
+    if (heading && /^h[1-6]$/i.test(heading.tagName)) heading.textContent = 'Progress Mode';
+
+    modeGrid.hidden = false;
+    modeGrid.removeAttribute('aria-hidden');
+    modeGrid.classList.add('progression-level-grid');
+    modeGrid.setAttribute('aria-label', 'Current Progress Mode level');
+    modeGrid.innerHTML = `
+      <div class="progression-level-tile" role="status" aria-live="polite">
+        <span class="progression-level-kicker">Current level</span>
+        <strong>${escapeHTML(activeProgressionLevel.name)}</strong>
+        <small>${escapeHTML(activeProgressionLevel.description)}.</small>
+        <span class="progression-level-rule">${activeProgressionLevel.questions} questions · all correct to pass</span>
+      </div>
+    `;
+  }
+
+  function lockProgressionSettings() {
+    if (!isProgressionMode()) return;
+    document.body.classList.add('ea-progression-app');
+
+    document.querySelectorAll('input[name="quizMode"], input[name="questionCount"], input[name="answerMode"], input[name="intervalSet"]').forEach((input) => {
+      input.disabled = true;
+      input.closest('label')?.setAttribute('aria-disabled', 'true');
+    });
+
+    if (els.settingsToggle) {
+      els.settingsToggle.disabled = true;
+      els.settingsToggle.setAttribute('aria-disabled', 'true');
+    }
+
+    const settingsWrap = els.advancedSettings?.closest('.settings-popover-wrap');
+    if (settingsWrap) {
+      settingsWrap.hidden = true;
+      settingsWrap.setAttribute('aria-hidden', 'true');
+    }
+
+    setProgressionMessage();
+    renderProgressionLevelTile();
+  }
+
   function getLaunchParams() {
     const params = new URLSearchParams(window.location.search || '');
     return {
@@ -132,7 +272,56 @@
     return allQuestions.filter((question) => set === 'octaves' || question.intervalLabel !== 'Octave');
   }
 
+  function selectBalancedQuestions(pool = [], count = 5) {
+    const targetCount = Math.max(1, Math.min(Number(count) || 1, pool.length));
+    const shuffled = shuffle(pool);
+    const buckets = new Map();
+    shuffled.forEach((question) => {
+      const key = `${question.correctAnswer || question.intervalFullLabel || question.intervalLabel}|${question.direction || 'ascending'}`;
+      if (!buckets.has(key)) buckets.set(key, []);
+      buckets.get(key).push(question);
+    });
+
+    const selected = [];
+    const used = new Set();
+    const bucketKeys = shuffle([...buckets.keys()]);
+
+    while (selected.length < targetCount && bucketKeys.some((key) => buckets.get(key).length)) {
+      for (const key of bucketKeys) {
+        const bucket = buckets.get(key);
+        if (!bucket?.length) continue;
+        const next = bucket.shift();
+        if (!next || used.has(next.id)) continue;
+        used.add(next.id);
+        selected.push(next);
+        if (selected.length >= targetCount) break;
+      }
+    }
+
+    return selected.length ? selected : shuffled.slice(0, targetCount);
+  }
+
+  function buildProgressionRound() {
+    setCurrentProgressionLevelFromProgress(accountProgressionState);
+    setProgressionMessage();
+    renderProgressionLevelTile();
+
+    const levelQuestions = data.buildQuestions({ level: activeProgressionLevel.key });
+    const questions = selectBalancedQuestions(levelQuestions, activeProgressionLevel.questions);
+    const levelChoices = data.buildChoices({ level: activeProgressionLevel.key });
+
+    return questions.map((question) => ({
+      ...question,
+      mode: 'recognition',
+      answerMode: question.answerMode || activeProgressionLevel.answerMode,
+      choices: Array.isArray(question.choices) && question.choices.length ? question.choices : levelChoices,
+      correctAnswer: question.answerMode === 'quality' ? question.intervalFullLabel : question.intervalLabel
+    }));
+  }
+
   function buildRound() {
+    if (isProgressionMode()) return buildProgressionRound();
+
     const mode = getMode();
     const answerMode = getAnswerMode();
     const includeOctave = getIntervalSet() === 'octaves';
@@ -403,6 +592,7 @@
       answerMode: question.answerMode,
       includeOctave: question.intervalLabel === 'Octave' || getIntervalSet() === 'octaves'
     });
+    setDenseAnswerLayout(choices.length);
     els.answers.dataset.answerCount = String(choices.length);
     els.answers.innerHTML = choices.map((choice) => `
       <button class="mi-answer-button" type="button" data-answer="${escapeHTML(choice)}">${escapeHTML(choice)}</button>
@@ -479,10 +669,13 @@
         ? 'Listen to the two notes and identify the interval quality and number shown on the stave.'
         : 'Listen to the two notes and identify the interval shown on the stave.');
     els.roundText.textContent = `Question ${questionIndex + 1} of ${roundQuestions.length}`;
-    els.streakText.textContent = 'Treble clef';
-    els.xpText.textContent = question.answerMode === 'quality'
+    els.streakText.textContent = isProgressionMode() ? activeProgressionLevel.name : 'Treble clef';
+    const answerModeLabel = question.answerMode === 'quality'
       ? (question.mode === 'construction' ? 'Pitch + quality' : 'Quality + number')
       : (question.mode === 'construction' ? 'Pitch + interval' : 'Interval name');
+    els.xpText.textContent = isProgressionMode()
+      ? `${question.direction === 'descending' ? 'Descending' : 'Ascending'} · ${answerModeLabel}`
+      : answerModeLabel;
     els.progressInner.style.width = `${Math.max(0, (questionIndex / Math.max(1, roundQuestions.length)) * 100)}%`;
     els.feedback.textContent = '';
     els.feedback.className = '';
@@ -650,6 +843,10 @@
 
   function closeRoundFeedbackWindow() {
     removeRoundFeedbackOverlay();
+    if (isProgressionMode()) {
+      window.location.href = dashboardPath;
+      return;
+    }
     if (launchParams.source === 'melody-master') {
       window.location.href = '../melody-master/index.html';
       return;
@@ -688,8 +885,10 @@
     total += possible;
 
     const result = {
+      questionId: currentQuestion.id,
       questionNumber: questionIndex + 1,
       mode: currentQuestion.mode,
+      answerMode: currentQuestion.answerMode,
       awarded,
       possible,
       intervalCorrect,
@@ -698,12 +897,19 @@
       correctAnswer: currentQuestion.correctAnswer,
       intervalLabel: currentQuestion.intervalLabel,
       intervalFullLabel: currentQuestion.intervalFullLabel,
+      intervalQuality: currentQuestion.intervalQuality,
       startNoteLabel: currentQuestion.startNoteLabel,
       targetNoteLabel: currentQuestion.targetNoteLabel,
       draggedNoteLabel: (getNote(draggedNoteId) || {}).label || '',
       targetNoteId: currentQuestion.targetNoteId,
       draggedNoteId,
-      keySignatureLabel: currentQuestion.keySignatureLabel
+      keySignatureLabel: currentQuestion.keySignatureLabel,
+      keySignatureId: currentQuestion.keySignatureId,
+      direction: currentQuestion.direction,
+      semitoneDistance: currentQuestion.semitoneDistance,
+      level: currentQuestion.level || '',
+      levelKey: currentQuestion.levelKey || '',
+      levelIndex: currentQuestion.levelIndex
     };
     roundResults.push(result);
 
@@ -762,42 +968,139 @@
   }
 
   function saveIntervalProgress() {
-    if (!window.EchoAuralTracking || !roundResults.length) return;
+    if (!window.EchoAuralTracking || !roundResults.length) return Promise.resolve({ saved: false, reason: 'tracking-unavailable' });
     if (!eaProgressRoundId) resetIntervalProgressRound();
     const percentage = total ? Math.round((score / total) * 100) : 0;
-    window.EchoAuralTracking.saveRound({
+    const firstQuestion = roundQuestions[0] || {};
+    const metadata = {
+      mode: roundResults[0]?.mode || getMode(),
+      answerMode: firstQuestion.answerMode || getAnswerMode(),
+      intervalSet: isProgressionMode() ? activeProgressionLevel.key : getIntervalSet()
+    };
+
+    if (isProgressionMode()) {
+      metadata.source = 'student_progression';
+      metadata.learningMode = 'progression';
+      metadata.progressionLevel = currentProgressionLevel;
+      metadata.progressionLevelLabel = activeProgressionLevel.name;
+      metadata.level = activeProgressionLevel.name;
+      metadata.levelKey = activeProgressionLevel.key;
+      metadata.passMark = activeProgressionLevel.passMark;
+    }
+
+    return window.EchoAuralTracking.saveRound({
       moduleId: "melodic-intervals",
       clientRoundId: eaProgressRoundId,
       score,
       maximumScore: total,
       roundFeedback: getRoundFeedbackMessage(percentage),
-      metadata: {
-        mode: roundResults[0]?.mode || getMode(),
-        answerMode: roundQuestions[0]?.answerMode || getAnswerMode(),
-        intervalSet: getIntervalSet()
-      },
+      metadata,
       questions: roundResults.map((result, index) => ({
-        questionId: `MI-Q${index + 1}`,
+        questionId: result.questionId || `MI-Q${index + 1}`,
         score: Number(result.awarded) || 0,
         maximumScore: Number(result.possible) || 0,
         feedback: result.message || (result.awarded === result.possible ? "Secure interval response." : `Review ${result.correctAnswer}.`),
         answerData: {
           mode: result.mode,
+          answerMode: result.answerMode || "",
           intervalCorrect: Boolean(result.intervalCorrect),
           pitchCorrect: Boolean(result.pitchCorrect),
           selectedInterval: result.selectedInterval || "",
           correctAnswer: result.correctAnswer || "",
+          intervalLabel: result.intervalLabel || "",
+          intervalFullLabel: result.intervalFullLabel || "",
+          intervalQuality: result.intervalQuality || "",
           startNoteLabel: result.startNoteLabel || "",
           targetNoteLabel: result.targetNoteLabel || "",
-          keySignatureLabel: result.keySignatureLabel || ""
+          keySignatureLabel: result.keySignatureLabel || "",
+          keySignatureId: result.keySignatureId || "",
+          direction: result.direction || "",
+          semitoneDistance: Number(result.semitoneDistance) || 0,
+          level: result.level || activeProgressionLevel.name || "",
+          levelKey: result.levelKey || activeProgressionLevel.key || "",
+          progressionLevel: result.levelIndex ?? currentProgressionLevel
         }
       }))
     });
   }
 
+  function progressionResultCopy(passed, percentage, nextUnlocked) {
+    if (passed && nextUnlocked) {
+      return `<strong>${escapeHTML(activeProgressionLevel.name)} passed at ${percentage}%.</strong> ${escapeHTML(PROGRESSION_LEVELS[currentProgressionLevel + 1].name)} is now unlocked.`;
+    }
+    if (passed) {
+      return `<strong>${escapeHTML(activeProgressionLevel.name)} passed at ${percentage}%.</strong> Replay it to keep your interval recognition sharp.`;
+    }
+    return `<strong>${percentage}% recorded.</strong> You need every answer correct to unlock the next level.`;
+  }
+
+  function insertProgressionResultPanel({ passed, percentage, nextUnlocked, saveResult }) {
+    const host = roundFeedbackOverlay?.querySelector('.mi-round-feedback-panel') || els.answerCard;
+    if (!host) return;
+
+    host.querySelector('[data-ea-progression-result]')?.remove();
+    const panel = document.createElement('div');
+    panel.className = 'diagnostic-card diagnostic-feedback-tile';
+    panel.setAttribute('data-ea-progression-result', '');
+    panel.innerHTML = `
+      <span>Progression result</span>
+      <strong>${progressionResultCopy(passed, percentage, nextUnlocked)}</strong>
+      <small>
+        Level ${currentProgressionLevel} · ${escapeHTML(activeProgressionLevel.name)}. ${saveResult?.saved === false
+          ? 'This score was kept on this device, but could not be saved to your account yet.'
+          : 'This score has been saved to your account progress record.'}
+      </small>
+      <a class="primary-button" href="${escapeHTML(dashboardPath)}">Return to student dashboard</a>
+    `;
+    host.appendChild(panel);
+  }
+
+  async function recordProgressionRound(roundSave) {
+    if (!isProgressionMode() || recordedProgressionRound) return;
+    recordedProgressionRound = true;
+
+    let saveResult = null;
+    try {
+      saveResult = await Promise.resolve(roundSave);
+    } catch (_error) {
+      saveResult = { saved: false, reason: 'account-save-failed' };
+    }
+
+    const maximumScore = Math.max(0, Number(total) || 0);
+    const roundScore = Math.max(0, Number(score) || 0);
+    const percentage = maximumScore ? Math.round((roundScore / maximumScore) * 100) : 0;
+    const passed = percentage >= activeProgressionLevel.passMark && roundResults.length >= activeProgressionLevel.questions;
+    const before = Math.max(
+      0,
+      Math.min(PROGRESSION_LEVELS.length - 1, Number(window.EAProgressionStore?.getModule?.('melodic-intervals')?.unlockedLevel) || 0)
+    );
+
+    const result = await window.EAProgressionStore?.recordAttempt?.({
+      moduleId: 'melodic-intervals',
+      level: currentProgressionLevel,
+      score: roundScore,
+      maximumScore,
+      percentage,
+      passMark: activeProgressionLevel.passMark,
+      passed
+    });
+
+    const after = Math.max(0, Math.min(PROGRESSION_LEVELS.length - 1, Number(result?.moduleState?.unlockedLevel) || before));
+    const nextUnlocked = after > before && currentProgressionLevel < PROGRESSION_LEVELS.length - 1;
+
+    insertProgressionResultPanel({ passed, percentage, nextUnlocked, saveResult });
+
+    if (after > currentProgressionLevel) {
+      currentProgressionLevel = after;
+      activeProgressionLevel = PROGRESSION_LEVELS[currentProgressionLevel] || activeProgressionLevel;
+      setProgressionMessage();
+      renderProgressionLevelTile();
+    }
+  }
+
   function finishRound() {
     stopIntervalAudio();
-    saveIntervalProgress();
+    const roundSave = saveIntervalProgress();
     setQuizVisualState('complete');
     roundActive = false;
     currentQuestion = null;
@@ -826,11 +1129,13 @@
       </div>
     `;
     showRoundFeedbackWindow();
+    void recordProgressionRound(roundSave);
   }
 
   function startRound() {
     stopIntervalAudio();
     removeRoundFeedbackOverlay();
+    recordedProgressionRound = false;
     roundQuestions = buildRound();
     questionIndex = 0;
     score = 0;
@@ -865,10 +1170,13 @@
     els.scoreText.textContent = 'Score: 0 / 0';
     els.roundText.textContent = 'Ready';
     els.progressInner.style.width = '0%';
-    els.questionText.textContent = 'Choose a mode, then start the quiz.';
+    els.questionText.textContent = isProgressionMode()
+      ? `Start the ${activeProgressionLevel.name} Progress Mode round.`
+      : 'Choose a mode, then start the quiz.';
     els.staveStage.innerHTML = '';
     els.noteHint.textContent = 'The notes will appear here.';
     els.answers.innerHTML = '';
+    setDenseAnswerLayout(0);
     delete els.answers.dataset.answerCount;
     els.feedback.textContent = '';
     els.feedback.className = '';
@@ -881,6 +1189,7 @@
   }
 
   function toggleSettings() {
+    if (isProgressionMode()) return;
     const isOpen = els.advancedSettings.style.display !== 'none';
     els.advancedSettings.style.display = isOpen ? 'none' : 'block';
     els.advancedSettings.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
@@ -900,9 +1209,27 @@
     if (currentQuestion && currentQuestion.mode === 'construction' && draggedNoteId) positionDragNote(draggedNoteId);
   });
 
-  launchParams = applyLaunchParams();
-  resetApp();
-  if (launchParams.autostart) {
-    startRound();
+  async function boot() {
+    applyDashboardLinks();
+    initialisePracticeTimeTracking();
+    launchParams = applyLaunchParams();
+
+    if (isProgressionMode()) {
+      els.startButton.disabled = true;
+      try {
+        await window.EAProgressionStore?.ready?.();
+      } catch (_error) {}
+      accountProgressionState = await readAccountProgressionState();
+      setCurrentProgressionLevelFromProgress(accountProgressionState);
+      lockProgressionSettings();
+    }
+
+    resetApp();
+    if (isProgressionMode()) lockProgressionSettings();
+    if (launchParams.autostart) {
+      startRound();
+    }
   }
+
+  void boot();
 })();

@@ -10,6 +10,7 @@ const {
 const DEFAULT_MAX_LISTENS = 4;
 const DEFAULT_QUIZ_TOTAL = 3;
 const DEFAULT_ROOM_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+const QUESTION_LEVELS = new Set(['all', 'foundation', 'developing', 'securing', 'mastering']);
 
 function shuffleArray(items = []) {
   const shuffled = items.slice();
@@ -139,6 +140,54 @@ function assertInstrumentIdentifierChoicesAreSafe(rawQuestion = {}, preparedQues
   }
 }
 
+function normaliseQuestionLevel(value) {
+  const level = String(value || '').trim().toLowerCase();
+  return QUESTION_LEVELS.has(level) ? level : 'all';
+}
+
+function normaliseClipValue(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+}
+
+function clipValue(clip = {}, keys = []) {
+  for (const key of keys) {
+    if (clip[key] !== undefined && clip[key] !== null && String(clip[key]).trim()) return String(clip[key]).trim();
+  }
+  return '';
+}
+
+function instrumentIdentifierQuestionMatchesLevel(question = {}, level = 'all') {
+  const target = normaliseQuestionLevel(level);
+  if (target === 'all') return true;
+
+  const difficulty = normaliseClipValue(clipValue(question, ['difficulty', 'DIFFICULTY', 'Difficulty']));
+  const type = normaliseClipValue(clipValue(question, ['type', 'TYPE', 'Type']));
+  const solo = (
+    type === 'solo' ||
+    type === 'unaccompanied' ||
+    type === 'solo instrument' ||
+    type.includes('solo only')
+  );
+  const recognisedDifficulty = ['easy', 'medium', 'hard', 'very hard'].includes(difficulty);
+  const hard = difficulty === 'hard' || difficulty === 'very hard';
+
+  if (target === 'foundation') return solo && (difficulty === 'easy' || !recognisedDifficulty);
+  if (target === 'developing') return (difficulty === 'easy' && !solo) || (solo && recognisedDifficulty && difficulty !== 'easy');
+  if (target === 'securing') return difficulty === 'medium' && !solo;
+  return hard && !solo;
+}
+
+function melodicIntervalsQuestionMatchesLevel(question = {}, level = 'all') {
+  const target = normaliseQuestionLevel(level);
+  if (target === 'all') return true;
+  const questionLevel = normaliseClipValue(clipValue(question, ['levelKey', 'level', 'Level']));
+  return questionLevel === target;
+}
+
 class RoomManager {
   constructor(options = {}) {
     this.rooms = new Map();
@@ -181,11 +230,29 @@ class RoomManager {
     return Array.isArray(questions) ? questions : [];
   }
 
-  buildRandomQuestionOrder(moduleId, questionCount = 1) {
+  getQuestionIndexes(moduleId = this.defaultModuleId, options = {}) {
     const questions = this.getQuestions(moduleId);
-    const totalQuestions = questions.length || 1;
+    const indexes = Array.from({ length: questions.length }, (_, index) => index);
+    const level = normaliseQuestionLevel(options.questionLevel);
+    if (level === 'all') return indexes;
+
+    const filtered = indexes.filter((index) => {
+      if (moduleId === 'instrument-identifier') return instrumentIdentifierQuestionMatchesLevel(questions[index], level);
+      if (moduleId === 'melodic-intervals') return melodicIntervalsQuestionMatchesLevel(questions[index], level);
+      return true;
+    });
+    return filtered.length ? filtered : indexes;
+  }
+
+  getQuestionCount(moduleId = this.defaultModuleId, options = {}) {
+    return this.getQuestionIndexes(moduleId, options).length;
+  }
+
+  buildRandomQuestionOrder(moduleId, questionCount = 1, options = {}) {
+    const indexes = this.getQuestionIndexes(moduleId, options);
+    const totalQuestions = indexes.length || 1;
     const count = Math.max(1, Math.min(Number(questionCount) || 1, totalQuestions));
-    return shuffleArray(Array.from({ length: totalQuestions }, (_, index) => index)).slice(0, count);
+    return shuffleArray(indexes.length ? indexes : [0]).slice(0, count);
   }
 
   makeRoomCode() {
@@ -220,7 +287,7 @@ class RoomManager {
     }
   }
 
-  createRoom({ moduleId, baseUrl, apiBase = '', ownerTeacherId = null, ownerTeacherCode = '' }) {
+  createRoom({ moduleId, questionLevel = 'all', baseUrl, apiBase = '', ownerTeacherId = null, ownerTeacherCode = '' }) {
     this.cleanupExpiredRooms();
     const adapter = this.getAdapter(moduleId);
     const code = this.makeRoomCode();
@@ -244,6 +311,7 @@ class RoomManager {
       ownerTeacherCode: String(ownerTeacherCode || '').trim().toUpperCase(),
       moduleId: adapter.id,
       moduleTitle: adapter.title || adapter.id,
+      questionLevel: normaliseQuestionLevel(questionLevel),
       studentMode: adapter.studentMode || 'generic',
       joinUrl,
       shortJoinUrl,
@@ -322,6 +390,11 @@ class RoomManager {
     return room;
   }
 
+  setQuestionLevel(room, questionLevel = 'all') {
+    room.questionLevel = normaliseQuestionLevel(questionLevel);
+    return room;
+  }
+
   getQuestion(room, index = 0) {
     const questions = this.getQuestions(room.moduleId);
     if (!questions.length) return null;
@@ -342,9 +415,11 @@ class RoomManager {
       room.quizEnded = false;
       room.quizResults = new Map();
       room.quizQuestionNumber = 1;
-      if (Number(options.quizLength)) room.quizTotal = Math.max(1, Math.min(Number(options.quizLength), questions.length));
+      this.setQuestionLevel(room, options.questionLevel || room.questionLevel);
+      const availableQuestionCount = this.getQuestionCount(room.moduleId, { questionLevel: room.questionLevel }) || questions.length;
+      if (Number(options.quizLength)) room.quizTotal = Math.max(1, Math.min(Number(options.quizLength), availableQuestionCount));
       if (Number(options.maxListens)) room.maxListens = Math.max(1, Math.min(Number(options.maxListens), 8));
-      room.questionOrder = this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1);
+      room.questionOrder = this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1, { questionLevel: room.questionLevel });
       room.questionOrderPosition = 0;
       targetIndex = room.questionOrder[0] ?? targetIndex;
     } else if (options.advanceQuiz) {
@@ -360,7 +435,8 @@ class RoomManager {
       room.quizEnded = false;
       room.quizQuestionNumber = Math.max(1, Number(room.quizQuestionNumber || 1));
       if (!Array.isArray(room.questionOrder) || !room.questionOrder.length) {
-        room.questionOrder = this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1);
+        this.setQuestionLevel(room, options.questionLevel || room.questionLevel);
+        room.questionOrder = this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1, { questionLevel: room.questionLevel });
         room.questionOrderPosition = 0;
         targetIndex = room.questionOrder[0] ?? targetIndex;
       }
@@ -574,6 +650,7 @@ class RoomManager {
       questionIndex: room.questionIndex,
       questionRunId: room.questionRunId,
       roundId: Number(room.roundId || 1),
+      questionLevel: normaliseQuestionLevel(room.questionLevel),
       progressSave: room.lastProgressSave || null,
       playback: room.playback || null,
       question: room.activeQuestion || null,

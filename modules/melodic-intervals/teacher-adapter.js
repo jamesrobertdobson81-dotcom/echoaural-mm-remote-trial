@@ -27,7 +27,7 @@
   function loadQuestions() {
     if (cachedQuestions) return cachedQuestions;
     const data = getIntervalData();
-    cachedQuestions = data.buildQuestions({ maxQuestions: 120 }).map((question) => ({ ...question, mode: 'recognition' }));
+    cachedQuestions = data.buildQuestions({ level: 'all' }).map((question) => ({ ...question, mode: 'recognition' }));
     return cachedQuestions;
   }
 
@@ -42,9 +42,14 @@
 
   function buildChoices(question = {}) {
     const data = getIntervalData();
-    const choices = data.buildChoices();
-    if (!choices.some((choice) => data.sameInterval(choice, question.intervalLabel))) choices.unshift(question.intervalLabel);
-    return shuffleArray(choices).slice(0, 5);
+    const correct = question.correctAnswer || (question.answerMode === 'quality' ? question.intervalFullLabel : question.intervalLabel);
+    const choices = data.buildChoices({
+      level: question.levelKey || question.level,
+      answerMode: question.answerMode,
+      includeOctave: question.intervalLabel === 'Octave'
+    });
+    if (!choices.some((choice) => data.sameInterval(choice, correct))) choices.unshift(correct);
+    return shuffleArray(choices);
   }
 
   function prepareQuestion(question = {}, options = {}) {
@@ -65,8 +70,22 @@
       targetNoteId: question.targetNoteId,
       startNoteLabel: question.startNoteLabel,
       targetNoteLabel: question.targetNoteLabel,
+      keySignatureLabel: question.keySignatureLabel,
+      keySignatureId: question.keySignatureId,
+      keySignatureAccidentals: question.keySignatureAccidentals,
+      staffAsset: question.staffAsset,
       intervalLabel: question.intervalLabel,
+      intervalFullLabel: question.intervalFullLabel,
+      intervalQuality: question.intervalQuality,
       intervalId: question.intervalId,
+      answerMode: question.answerMode || 'number',
+      correctAnswer: question.correctAnswer || (question.answerMode === 'quality' ? question.intervalFullLabel : question.intervalLabel),
+      level: question.level || '',
+      levelKey: question.levelKey || '',
+      levelIndex: question.levelIndex,
+      chromatic: Boolean(question.chromatic),
+      hasAccidentals: Boolean(question.hasAccidentals),
+      semitoneDistance: question.semitoneDistance,
       audio: question.startAudio || (Array.isArray(question.audioSequence) ? question.audioSequence[0] : ''),
       audioSequence: Array.isArray(question.audioSequence) ? question.audioSequence.slice() : [question.startAudio, question.targetAudio].filter(Boolean),
       sequenceGapMs: Number(question.sequenceGapMs || 380),
@@ -80,7 +99,7 @@
   function checkAnswer(question = {}, studentAnswer = '', contextPayload = {}) {
     const data = getIntervalData();
     const activeQuestion = contextPayload.activeQuestion || {};
-    const correct = question.intervalLabel || activeQuestion.intervalLabel || question.answer || '';
+    const correct = question.correctAnswer || activeQuestion.correctAnswer || question.intervalFullLabel || question.intervalLabel || activeQuestion.intervalLabel || question.answer || '';
     const isCorrect = data.sameInterval(studentAnswer, correct);
     return {
       score: isCorrect ? 1 : 0,

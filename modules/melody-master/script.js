@@ -2,7 +2,14 @@ const SOURCE_MELODY_CLIPS = (typeof melodyClips !== "undefined" && Array.isArray
   ? melodyClips
   : [];
 
-const ALL_MELODY_CLIPS = SOURCE_MELODY_CLIPS.slice();
+const LEVELLED_MELODY_CLIPS = (typeof melodyMasterLevelledClips !== "undefined" && Array.isArray(melodyMasterLevelledClips) && melodyMasterLevelledClips.length)
+  ? melodyMasterLevelledClips
+  : [];
+
+const melodyMasterLearningParams = new URLSearchParams(window.location.search);
+const melodyMasterLearningMode = String(melodyMasterLearningParams.get("eaMode") || "").trim().toLowerCase();
+const useLevelledMelodyClips = melodyMasterLearningMode === "progression" || melodyMasterLearningMode === "progress";
+const ALL_MELODY_CLIPS = (useLevelledMelodyClips && LEVELLED_MELODY_CLIPS.length ? LEVELLED_MELODY_CLIPS : SOURCE_MELODY_CLIPS).slice();
 
 let currentQuestionIndex = 0;
 let MM001_SOURCE = {};
@@ -1134,6 +1141,7 @@ function closeRoundFeedbackWindow() {
 }
 
 let eaProgressRoundId = "";
+let eaLastRoundSave = Promise.resolve({ saved: false, reason: "not-started" });
 
 function resetMelodyMasterProgressRound() {
   eaProgressRoundId = window.EchoAuralTracking
@@ -1142,10 +1150,29 @@ function resetMelodyMasterProgressRound() {
 }
 
 function saveMelodyMasterProgress() {
-  if (!window.EchoAuralTracking || !roundResults.filter(Boolean).length) return;
+  if (!window.EchoAuralTracking || !roundResults.filter(Boolean).length) {
+    eaLastRoundSave = Promise.resolve({ saved: false, reason: "no-round" });
+    return eaLastRoundSave;
+  }
   if (!eaProgressRoundId) resetMelodyMasterProgressRound();
   const summary = getRoundScoreSummary();
   const totals = getRoundAggregateMarks();
+  const metadata = {
+    pitchAwarded: totals.pitchAwarded,
+    pitchAvailable: totals.pitchAvailable,
+    contourAwarded: totals.shapeAwarded,
+    contourAvailable: totals.shapeAvailable
+  };
+  const progression = window.EAMelodyMasterProgression;
+
+  if (progression && progression.isActive) {
+    metadata.source = "student_progression";
+    metadata.learningMode = "progression";
+    metadata.progressionStage = progression.level?.name || "";
+    metadata.progressionLevel = progression.currentLevel ?? "";
+    metadata.passMark = progression.level?.passMark ?? "";
+  }
+
   const questions = roundResults.filter(Boolean).map((result, index) => ({
     questionId: result.questionId || `MM-Q${index + 1}`,
     score: Number(result.awardedMarks) || 0,
@@ -1161,20 +1188,17 @@ function saveMelodyMasterProgress() {
       firstIntervalSizeError: result.firstIntervalSizeError || ""
     }
   }));
-  window.EchoAuralTracking.saveRound({
+  eaLastRoundSave = window.EchoAuralTracking.saveRound({
     moduleId: "melody-master",
     clientRoundId: eaProgressRoundId,
     score: summary.awarded,
     maximumScore: summary.totalPossible,
     roundFeedback: getCompiledRoundFeedback(summary),
-    metadata: {
-      pitchAwarded: totals.pitchAwarded,
-      pitchAvailable: totals.pitchAvailable,
-      contourAwarded: totals.shapeAwarded,
-      contourAvailable: totals.shapeAvailable
-    },
+    metadata,
     questions
   });
+
+  return eaLastRoundSave;
 }
 
 function finishRound() {

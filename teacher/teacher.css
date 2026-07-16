@@ -2182,3 +2182,162 @@ body {
     font-size: .76rem;
   }
 }
+
+/* Dashboard-launched Live Session: keep the runtime, remove setup scaffolding. */
+body.dashboard-launched .teacher-shell {
+  width: min(1480px, calc(100% - 28px));
+  height: 100vh;
+  min-height: 0;
+  padding: 10px 0 14px;
+  overflow: hidden;
+}
+
+body.dashboard-launched .teacher-topbar {
+  min-height: 72px;
+  border-radius: 24px;
+}
+
+body.dashboard-launched .teacher-title-lockup h1 {
+  font-size: clamp(1.55rem, 2.1vw, 2.25rem);
+}
+
+body.dashboard-launched .teacher-title-lockup .mode-pill {
+  color: #bae6fd;
+  border-color: rgba(56,189,248,.28);
+  background: rgba(56,189,248,.12);
+}
+
+body.dashboard-launched .module-selector-panel {
+  display: none !important;
+}
+
+body.live-launch #createSessionButton,
+body.session-created #createSessionButton {
+  display: none !important;
+}
+
+body.dashboard-launched .teacher-grid.shared-teacher-grid {
+  height: calc(100vh - 100px);
+  min-height: 0;
+  margin-top: 10px;
+  gap: 12px;
+  grid-template-columns: minmax(300px, .88fr) minmax(360px, .92fr) minmax(420px, 1.2fr) !important;
+  grid-template-areas:
+    "session controls leaderboard"
+    "session students leaderboard" !important;
+  grid-template-rows: minmax(202px, .42fr) minmax(260px, .58fr) !important;
+}
+
+body.dashboard-launched .panel {
+  min-height: 0;
+  padding: 20px;
+  border-radius: 28px;
+}
+
+body.dashboard-launched .session-panel,
+body.dashboard-launched .control-panel,
+body.dashboard-launched .students-panel,
+body.dashboard-launched .leaderboard-panel {
+  height: 100%;
+}
+
+body.dashboard-launched .session-card {
+  margin-top: 12px;
+}
+
+body.dashboard-launched .join-instructions {
+  margin-block: 10px;
+  padding: 12px;
+}
+
+body.dashboard-launched .room-code-wrap {
+  margin: 10px 0;
+}
+
+body.dashboard-launched .control-panel {
+  position: relative !important;
+  min-height: 0 !important;
+  padding: 18px !important;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+body.dashboard-launched .control-panel .teacher-control-heading,
+body.dashboard-launched .control-panel .teacher-track-slot,
+body.dashboard-launched .control-panel .question-instruction-line {
+  display: none !important;
+}
+
+body.dashboard-launched .control-panel .teacher-status-tile {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 86px !important;
+  margin: 0 !important;
+  padding: 18px 20px !important;
+  transform: none !important;
+  border-radius: 24px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.03rem !important;
+  line-height: 1.32;
+}
+
+body.dashboard-launched .control-panel .teacher-primary-row {
+  position: static !important;
+  inset: auto !important;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+body.dashboard-launched .teacher-primary-row button,
+body.dashboard-launched .large-control-button {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 15px;
+}
+
+body.dashboard-launched .students-panel .student-list,
+body.dashboard-launched .leaderboard-list {
+  min-height: 0;
+}
+
+body.dashboard-launched .leaderboard-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+body.dashboard-launched .leaderboard-panel .leaderboard-list {
+  flex: 1 1 auto;
+}
+
+body.dashboard-launched .leaderboard-panel .summary-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1120px) {
+  body.dashboard-launched .teacher-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  body.dashboard-launched .teacher-grid.shared-teacher-grid {
+    height: auto;
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "session"
+      "controls"
+      "students"
+      "leaderboard" !important;
+    grid-template-rows: auto !important;
+  }
+}

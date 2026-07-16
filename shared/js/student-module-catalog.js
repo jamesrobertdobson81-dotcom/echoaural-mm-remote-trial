@@ -11,14 +11,14 @@ window.EAStudentModules = Object.freeze([
     "title": "Melody Master",
     "mark": "MM",
     "href": "/modules/melody-master/",
-    "progressionEnabled": false
+    "progressionEnabled": true
   },
   {
     "id": "melodic-intervals",
     "title": "Melodic Intervals",
     "mark": "MI",
     "href": "/modules/melodic-intervals/",
-    "progressionEnabled": false
+    "progressionEnabled": true
   },
   {
     "id": "texture-trainer",

@@ -28,7 +28,7 @@
   }
 
   async function findIdentity() {
-    for (const endpoint of ["/api/student/me", "/api/auth/student/me", "/api/me"]) {
+    for (const endpoint of ["/api/auth/me?role=student", "/api/student/me", "/api/auth/student/me", "/api/me"]) {
       try {
         const response = await fetch(endpoint, {
           credentials: "include",

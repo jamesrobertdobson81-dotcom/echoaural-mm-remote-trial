@@ -2,8 +2,9 @@
   "use strict";
 
   const params = new URLSearchParams(window.location.search);
-  const learningMode = params.get("eaMode");
-  const dashboardPath = params.get("eaDashboard") || "/student/dashboard.html";
+  const rawLearningMode = String(params.get("eaMode") || "").trim().toLowerCase();
+  const learningMode = rawLearningMode === "progress" ? "progression" : rawLearningMode;
+  const dashboardPath = params.get("eaDashboard") || "/account/student-home/";
 
   document.querySelectorAll(
     ".topbar-home-link, .brand[href], a[aria-label*='EchoAural home']"
@@ -13,33 +14,52 @@
     }
   });
 
-  // Practice deliberately does nothing else. The existing app remains unchanged.
+  function initialisePracticeTimeTracking() {
+    if (!window.EchoAuralTracking?.savePracticeTime) return;
+
+    const startedAt = new Date();
+    const startedMs = Date.now();
+    const clientSessionId = window.EchoAuralTracking.createClientRoundId("instrument-identifier-practice");
+    let saved = false;
+
+    function savePracticeTime() {
+      if (saved) return;
+
+      const durationSeconds = Math.round((Date.now() - startedMs) / 1000);
+      if (durationSeconds < 5) return;
+
+      saved = true;
+      void window.EchoAuralTracking.savePracticeTime({
+        moduleId: "instrument-identifier",
+        clientSessionId,
+        durationSeconds,
+        startedAt: startedAt.toISOString()
+      }, { keepalive: true });
+    }
+
+    window.addEventListener("pagehide", savePracticeTime);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") savePracticeTime();
+    });
+  }
+
+  if (learningMode === "practice") {
+    initialisePracticeTimeTracking();
+    return;
+  }
+
   if (learningMode !== "progression") return;
 
   const MODULE_ID = "instrument-identifier";
   const LEVELS = [
-    { id: 0, name: "Introduction", questions: 5, passMark: 0, description: "clear, familiar solo instruments" },
-    { id: 1, name: "Foundation", questions: 10, passMark: 70, description: "easy solo instruments" },
-    { id: 2, name: "Developing", questions: 10, passMark: 70, description: "easy accompanied and medium solo instruments" },
-    { id: 3, name: "Secure", questions: 10, passMark: 80, description: "medium accompanied and hard solo instruments" },
-    { id: 4, name: "Exam", questions: 10, passMark: 80, description: "hard accompanied and very hard extracts" }
+    { id: 0, name: "Foundation", questions: 10, passMark: 70, description: "easy solo instruments and solo clips without difficulty labels" },
+    { id: 1, name: "Developing", questions: 10, passMark: 70, description: "harder solo clips and easy accompanied clips" },
+    { id: 2, name: "Securing", questions: 10, passMark: 80, description: "medium accompanied clips" },
+    { id: 3, name: "Mastering", questions: 10, passMark: 80, description: "hard accompanied clips" }
   ];
 
-  const familiarLevelZero = new Set([
-    "violin", "viola", "cello", "double bass",
-    "flute", "oboe", "clarinet", "bassoon",
-    "trumpet", "french horn", "horn", "trombone", "tuba",
-    "piano", "acoustic guitar", "classical guitar", "electric guitar",
-    "timpani", "snare drum", "side drum", "xylophone"
-  ]);
-
-  const requestedLevel = Math.max(0, Math.min(4, Number(params.get("eaLevel")) || 0));
-  const saved = window.EAProgressionStore?.getModule?.(MODULE_ID) || { unlockedLevel: 0 };
-  const currentLevel = Math.min(
-    requestedLevel,
-    Math.max(0, Number(saved.unlockedLevel) || 0)
-  );
-  const level = LEVELS[currentLevel];
+  let currentLevel = 0;
+  let level = LEVELS[currentLevel];
 
   const legacyReadSetupOptions = readSetupOptions;
   const legacyClipMatchesMode = clipMatchesMode;
@@ -50,6 +70,8 @@
   const legacyRestartGame = restartGame;
 
   let recordedRound = false;
+  let accountProgressionState = null;
+  const startWasDisabled = Boolean(startButton?.disabled);
 
   function normalise(value) {
     return String(value || "").trim().toLowerCase();
@@ -97,35 +119,24 @@
   function matchesLevel(clip) {
     const difficulty = difficultyOf(clip);
     const solo = isSolo(clip);
+    const hard = difficulty === "hard" || difficulty === "very hard";
 
     if (currentLevel === 0) {
-      return familiarLevelZero.has(instrumentOf(clip)) &&
-        solo &&
-        (difficulty === "easy" || !recognisedDifficulty(difficulty));
-    }
-
-    if (currentLevel === 1) {
       return solo && (difficulty === "easy" || !recognisedDifficulty(difficulty));
     }
 
-    if (currentLevel === 2) {
+    if (currentLevel === 1) {
       return (
         (difficulty === "easy" && !solo) ||
-        (difficulty === "medium" && solo)
+        (solo && recognisedDifficulty(difficulty) && difficulty !== "easy")
       );
     }
 
-    if (currentLevel === 3) {
-      return (
-        (difficulty === "medium" && !solo) ||
-        (difficulty === "hard" && solo)
-      );
+    if (currentLevel === 2) {
+      return difficulty === "medium" && !solo;
     }
 
-    return (
-      difficulty === "very hard" ||
-      (difficulty === "hard" && !solo)
-    );
+    return hard && !solo;
   }
 
   function allFamilies() {
@@ -144,15 +155,61 @@
     return [...values];
   }
 
+  async function readAccountProgressionState() {
+    try {
+      const response = await fetch(`/api/student/progression-state?moduleId=${encodeURIComponent(MODULE_ID)}`, {
+        credentials: "same-origin",
+        headers: { Accept: "application/json" }
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data?.ok === false ? null : data;
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function setCurrentLevelFromProgress(accountState = null) {
+    const saved = window.EAProgressionStore?.getModule?.(MODULE_ID) || { unlockedLevel: 0 };
+    const localUnlockedLevel = Math.max(0, Math.min(LEVELS.length - 1, Number(saved.unlockedLevel) || 0));
+    const accountUnlockedLevel = Math.max(0, Math.min(LEVELS.length - 1, Number(accountState?.unlockedLevel) || 0));
+    const unlockedLevel = Math.max(localUnlockedLevel, accountUnlockedLevel);
+    const requestedLevel = params.has("eaLevel")
+      ? Math.max(0, Math.min(LEVELS.length - 1, Number(params.get("eaLevel")) || 0))
+      : unlockedLevel;
+    currentLevel = Math.min(requestedLevel, unlockedLevel);
+    level = LEVELS[currentLevel] || LEVELS[0];
+  }
+
   function setProgressionMessage() {
     if (!setupMessage) return;
 
     setupMessage.textContent =
       `Progression · Level ${currentLevel} — ${level.name}. ` +
       `${level.description}. Complete ${level.questions} questions` +
-      (currentLevel === 0
-        ? " to unlock Foundation."
-        : ` and score ${level.passMark}% to pass.`);
+      ` and score ${level.passMark}% to pass.`;
+  }
+
+  function renderProgressionLevelTile() {
+    const quizModeInput = document.querySelector('input[name="quizMode"]');
+    const quizModeGrid = quizModeInput?.closest(".cardGrid") || document.querySelector(".progression-level-grid");
+    if (!quizModeGrid) return;
+
+    const heading = quizModeGrid.previousElementSibling;
+    if (heading && /^h[1-6]$/i.test(heading.tagName)) heading.textContent = "Progress Mode";
+
+    quizModeGrid.hidden = false;
+    quizModeGrid.removeAttribute("aria-hidden");
+    quizModeGrid.classList.add("progression-level-grid");
+    quizModeGrid.setAttribute("aria-label", "Current Progress Mode level");
+    quizModeGrid.innerHTML = `
+      <div class="progression-level-tile" role="status" aria-live="polite">
+        <span class="progression-level-kicker">Current level</span>
+        <strong>${level.name}</strong>
+        <small>${level.description}.</small>
+        <span class="progression-level-rule">${level.questions} questions · ${level.passMark}% to pass</span>
+      </div>
+    `;
   }
 
   function lockSettings() {
@@ -171,16 +228,27 @@
       settingsToggle.setAttribute("aria-disabled", "true");
     }
 
+    const settingsWrap = advancedSettings?.closest(".settings-popover-wrap");
+    if (settingsWrap) {
+      settingsWrap.hidden = true;
+      settingsWrap.setAttribute("aria-hidden", "true");
+    }
+
     setProgressionMessage();
+    renderProgressionLevelTile();
   }
 
   readSetupOptions = function readProgressionOptions() {
+    recordedRound = false;
+    setCurrentLevelFromProgress(accountProgressionState);
     legacyReadSetupOptions();
-    selectedMode = "mixed";
+    selectedMode = "all";
     selectedDifficulty = "all";
     selectedFamilies = allFamilies();
     unlimitedMode = false;
     totalQuestions = level.questions;
+    setProgressionMessage();
+    renderProgressionLevelTile();
   };
 
   clipMatchesMode = function progressionMode(_clip) {
@@ -201,10 +269,6 @@
   };
 
   function resultCopy(passed, percentage, nextUnlocked) {
-    if (currentLevel === 0 && passed) {
-      return "<strong>Introduction complete.</strong> Foundation is now unlocked.";
-    }
-
     if (passed && nextUnlocked) {
       return `<strong>${level.name} passed at ${percentage}%.</strong> ` +
         `${LEVELS[currentLevel + 1].name} is now unlocked.`;
@@ -219,22 +283,26 @@
       `Reach ${level.passMark}% to unlock the next level.`;
   }
 
-  async function recordRound() {
+  async function recordRound(roundSave) {
     if (recordedRound) return;
     recordedRound = true;
 
+    let saveResult = null;
+    try {
+      saveResult = await Promise.resolve(roundSave);
+    } catch (_error) {
+      saveResult = { saved: false, reason: "account-save-failed" };
+    }
     const maximumScore = Math.max(0, Number(questionsAnswered) || 0);
     const roundScore = Math.max(0, Number(score) || 0);
     const percentage = maximumScore
       ? Math.round((roundScore / maximumScore) * 100)
       : 0;
-    const passed = currentLevel === 0
-      ? maximumScore > 0
-      : percentage >= level.passMark;
+    const passed = percentage >= level.passMark;
 
     const before = Math.max(
       0,
-      Number(window.EAProgressionStore?.getModule?.(MODULE_ID)?.unlockedLevel) || 0
+      Math.min(LEVELS.length - 1, Number(window.EAProgressionStore?.getModule?.(MODULE_ID)?.unlockedLevel) || 0)
     );
 
     const result = await window.EAProgressionStore?.recordAttempt?.({
@@ -247,8 +315,8 @@
       passed
     });
 
-    const after = result?.moduleState?.unlockedLevel ?? before;
-    const nextUnlocked = after > before;
+    const after = Math.max(0, Math.min(LEVELS.length - 1, Number(result?.moduleState?.unlockedLevel) || before));
+    const nextUnlocked = after > before && currentLevel < LEVELS.length - 1;
 
     const panel = document.createElement("div");
     panel.className = "diagnostic-feedback-tile";
@@ -257,8 +325,9 @@
       <p class="eyebrow">PROGRESSION RESULT</p>
       <p>${resultCopy(passed, percentage, nextUnlocked)}</p>
       <p class="muted">
-        Level ${currentLevel} · ${level.name}. This score has been saved to
-        your progression record.
+        Level ${currentLevel} · ${level.name}. ${saveResult?.saved === false
+          ? "This score was kept on this device, but could not be saved to your account yet."
+          : "This score has been saved to your account progress record."}
       </p>
       <a class="primaryButton" href="${dashboardPath}">
         Return to student dashboard
@@ -267,11 +336,18 @@
 
     answerCard?.querySelector("[data-ea-progression-result]")?.remove();
     answerCard?.appendChild(panel);
+
+    if (after > currentLevel) {
+      currentLevel = after;
+      level = LEVELS[currentLevel] || level;
+      setProgressionMessage();
+      renderProgressionLevelTile();
+    }
   }
 
   endGame = function endProgressionGame() {
-    legacyEndGame();
-    void recordRound();
+    const roundSave = legacyEndGame();
+    void recordRound(roundSave);
   };
 
   restartGame = function restartProgressionGame() {
@@ -279,11 +355,13 @@
     window.setTimeout(lockSettings, 0);
   };
 
-  lockSettings();
-
   window.EAInstrumentIdentifierProgression = Object.freeze({
-    currentLevel,
-    level,
+    get currentLevel() {
+      return currentLevel;
+    },
+    get level() {
+      return level;
+    },
     matchesLevel,
     reset() {
       window.EAProgressionStore?.reset?.(MODULE_ID);
@@ -295,4 +373,22 @@
       clipMatchesFamily: legacyClipMatchesFamily
     }
   });
+
+  async function initialiseProgressionMode() {
+    if (startButton) startButton.disabled = true;
+
+    try {
+      await window.EAProgressionStore?.ready?.();
+    } catch (_error) {
+      // If identity lookup fails, Foundation still works for the current session.
+    }
+
+    accountProgressionState = await readAccountProgressionState();
+    setCurrentLevelFromProgress(accountProgressionState);
+    lockSettings();
+
+    if (startButton) startButton.disabled = startWasDisabled;
+  }
+
+  void initialiseProgressionMode();
 })();

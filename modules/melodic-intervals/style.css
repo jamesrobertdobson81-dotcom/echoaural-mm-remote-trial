@@ -310,6 +310,99 @@
   grid-template-columns: repeat(4, minmax(90px, 1fr));
 }
 
+.mi-app .quiz-panel.is-active #feedback,
+.mi-app .quiz-panel.is-complete #feedback {
+  display: block !important;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set.is-active .mi-console,
+.mi-app .quiz-panel.is-dense-answer-set.is-complete .mi-console {
+  padding: clamp(10px, 1.25vw, 18px);
+  gap: clamp(4px, .52vh, 7px);
+  align-content: start;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .console-question-kicker {
+  min-height: 12px;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .console-question-kicker .eyebrow {
+  font-size: .56rem;
+  letter-spacing: .1em;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .console-heading {
+  width: min(620px, 100%);
+  min-height: 0;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set #questionText {
+  max-width: 58ch;
+  font-size: clamp(.78rem, .9vw, .95rem);
+  line-height: 1.16;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .mi-stave-card {
+  width: min(100%, 540px);
+  margin: 0 auto;
+  padding: clamp(5px, .65vw, 8px);
+  border-radius: 18px;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .mi-stave-stage {
+  border-radius: 13px;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .mi-note-hint {
+  min-height: 0;
+  margin-top: 2px;
+  font-size: .68rem;
+  line-height: 1.15;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .mi-answer-grid {
+  width: min(640px, 100%);
+  max-width: 640px;
+  gap: clamp(4px, .45vw, 6px);
+  margin-block: 0;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .mi-answer-grid[data-answer-count="12"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .mi-answer-grid[data-answer-count="17"] {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .mi-answer-button {
+  min-height: 36px;
+  padding: 5px 7px;
+  border-radius: 12px;
+  font-size: clamp(.56rem, .68vw, .66rem);
+  line-height: 1.05;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set #feedback {
+  min-height: 1.1em;
+  font-size: .7rem;
+  line-height: 1.15;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .console-actions-replay {
+  margin-top: 0;
+  gap: 6px;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set .console-actions-replay .primary-button,
+.mi-app .quiz-panel.is-dense-answer-set .console-actions-replay .play-button,
+.mi-app .quiz-panel.is-dense-answer-set .console-actions-replay .secondary-button {
+  min-height: 36px;
+  min-width: 138px;
+  padding: 0 12px;
+  font-size: .72rem;
+}
+
 
 /* Match the main Melody Master ready/holding console before an interval quiz starts. */
 .mi-app .quiz-panel.is-ready .mi-stave-card,

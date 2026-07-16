@@ -86,6 +86,141 @@
 .onboarding-preview-link { display: inline-flex; margin-top: 12px; color: #6d43df; font-weight: 850; }
 .onboarding-security-note { margin: 18px 0 0; color: #75869d; font-size: .78rem; line-height: 1.5; }
 
+.teacher-signup-page .account-shell {
+  grid-template-rows: auto 1fr;
+}
+
+.teacher-signup-page .account-hero {
+  padding: 14px 18px 78px;
+}
+
+.teacher-signup-page .account-nav {
+  min-height: 68px;
+  padding-block: 8px;
+}
+
+.teacher-signup-page .account-wave {
+  width: 52px;
+  height: 40px;
+}
+
+.teacher-signup-page .account-wordmark {
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+}
+
+.teacher-signup-page .account-hero-content {
+  display: none;
+}
+
+.teacher-signup-page .account-main {
+  padding-bottom: 12px;
+}
+
+.teacher-signup-page .account-panel-wrap {
+  margin-top: -70px;
+}
+
+.teacher-signup-page .onboarding-card {
+  grid-template-columns: minmax(270px, .78fr) minmax(420px, 1.35fr);
+}
+
+.teacher-signup-page .onboarding-aside {
+  padding: clamp(24px, 3vw, 34px);
+}
+
+.teacher-signup-page .onboarding-aside h2 {
+  margin-bottom: 10px;
+  font-size: clamp(1.55rem, 2.4vw, 2.1rem);
+}
+
+.teacher-signup-page .onboarding-aside > p {
+  font-size: .9rem;
+  line-height: 1.48;
+}
+
+.teacher-signup-page .onboarding-feature-list {
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.teacher-signup-page .onboarding-feature {
+  grid-template-columns: 44px 1fr;
+  gap: 11px;
+  padding: 10px;
+}
+
+.teacher-signup-page .onboarding-feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 76% 14%, rgba(56,189,248,.24), transparent 36%),
+    linear-gradient(135deg, rgba(56,189,248,.2), rgba(139,92,246,.18));
+  box-shadow: 0 12px 26px rgba(7,17,31,.18);
+}
+
+.teacher-signup-page .onboarding-feature strong {
+  font-size: .86rem;
+}
+
+.teacher-signup-page .onboarding-feature span {
+  font-size: .72rem;
+  line-height: 1.28;
+}
+
+.teacher-signup-page .onboarding-form-panel {
+  padding: clamp(24px, 3.5vw, 40px);
+}
+
+.teacher-signup-page .onboarding-form-panel .card-intro {
+  margin: 8px 0 16px;
+  font-size: .92rem;
+  line-height: 1.44;
+}
+
+.teacher-signup-page .onboarding-grid {
+  gap: 10px 13px;
+}
+
+.teacher-signup-page .account-form {
+  gap: 12px;
+}
+
+.teacher-signup-page .field {
+  gap: 6px;
+}
+
+.teacher-signup-page .field label {
+  font-size: .82rem;
+}
+
+.teacher-signup-page .field input,
+.teacher-signup-page .field select {
+  min-height: 46px;
+  border-radius: 13px;
+}
+
+.teacher-signup-page .field-help {
+  font-size: .72rem;
+  line-height: 1.32;
+}
+
+.teacher-signup-page .onboarding-check {
+  font-size: .76rem;
+  line-height: 1.34;
+}
+
+.teacher-signup-page .primary-button,
+.teacher-signup-page .secondary-button {
+  min-height: 46px;
+}
+
+.teacher-signup-page .onboarding-security-note {
+  margin-top: 10px;
+  font-size: .72rem;
+  line-height: 1.38;
+}
+
 .setup-card { width: min(650px, 100%); margin: 0 auto; padding: clamp(28px, 5vw, 50px); }
 .setup-code-card {
   margin: 20px 0 24px;

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title-progress-mode" fill="none">
+  <title id="title-progress-mode">Progress mode</title>
+  <g stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 103h84"/>
+    <path d="M34 103V82a8 8 0 0 1 8-8h10a8 8 0 0 1 8 8v21"/>
+    <path d="M60 103V66a8 8 0 0 1 8-8h10a8 8 0 0 1 8 8v37"/>
+    <path d="M86 103V48a8 8 0 0 1 8-8h10a8 8 0 0 1 8 8v55"/>
+    <path d="M20 70c31-6 59-23 82-52"/>
+    <path d="M88 18h14v14"/>
+  </g>
+</svg>

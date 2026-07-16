@@ -14,8 +14,17 @@ let activeClips = [];
 let questionDeck = [];
 let roundHistory = [];
 let eaProgressRoundId = "";
+let eaLastRoundSave = Promise.resolve({ saved: false, reason: "not-started" });
 
 const clipData = typeof clips !== "undefined" ? clips : [];
+const iiLearningParams = new URLSearchParams(window.location.search);
+
+function getInstrumentLearningMode() {
+  const mode = cleanText(iiLearningParams.get("eaMode"));
+  if (mode === "practice") return "practice";
+  if (mode === "progress" || mode === "progression") return "progression";
+  return "";
+}
 
 /*
   Icon path from:
@@ -566,10 +575,34 @@ function resetInstrumentProgressRound() {
 }
 
 function saveInstrumentProgress(divisor, percentage) {
-  if (!window.EchoAuralTracking || !roundHistory.length) return;
+  if (!window.EchoAuralTracking || !roundHistory.length) {
+    eaLastRoundSave = Promise.resolve({ saved: false, reason: "no-round" });
+    return eaLastRoundSave;
+  }
+  const learningMode = getInstrumentLearningMode();
+  if (learningMode === "practice") {
+    eaLastRoundSave = Promise.resolve({ saved: false, reason: "practice-mode" });
+    return eaLastRoundSave;
+  }
+
   if (!eaProgressRoundId) resetInstrumentProgressRound();
   const medal = getMedal(percentage);
-  window.EchoAuralTracking.saveRound({
+  const metadata = {
+    mode: selectedMode,
+    difficulty: selectedDifficulty,
+    families: selectedFamilies,
+    medal: medal.title
+  };
+
+  if (learningMode === "progression") {
+    const progression = window.EAInstrumentIdentifierProgression;
+    metadata.source = "student_progression";
+    metadata.learningMode = "progression";
+    metadata.progressionStage = progression?.level?.name || "";
+    metadata.progressionLevel = progression?.currentLevel ?? "";
+  }
+
+  eaLastRoundSave = window.EchoAuralTracking.saveRound({
     moduleId: "instrument-identifier",
     clientRoundId: eaProgressRoundId,
     score,
@@ -579,12 +612,7 @@ function saveInstrumentProgress(divisor, percentage) {
       : percentage >= 65
         ? "Good progress. Compare instruments from the same family and listen for register, attack and tone colour."
         : "Keep practising. Focus on one instrument family at a time and compare contrasting tone colours.",
-    metadata: {
-      mode: selectedMode,
-      difficulty: selectedDifficulty,
-      families: selectedFamilies,
-      medal: medal.title
-    },
+    metadata,
     questions: roundHistory.map((item, index) => ({
       questionId: item.questionId || `II-Q${index + 1}`,
       score: item.wasCorrect ? 1 : 0,
@@ -602,6 +630,8 @@ function saveInstrumentProgress(divisor, percentage) {
       }
     }))
   });
+
+  return eaLastRoundSave;
 }
 
 function endGame() {
@@ -617,7 +647,7 @@ function endGame() {
   const divisor = unlimitedMode ? questionsAnswered : totalQuestions;
   const percentage = divisor > 0 ? Math.round((score / divisor) * 100) : 0;
   const medal = getMedal(percentage);
-  saveInstrumentProgress(divisor, percentage);
+  const roundSave = saveInstrumentProgress(divisor, percentage);
 
   answerCard.innerHTML = `
     <div class="summary">
@@ -637,6 +667,8 @@ function endGame() {
       ${buildRoundSummaryGrid()}
     </div>
   `;
+
+  return roundSave;
 }
 
 function startGame() {

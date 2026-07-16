@@ -74,6 +74,14 @@ function buildAnswerData(room, rawQuestion, result) {
     answerData.intervalCorrect = Boolean(result.correct);
     answerData.mode = 'recognition';
     answerData.intervalLabel = cleanText(rawQuestion?.intervalLabel || result.modelAnswer, 120);
+    answerData.intervalFullLabel = cleanText(rawQuestion?.intervalFullLabel || result.modelAnswer, 120);
+    answerData.intervalQuality = cleanText(rawQuestion?.intervalQuality, 80);
+    answerData.answerMode = cleanText(rawQuestion?.answerMode, 80);
+    answerData.direction = cleanText(rawQuestion?.direction, 80);
+    answerData.level = cleanText(rawQuestion?.level, 80);
+    answerData.levelKey = cleanText(rawQuestion?.levelKey, 80);
+    answerData.progressionLevel = rawQuestion?.levelIndex ?? null;
+    answerData.keySignatureLabel = cleanText(rawQuestion?.keySignatureLabel, 120);
   }
 
   if (moduleId === 'texture-trainer') {
@@ -119,7 +127,8 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
       roomCode: room.code,
       classroomRoundId: Number(room.roundId || 1),
       moduleId: room.moduleId,
-      teacherMode: true
+      teacherMode: true,
+      questionLevel: cleanText(room.questionLevel, 80)
     },
     clientRoundId: `teacher-mode:${room.code}:${Number(room.roundId || 1)}:${participant.accountStudentId}`
   };

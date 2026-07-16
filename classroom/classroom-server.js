@@ -384,6 +384,7 @@ function createClassroomServer(options = {}) {
         const teacherAccount = await optionalTeacherSession(req);
         const room = roomManager.createRoom({
           moduleId: body.moduleId || body.module || 'melody-master',
+          questionLevel: body.questionLevel,
           baseUrl: frontendBase,
           apiBase,
           ownerTeacherId: teacherAccount?.id || null,
@@ -422,8 +423,9 @@ function createClassroomServer(options = {}) {
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
 
         if (body.moduleId && body.moduleId !== room.moduleId) roomManager.setRoomModule(room, body.moduleId);
+        roomManager.setQuestionLevel(room, body.questionLevel);
 
-        const questionCount = roomManager.getQuestions(room.moduleId).length || 1;
+        const questionCount = roomManager.getQuestionCount(room.moduleId, { questionLevel: room.questionLevel }) || 1;
         const quizLength = Math.max(1, Math.min(Number(body.quizLength) || room.quizTotal || 3, questionCount));
         const maxListens = Math.max(1, Math.min(Number(body.maxListens) || room.maxListens || DEFAULT_MAX_LISTENS, 8));
 
@@ -444,11 +446,13 @@ function createClassroomServer(options = {}) {
 
         if (room.quizEnded && body.resetQuiz) await saveEndedRoomProgress(room);
         if (body.moduleId && body.moduleId !== room.moduleId) roomManager.setRoomModule(room, body.moduleId);
+        roomManager.setQuestionLevel(room, body.questionLevel);
 
         const question = roomManager.startQuestion(room, body.questionIndex || 0, {
           resetQuiz: Boolean(body.resetQuiz),
           quizLength: body.quizLength,
-          maxListens: body.maxListens
+          maxListens: body.maxListens,
+          questionLevel: body.questionLevel
         });
 
         return sendJson(res, 200, {
