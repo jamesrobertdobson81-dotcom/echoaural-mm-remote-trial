@@ -12,6 +12,9 @@
   const moduleDir = path ? path.join(projectRoot, 'modules', 'texture-trainer') : '';
   const dataPath = path ? path.join(moduleDir, 'data', 'texture-questions.js') : '';
   const getAudioDurationSeconds = typeof context.getAudioDurationSeconds === 'function' ? context.getAudioDurationSeconds : () => 10;
+  const questionSystem = context.questionSystem || (typeof require === 'function' && path
+    ? require(path.join(moduleDir, 'texture-question-system.js'))
+    : context.browserGlobal?.EchoAuralTextureQuestionSystem);
   let cachedQuestions = null;
 
   function fallbackQuestions() {
@@ -33,7 +36,8 @@
   function loadQuestions() {
     if (cachedQuestions) return cachedQuestions;
     if (context.browserGlobal) {
-      cachedQuestions = Array.isArray(context.browserGlobal.textureQuestions) ? context.browserGlobal.textureQuestions.slice() : fallbackQuestions();
+      const rawQuestions = Array.isArray(context.browserGlobal.textureQuestions) ? context.browserGlobal.textureQuestions.slice() : fallbackQuestions();
+      cachedQuestions = rawQuestions.map((question, index) => questionSystem.normaliseQuestion(question, index));
       return cachedQuestions;
     }
 
@@ -43,10 +47,10 @@
       vm.runInNewContext(source, sandbox, { filename: dataPath, timeout: 1000 });
       const questions = sandbox.window.textureQuestions;
       if (!Array.isArray(questions) || !questions.length) throw new Error('No window.textureQuestions array found.');
-      cachedQuestions = questions.slice();
+      cachedQuestions = questions.map((question, index) => questionSystem.normaliseQuestion(question, index));
     } catch (error) {
       console.error('[Texture Trainer adapter] Could not load texture-questions.js:', error.message);
-      cachedQuestions = fallbackQuestions();
+      cachedQuestions = fallbackQuestions().map((question, index) => questionSystem.normaliseQuestion(question, index));
     }
     return cachedQuestions;
   }
@@ -54,54 +58,87 @@
   function normalise(value) {
     return String(value || '')
       .toLowerCase()
-      .normalize('NFKC')
-      .replace(/[^a-z0-9\s-]/g, ' ')
-      .replace(/-/g, ' ')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[-–—]/g, ' ')
+      .replace(/[^a-z0-9\s]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
   }
 
-  function containsAny(answer, list = []) {
-    const clean = normalise(answer);
-    return list.some((item) => {
-      const target = normalise(item);
-      return target && (clean === target || clean.includes(target));
-    });
+  function phraseToTokens(value) {
+    return normalise(value).split(' ').filter(Boolean);
   }
 
-  function prepareQuestion(question = {}, options = {}) {
-    const index = Number(options.index || 0);
-    const audioPath = question.sourceAudioPath
-      ? `/${String(question.sourceAudioPath).replace(/^\//, '')}`
-      : question.audio || '';
-    const fullAudioPath = path && audioPath && !/^(https?:)?\/\//i.test(audioPath) && !audioPath.startsWith('/')
-      ? path.join(moduleDir, audioPath)
-      : path && audioPath.startsWith('/') ? path.join(projectRoot, audioPath) : audioPath;
+  function findPhraseOccurrence(answer, phrase) {
+    const normalisedAnswer = ` ${normalise(answer)} `;
+    const normalisedPhrase = normalise(phrase);
+    if (!normalisedPhrase || !normalisedAnswer.includes(` ${normalisedPhrase} `)) return null;
 
-    return {
-      moduleId: 'texture-trainer',
-      moduleTitle: 'Texture Trainer',
-      answerType: 'text',
-      index,
-      id: question.id || `TT${String(index + 1).padStart(3, '0')}`,
-      title: question.title || question.id || `Question ${index + 1}`,
-      question: question.prompt || 'Describe the texture.',
-      prompt: question.prompt || 'Describe the texture.',
-      audio: audioPath,
-      audioDurationSeconds: Number(question.audioDurationSeconds || getAudioDurationSeconds(fullAudioPath) || 10),
-      composer: question.composer || '',
-      work: question.work || '',
-      textureFocus: question.textureFocus || '',
-      maxMarks: Number(question.maxMarks || 1),
-      totalNotes: Number(question.maxMarks || 1)
-    };
+    const tokens = phraseToTokens(answer);
+    const phraseTokens = phraseToTokens(phrase);
+    const phraseLength = phraseTokens.length;
+
+    for (let index = 0; index <= tokens.length - phraseLength; index += 1) {
+      const segment = tokens.slice(index, index + phraseLength).join(' ');
+      if (segment !== normalisedPhrase) continue;
+
+      const previousTwo = tokens.slice(Math.max(0, index - 2), index);
+      if (previousTwo.includes('not') || previousTwo.includes('no') || previousTwo.includes('isnt') || previousTwo.includes('isn')) continue;
+      return { phrase, start: index, end: index + phraseLength };
+    }
+
+    return null;
   }
 
-  function checkAnswer(question = {}, studentAnswer = '') {
+  function containsPhrase(answer, phrase) {
+    return Boolean(findPhraseOccurrence(answer, phrase));
+  }
+
+  function findMatchingPhrase(answer, phrases = []) {
+    return phrases.find((phrase) => containsPhrase(answer, phrase)) || '';
+  }
+
+  function phraseSpansOverlap(firstMatch, secondMatch) {
+    return firstMatch.start < secondMatch.end && secondMatch.start < firstMatch.end;
+  }
+
+  function findUnusedMatchingPhrase(answer, phrases = [], usedMatches = []) {
+    const matches = phrases
+      .map((phrase) => findPhraseOccurrence(answer, phrase))
+      .filter(Boolean);
+    const match = matches.find((candidate) => !usedMatches.some((usedMatch) => phraseSpansOverlap(candidate, usedMatch)));
+    if (match) usedMatches.push(match);
+    return match ? match.phrase : '';
+  }
+
+  function checkMarkPoints(question = {}, studentAnswer = '') {
     const maxMarks = Number(question.maxMarks || 1);
-    const correct = containsAny(studentAnswer, question.acceptedAnswers || []);
-    const partial = !correct && containsAny(studentAnswer, question.partialAnswers || []);
-    const score = correct ? maxMarks : partial ? Math.max(1, Math.floor(maxMarks / 2)) : 0;
+    const usedMatches = [];
+    const pointResults = [];
+    let score = 0;
+
+    question.markPoints.forEach((markPoint) => {
+      const acceptedMatch = findUnusedMatchingPhrase(studentAnswer, markPoint.acceptedAnswers, usedMatches);
+      if (acceptedMatch) {
+        score += 1;
+        pointResults.push({ label: markPoint.label || 'Mark point', status: 'correct', matchedPhrase: acceptedMatch });
+        return;
+      }
+
+      const partialMatch = findUnusedMatchingPhrase(studentAnswer, markPoint.partialAnswers, usedMatches);
+      if (partialMatch) {
+        score += 0.5;
+        pointResults.push({ label: markPoint.label || 'Mark point', status: 'partial', matchedPhrase: partialMatch });
+        return;
+      }
+
+      pointResults.push({ label: markPoint.label || 'Mark point', status: 'missed', matchedPhrase: '' });
+    });
+
+    const cappedScore = Math.min(maxMarks, score);
+    const correct = cappedScore >= maxMarks;
+    const partial = !correct && cappedScore > 0;
     const feedback = correct
       ? (question.feedbackCorrect || 'Correct.')
       : partial
@@ -109,21 +146,82 @@
         : (question.feedbackIncorrect || `Not quite. ${question.modelAnswer || ''}`.trim());
 
     return {
-      score,
+      score: cappedScore,
       total: maxMarks,
       correct,
       matchType: correct ? 'correct' : partial ? 'partial' : 'incorrect',
       feedback,
       shortComment: feedback,
-      modelAnswer: question.modelAnswer || ''
+      modelAnswer: question.modelAnswer || '',
+      answerData: { pointResults }
+    };
+  }
+
+  function prepareQuestion(question = {}, options = {}) {
+    const index = Number(options.index || 0);
+    const normalisedQuestion = question.responseType ? question : questionSystem.normaliseQuestion(question, index);
+    const rawAudioPath = question.sourceAudioPath || question.audio || '';
+    const audioPath = /^(https?:)?\/\//i.test(rawAudioPath) || String(rawAudioPath).startsWith('/')
+      ? rawAudioPath
+      : `/modules/texture-trainer/${String(rawAudioPath).replace(/^\//, '')}`;
+    const fullAudioPath = path && audioPath && !/^(https?:)?\/\//i.test(audioPath) && !audioPath.startsWith('/')
+      ? path.join(moduleDir, audioPath)
+      : path && audioPath.startsWith('/') ? path.join(projectRoot, audioPath) : audioPath;
+
+    return {
+      moduleId: 'texture-trainer',
+      moduleTitle: 'Texture Trainer',
+      answerType: normalisedQuestion.responseType === 'multiple-choice' ? 'choice' : 'text',
+      responseType: normalisedQuestion.responseType,
+      choices: Array.isArray(normalisedQuestion.answerChoices) ? normalisedQuestion.answerChoices : [],
+      index,
+      id: normalisedQuestion.id || `TT${String(index + 1).padStart(3, '0')}`,
+      title: normalisedQuestion.title || normalisedQuestion.id || `Question ${index + 1}`,
+      question: normalisedQuestion.prompt || 'Describe the texture.',
+      prompt: normalisedQuestion.prompt || 'Describe the texture.',
+      audio: audioPath,
+      audioDurationSeconds: Number(normalisedQuestion.audioDurationSeconds || getAudioDurationSeconds(fullAudioPath) || 10),
+      clipStart: Number(normalisedQuestion.clipStart || 0),
+      clipEnd: Number(normalisedQuestion.clipEnd || normalisedQuestion.audioDurationSeconds || 0),
+      clipDuration: Number(normalisedQuestion.clipDuration || normalisedQuestion.audioDurationSeconds || 0),
+      composer: normalisedQuestion.composer || '',
+      work: normalisedQuestion.work || '',
+      textureFocus: normalisedQuestion.textureFocus || normalisedQuestion.broadTextureCategory || '',
+      correctAnswer: normalisedQuestion.correctChoice || normalisedQuestion.preferredAnswer || '',
+      modelAnswer: normalisedQuestion.modelAnswer || normalisedQuestion.preferredAnswer || '',
+      preferredAnswer: normalisedQuestion.preferredAnswer || '',
+      untimedTeacherLed: normalisedQuestion.responseType === 'extended-text',
+      maxMarks: Number(normalisedQuestion.maxMarks || 1),
+      totalNotes: Number(normalisedQuestion.maxMarks || 1)
+    };
+  }
+
+  function checkAnswer(question = {}, studentAnswer = '') {
+    const normalisedQuestion = question.responseType ? question : questionSystem.normaliseQuestion(question);
+    const result = questionSystem.markAnswer(normalisedQuestion, studentAnswer);
+
+    return {
+      score: result.marksAwarded,
+      total: result.maxMarks,
+      correct: result.status === 'correct',
+      matchType: result.status,
+      feedback: result.feedback,
+      shortComment: result.feedback,
+      modelAnswer: normalisedQuestion.modelAnswer || normalisedQuestion.preferredAnswer || '',
+      answerData: {
+        pointResults: result.pointResults || [],
+        preferredAnswer: normalisedQuestion.preferredAnswer || '',
+        responseType: normalisedQuestion.responseType || '',
+        missingConcepts: result.missingConcepts || []
+      }
     };
   }
 
   return {
     id: 'texture-trainer',
     title: 'Texture Trainer',
-    description: 'Students type GCSE texture vocabulary answers and receive deterministic marking.',
-    studentMode: 'generic-text',
+    description: 'Students answer progressive Texture Trainer questions with multiple choice, terminology and short descriptions.',
+    studentMode: 'generic',
     getQuestions: loadQuestions,
     prepareQuestion,
     checkAnswer

@@ -3,10 +3,12 @@
 const { buildCumulativeResults } = require('./scoring');
 
 const MODULE_TITLES = {
+  mixed: 'Mixed Apps',
   'melody-master': 'Melodic Dictation',
   'melodic-intervals': 'Melodic Intervals',
   'instrument-identifier': 'Instrument Identifier',
-  'texture-trainer': 'Texture Trainer'
+  'texture-trainer': 'Texture Trainer',
+  'meter-master': 'Meter Master'
 };
 
 function number(value) {
@@ -43,11 +45,13 @@ function buildRoundFeedback(score, maximumScore, questionCount) {
 }
 
 function buildAnswerData(room, rawQuestion, result) {
-  const moduleId = room.moduleId;
+  const moduleId = result.moduleId || room.questionModuleId || room.moduleId;
   const answerData = {
     source: 'teacher_mode',
     roomCode: room.code,
     classroomRoundId: Number(room.roundId || 1),
+    moduleId,
+    moduleTitle: cleanText(result.moduleTitle || MODULE_TITLES[moduleId] || moduleId, 120),
     quizQuestionNumber: Number(result.quizQuestionNumber || 0),
     questionIndex: Number(result.questionIndex || 0),
     answer: cleanText(result.answer, 500),
@@ -98,9 +102,12 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
   if (!results.length) return null;
 
   const questions = results.map((result, index) => {
-    const rawQuestion = roomManager.getQuestion(room, result.questionIndex);
+    const resultModuleId = result.moduleId || room.moduleId;
+    const rawQuestion = roomManager.getQuestion(room, result.questionIndex, resultModuleId);
     const maximumScore = number(result.total);
     return {
+      moduleId: resultModuleId,
+      moduleTitle: cleanText(result.moduleTitle || MODULE_TITLES[resultModuleId] || resultModuleId, 120),
       questionId: cleanText(result.questionId || rawQuestion?.id || `Q${index + 1}`, 120),
       score: Math.min(number(result.score), maximumScore || Number.MAX_SAFE_INTEGER),
       maximumScore,
@@ -127,6 +134,7 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
       roomCode: room.code,
       classroomRoundId: Number(room.roundId || 1),
       moduleId: room.moduleId,
+      mixedModuleIds: Array.isArray(room.mixedModuleIds) ? room.mixedModuleIds.slice() : [],
       teacherMode: true,
       questionLevel: cleanText(room.questionLevel, 80)
     },
@@ -216,7 +224,7 @@ async function saveRoundPayload(payload) {
         payload.teacherId,
         payload.studentId,
         round.id,
-        payload.moduleId,
+        question.moduleId || payload.moduleId,
         question.questionId || null,
         question.score,
         question.maximumScore,

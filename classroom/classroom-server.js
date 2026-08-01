@@ -162,7 +162,7 @@ function getMp3DurationSeconds(filePath) {
 }
 
 function createAdapters(projectRoot) {
-  const context = { path, fs, vm, projectRoot, getAudioDurationSeconds: getMp3DurationSeconds };
+  const context = { path, fs, vm, projectRoot, getAudioDurationSeconds: getMp3DurationSeconds, useLevelledQuestions: true };
   const melodyAdapter = require(path.join(projectRoot, 'modules', 'melody-master', 'teacher-adapter.js'))(context);
   const instrumentAdapter = require(path.join(projectRoot, 'modules', 'instrument-identifier', 'teacher-adapter.js'))(context);
   const textureAdapter = require(path.join(projectRoot, 'modules', 'texture-trainer', 'teacher-adapter.js'))(context);
@@ -211,10 +211,11 @@ function resolveQuestionAudioForBrowser(room, audioPath = '') {
   if (!raw) return '';
   if (/^(https?:)?\/\//i.test(raw) || raw.startsWith('/')) return raw;
 
-  if (room.moduleId === 'melody-master') return `/modules/melody-master/${raw.replace(/^\.\//, '')}`;
-  if (room.moduleId === 'instrument-identifier') return `/modules/instrument-identifier/${raw.replace(/^\.\//, '')}`;
-  if (room.moduleId === 'texture-trainer') return `/modules/texture-trainer/${raw.replace(/^\.\//, '')}`;
-  if (room.moduleId === 'melodic-intervals') return `/modules/melodic-intervals/${raw.replace(/^\.\//, '')}`;
+  const moduleId = room.activeQuestion?.moduleId || room.questionModuleId || room.moduleId;
+  if (moduleId === 'melody-master') return `/modules/melody-master/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'instrument-identifier') return `/modules/instrument-identifier/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'texture-trainer') return `/modules/texture-trainer/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'melodic-intervals') return `/modules/melodic-intervals/${raw.replace(/^\.\//, '')}`;
 
   return raw;
 }
@@ -249,7 +250,7 @@ function startPlayback(room, body = {}) {
   room.playbackSerial += 1;
   room.playback = {
     id: `${room.code}-${room.questionRunId}-${room.playbackSerial}`,
-    mode: guidedPlayback.mode || (room.moduleId === 'melody-master' ? 'guided-thirds' : 'full-audio'),
+    mode: guidedPlayback.mode || (question.moduleId === 'melody-master' ? 'guided-thirds' : 'full-audio'),
     questionRunId: room.questionRunId,
     listen: room.listens,
     requestedAt: now,
@@ -261,7 +262,7 @@ function startPlayback(room, body = {}) {
     visualEndSeconds: Number(guidedPlayback.visualEndSeconds || durationSeconds),
     visibleScoreRatio: Number(guidedPlayback.visibleScoreRatio || 0.44),
     scoreCoverage: guidedPlayback.scoreCoverage || 'full-audio',
-    sections: room.moduleId === 'melody-master' ? 3 : 1
+    sections: question.moduleId === 'melody-master' ? 3 : 1
   };
 
   return {
@@ -382,9 +383,11 @@ function createClassroomServer(options = {}) {
           || normalizePublicBaseUrl(process.env.PUBLIC_API_URL);
 
         const teacherAccount = await optionalTeacherSession(req);
+        const requestedModuleId = body.mixedModuleIds ? 'mixed' : (body.moduleId || body.module || 'melody-master');
         const room = roomManager.createRoom({
-          moduleId: body.moduleId || body.module || 'melody-master',
+          moduleId: requestedModuleId,
           questionLevel: body.questionLevel,
+          mixedModuleIds: body.mixedModuleIds,
           baseUrl: frontendBase,
           apiBase,
           ownerTeacherId: teacherAccount?.id || null,
@@ -409,7 +412,8 @@ function createClassroomServer(options = {}) {
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
 
-        roomManager.setRoomModule(room, body.moduleId);
+        const requestedModuleId = body.mixedModuleIds ? 'mixed' : body.moduleId;
+        roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
 
         return sendJson(res, 200, {
           ok: true,
@@ -422,10 +426,12 @@ function createClassroomServer(options = {}) {
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
 
-        if (body.moduleId && body.moduleId !== room.moduleId) roomManager.setRoomModule(room, body.moduleId);
+        const requestedModuleId = body.mixedModuleIds ? 'mixed' : body.moduleId;
+        if (requestedModuleId && requestedModuleId !== room.moduleId) roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
+        if (requestedModuleId === room.moduleId && body.mixedModuleIds) roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
         roomManager.setQuestionLevel(room, body.questionLevel);
 
-        const questionCount = roomManager.getQuestionCount(room.moduleId, { questionLevel: room.questionLevel }) || 1;
+        const questionCount = roomManager.getRoomQuestionCount(room, { questionLevel: room.questionLevel }) || 1;
         const quizLength = Math.max(1, Math.min(Number(body.quizLength) || room.quizTotal || 3, questionCount));
         const maxListens = Math.max(1, Math.min(Number(body.maxListens) || room.maxListens || DEFAULT_MAX_LISTENS, 8));
 
@@ -445,7 +451,9 @@ function createClassroomServer(options = {}) {
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
 
         if (room.quizEnded && body.resetQuiz) await saveEndedRoomProgress(room);
-        if (body.moduleId && body.moduleId !== room.moduleId) roomManager.setRoomModule(room, body.moduleId);
+        const requestedModuleId = body.mixedModuleIds ? 'mixed' : body.moduleId;
+        if (requestedModuleId && requestedModuleId !== room.moduleId) roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
+        if (requestedModuleId === room.moduleId && body.mixedModuleIds) roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
         roomManager.setQuestionLevel(room, body.questionLevel);
 
         const question = roomManager.startQuestion(room, body.questionIndex || 0, {
@@ -479,11 +487,10 @@ function createClassroomServer(options = {}) {
         }
 
         const nextOrderPosition = Math.max(0, Number(room.questionOrderPosition || 0) + 1);
-        const questions = roomManager.getQuestions(room.moduleId);
-
+        const questionCount = roomManager.getRoomQuestionCount(room, { questionLevel: room.questionLevel }) || 1;
         const nextIndex = Array.isArray(room.questionOrder) && room.questionOrder.length
-          ? (room.questionOrder[nextOrderPosition] ?? (room.questionIndex || 0))
-          : Math.min((room.questionIndex || 0) + 1, questions.length - 1);
+          ? roomManager.getQuestionTargetFromOrder(room, nextOrderPosition)
+          : Math.min((room.questionIndex || 0) + 1, questionCount - 1);
 
         const question = roomManager.startQuestion(room, nextIndex, { advanceQuiz: true });
 

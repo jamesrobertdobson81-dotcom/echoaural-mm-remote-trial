@@ -6,7 +6,8 @@ const moduleLinks = {
   "melody-master": "/modules/melody-master/",
   "melodic-intervals": "/modules/melodic-intervals/",
   "instrument-identifier": "/modules/instrument-identifier/",
-  "texture-trainer": "/modules/texture-trainer/"
+  "texture-trainer": "/modules/texture-trainer/",
+  "meter-master": "/modules/meter-master/"
 };
 
 const DASHBOARD_ICONS = {
@@ -301,7 +302,7 @@ function summaryMarkup(categoryKey, category) {
     </div>
 
     <div class="student-learning-footer-v3">
-      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds${practiceTimeText} · ${Number(overall.modulesStarted || 0)} / 4 apps</span>
+      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds${practiceTimeText} · ${Number(overall.modulesStarted || 0)} / 5 apps</span>
       <button class="secondary-button student-detail-button-v3" type="button" data-category-detail="${categoryKey}">Detailed feedback</button>
     </div>
   `;
@@ -421,7 +422,7 @@ function detailedCategoryMarkup(categoryKey, category) {
       <div class="category-detail-metrics-v5">
         <div><span>Questions</span><strong>${Number(overall.questions || 0)}</strong></div>
         <div><span>Rounds</span><strong>${Number(overall.rounds || 0)}</strong></div>
-        <div><span>Apps started</span><strong>${Number(overall.modulesStarted || 0)} / 4</strong></div>
+        <div><span>Apps started</span><strong>${Number(overall.modulesStarted || 0)} / 5</strong></div>
         <div><span>${categoryKey === "practice" ? "Practice time" : "Learning area"}</span><strong>${categoryKey === "practice" ? escapeHtml(formatDuration(overall.practiceSeconds)) : escapeHtml(config.title)}</strong></div>
       </div>
     </div>
@@ -516,7 +517,7 @@ function renderOverall(progress) {
   els.overallScore.textContent = `${formatMark(overall.score)} / ${formatMark(overall.maximumScore)} marks`;
   els.overallQuestions.textContent = String(overall.questions);
   els.overallRounds.textContent = String(overall.rounds);
-  els.overallModules.textContent = `${overall.modulesStarted} / 4`;
+  els.overallModules.textContent = `${overall.modulesStarted} / 5`;
   els.compiledFeedback.textContent = overall.compiledFeedback;
   els.studentNextStep.textContent = chooseNextStep(progress);
   renderRecentLearning(progress);

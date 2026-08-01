@@ -2652,6 +2652,45 @@ button:disabled { cursor: wait; opacity: .62; transform: none !important; }
   line-height: 1.22;
 }
 
+.teacher-launch-module-option-v8 {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  align-content: center;
+  gap: 10px;
+}
+
+.teacher-launch-option-v8 .teacher-launch-module-icon-v8 {
+  width: 52px;
+  height: 52px;
+  padding: 4px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 68% 22%, rgba(56,189,248,.24), transparent 38%),
+    radial-gradient(circle at 22% 88%, rgba(168,85,247,.2), transparent 42%),
+    linear-gradient(145deg, rgba(7,17,31,.98), rgba(13,30,60,.94));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.035), 0 12px 24px rgba(7,17,31,.16);
+}
+
+.teacher-launch-option-v8 .teacher-launch-module-icon-v8 img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(56,189,248,.18));
+}
+
+.teacher-launch-option-v8 .teacher-launch-module-copy-v8,
+.teacher-launch-option-v8 .teacher-launch-module-copy-v8 span {
+  min-width: 0;
+  display: grid;
+}
+
+.teacher-launch-option-v8 .teacher-launch-module-copy-v8 {
+  gap: 4px;
+}
+
 .teacher-launch-option-v8:not(:disabled):hover,
 .teacher-launch-option-v8:not(:disabled):focus-visible {
   border-color: rgba(56,189,248,.42);

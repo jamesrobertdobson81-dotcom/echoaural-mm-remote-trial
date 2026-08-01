@@ -21,8 +21,14 @@ const requiredFiles = [
   'modules/melody-master/teacher-mode.js',
   'modules/texture-trainer/index.html',
   'modules/texture-trainer/style.css',
+  'modules/texture-trainer/texture-question-system.js',
   'modules/texture-trainer/script.js',
-  'modules/texture-trainer/data/texture-questions.js'
+  'modules/texture-trainer/data/texture-questions.js',
+  'tools/check-texture-marking.js',
+  'modules/meter-master/index.html',
+  'modules/meter-master/style.css',
+  'modules/meter-master/script.js',
+  'modules/meter-master/data/meter-master-exam-style-60.json'
 ];
 
 function fail(message) {
@@ -50,6 +56,9 @@ const home = read('index.html');
 if (!home.includes('modules/texture-trainer/index.html')) {
   fail('Home page does not link to Texture Trainer.');
 }
+if (!home.includes('modules/meter-master/index.html')) {
+  fail('Home page does not link to Meter Master.');
+}
 
 const textureData = read('modules/texture-trainer/data/texture-questions.js');
 const sandbox = { window: {} };
@@ -59,13 +68,81 @@ const questions = sandbox.window.textureQuestions;
 if (!Array.isArray(questions) || questions.length < 6) {
   fail('Texture Trainer needs at least 6 starter questions.');
 }
+const textureQuestionSystem = require(path.join(root, 'modules/texture-trainer/texture-question-system.js'));
+const { runTextureTrainerMarkingChecks } = require(path.join(root, 'tools/check-texture-marking.js'));
+const textureQuestions = questions.map((question, index) => textureQuestionSystem.normaliseQuestion(question, index));
 
-for (const question of questions) {
+for (const question of textureQuestions) {
   const required = ['id', 'module', 'title', 'audio', 'prompt', 'maxMarks', 'acceptedAnswers', 'partialAnswers', 'incorrectAnswers', 'modelAnswer'];
   for (const key of required) {
     if (!question[key] || (Array.isArray(question[key]) && !question[key].length)) {
       fail(`${question.id || 'Texture question'} is missing ${key}.`);
     }
+  }
+  if (!['Foundation', 'Developing', 'Securing', 'Mastering'].includes(question.level)) fail(`${question.id} has invalid Texture Trainer level.`);
+  if (!['multiple-choice', 'short-text', 'extended-text'].includes(question.responseType)) fail(`${question.id} has invalid Texture Trainer response type.`);
+  if (!question.preferredAnswer || !question.broadTextureCategory || !question.specificTextureTerm) fail(`${question.id} is missing preferred/broad/specific texture metadata.`);
+  if (question.responseType === 'multiple-choice') {
+    if (!Array.isArray(question.answerChoices) || question.answerChoices.length < 3 || question.answerChoices.length > 4) fail(`${question.id} has invalid multiple-choice options.`);
+    if (!question.answerChoices.some((choice) => textureQuestionSystem.sameAnswer(choice, question.correctChoice))) fail(`${question.id} multiple-choice options omit the correct answer.`);
+    if (question.level === 'Foundation' && question.answerChoices.length !== 3) fail(`${question.id} Foundation question must have exactly three choices.`);
+  }
+}
+
+const textureByLevel = textureQuestions.reduce((acc, question) => {
+  acc[question.level] = acc[question.level] || [];
+  acc[question.level].push(question);
+  return acc;
+}, {});
+if (textureByLevel.Foundation.some((question) => question.responseType !== 'multiple-choice')) fail('Texture Trainer Foundation must be multiple-choice only.');
+if (!textureByLevel.Developing.some((question) => question.responseType === 'multiple-choice') || !textureByLevel.Developing.some((question) => question.responseType === 'short-text')) fail('Texture Trainer Developing must mix multiple-choice and short-text questions.');
+if (!textureByLevel.Securing.some((question) => question.responseType === 'multiple-choice') || !textureByLevel.Securing.some((question) => question.responseType === 'short-text')) fail('Texture Trainer Securing must mix multiple-choice and short-text questions.');
+if (!textureByLevel.Mastering.some((question) => question.responseType === 'extended-text') || !textureByLevel.Mastering.some((question) => question.responseType === 'short-text')) fail('Texture Trainer Mastering must mix terminology and extended-description questions.');
+
+const foundationTexture = textureByLevel.Foundation.find((question) => question.responseType === 'multiple-choice');
+if (!foundationTexture) fail('Texture Trainer needs a Foundation multiple-choice question.');
+if (!textureQuestionSystem.markAnswer(foundationTexture, foundationTexture.correctChoice).marksAwarded) fail('Texture Trainer multiple-choice correct answer did not score.');
+if (textureQuestionSystem.markAnswer(foundationTexture, foundationTexture.answerChoices.find((choice) => !textureQuestionSystem.sameAnswer(choice, foundationTexture.correctChoice))).marksAwarded) fail('Texture Trainer multiple-choice wrong answer scored.');
+const shuffledChoices = Array.from({ length: 12 }, () => textureQuestionSystem.shuffleChoices(foundationTexture.answerChoices).join('|'));
+if (new Set(shuffledChoices).size < 2 && foundationTexture.answerChoices.length > 1) fail('Texture Trainer choice randomisation did not vary order.');
+
+const monophonicQuestion = textureQuestions.find((question) => question.preferredAnswer === 'Monophonic' && question.responseType !== 'multiple-choice');
+if (monophonicQuestion && !textureQuestionSystem.markAnswer(monophonicQuestion, 'monofonic').marksAwarded) fail('Texture Trainer spelling tolerance failed for monophonic.');
+
+const polyphonicQuestion = textureQuestions.find((question) => question.acceptedWrittenAnswers.some((answer) => /contrapuntal/i.test(answer)) && question.responseType !== 'multiple-choice');
+if (polyphonicQuestion && !textureQuestionSystem.markAnswer(polyphonicQuestion, 'contrapuntal').marksAwarded) fail('Texture Trainer accepted synonym failed for contrapuntal.');
+
+const preciseQuestion = textureQuestions.find((question) => question.preferredAnswer === 'Melody and accompaniment' && question.responseType !== 'multiple-choice');
+if (preciseQuestion && textureQuestionSystem.markAnswer(preciseQuestion, 'homophonic').marksAwarded) fail('Texture Trainer accepted an overly broad answer for a precise melody-and-accompaniment question.');
+
+const extendedTexture = textureByLevel.Mastering.find((question) => question.responseType === 'extended-text');
+if (extendedTexture) {
+  const result = textureQuestionSystem.markAnswer(extendedTexture, `${extendedTexture.preferredAnswer}. ${extendedTexture.modelAnswer}`);
+  if (!(result.marksAwarded > 0 && result.marksAwarded <= result.maxMarks)) fail('Texture Trainer concept-based marking failed for Mastering.');
+}
+
+runTextureTrainerMarkingChecks({ textureQuestions, textureQuestionSystem, fail });
+
+const { buildLeaderboard } = require(path.join(root, 'classroom/scoring.js'));
+const leaderboard = buildLeaderboard([
+  { name: 'Raw Mark', cumulativeScore: 3, cumulativePercentage: 60, questionsSubmitted: 1 },
+  { name: 'Normalised', cumulativeScore: 2, cumulativePercentage: 100, questionsSubmitted: 1 }
+]);
+if (leaderboard[0].name !== 'Normalised') fail('Classroom leaderboard must rank by normalised percentage before raw marks.');
+
+const meterData = JSON.parse(read('modules/meter-master/data/meter-master-exam-style-60.json'));
+const meterQuestions = Array.isArray(meterData.questions) ? meterData.questions : [];
+if (meterQuestions.length < 60) {
+  fail('Meter Master needs the 60-question exam-style bank.');
+}
+
+for (const question of meterQuestions) {
+  if (!question.id || !question.audio_id || !question.question || !question.correct_answer) {
+    fail(`${question.id || 'Meter Master question'} is missing required data.`);
+  }
+  const audioPath = String(question.audio_path || '').replace(/^modules\/meter-master\//, '');
+  if (!audioPath || !fs.existsSync(path.join(root, 'modules/meter-master', audioPath))) {
+    fail(`${question.id} is missing copied audio ${audioPath || '(blank)'}.`);
   }
 }
 
@@ -178,4 +255,4 @@ for (const [start, target, expected] of spellingExamples) {
   }
 }
 
-console.log(`EchoAural project check passed. Texture Trainer questions validated: ${questions.length}. Melodic Intervals levels validated: ${intervalLevels.length}.`);
+console.log(`EchoAural project check passed. Texture Trainer questions validated: ${questions.length}. Meter Master questions validated: ${meterQuestions.length}. Melodic Intervals levels validated: ${intervalLevels.length}.`);

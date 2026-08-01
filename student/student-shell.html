@@ -3,44 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Classroom | EchoAural</title>
-  <link rel="stylesheet" href="/student/student.css" />
+  <title>Mixed Live Classroom | EchoAural</title>
+  <link rel="stylesheet" href="/student/student.css?v=mixed-ui-20260720a" />
 </head>
-<body>
-  <main class="student-shell">
-    <section class="student-card">
-      <div class="student-topbar">
-        <div class="brand-lockup" aria-hidden="true">
-          <span class="wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
-          <strong class="wordmark"><span>Echo</span><em>Aural</em></strong>
+<body class="mixed-classroom-student" data-module="mixed">
+  <div class="app-shell mixed-classroom-app-shell">
+    <header class="topbar">
+      <a class="brand refined-logo" href="/index.html" aria-label="Back to EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <strong class="wordmark">
+          <span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span>
+        </strong>
+      </a>
+
+      <nav class="topbar-actions" aria-label="Mixed classroom navigation">
+        <span class="topbar-module-chip" aria-label="Current live question app">
+          <span class="topbar-module-icon" aria-hidden="true">
+            <img id="topbarModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" />
+          </span>
+          <span class="topbar-module-wordmark" aria-hidden="true">
+            <span id="topbarModuleMain">Mixed</span><span id="topbarModuleGradient">Apps</span>
+          </span>
+        </span>
+        <span id="roomPill" class="topbar-link room-pill">Room —</span>
+      </nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Live Class</span></h2>
         </div>
-        <span id="roomPill" class="room-pill">Room —</span>
-      </div>
 
-      <div id="waitingPanel">
-        <p class="eyebrow" id="moduleEyebrow">LIVE CLASSROOM</p>
-        <h1 id="waitingTitle">Waiting…</h1>
-        <p id="waitingMessage" class="student-muted">Wait for your teacher to start the question.</p>
-        <button id="enableAudioButton" class="primary-button" type="button">Enable audio for remote play</button>
-        <p id="audioStatus" class="status-message">Click once so your computer is allowed to play audio when your teacher presses Play.</p>
-      </div>
-
-      <div id="questionPanel" class="question-card hidden">
-        <p class="eyebrow" id="questionModuleEyebrow">LIVE CLASSROOM</p>
-        <h1 id="questionTitle">Question</h1>
-        <p id="questionPrompt" class="student-muted">Listen and answer.</p>
-        <div class="audio-row">
-          <audio id="studentAudio" preload="auto"></audio>
-          <button id="manualPlayButton" class="secondary-button" type="button">Play on this computer</button>
+        <div class="panel-hero mixed-panel-hero">
+          <p class="eyebrow">ECHOAURAL LIVE SESSION</p>
+          <div class="mixed-hero-lockup">
+            <span class="mixed-hero-icon" aria-hidden="true">
+              <img id="sideModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" />
+            </span>
+            <div class="mixed-title-lockup" aria-hidden="true">
+              <span class="mixed-title-wave"><span></span><span></span><span></span><span></span><span></span></span>
+              <span class="mixed-title-text">
+                <span id="sideModuleMain" class="mixed-title-main">Mixed</span>
+                <span id="sideModuleGradient" class="mixed-title-gradient">Apps</span>
+              </span>
+            </div>
+          </div>
+          <p class="mixed-panel-intro" id="classroomStudentLine">You are connected to the mixed live quiz.</p>
         </div>
-        <div id="answerArea"></div>
-        <button id="submitButton" class="primary-button" type="button" disabled>Submit answer</button>
-        <div id="feedbackPanel" class="feedback-panel hidden"></div>
-      </div>
-    </section>
-  </main>
 
+        <div class="mixed-classroom-info-stack">
+          <div class="mixed-classroom-info-tile"><span>Room</span><strong id="sideRoomCode">—</strong></div>
+          <div class="mixed-classroom-info-tile"><span>Student</span><strong id="sideStudentName">—</strong></div>
+          <div class="mixed-classroom-info-tile"><span>Status</span><strong id="sideStatus">Waiting</strong></div>
+        </div>
+
+        <button id="enableAudioButton" class="primary-button mixed-audio-button" type="button">Enable audio for remote play</button>
+        <p id="audioStatus" class="status-message">Click once so your computer can play audio when your teacher presses Play.</p>
+      </section>
+
+      <section class="panel quiz-panel is-ready">
+        <div class="panel-section-heading panel-section-heading-centre">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Quiz</span></h2>
+        </div>
+
+        <div class="quiz-header">
+          <p id="roundText">Waiting for teacher</p>
+          <div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div>
+        </div>
+
+        <div class="statsRow" aria-label="Round statistics">
+          <p id="scoreText">Score: 0 / 0</p>
+          <p id="streakText">Submitted: 0</p>
+          <p id="xpText">Accuracy: —</p>
+        </div>
+
+        <div id="waitingPanel" class="listening-console mixed-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+          <div class="console-ready-brand" aria-hidden="true">
+            <div class="mixed-console-lockup">
+              <span class="mixed-console-icon"><img id="waitingModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" /></span>
+              <span class="console-title-text"><span class="console-title-main">Mixed</span><span class="console-title-gradient">Apps</span></span>
+            </div>
+          </div>
+          <p class="eyebrow" id="moduleEyebrow">LIVE CLASSROOM</p>
+          <div class="listening-visual" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="console-heading">
+            <h1 id="waitingTitle">Waiting…</h1>
+            <p id="waitingMessage" class="student-muted">Wait for your teacher to start the question.</p>
+          </div>
+        </div>
+
+        <div id="questionPanel" class="listening-console mixed-console question-card hidden">
+          <div class="console-orbit" aria-hidden="true"></div>
+          <div class="console-ready-brand" aria-hidden="true">
+            <div class="mixed-console-lockup">
+              <span class="mixed-console-icon"><img id="centreModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" /></span>
+              <span class="console-title-text"><span id="centreModuleMain" class="console-title-main">Mixed</span><span id="centreModuleGradient" class="console-title-gradient">Apps</span></span>
+            </div>
+          </div>
+          <div class="console-question-kicker">
+            <p class="eyebrow active-only" id="questionModuleEyebrow">LISTENING QUESTION</p>
+          </div>
+          <div class="listening-visual" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="console-heading">
+            <h1 id="questionTitle">Question</h1>
+            <p id="questionPrompt" class="student-muted">Listen and answer.</p>
+          </div>
+          <div id="answerArea" class="mixed-answer-area"></div>
+          <div class="console-actions console-actions-replay mixed-submit-actions">
+            <button id="manualPlayButton" class="play-button secondary-button" type="button">Play on this computer</button>
+            <button id="submitButton" class="primary-button mixed-submit-button" type="button" disabled>Submit answer</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Answer</span></h2>
+        </div>
+
+        <div class="mixed-answer-card">
+          <div class="mixed-answer-brand" aria-hidden="true">
+            <span class="mixed-answer-icon"><img id="answerModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" /></span>
+            <span class="mixed-answer-title"><span id="answerModuleMain">Mixed</span><span id="answerModuleGradient">Apps</span></span>
+          </div>
+          <p id="answerHint" class="mixed-answer-hint">Your answer panel will update for each app question.</p>
+          <div id="feedbackPanel" class="feedback-panel hidden"></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <audio id="studentAudio" preload="auto"></audio>
   <script src="/shared/js/classroom-client.js"></script>
-  <script src="/student/student.js"></script>
+  <script src="/modules/melodic-intervals/interval-data.js"></script>
+  <script src="/student/student.js?v=mixed-ui-20260720a"></script>
 </body>
 </html>

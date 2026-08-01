@@ -35,6 +35,7 @@ const els = {
 };
 
 const launchParams = new URLSearchParams(window.location.search);
+const requestedLaunchModuleId = String(launchParams.get('module') || '').trim();
 const QUESTION_LEVEL_LABELS = {
   all: 'All levels',
   foundation: 'Foundation',
@@ -42,6 +43,7 @@ const QUESTION_LEVEL_LABELS = {
   securing: 'Securing',
   mastering: 'Mastering'
 };
+const DEFAULT_MIXED_MODULE_IDS = ['instrument-identifier', 'melodic-intervals'];
 
 function normaliseQuestionLevel(value) {
   const level = String(value || '').trim().toLowerCase();
@@ -55,13 +57,23 @@ function numberFromParam(name, fallback, allowedValues = []) {
   return value;
 }
 
+function parseMixedModuleIds(value = '') {
+  const allowed = new Set(DEFAULT_MIXED_MODULE_IDS);
+  const parsed = String(value || '')
+    .split(',')
+    .map((moduleId) => moduleId.trim())
+    .filter((moduleId, index, all) => allowed.has(moduleId) && all.indexOf(moduleId) === index);
+  return parsed.length ? parsed : DEFAULT_MIXED_MODULE_IDS.slice();
+}
+
 const dashboardLaunch = {
   enabled: launchParams.get('dashboardLaunch') === '1',
   mode: launchParams.get('launch') === 'homework' ? 'homework' : 'live',
   autoCreate: launchParams.get('autoCreate') === '1',
   questionLevel: normaliseQuestionLevel(launchParams.get('questionLevel')),
   quizLength: numberFromParam('quizLength', 3, [3, 5, 10, 15]),
-  maxListens: numberFromParam('maxListens', 4, [1, 2, 3, 4, 5, 6, 7, 8])
+  maxListens: numberFromParam('maxListens', 4, [1, 2, 3, 4, 5, 6, 7, 8]),
+  mixedModuleIds: parseMixedModuleIds(launchParams.get('mixedModules'))
 };
 
 if (dashboardLaunch.enabled) {
@@ -69,7 +81,7 @@ if (dashboardLaunch.enabled) {
 }
 
 let modules = [];
-let selectedModuleId = launchParams.get('module') || 'melody-master';
+let selectedModuleId = requestedLaunchModuleId || 'melody-master';
 let roomCode = '';
 let currentState = null;
 let pollTimer = null;
@@ -89,6 +101,7 @@ const TEACHER_MODULE_CATALOG = [
   { id: 'instrument-identifier', title: 'Instrument Identifier', shortLabel: 'II', active: true, status: 'Live' },
   { id: 'melody-master', title: 'Melody Master', shortLabel: 'MM', active: true, status: 'Live' },
   { id: 'melodic-intervals', title: 'Melodic Intervals', shortLabel: 'MI', active: true, status: 'Live', showInSelector: false, parentModule: 'melody-master' },
+  { id: 'mixed', title: 'Mixed Apps', shortLabel: 'MIX', active: true, status: 'Live', iconPath: '/assets/icons/dashboard/progress-mode.svg' },
   { id: 'cadence-coach', title: 'Cadence Coach', shortLabel: 'CC', active: false, status: 'Coming Soon' },
   { id: 'texture-trainer', title: 'Texture Trainer', shortLabel: 'TT', active: false, status: 'Coming Soon' },
   { id: 'meter-master', title: 'Meter Master', shortLabel: 'MT', active: false, status: 'Coming Soon' },
@@ -101,7 +114,20 @@ function getActiveTeacherModuleIds() {
 
 function normaliseSelectedTeacherModule() {
   const activeIds = getActiveTeacherModuleIds();
-  if (!activeIds.includes(selectedModuleId)) selectedModuleId = 'melody-master';
+  if (!activeIds.includes(selectedModuleId)) selectedModuleId = requestedLaunchModuleId === 'mixed' ? 'mixed' : 'melody-master';
+}
+
+function isMixedDashboardLaunch() {
+  return dashboardLaunch.enabled && requestedLaunchModuleId === 'mixed';
+}
+
+function getEffectiveSessionModuleId() {
+  if (isMixedDashboardLaunch()) return 'mixed';
+  return selectedModuleId;
+}
+
+function getEffectiveMixedModuleIds(moduleId = getEffectiveSessionModuleId()) {
+  return moduleId === 'mixed' ? dashboardLaunch.mixedModuleIds : undefined;
 }
 
 function escapeHTML(value) {
@@ -234,6 +260,7 @@ function getModuleTitleParts(title = '') {
 }
 
 function getModuleIconPath(module = {}) {
+  if (module.iconPath) return module.iconPath;
   return `/assets/icons/modules/${encodeURIComponent(module.id || 'melody-master')}.svg`;
 }
 
@@ -303,7 +330,11 @@ function selectModule(moduleId) {
   updateSettingsSummary();
 
   if (roomCode) {
-    api('/api/classroom/module', { roomCode, moduleId: selectedModuleId })
+    api('/api/classroom/module', {
+      roomCode,
+      moduleId: selectedModuleId,
+      mixedModuleIds: selectedModuleId === 'mixed' ? dashboardLaunch.mixedModuleIds : undefined
+    })
       .then((response) => {
         renderState(response.state);
         updateTeacherStatus(response.state);
@@ -442,7 +473,7 @@ function updatePrimaryButton(state = currentState) {
   }
 
   primaryAction = 'play';
-  const prefix = quiz.listens > 0 ? 'Play Again' : 'Play Excerpt';
+  const prefix = quiz.listens > 0 ? 'Replay Excerpt' : 'Play Excerpt';
   els.primaryQuizButton.textContent = formatPlayButtonLabel(prefix, quiz.playsRemaining, quiz.maxListens);
 }
 
@@ -481,12 +512,14 @@ function updateSessionCard(payload) {
 }
 
 function classroomSettingsPayload() {
+  const sessionModuleId = getEffectiveSessionModuleId();
   return {
     roomCode,
-    moduleId: selectedModuleId,
+    moduleId: sessionModuleId,
     quizLength: quizSettings.quizLength,
     maxListens: quizSettings.maxListens,
-    questionLevel: quizSettings.questionLevel
+    questionLevel: quizSettings.questionLevel,
+    mixedModuleIds: getEffectiveMixedModuleIds(sessionModuleId)
   };
 }
 
@@ -633,7 +666,7 @@ function renderQuestionInfo(state) {
 
   if (question) {
     const audioPath = resolveAudioPath(question);
-    if (audioPath && els.teacherAudio.getAttribute('src') !== audioPath) els.teacherAudio.src = audioPath;
+    if (!isTeacherAudioPlaying && audioPath && els.teacherAudio.getAttribute('src') !== audioPath) els.teacherAudio.src = audioPath;
     return;
   }
 
@@ -690,18 +723,20 @@ async function createSession() {
   els.createSessionButton.disabled = true;
   setNotice('Creating classroom room…');
   try {
+    const sessionModuleId = getEffectiveSessionModuleId();
     const response = await api('/api/classroom/create', {
-      moduleId: selectedModuleId,
+      moduleId: sessionModuleId,
       questionLevel: quizSettings.questionLevel,
+      mixedModuleIds: getEffectiveMixedModuleIds(sessionModuleId),
       frontendBase: window.EchoAuralClassroom.getFrontendBase(),
       apiBase: window.EchoAuralClassroom.getApiBase()
     });
     updateSessionCard(response);
-    renderState(response.state);
     if (dashboardLaunch.enabled) {
       const settingsResponse = await applyRoomSettings();
       updateTeacherStatus(settingsResponse.state);
     } else {
+      renderState(response.state);
       updateTeacherStatus(response.state);
     }
     startPolling();
@@ -715,14 +750,16 @@ async function startQuiz() {
   if (!roomCode) return;
   if (!quizSettings.saved) return openSettingsModal();
   try {
+    const sessionModuleId = getEffectiveSessionModuleId();
     const response = await api('/api/classroom/start', {
       roomCode,
-      moduleId: selectedModuleId,
+      moduleId: sessionModuleId,
       questionIndex: 0,
       resetQuiz: true,
       quizLength: quizSettings.quizLength,
       maxListens: quizSettings.maxListens,
-      questionLevel: quizSettings.questionLevel
+      questionLevel: quizSettings.questionLevel,
+      mixedModuleIds: getEffectiveMixedModuleIds(sessionModuleId)
     });
     renderState(response.state);
     updateTeacherStatus(response.state);

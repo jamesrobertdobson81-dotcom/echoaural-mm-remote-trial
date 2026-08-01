@@ -15,6 +15,7 @@ npm-debug.log*
 
 # Local dev caches and generated mail previews
 .wrangler/
+.tmp_*/
 dev-mail/*.html
 dev-mail/*.txt
 

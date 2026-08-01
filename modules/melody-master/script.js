@@ -6,10 +6,15 @@ const LEVELLED_MELODY_CLIPS = (typeof melodyMasterLevelledClips !== "undefined" 
   ? melodyMasterLevelledClips
   : [];
 
-const melodyMasterLearningParams = new URLSearchParams(window.location.search);
-const melodyMasterLearningMode = String(melodyMasterLearningParams.get("eaMode") || "").trim().toLowerCase();
-const useLevelledMelodyClips = melodyMasterLearningMode === "progression" || melodyMasterLearningMode === "progress";
-const ALL_MELODY_CLIPS = (useLevelledMelodyClips && LEVELLED_MELODY_CLIPS.length ? LEVELLED_MELODY_CLIPS : SOURCE_MELODY_CLIPS).slice();
+const ALL_MELODY_CLIPS = (LEVELLED_MELODY_CLIPS.length ? LEVELLED_MELODY_CLIPS : SOURCE_MELODY_CLIPS).slice();
+const MELODIC_DEVICES_DATA_URL = "data/melody-master-melodic-devices-50.json";
+
+const DICTATION_LEVELS = [
+  { id: "Foundation", index: 0 },
+  { id: "Developing", index: 1 },
+  { id: "Securing", index: 2 },
+  { id: "Mastering", index: 3 }
+];
 
 let currentQuestionIndex = 0;
 let MM001_SOURCE = {};
@@ -131,6 +136,12 @@ let roundResults = [];
 let hasSubmittedCurrentQuestion = false;
 let isRoundFeedbackOpen = false;
 let roundFeedbackOverlay = null;
+let activeRoundSkill = "dictation";
+let melodicDeviceQuestions = [];
+let melodicDevicesLoadPromise = null;
+let currentDeviceQuestion = null;
+let currentDeviceQuestionIndex = 0;
+let selectedDeviceAnswer = "";
 
 
 const appShell = document.querySelector(".app-shell");
@@ -159,6 +170,7 @@ const scoreCloseButton = document.getElementById("scoreCloseButton");
 const scoreOverlay = document.getElementById("scoreOverlay");
 const scoreImageFrame = document.querySelector(".score-image-frame");
 const dictationWorkspace = document.getElementById("answers");
+const dictationConsole = document.querySelector(".dictation-console");
 let noteScaleResizeObserver = null;
 let noteScaleFrameId = null;
 
@@ -167,10 +179,56 @@ function getSelectedRadioValue(name, fallback) {
   return selected ? selected.value : fallback;
 }
 
+function normaliseDictationLevel(value) {
+  const clean = String(value || "").trim().toLowerCase();
+  return DICTATION_LEVELS.find(level => level.id.toLowerCase() === clean)?.id || DICTATION_LEVELS[0].id;
+}
+
+function getSelectedDictationLevel() {
+  return normaliseDictationLevel(getSelectedRadioValue("mmLevel", DICTATION_LEVELS[0].id));
+}
+
+function isMelodyProgressionMode() {
+  return Boolean(window.EAMelodyMasterProgression?.isActive);
+}
+
+function isMixedDifficultyMode() {
+  const mixedInput = document.querySelector('input[name="mmMixedDifficulty"]');
+  return !isMelodyProgressionMode() && Boolean(mixedInput?.checked);
+}
+
+function getDictationQuestionIndexes(levelName = getSelectedDictationLevel()) {
+  if (isMixedDifficultyMode()) {
+    return ALL_MELODY_CLIPS.map((_clip, index) => index);
+  }
+
+  const indexes = ALL_MELODY_CLIPS
+    .map((clip, index) => (
+      String(clip?.level || clip?.hiddenMetadata?.level || "").trim().toLowerCase() === String(levelName).toLowerCase()
+        ? index
+        : -1
+    ))
+    .filter(index => index >= 0);
+
+  return indexes.length || !LEVELLED_MELODY_CLIPS.length
+    ? indexes
+    : ALL_MELODY_CLIPS.map((_clip, index) => index);
+}
+
+function selectDictationMode() {
+  const dictationInput = document.querySelector('input[name="quizMode"][value="dictation"]');
+  if (dictationInput) dictationInput.checked = true;
+}
+
 function getQuizSettingsFromControls() {
   const selectedQuestionCount = Number(getSelectedRadioValue("questionCount", DEFAULT_QUIZ_SETTINGS.questionCount));
   const selectedPlayLimit = Number(getSelectedRadioValue("playLimit", DEFAULT_QUIZ_SETTINGS.playLimit));
-  const availableQuestions = Math.max(ALL_MELODY_CLIPS.length || 1, 1);
+  const availableQuestions = Math.max(
+    isDevicesSkillSelected()
+      ? getDeviceQuestionIndexes().length || melodicDeviceQuestions.length || 1
+      : getDictationQuestionIndexes().length || ALL_MELODY_CLIPS.length || 1,
+    1
+  );
 
   return {
     questionCount: Math.max(1, Math.min(Number.isFinite(selectedQuestionCount) ? selectedQuestionCount : DEFAULT_QUIZ_SETTINGS.questionCount, availableQuestions)),
@@ -188,9 +246,10 @@ function shuffleArray(items = []) {
 }
 
 function buildRoundQuestionIndices(questionCount = DEFAULT_QUIZ_SETTINGS.questionCount) {
-  const totalQuestions = ALL_MELODY_CLIPS.length || 1;
-  const count = Math.max(1, Math.min(Number(questionCount) || DEFAULT_QUIZ_SETTINGS.questionCount, totalQuestions));
-  return shuffleArray(Array.from({ length: totalQuestions }, (_, index) => index)).slice(0, count);
+  const indexes = getDictationQuestionIndexes();
+  const pool = indexes.length ? indexes : Array.from({ length: ALL_MELODY_CLIPS.length || 1 }, (_item, index) => index);
+  const count = Math.max(1, Math.min(Number(questionCount) || DEFAULT_QUIZ_SETTINGS.questionCount, pool.length));
+  return shuffleArray(pool).slice(0, count);
 }
 
 function getRoundTotal() {
@@ -222,9 +281,143 @@ function getSelectedQuizMode() {
   return getSelectedRadioValue("quizMode", "dictation");
 }
 
+function isDevicesSkillSelected() {
+  return getSelectedQuizMode() === "devices";
+}
+
+function isDevicesRound() {
+  return activeRoundSkill === "devices";
+}
+
+function normaliseDeviceAnswer(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/&amp;/g, "&")
+    .replace(/[’']/g, "'")
+    .replace(/\s*\/\s*/g, "/")
+    .replace(/[^a-z0-9/#\s-]/g, "")
+    .replace(/\s+/g, " ");
+}
+
+function normaliseDeviceLevel(value) {
+  return normaliseDictationLevel(value);
+}
+
+function getSelectedDeviceLevel() {
+  return normaliseDeviceLevel(getSelectedRadioValue("mmLevel", DICTATION_LEVELS[0].id));
+}
+
+function prepareMelodicDeviceQuestion(rawQuestion = {}) {
+  const choices = Array.isArray(rawQuestion.choices)
+    ? rawQuestion.choices.map((choice) => String(choice || "").trim()).filter(Boolean)
+    : String(rawQuestion.options || rawQuestion.Options || "")
+      .split("|")
+      .map((choice) => choice.trim())
+      .filter(Boolean);
+  const correctAnswer = String(rawQuestion.correctAnswer || rawQuestion["Correct Answer"] || "").trim();
+  const acceptedAnswers = Array.isArray(rawQuestion.acceptedAnswers)
+    ? rawQuestion.acceptedAnswers
+    : String(rawQuestion["Accepted Answers"] || correctAnswer)
+      .split(";")
+      .map((answer) => answer.trim())
+      .filter(Boolean);
+  const audioId = String(rawQuestion.audioId || rawQuestion["Audio ID"] || "").trim();
+  const sourceAudio = String(rawQuestion.audio || rawQuestion["Audio Path"] || "").trim();
+  const audioPath = sourceAudio
+    ? sourceAudio.replace(/^audio_clips\//, "audio/melodic-devices/")
+    : `audio/melodic-devices/${audioId}.mp3`;
+
+  return {
+    id: String(rawQuestion.id || rawQuestion["Question ID"] || "").trim(),
+    audioId,
+    audio: audioPath,
+    sourceId: String(rawQuestion.sourceId || rawQuestion["Existing MM Source ID"] || "").trim(),
+    level: normaliseDeviceLevel(rawQuestion.level || rawQuestion.Difficulty || "Foundation"),
+    mode: String(rawQuestion.mode || rawQuestion["Question Mode"] || "Melodic devices").trim(),
+    category: String(rawQuestion.category || rawQuestion["Device Category"] || "Melodic devices").trim(),
+    question: String(rawQuestion.question || rawQuestion.Question || "Choose the best answer.").trim(),
+    choices,
+    correctAnswer,
+    acceptedAnswers: acceptedAnswers.length ? acceptedAnswers : [correctAnswer],
+    answerSignature: normaliseDeviceAnswer(correctAnswer),
+    acceptedSignatures: (acceptedAnswers.length ? acceptedAnswers : [correctAnswer]).map(normaliseDeviceAnswer),
+    marks: Math.max(1, Number(rawQuestion.marks || rawQuestion.Marks || 1) || 1),
+    feedback: String(rawQuestion.feedback || rawQuestion["Feedback / Teaching Point"] || "").trim(),
+    composer: String(rawQuestion.composer || rawQuestion.Composer || "").trim(),
+    work: String(rawQuestion.work || rawQuestion.Work || "").trim(),
+    movement: String(rawQuestion.movement || rawQuestion["Movement / Section"] || "").trim(),
+    performer: String(rawQuestion.performer || rawQuestion["Performer / Ensemble"] || "").trim(),
+    instrumentation: String(rawQuestion.instrumentation || rawQuestion.Instrumentation || "").trim(),
+    sourceProvider: String(rawQuestion.sourceProvider || rawQuestion["Source / Provider"] || "").trim(),
+    licenceType: String(rawQuestion.licenceType || rawQuestion["Licence Type"] || "").trim()
+  };
+}
+
+async function loadMelodicDeviceQuestions() {
+  if (!melodicDevicesLoadPromise) {
+    melodicDevicesLoadPromise = fetch(MELODIC_DEVICES_DATA_URL, { headers: { Accept: "application/json" } })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Melodic Devices questions failed to load (${response.status}).`);
+        return response.json();
+      })
+      .then((data) => {
+        const questions = Array.isArray(data.questions) ? data.questions : [];
+        melodicDeviceQuestions = questions.map(prepareMelodicDeviceQuestion).filter((question) => (
+          question.id && question.audio && question.choices.length && question.correctAnswer
+        ));
+        return melodicDeviceQuestions;
+      });
+  }
+
+  return melodicDevicesLoadPromise;
+}
+
+function getDeviceQuestionPool(levelName = getSelectedDeviceLevel()) {
+  const requestedLevel = normaliseDeviceLevel(levelName);
+  const matching = melodicDeviceQuestions.filter((question) => question.level === requestedLevel);
+  if (matching.length) return matching;
+
+  if (requestedLevel === "Mastering") {
+    const securing = melodicDeviceQuestions.filter((question) => question.level === "Securing");
+    if (securing.length) return securing;
+  }
+
+  return melodicDeviceQuestions.slice();
+}
+
+function getDeviceQuestionIndexes(levelName = getSelectedDeviceLevel()) {
+  const pool = isMixedDifficultyMode()
+    ? melodicDeviceQuestions
+    : getDeviceQuestionPool(levelName);
+  const ids = new Set(pool.map((question) => question.id));
+
+  return melodicDeviceQuestions
+    .map((question, index) => (ids.has(question.id) ? index : -1))
+    .filter((index) => index >= 0);
+}
+
+function buildDeviceRoundQuestionIndices(questionCount = DEFAULT_QUIZ_SETTINGS.questionCount) {
+  const pool = getDeviceQuestionIndexes();
+  const count = Math.max(1, Math.min(Number(questionCount) || DEFAULT_QUIZ_SETTINGS.questionCount, pool.length || 1));
+  const available = shuffleArray(pool);
+  const selected = [];
+
+  while (available.length && selected.length < count) {
+    const previousAudioId = selected.length
+      ? melodicDeviceQuestions[selected[selected.length - 1]]?.audioId
+      : "";
+    let nextPosition = available.findIndex((index) => melodicDeviceQuestions[index]?.audioId !== previousAudioId);
+    if (nextPosition < 0) nextPosition = 0;
+    selected.push(available.splice(nextPosition, 1)[0]);
+  }
+
+  return selected;
+}
+
 function updateSettingsAvailability() {
   const selectedMode = getSelectedQuizMode();
-  const hasSettings = selectedMode === "dictation" || selectedMode === "intervals";
+  const hasSettings = selectedMode === "dictation" || selectedMode === "intervals" || selectedMode === "devices";
 
   if (settingsToggle) settingsToggle.disabled = !hasSettings;
   if (!advancedSettings) return;
@@ -359,6 +552,27 @@ function setFeedback(message, state = "") {
   if (!feedback) return;
   feedback.textContent = message;
   feedback.className = state;
+}
+
+function setTextListContent(container, values = []) {
+  if (!container) return;
+  const items = container.querySelectorAll("span");
+  values.forEach((value, index) => {
+    if (items[index]) items[index].textContent = value;
+  });
+}
+
+function syncMelodyShellLabels(skill = activeRoundSkill) {
+  const panelTitle = document.querySelector(".panel-section-heading-centre h2 span");
+  const kicker = document.querySelector(".console-question-kicker .eyebrow");
+  const cues = document.querySelector(".mm-ready-cues");
+  const instructions = document.querySelector(".dictation-instructions");
+  const isDevices = skill === "devices";
+
+  if (panelTitle) panelTitle.textContent = isDevices ? "Devices" : "Dictation";
+  if (kicker) kicker.textContent = isDevices ? "MELODIC DEVICES" : "MELODIC DICTATION";
+  setTextListContent(cues, isDevices ? ["Contour", "Movement", "Devices"] : ["Pitch", "Contour", "Dictation"]);
+  setTextListContent(instructions, isDevices ? ["PLAY & LISTEN", "CHOOSE ANSWER", "CHECK FEEDBACK"] : ["PLAY & LISTEN", "DRAG THE NOTES", "CHECK YOUR ANSWERS"]);
 }
 
 function clearScoreFocus() {
@@ -1145,8 +1359,8 @@ let eaLastRoundSave = Promise.resolve({ saved: false, reason: "not-started" });
 
 function resetMelodyMasterProgressRound() {
   eaProgressRoundId = window.EchoAuralTracking
-    ? window.EchoAuralTracking.createClientRoundId("melody-master")
-    : `melody-master-${Date.now()}`;
+    ? window.EchoAuralTracking.createClientRoundId(isDevicesRound() ? "melody-master-devices" : "melody-master")
+    : `${isDevicesRound() ? "melody-master-devices" : "melody-master"}-${Date.now()}`;
 }
 
 function saveMelodyMasterProgress() {
@@ -1163,6 +1377,16 @@ function saveMelodyMasterProgress() {
     contourAwarded: totals.shapeAwarded,
     contourAvailable: totals.shapeAvailable
   };
+
+  if (isDevicesRound()) {
+    metadata.skill = "melodic-devices";
+    metadata.deviceAwarded = summary.awarded;
+    metadata.deviceAvailable = summary.totalPossible;
+    metadata.deviceLevel = getSelectedDeviceLevel();
+  } else {
+    metadata.skill = "dictation";
+  }
+
   const progression = window.EAMelodyMasterProgression;
 
   if (progression && progression.isActive) {
@@ -1173,21 +1397,38 @@ function saveMelodyMasterProgress() {
     metadata.passMark = progression.level?.passMark ?? "";
   }
 
-  const questions = roundResults.filter(Boolean).map((result, index) => ({
-    questionId: result.questionId || `MM-Q${index + 1}`,
-    score: Number(result.awardedMarks) || 0,
-    maximumScore: Number(result.maxMarks) || 0,
-    feedback: result.shortComment || (result.awardedMarks === result.maxMarks ? "Secure melodic dictation response." : "Review the marked pitch and contour evidence."),
-    answerData: {
-      pitchMarksAwarded: Number(result.pitchMarksAwarded) || 0,
-      pitchMarksAvailable: Number(result.pitchMarksAvailable) || 0,
-      shapeMarksAwarded: Number(result.shapeMarksAwarded) || 0,
-      shapeMarksAvailable: Number(result.shapeMarksAvailable) || 0,
-      firstWrongNote: result.firstWrongNote || null,
-      firstContourError: result.firstContourError || "",
-      firstIntervalSizeError: result.firstIntervalSizeError || ""
+  const questions = roundResults.filter(Boolean).map((result, index) => {
+    if (result.skill === "melodic-devices") {
+      return {
+        questionId: result.questionId || `MDV-Q${index + 1}`,
+        score: Number(result.awardedMarks) || 0,
+        maximumScore: Number(result.maxMarks) || 0,
+        feedback: result.shortComment || "Review the melodic device in the excerpt.",
+        answerData: {
+          skill: "melodic-devices",
+          category: result.category || "",
+          selectedAnswer: result.selectedAnswer || "",
+          correctAnswer: result.correctAnswer || ""
+        }
+      };
     }
-  }));
+
+    return {
+      questionId: result.questionId || `MM-Q${index + 1}`,
+      score: Number(result.awardedMarks) || 0,
+      maximumScore: Number(result.maxMarks) || 0,
+      feedback: result.shortComment || (result.awardedMarks === result.maxMarks ? "Secure melodic dictation response." : "Review the marked pitch and contour evidence."),
+      answerData: {
+        pitchMarksAwarded: Number(result.pitchMarksAwarded) || 0,
+        pitchMarksAvailable: Number(result.pitchMarksAvailable) || 0,
+        shapeMarksAwarded: Number(result.shapeMarksAwarded) || 0,
+        shapeMarksAvailable: Number(result.shapeMarksAvailable) || 0,
+        firstWrongNote: result.firstWrongNote || null,
+        firstContourError: result.firstContourError || "",
+        firstIntervalSizeError: result.firstIntervalSizeError || ""
+      }
+    };
+  });
   eaLastRoundSave = window.EchoAuralTracking.saveRound({
     moduleId: "melody-master",
     clientRoundId: eaProgressRoundId,
@@ -1237,10 +1478,14 @@ function goToNextQuestion() {
     roundQuestionPosition += 1;
   }
 
-  const totalQuestions = ALL_MELODY_CLIPS.length || 1;
+  const totalQuestions = isDevicesRound()
+    ? melodicDeviceQuestions.length || 1
+    : ALL_MELODY_CLIPS.length || 1;
   const nextIndex = isRoundActive
     ? (roundQuestionIndices[roundQuestionPosition] || 0)
-    : ((currentQuestionIndex + 1) % totalQuestions);
+    : (isDevicesRound()
+      ? ((currentDeviceQuestionIndex + 1) % totalQuestions)
+      : ((currentQuestionIndex + 1) % totalQuestions));
 
   if (quizPanel) quizPanel.classList.add("is-question-handoff-out");
   clearScoreFocus();
@@ -1253,8 +1498,13 @@ function goToNextQuestion() {
       quizPanel.classList.add("is-question-handoff-in");
     }
 
-    setActiveQuestion(nextIndex);
-    loadQuestion({ autoPlay: true, transitionIn: true, expandOnLoad: true });
+    if (isDevicesRound()) {
+      currentDeviceQuestionIndex = nextIndex;
+      loadMelodicDeviceQuestion({ autoPlay: true, transitionIn: true });
+    } else {
+      setActiveQuestion(nextIndex);
+      loadQuestion({ autoPlay: true, transitionIn: true, expandOnLoad: true });
+    }
 
     window.setTimeout(() => {
       if (quizPanel) quizPanel.classList.remove("is-question-handoff-in");
@@ -1267,6 +1517,244 @@ function closeExpandedScoreTile() {
   collapseScoreExpansion();
 }
 
+function loadMelodicDeviceQuestion(options = {}) {
+  clearPerfectAnswerRevealTimer();
+  clearQuestionHandoffTimer();
+
+  const shouldAutoPlay = Boolean(options && options.autoPlay === true);
+  const isTransitionIn = Boolean(options && options.transitionIn === true);
+
+  closeRoundFeedbackWindow();
+
+  const index = isRoundActive
+    ? (roundQuestionIndices[roundQuestionPosition] || 0)
+    : currentDeviceQuestionIndex;
+  currentDeviceQuestionIndex = Math.max(0, Math.min(index, Math.max(melodicDeviceQuestions.length - 1, 0)));
+  currentDeviceQuestion = melodicDeviceQuestions[currentDeviceQuestionIndex] || melodicDeviceQuestions[0] || null;
+
+  if (!currentDeviceQuestion) {
+    setFeedback("Melodic Devices questions could not be loaded.", "bad");
+    return;
+  }
+
+  activeRoundSkill = "devices";
+  syncMelodyShellLabels("devices");
+  isLoaded = true;
+  isShowingAnswer = false;
+  hasPlayedAudio = false;
+  isQuestionComplete = false;
+  hasSubmittedCurrentQuestion = false;
+  selectedDeviceAnswer = "";
+  lastAttemptDiagnostic = null;
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
+  resetPlayCounterForQuestion();
+
+  setQuizVisualState("active");
+  if (quizPanel && !isTransitionIn) quizPanel.classList.remove("is-question-handoff-out", "is-question-handoff-in");
+
+  questionText.textContent = currentDeviceQuestion.question;
+  roundText.textContent = isRoundActive ? getRoundLabel() : "Ready";
+  scoreText.textContent = `Score: 0 / ${currentDeviceQuestion.marks}`;
+  streakText.textContent = currentDeviceQuestion.category || "Melodic devices";
+  xpText.textContent = `${currentDeviceQuestion.level} · ${getPlayLimitLabel()}`;
+  progressInner.style.width = "0%";
+
+  clearScoreTrackInfo();
+  collapseScoreExpansion();
+  audio = new Audio(currentDeviceQuestion.audio);
+  audio.volume = 1;
+
+  startButton.style.display = "none";
+  playButton.style.display = "inline-flex";
+  setPlayButtonMode("play");
+  checkAnswerButton.disabled = true;
+  checkAnswerButton.style.display = "none";
+  setAnswerRevealButtonVisible(false);
+  if (showAnswerButton) showAnswerButton.style.display = "none";
+
+  renderMelodicDevicesWorkspace(currentDeviceQuestion);
+  renderMelodicDevicesAnswerPanelIntro(currentDeviceQuestion);
+
+  setFeedback(shouldAutoPlay ? "First play starting. Listen for the melodic device, then choose the best answer." : "");
+
+  if (shouldAutoPlay) {
+    playAudio({ autoStarted: true });
+  } else {
+    syncPlayButtonLabel();
+  }
+}
+
+function handleMelodicDeviceAudioFinished() {
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
+
+  if (isQuestionComplete) {
+    setPlayButtonMode("next");
+    return;
+  }
+
+  setPlayButtonMode("replay");
+
+  const remaining = getRemainingPlays();
+  if (remaining > 0) {
+    setFeedback(`${getPlayRemainingText(remaining)}. You may replay the excerpt, or choose your answer when ready.`);
+  } else {
+    setFeedback("0 plays left. Choose the best answer.", "bad");
+  }
+}
+
+function playMelodicDeviceAudio(options = {}) {
+  if (playButton && playButton.dataset.mode === "next") {
+    goToNextQuestion();
+    return;
+  }
+
+  if (isQuestionComplete) {
+    goToNextQuestion();
+    return;
+  }
+
+  if (isAudioPlaying) return;
+  if (!currentDeviceQuestion) loadMelodicDeviceQuestion();
+  if (!currentDeviceQuestion) return;
+
+  const autoStarted = Boolean(options && options.autoStarted === true);
+
+  if (playsUsedThisQuestion >= (quizSettings.playLimit || DEFAULT_QUIZ_SETTINGS.playLimit)) {
+    syncPlayButtonLabel();
+    setFeedback("0 plays left. Choose the best answer.", "bad");
+    return;
+  }
+
+  if (!audio) audio = new Audio(currentDeviceQuestion.audio);
+  audio.pause();
+  audio.currentTime = 0;
+  audio.volume = 1;
+
+  playRemainingAtStartOfCurrentPlayback = getRemainingPlays();
+  isAudioPlaying = true;
+  syncPlayButtonLabel();
+  audio.onended = handleMelodicDeviceAudioFinished;
+
+  let playAttempt;
+
+  try {
+    playAttempt = audio.play();
+  } catch (error) {
+    isAudioPlaying = false;
+    playRemainingAtStartOfCurrentPlayback = null;
+    syncPlayButtonLabel();
+    setFeedback(`Audio could not play. Check that the audio file is available at ${currentDeviceQuestion.audio}.`, "bad");
+    return;
+  }
+
+  hasPlayedAudio = true;
+  playsUsedThisQuestion += 1;
+
+  const playMessage = autoStarted ? "First play" : "Replay";
+  setFeedback(`${playMessage} ${playsUsedThisQuestion} of ${quizSettings.playLimit}. Listen carefully. The replay control will unlock when the audio finishes.`);
+
+  if (playAttempt && typeof playAttempt.catch === "function") {
+    playAttempt.catch(() => {
+      playsUsedThisQuestion = Math.max(0, playsUsedThisQuestion - 1);
+      isAudioPlaying = false;
+      playRemainingAtStartOfCurrentPlayback = null;
+      syncPlayButtonLabel();
+      setFeedback(`Audio could not play. Check that the audio file is available at ${currentDeviceQuestion.audio}.`, "bad");
+    });
+  }
+}
+
+function resetMelodicDeviceQuestion() {
+  if (!currentDeviceQuestion) {
+    loadMelodicDeviceQuestion();
+    return;
+  }
+
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
+  isQuestionComplete = false;
+  hasSubmittedCurrentQuestion = false;
+  hasPlayedAudio = false;
+  selectedDeviceAnswer = "";
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
+  resetPlayCounterForQuestion();
+  setPlayButtonMode("play");
+  progressInner.style.width = "0%";
+  scoreText.textContent = `Score: 0 / ${currentDeviceQuestion.marks}`;
+  streakText.textContent = currentDeviceQuestion.category || "Melodic devices";
+  xpText.textContent = `${currentDeviceQuestion.level} · ${getPlayLimitLabel()}`;
+  renderMelodicDevicesWorkspace(currentDeviceQuestion);
+  renderMelodicDevicesAnswerPanelIntro(currentDeviceQuestion);
+  setFeedback("Reset. Press Replay Excerpt when you are ready to hear it again.");
+}
+
+function submitMelodicDeviceAnswer(choice = "") {
+  if (!currentDeviceQuestion || isQuestionComplete) return;
+
+  selectedDeviceAnswer = String(choice || "").trim();
+  const answerSignature = normaliseDeviceAnswer(selectedDeviceAnswer);
+  const acceptedSignatures = currentDeviceQuestion.acceptedSignatures.length
+    ? currentDeviceQuestion.acceptedSignatures
+    : [currentDeviceQuestion.answerSignature];
+  const isCorrect = acceptedSignatures.includes(answerSignature) || answerSignature === currentDeviceQuestion.answerSignature;
+  const awardedMarks = isCorrect ? currentDeviceQuestion.marks : 0;
+  const result = {
+    skill: "melodic-devices",
+    questionId: currentDeviceQuestion.id,
+    awardedMarks,
+    maxMarks: currentDeviceQuestion.marks,
+    pitchMarksAwarded: awardedMarks,
+    pitchMarksAvailable: currentDeviceQuestion.marks,
+    shapeMarksAwarded: 0,
+    shapeMarksAvailable: 0,
+    selectedAnswer: selectedDeviceAnswer,
+    correctAnswer: currentDeviceQuestion.correctAnswer,
+    category: currentDeviceQuestion.category,
+    shortComment: isCorrect
+      ? "Secure melodic-device recognition."
+      : (currentDeviceQuestion.feedback || `Listen again for ${currentDeviceQuestion.correctAnswer}.`)
+  };
+
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+  isAudioPlaying = false;
+  playRemainingAtStartOfCurrentPlayback = null;
+  hasSubmittedCurrentQuestion = true;
+  isQuestionComplete = true;
+
+  if (isRoundActive) roundResults[roundQuestionPosition] = result;
+
+  document.querySelectorAll(".melodic-devices-option").forEach((button) => {
+    const buttonChoice = button.dataset.choice || "";
+    const buttonSignature = normaliseDeviceAnswer(buttonChoice);
+    button.disabled = true;
+    button.classList.toggle("correct", buttonSignature === currentDeviceQuestion.answerSignature);
+    button.classList.toggle("wrong", buttonSignature === answerSignature && !isCorrect);
+    button.setAttribute("aria-checked", buttonSignature === answerSignature ? "true" : "false");
+  });
+
+  progressInner.style.width = "100%";
+  scoreText.textContent = `Mark: ${awardedMarks} / ${currentDeviceQuestion.marks}`;
+  streakText.textContent = isCorrect ? "Correct" : "Review";
+  xpText.textContent = currentDeviceQuestion.category || "Submitted";
+  setPlayButtonMode("next");
+  setFeedback(
+    isCorrect
+      ? `Correct: ${currentDeviceQuestion.correctAnswer}. Press ${getProgressionButtonLabel()}.`
+      : `Not quite. Correct answer: ${currentDeviceQuestion.correctAnswer}. Press ${getProgressionButtonLabel()}.`,
+    isCorrect ? "good" : "bad"
+  );
+  renderMelodicDevicesAnswerPanelSubmitted(result, currentDeviceQuestion);
+}
+
 
 function loadQuestion(options = {}) {
   clearPerfectAnswerRevealTimer();
@@ -1277,6 +1765,8 @@ function loadQuestion(options = {}) {
   const shouldExpandOnLoad = Boolean(options && options.expandOnLoad === true);
 
   closeRoundFeedbackWindow();
+  activeRoundSkill = "dictation";
+  hideMelodicDevicesWorkspace();
 
   isLoaded = true;
   isShowingAnswer = false;
@@ -1311,6 +1801,7 @@ function loadQuestion(options = {}) {
   startButton.style.display = "none";
   playButton.style.display = "inline-flex";
   setPlayButtonMode("play");
+  checkAnswerButton.style.display = "";
   checkAnswerButton.disabled = true;
   syncSubmissionButtonLabel();
   setAnswerRevealButtonVisible(false);
@@ -1337,6 +1828,11 @@ function loadQuestion(options = {}) {
 }
 
 function handleAudioFinished() {
+  if (isDevicesRound()) {
+    handleMelodicDeviceAudioFinished();
+    return;
+  }
+
   clearScoreFocus();
   isAudioPlaying = false;
   playRemainingAtStartOfCurrentPlayback = null;
@@ -1357,6 +1853,11 @@ function handleAudioFinished() {
 }
 
 function playAudio(options = {}) {
+  if (isDevicesRound()) {
+    playMelodicDeviceAudio(options);
+    return;
+  }
+
   if (playButton && playButton.dataset.mode === "next") {
     goToNextQuestion();
     return;
@@ -1478,6 +1979,11 @@ function showAnswer() {
 }
 
 function resetDictation() {
+  if (isDevicesRound()) {
+    resetMelodicDeviceQuestion();
+    return;
+  }
+
   clearPerfectAnswerRevealTimer();
   clearQuestionHandoffTimer();
 
@@ -1520,6 +2026,8 @@ function resetDictation() {
 }
 
 function checkAnswer() {
+  if (isDevicesRound()) return;
+
   clearPerfectAnswerRevealTimer();
 
   const total = dictationSlots.length || 6;
@@ -2084,6 +2592,11 @@ function getRoundTotalPossibleMarks() {
   const indices = roundQuestionIndices && roundQuestionIndices.length
     ? roundQuestionIndices
     : [currentQuestionIndex];
+
+  if (isDevicesRound()) {
+    return indices.reduce((sum, index) => sum + (Number(melodicDeviceQuestions[index]?.marks) || 1), 0);
+  }
+
   return indices.reduce((sum, index) => sum + getQuestionMaxMarksFromSource(ALL_MELODY_CLIPS[index] || MM001_SOURCE), 0);
 }
 
@@ -2112,6 +2625,17 @@ function getRoundScoreSummary() {
 function getRoundFeedbackText(summary) {
   if (!summary || summary.attempted <= 0) {
     return "Your round score will update after each checked answer.";
+  }
+
+  if (isDevicesRound()) {
+    if (!summary.isFinal) {
+      return `${summary.attempted}/${summary.totalQuestions} ${summary.attempted === 1 ? "question" : "questions"} answered. Keep listening for melodic-device clues.`;
+    }
+
+    if (summary.percentage >= 90) return "Excellent round. Melodic-device recognition is secure.";
+    if (summary.percentage >= 70) return "Strong round. Most melodic devices are clear; review the feedback for any missed examples.";
+    if (summary.percentage >= 50) return "Developing round. Focus on contour, repetition and interval patterns in each phrase.";
+    return "Keep practising. Start by naming the melodic movement, then listen for repeated notes, sequence and leaps.";
   }
 
   if (!summary.isFinal) {
@@ -2168,6 +2692,26 @@ function getRoundAggregateMarks() {
 }
 
 function getCompiledRoundFeedback(summary = getRoundScoreSummary()) {
+  if (isDevicesRound()) {
+    if (!summary || summary.attempted <= 0) {
+      return "No submitted answers were found for this round.";
+    }
+
+    if (summary.percentage >= 90) {
+      return "Excellent round. You identified the melodic devices securely across the excerpts.";
+    }
+
+    if (summary.percentage >= 70) {
+      return "Strong round. Review any missed examples and listen again for the precise contour or interval clue.";
+    }
+
+    if (summary.percentage >= 50) {
+      return "Developing round. Focus on whether the melody is moving by step, leap, repetition, sequence or triad shape.";
+    }
+
+    return "Keep practising. First name the overall direction of the melody, then listen for repeated notes, steps, leaps and patterns.";
+  }
+
   const totals = getRoundAggregateMarks();
   const pitchPercent = totals.pitchAvailable > 0 ? Math.round((totals.pitchAwarded / totals.pitchAvailable) * 100) : 0;
   const contourPercent = totals.shapeAvailable > 0 ? Math.round((totals.shapeAwarded / totals.shapeAvailable) * 100) : 0;
@@ -2213,6 +2757,16 @@ function renderRoundQuestionRows() {
       `;
     }
 
+    if (result.skill === "melodic-devices") {
+      return `
+        <div class="mm-round-review-row">
+          <span>Question ${index + 1}</span>
+          <strong>${escapeHTML(`${result.awardedMarks}/${result.maxMarks}`)}</strong>
+          <small>${escapeHTML(result.category || "Melodic devices")} · Your answer: ${escapeHTML(result.selectedAnswer || "—")} · Correct: ${escapeHTML(result.correctAnswer || "—")}</small>
+        </div>
+      `;
+    }
+
     const noteText = result.firstWrongNote
       ? `First pitch to review: note ${result.firstWrongNote}`
       : (result.firstContourError || result.firstIntervalSizeError || "Secure response");
@@ -2233,6 +2787,7 @@ function renderRoundReviewPanel() {
   const summary = getRoundScoreSummary();
   const totals = getRoundAggregateMarks();
   const markedText = `${summary.attempted}/${summary.totalQuestions} ${summary.totalQuestions === 1 ? "question" : "questions"} submitted`;
+  const isDevicesReview = isDevicesRound();
 
   return `
     <div class="mm-round-review-panel mm-source-panel mm-diagnostic-panel mm-gcse-feedback-panel mm-main-quiz-feedback-panel">
@@ -2244,13 +2799,13 @@ function renderRoundReviewPanel() {
       </div>
 
       <div class="diagnostic-metrics gcse-mark-metrics mm-two-mark-metrics" aria-label="Round mark breakdown">
-        <div class="diagnostic-metric ${totals.pitchAwarded === totals.pitchAvailable && totals.pitchAvailable ? "is-secure" : "is-focus"}">
-          <span>Pitch total</span>
-          <strong>${escapeHTML(`${totals.pitchAwarded}/${totals.pitchAvailable}`)}</strong>
+        <div class="diagnostic-metric ${isDevicesReview ? (summary.awarded === summary.totalPossible ? "is-secure" : "is-focus") : (totals.pitchAwarded === totals.pitchAvailable && totals.pitchAvailable ? "is-secure" : "is-focus")}">
+          <span>${isDevicesReview ? "Devices total" : "Pitch total"}</span>
+          <strong>${escapeHTML(isDevicesReview ? `${summary.awarded}/${summary.totalPossible}` : `${totals.pitchAwarded}/${totals.pitchAvailable}`)}</strong>
         </div>
-        <div class="diagnostic-metric ${totals.shapeAwarded === totals.shapeAvailable && totals.shapeAvailable ? "is-secure" : "is-focus"}">
-          <span>Contour total</span>
-          <strong>${escapeHTML(`${totals.shapeAwarded}/${totals.shapeAvailable}`)}</strong>
+        <div class="diagnostic-metric ${isDevicesReview ? (summary.percentage >= 70 ? "is-secure" : "is-focus") : (totals.shapeAwarded === totals.shapeAvailable && totals.shapeAvailable ? "is-secure" : "is-focus")}">
+          <span>${isDevicesReview ? "Recognition" : "Contour total"}</span>
+          <strong>${escapeHTML(isDevicesReview ? `${summary.percentage}%` : `${totals.shapeAwarded}/${totals.shapeAvailable}`)}</strong>
         </div>
       </div>
 
@@ -2507,6 +3062,132 @@ function renderAnswerPanelHome() {
           <span></span><span></span><span></span><span></span><span></span>
         </span>
       </div>
+    </div>
+  `;
+}
+
+function ensureMelodicDevicesWorkspace() {
+  if (!dictationConsole) return null;
+
+  let workspace = document.getElementById("melodicDevicesPanel");
+  if (!workspace) {
+    workspace = document.createElement("div");
+    workspace.id = "melodicDevicesPanel";
+    workspace.className = "melodic-devices-centre-panel";
+    workspace.hidden = true;
+    if (feedback && feedback.parentNode === dictationConsole) {
+      dictationConsole.insertBefore(workspace, feedback);
+    } else {
+      dictationConsole.appendChild(workspace);
+    }
+  }
+
+  return workspace;
+}
+
+function hideMelodicDevicesWorkspace() {
+  const workspace = document.getElementById("melodicDevicesPanel");
+  if (workspace) {
+    workspace.hidden = true;
+    workspace.innerHTML = "";
+  }
+  if (scoreShell) scoreShell.hidden = false;
+  if (dictationWorkspace) {
+    dictationWorkspace.hidden = false;
+    dictationWorkspace.classList.remove("is-melodic-devices-workspace");
+  }
+  if (quizPanel) quizPanel.classList.remove("is-devices-question");
+  syncMelodyShellLabels("dictation");
+}
+
+function wireMelodicDevicesOptionButtons(root = document) {
+  if (!root) return;
+
+  root.querySelectorAll(".melodic-devices-option").forEach((button) => {
+    if (button.dataset.devicesOptionBound === "true") return;
+
+    button.dataset.devicesOptionBound = "true";
+    button.addEventListener("click", () => submitMelodicDeviceAnswer(button.dataset.choice || ""));
+  });
+}
+
+function renderMelodicDevicesWorkspace(question = currentDeviceQuestion) {
+  const workspace = ensureMelodicDevicesWorkspace();
+  if (!workspace || !question) return;
+
+  if (scoreShell) scoreShell.hidden = true;
+  if (dictationWorkspace) {
+    dictationWorkspace.hidden = true;
+    dictationWorkspace.classList.add("is-melodic-devices-workspace");
+  }
+  if (quizPanel) quizPanel.classList.add("is-devices-question");
+
+  workspace.hidden = false;
+  workspace.innerHTML = `
+    <div class="melodic-devices-prompt-card">
+      <p class="eyebrow">MELODIC DEVICES</p>
+      <strong>Choose the best answer.</strong>
+      <small>${escapeHTML(question.level)} · ${escapeHTML(question.id)} · ${escapeHTML(getPlayLimitLabel())}</small>
+    </div>
+    <div class="melodic-devices-options" role="radiogroup" aria-label="Melodic Devices answer options">
+      ${question.choices.map((choice) => `
+        <button class="melodic-devices-option" type="button" data-choice="${escapeHTML(choice)}">
+          <span>${escapeHTML(choice)}</span>
+        </button>
+      `).join("")}
+    </div>
+  `;
+
+  wireMelodicDevicesOptionButtons(workspace);
+}
+
+function renderMelodicDevicesAnswerPanelIntro(question = currentDeviceQuestion) {
+  if (!answerCard) return;
+
+  answerCard.innerHTML = `
+    <div class="answerCard-empty mm-source-panel mm-source-panel-active mm-diagnostic-panel mm-gcse-feedback-panel mm-main-quiz-feedback-panel melodic-devices-feedback-panel">
+      <div class="diagnostic-card diagnostic-feedback-tile">
+        <span>Feedback</span>
+        <strong>Listen to the excerpt, then choose the best melodic-device answer.</strong>
+      </div>
+
+      <div class="diagnostic-card">
+        <span>Answer options</span>
+        <strong>Use the centre panel to answer.</strong>
+      </div>
+
+      ${renderRoundScoreTracker()}
+    </div>
+  `;
+}
+
+function renderMelodicDevicesAnswerPanelSubmitted(result = null, question = currentDeviceQuestion) {
+  if (!answerCard || !question || !result) return;
+
+  const panelClass = result.awardedMarks === result.maxMarks ? "is-correct" : "is-wrong";
+  answerCard.innerHTML = `
+    <div class="answer-reveal mm-source-panel ${panelClass} mm-diagnostic-panel mm-gcse-feedback-panel mm-main-quiz-feedback-panel melodic-devices-feedback-panel">
+      <div class="diagnostic-metrics gcse-mark-metrics mm-two-mark-metrics melodic-devices-mark-metrics" aria-label="Melodic Devices mark breakdown">
+        <div class="diagnostic-metric ${result.awardedMarks === result.maxMarks ? "is-secure" : "is-focus"}">
+          <span>Mark</span>
+          <strong>${escapeHTML(`${result.awardedMarks}/${result.maxMarks}`)}</strong>
+        </div>
+        <div class="diagnostic-metric">
+          <span>Your answer</span>
+          <strong>${escapeHTML(result.selectedAnswer || "—")}</strong>
+        </div>
+        <div class="diagnostic-metric is-secure">
+          <span>Correct answer</span>
+          <strong>${escapeHTML(question.correctAnswer)}</strong>
+        </div>
+      </div>
+
+      <div class="diagnostic-card diagnostic-feedback-tile">
+        <span>Feedback</span>
+        <strong>${escapeHTML(question.feedback || result.shortComment || "Review the melodic feature in the excerpt.")}</strong>
+      </div>
+
+      ${renderRoundScoreTracker()}
     </div>
   `;
 }
@@ -2808,15 +3489,12 @@ function closeSettingsMenu() {
 }
 
 function getMelodicIntervalLaunchUrl() {
-  const mode = getSelectedRadioValue("miQuizMode", "recognition");
-  const count = getSelectedRadioValue("miQuestionCount", "3");
-  const answerMode = getSelectedRadioValue("miAnswerMode", "number");
-  const intervalSet = getSelectedRadioValue("miIntervalSet", "basic");
+  const count = getSelectedRadioValue("questionCount", String(DEFAULT_QUIZ_SETTINGS.questionCount));
   const params = new URLSearchParams({
-    mode,
+    mode: "recognition",
     count,
-    answerMode,
-    set: intervalSet,
+    answerMode: "number",
+    set: "basic",
     autostart: "1",
     source: "melody-master"
   });
@@ -2824,14 +3502,51 @@ function getMelodicIntervalLaunchUrl() {
   return `../melodic-intervals/index.html?${params.toString()}`;
 }
 
-function startQuizRound() {
+async function startQuizRound() {
   closeSettingsMenu();
 
-  if (getSelectedQuizMode() === "intervals") {
+  const selectedMode = getSelectedQuizMode();
+
+  if (selectedMode === "intervals") {
     window.location.href = getMelodicIntervalLaunchUrl();
     return;
   }
 
+  if (selectedMode === "devices") {
+    activeRoundSkill = "devices";
+    if (startButton) startButton.disabled = true;
+    setFeedback("Loading Melodic Devices questions…");
+
+    try {
+      await loadMelodicDeviceQuestions();
+    } catch (error) {
+      setFeedback(error?.message || "Melodic Devices questions could not be loaded.", "bad");
+      if (startButton) startButton.disabled = false;
+      return;
+    }
+
+    if (startButton) startButton.disabled = false;
+
+    closeRoundFeedbackWindow();
+    quizSettings = getQuizSettingsFromControls();
+    roundQuestionIndices = buildDeviceRoundQuestionIndices(quizSettings.questionCount);
+
+    if (!roundQuestionIndices.length) {
+      setFeedback("No Melodic Devices questions are available for this level yet.", "bad");
+      return;
+    }
+
+    roundQuestionPosition = 0;
+    roundResults = [];
+    resetMelodyMasterProgressRound();
+    hasSubmittedCurrentQuestion = false;
+    isRoundActive = true;
+    currentDeviceQuestionIndex = roundQuestionIndices[0] || 0;
+    loadMelodicDeviceQuestion({ autoPlay: true });
+    return;
+  }
+
+  activeRoundSkill = "dictation";
   closeRoundFeedbackWindow();
   quizSettings = getQuizSettingsFromControls();
   roundQuestionIndices = buildRoundQuestionIndices(quizSettings.questionCount);
@@ -2863,6 +3578,11 @@ resetButton.addEventListener("click", resetDictation);
 checkAnswerButton.addEventListener("click", checkAnswer);
 if (scoreCloseButton) scoreCloseButton.addEventListener("click", closeExpandedScoreTile);
 window.addEventListener("resize", queueNoteScaleUpdate);
+document.querySelectorAll('input[name="mmLevel"]').forEach((input) => {
+  input.addEventListener("change", () => {
+    updateSettingsAvailability();
+  });
+});
 document.querySelectorAll('input[name="quizMode"]').forEach((input) => input.addEventListener("change", updateSettingsAvailability));
 updateSettingsAvailability();
 

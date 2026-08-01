@@ -47,6 +47,14 @@
           <span>Melody Master</span>
         </a>
 
+        <a class="topbar-link" href="../texture-trainer/index.html" aria-label="Open Texture Trainer">
+          <span>Texture Trainer</span>
+        </a>
+
+        <a class="topbar-link" href="../meter-master/index.html" aria-label="Open Meter Master">
+          <span>Meter Master</span>
+        </a>
+
         <a class="topbar-link topbar-home-link" href="../../index.html" aria-label="Back to EchoAural home">
           <span class="back-label">Back to</span>
           <span class="mini-wordmark" aria-hidden="true">
@@ -99,109 +107,28 @@
           </p>
         </div>
 
-        <h2>Quiz Mode</h2>
+        <h2>Level</h2>
 
-        <div class="cardGrid" aria-label="Choose quiz mode">
-          <label class="quizCard mode-card-solo">
-            <input type="radio" name="quizMode" value="solo" checked />
-            <span class="mode-icon-shell" aria-hidden="true">
-              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
-                <path d="M34 12v29" />
-                <path d="M34 14c8 1 13 4 16 9" />
-                <ellipse cx="24" cy="44" rx="11" ry="8" transform="rotate(-19 24 44)" />
-                <path d="M45 27c-3-2-7-3-11-3" />
-              </svg>
-            </span>
-            <span class="mode-copy">
-              <span class="modeBadge">Solo</span>
-              <small>Single instrument</small>
-            </span>
+        <div class="level-grid progression-level-grid" aria-label="Choose Instrument Identifier level">
+          <label class="level-button">
+            <input type="radio" name="iiLevel" value="Foundation" checked />
+            <strong>Foundation</strong>
           </label>
 
-          <label class="quizCard mode-card-accompanied">
-            <input type="radio" name="quizMode" value="accompanied" />
-            <span class="mode-icon-shell" aria-hidden="true">
-              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
-                <path d="M23 14v31" />
-                <path d="M43 20v25" />
-                <ellipse cx="15" cy="48" rx="9" ry="6.5" transform="rotate(-18 15 48)" />
-                <ellipse cx="35" cy="48" rx="9" ry="6.5" transform="rotate(-18 35 48)" />
-                <path d="M23 16c8 1 14 3 20 8" />
-                <path d="M23 28c7 1 13 3 20 7" />
-              </svg>
-            </span>
-            <span class="mode-copy">
-              <span class="modeBadge">Accompanied</span>
-              <small>With accompaniment</small>
-            </span>
+          <label class="level-button">
+            <input type="radio" name="iiLevel" value="Developing" />
+            <strong>Developing</strong>
           </label>
 
-          <label class="quizCard mode-card-mixed">
-            <input type="radio" name="quizMode" value="all" />
-            <span class="mode-icon-shell" aria-hidden="true">
-              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
-                <path d="M15 22c6-8 14-8 20 0s14 8 20 0" />
-                <path d="M15 34c6-8 14-8 20 0s14 8 20 0" />
-                <path d="M15 46c6-8 14-8 20 0s14 8 20 0" />
-                <circle cx="16" cy="14" r="3" />
-                <circle cx="32" cy="14" r="3" />
-                <circle cx="48" cy="14" r="3" />
-              </svg>
-            </span>
-            <span class="mode-copy">
-              <span class="modeBadge">Mixed</span>
-              <small>All types</small>
-            </span>
+          <label class="level-button">
+            <input type="radio" name="iiLevel" value="Securing" />
+            <strong>Securing</strong>
           </label>
-        </div>
 
-        <div class="settings-popover-wrap">
-          <div
-            id="advancedSettings"
-            class="advancedSettings settings-popover"
-            style="display: none;"
-            aria-hidden="true"
-          >
-            <div class="settings-popover-header">
-              <p class="eyebrow">CUSTOMISE ROUND</p>
-              <h3>Advanced Settings</h3>
-            </div>
-
-            <h3>Questions</h3>
-            <div class="pillRow" aria-label="Number of questions">
-              <label class="pill"><input type="radio" name="questionCount" value="5" />5</label>
-              <label class="pill"><input type="radio" name="questionCount" value="10" checked />10</label>
-              <label class="pill"><input type="radio" name="questionCount" value="20" />20</label>
-              <label class="pill"><input type="radio" name="questionCount" value="50" />50</label>
-              <label class="pill"><input type="radio" name="questionCount" value="unlimited" />∞</label>
-            </div>
-
-            <h3>Difficulty</h3>
-            <div class="pillRow" aria-label="Difficulty filter">
-              <label class="pill"><input type="radio" name="difficultyFilter" value="all" checked />Mixed</label>
-              <label class="pill"><input type="radio" name="difficultyFilter" value="easy" />Easy</label>
-              <label class="pill"><input type="radio" name="difficultyFilter" value="medium" />Medium</label>
-              <label class="pill"><input type="radio" name="difficultyFilter" value="hard" />Hard</label>
-            </div>
-
-            <h3>Families</h3>
-            <div class="familyGrid" aria-label="Instrument families">
-              <label class="familyPill"><input type="checkbox" name="familyFilter" value="strings" checked />Strings</label>
-              <label class="familyPill"><input type="checkbox" name="familyFilter" value="woodwind" checked />Woodwind</label>
-              <label class="familyPill"><input type="checkbox" name="familyFilter" value="brass" checked />Brass</label>
-              <label class="familyPill"><input type="checkbox" name="familyFilter" value="guitar" checked />Guitar</label>
-            </div>
-          </div>
-
-          <button
-            id="settingsToggle"
-            class="secondary-button advanced-settings-button"
-            type="button"
-            aria-controls="advancedSettings"
-            aria-expanded="false"
-          >
-            Advanced Settings
-          </button>
+          <label class="level-button">
+            <input type="radio" name="iiLevel" value="Mastering" />
+            <strong>Mastering</strong>
+          </label>
         </div>
 
         <p id="setupMessage" role="status" aria-live="polite"></p>
@@ -271,6 +198,42 @@
 
           <div class="console-actions console-actions-start">
             <button id="startButton" class="primary-button centre-start" type="button">Start Quiz</button>
+            <div class="settings-popover-wrap">
+              <div
+                id="advancedSettings"
+                class="advancedSettings settings-popover"
+                style="display: none;"
+                aria-hidden="true"
+              >
+                <div class="settings-popover-header">
+                  <p class="eyebrow">CUSTOMISE ROUND</p>
+                  <h3>Advanced Settings</h3>
+                </div>
+
+                <h3>Questions</h3>
+                <div class="pillRow" aria-label="Number of questions">
+                  <label class="pill"><input type="radio" name="questionCount" value="3" />3</label>
+                  <label class="pill"><input type="radio" name="questionCount" value="5" checked />5</label>
+                  <label class="pill"><input type="radio" name="questionCount" value="10" />10</label>
+                </div>
+
+                <h3>Difficulty</h3>
+                <div class="pillRow difficultyRow" aria-label="Difficulty options">
+                  <label class="familyPill mixedDifficultyPill"><input type="checkbox" name="mixedDifficulty" value="mixed" />Mixed difficulty</label>
+                </div>
+                <p class="settings-hint">Overrides the level selected in the left panel for practice rounds.</p>
+              </div>
+
+              <button
+                id="settingsToggle"
+                class="secondary-button advanced-settings-button"
+                type="button"
+                aria-controls="advancedSettings"
+                aria-expanded="false"
+              >
+                Advanced Settings
+              </button>
+            </div>
           </div>
 
           <div id="answers" class="answer-grid"></div>
