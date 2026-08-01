@@ -7,14 +7,15 @@ let unlimitedMode = false;
 let gameOver = false;
 let streak = 0;
 let xp = 0;
-let selectedMode = "solo";
-let selectedDifficulty = "all";
+let selectedMode = "all";
+let selectedDifficulty = "Foundation";
 let selectedFamilies = ["strings", "woodwind", "brass", "guitar"];
 let activeClips = [];
 let questionDeck = [];
 let roundHistory = [];
 let eaProgressRoundId = "";
 let eaLastRoundSave = Promise.resolve({ saved: false, reason: "not-started" });
+let roundFeedbackOverlay = null;
 
 const clipData = typeof clips !== "undefined" ? clips : [];
 const iiLearningParams = new URLSearchParams(window.location.search);
@@ -24,6 +25,31 @@ function getInstrumentLearningMode() {
   if (mode === "practice") return "practice";
   if (mode === "progress" || mode === "progression") return "progression";
   return "";
+}
+
+const INSTRUMENT_LEVELS = [
+  { id: "foundation", label: "Foundation" },
+  { id: "developing", label: "Developing" },
+  { id: "securing", label: "Securing" },
+  { id: "mastering", label: "Mastering" }
+];
+
+function normaliseInstrumentLevel(value) {
+  const clean = cleanText(value);
+  if (clean === "foundation") return "foundation";
+  if (clean === "developing") return "developing";
+  if (clean === "securing" || clean === "secure") return "securing";
+  if (clean === "mastering" || clean === "exam") return "mastering";
+  return "";
+}
+
+function getInstrumentLevelLabel(levelId) {
+  return INSTRUMENT_LEVELS.find(level => level.id === levelId)?.label || "Foundation";
+}
+
+function selectedInstrumentLevelId() {
+  const selected = document.querySelector('input[name="iiLevel"]:checked')?.value || selectedDifficulty;
+  return normaliseInstrumentLevel(selected) || "foundation";
 }
 
 /*
@@ -107,6 +133,7 @@ const questionText = document.getElementById("questionText");
 const startButton = document.getElementById("startButton");
 const answerCard = document.getElementById("answerCard");
 const setupMessage = document.getElementById("setupMessage");
+const appShell = document.querySelector(".app-shell");
 const quizPanel = document.getElementById("gameScreen");
 const settingsToggle = document.getElementById("settingsToggle");
 const advancedSettings = document.getElementById("advancedSettings");
@@ -166,6 +193,35 @@ function getClipQuestion(clip) {
   }
 
   return "Listen to the clip. What instrument is playing?";
+}
+
+function getClipProgressionLevel(clip) {
+  const difficulty = cleanText(getField(clip, ["difficulty", "DIFFICULTY", "Difficulty"]));
+  const type = cleanText(getField(clip, ["type", "TYPE", "Type", "clipType", "Clip Type Clean"]));
+  const isSolo = (
+    type === "solo" ||
+    type === "unaccompanied" ||
+    type === "solo instrument" ||
+    type.includes("solo only")
+  );
+  const recognisedDifficulty = ["easy", "medium", "hard", "very hard"].includes(difficulty);
+
+  if (isSolo && (difficulty === "easy" || !recognisedDifficulty)) return "foundation";
+
+  if (
+    (difficulty === "easy" && !isSolo) ||
+    (isSolo && recognisedDifficulty && difficulty !== "easy")
+  ) {
+    return "developing";
+  }
+
+  if (difficulty === "medium" && !isSolo) return "securing";
+
+  if ((difficulty === "hard" || difficulty === "very hard") && !isSolo) {
+    return "mastering";
+  }
+
+  return "ungraded";
 }
 
 function normaliseIconKey(value) {
@@ -243,13 +299,15 @@ function getInstrumentsInSameFamily(correctInstrument) {
 }
 
 function readSetupOptions() {
-  selectedMode = document.querySelector('input[name="quizMode"]:checked')?.value || "solo";
-  selectedDifficulty = document.querySelector('input[name="difficultyFilter"]:checked')?.value || "all";
+  const levelId = selectedInstrumentLevelId();
+  const mixedDifficulty = document.querySelector('input[name="mixedDifficulty"]')?.checked && getInstrumentLearningMode() !== "progression";
+  selectedMode = document.querySelector('input[name="quizMode"]:checked')?.value || "all";
+  selectedDifficulty = mixedDifficulty ? "Mixed Difficulty" : getInstrumentLevelLabel(levelId);
 
   selectedFamilies = Array.from(document.querySelectorAll('input[name="familyFilter"]:checked'))
     .map(box => cleanText(box.value));
 
-  const count = document.querySelector('input[name="questionCount"]:checked')?.value || "10";
+  const count = document.querySelector('input[name="questionCount"]:checked')?.value || "5";
   unlimitedMode = count === "unlimited";
   totalQuestions = unlimitedMode ? 999999 : Number(count);
 }
@@ -262,15 +320,21 @@ function clipMatchesMode(clip) {
 }
 
 function clipMatchesDifficulty(clip) {
+  const selectedDifficultyKey = cleanText(selectedDifficulty);
+  if (selectedDifficultyKey === "all" || selectedDifficultyKey === "mixed difficulty") return true;
+
+  const levelId = normaliseInstrumentLevel(selectedDifficulty);
+  if (levelId) return getClipProgressionLevel(clip) === levelId;
+
   const difficulty = cleanText(clip.difficulty);
 
-  if (selectedDifficulty === "all") return true;
-  if (selectedDifficulty === "hard") return difficulty === "hard" || difficulty === "very hard";
+  if (selectedDifficultyKey === "hard") return difficulty === "hard" || difficulty === "very hard";
 
-  return difficulty === selectedDifficulty;
+  return difficulty === selectedDifficultyKey;
 }
 
 function clipMatchesFamily(clip) {
+  if (!selectedFamilies.length) return true;
   return selectedFamilies.includes(getFamilyBucket(clip));
 }
 
@@ -634,6 +698,100 @@ function saveInstrumentProgress(divisor, percentage) {
   return eaLastRoundSave;
 }
 
+function removeRoundFeedbackOverlay() {
+  if (roundFeedbackOverlay && roundFeedbackOverlay.parentNode) {
+    roundFeedbackOverlay.parentNode.removeChild(roundFeedbackOverlay);
+  }
+  roundFeedbackOverlay = null;
+}
+
+function closeRoundFeedbackWindow() {
+  removeRoundFeedbackOverlay();
+  document.body.classList.remove("ii-round-review-open");
+  appShell?.classList.remove("is-round-feedback-open");
+  quizPanel?.classList.remove("is-round-feedback-open");
+}
+
+function finishRoundFeedbackWindow() {
+  closeRoundFeedbackWindow();
+  restartGame();
+}
+
+function getInstrumentRoundFeedback(percentage) {
+  if (percentage >= 85) return "Secure instrument recognition. Increase the difficulty or use accompanied extracts.";
+  if (percentage >= 65) return "Good progress. Compare instruments from the same family and listen for register, attack and tone colour.";
+  return "Keep practising. Focus on one instrument family at a time and compare contrasting tone colours.";
+}
+
+function renderInstrumentRoundQuestionRows() {
+  if (!roundHistory.length) return "";
+
+  return roundHistory.map((item, index) => `
+    <div class="mm-round-review-row ${item.wasCorrect ? "is-secure" : "is-focus"}">
+      <span>Question ${index + 1}</span>
+      <strong>${item.wasCorrect ? "1/1" : "0/1"}</strong>
+      <small>Your answer: ${escapeHTML(item.selectedInstrument || "—")} · Correct: ${escapeHTML(item.correctInstrument || "—")}</small>
+    </div>
+  `).join("");
+}
+
+function renderInstrumentRoundReviewPanel() {
+  const divisor = unlimitedMode ? questionsAnswered : totalQuestions;
+  const percentage = divisor > 0 ? Math.round((score / divisor) * 100) : 0;
+  const medal = getMedal(percentage);
+  const answeredText = `${questionsAnswered}/${divisor} ${divisor === 1 ? "question" : "questions"} answered`;
+
+  return `
+    <div class="mm-round-review-panel ii-round-review-panel">
+      <p class="eyebrow">ROUND FEEDBACK</p>
+      <div class="mm-round-review-hero">
+        <span>Final score</span>
+        <strong>${escapeHTML(`${score}/${divisor}`)}</strong>
+        <small>${escapeHTML(answeredText)} · ${escapeHTML(`${percentage}%`)}</small>
+      </div>
+
+      <div class="diagnostic-metrics ii-round-feedback-metrics" aria-label="Round mark breakdown">
+        <div class="diagnostic-metric ${score === divisor ? "is-secure" : "is-focus"}">
+          <span>Score</span>
+          <strong>${escapeHTML(`${score}/${divisor}`)}</strong>
+        </div>
+        <div class="diagnostic-metric ${percentage >= 85 ? "is-secure" : "is-focus"}">
+          <span>Accuracy</span>
+          <strong>${escapeHTML(`${percentage}%`)}</strong>
+        </div>
+      </div>
+
+      <div class="diagnostic-card diagnostic-feedback-tile mm-compiled-feedback-tile">
+        <span>${escapeHTML(medal.title)}</span>
+        <strong>${escapeHTML(getInstrumentRoundFeedback(percentage))}</strong>
+      </div>
+
+      <div class="mm-round-review-list" aria-label="Question-by-question round results">
+        ${renderInstrumentRoundQuestionRows()}
+      </div>
+
+      <button id="roundFinishButton" class="primary-button mm-final-finish-button" type="button">Finish Quiz</button>
+    </div>
+  `;
+}
+
+function showRoundFeedbackWindow() {
+  closeRoundFeedbackWindow();
+  document.body.classList.add("ii-round-review-open");
+  appShell?.classList.add("is-round-feedback-open");
+  quizPanel?.classList.add("is-round-feedback-open");
+
+  roundFeedbackOverlay = document.createElement("div");
+  roundFeedbackOverlay.className = "ii-round-feedback-overlay";
+  roundFeedbackOverlay.setAttribute("role", "dialog");
+  roundFeedbackOverlay.setAttribute("aria-modal", "true");
+  roundFeedbackOverlay.setAttribute("aria-label", "Instrument Identifier round feedback");
+  roundFeedbackOverlay.innerHTML = renderInstrumentRoundReviewPanel();
+  document.body.appendChild(roundFeedbackOverlay);
+
+  roundFeedbackOverlay.querySelector("#roundFinishButton")?.addEventListener("click", finishRoundFeedbackWindow);
+}
+
 function endGame() {
   setQuizVisualState("complete");
   gameOver = true;
@@ -668,15 +826,18 @@ function endGame() {
     </div>
   `;
 
+  window.setTimeout(showRoundFeedbackWindow, 0);
+
   return roundSave;
 }
 
 function startGame() {
+  closeRoundFeedbackWindow();
   readSetupOptions();
   buildQuestionDeck();
 
   if (activeClips.length === 0) {
-    setupMessage.textContent = "No clips match those settings. Try Mixed mode or select more families.";
+    setupMessage.textContent = "No clips match those settings. Try Mixed difficulty.";
     return;
   }
 
@@ -702,6 +863,7 @@ function startGame() {
 }
 
 function restartGame() {
+  closeRoundFeedbackWindow();
   fadeOutAudio(() => {
     score = 0;
     questionsAnswered = 0;

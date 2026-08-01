@@ -111,11 +111,15 @@
     document.body.classList.add("ea-progression-app");
 
     document.querySelectorAll(
-      'input[name="quizMode"], input[name="questionCount"], input[name="playLimit"], ' +
-      'input[name="miQuizMode"], input[name="miQuestionCount"], input[name="miAnswerMode"], input[name="miIntervalSet"]'
+      'input[name="quizMode"], input[name="questionCount"], input[name="mmMixedDifficulty"], input[name="mmLevel"]'
     ).forEach(input => {
       input.disabled = true;
       input.closest("label")?.setAttribute("aria-disabled", "true");
+    });
+
+    document.querySelectorAll(".melody-skill-heading, .melody-skill-grid, .interval-mode-grid").forEach(element => {
+      element.hidden = true;
+      element.setAttribute("aria-hidden", "true");
     });
 
     if (settingsToggle) {

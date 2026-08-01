@@ -26,5 +26,12 @@ window.EAStudentModules = Object.freeze([
     "mark": "TT",
     "href": "/modules/texture-trainer/",
     "progressionEnabled": false
+  },
+  {
+    "id": "meter-master",
+    "title": "Meter Master",
+    "mark": "MT",
+    "href": "/modules/meter-master/",
+    "progressionEnabled": true
   }
 ]);

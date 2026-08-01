@@ -11,6 +11,9 @@ const DEFAULT_MAX_LISTENS = 4;
 const DEFAULT_QUIZ_TOTAL = 3;
 const DEFAULT_ROOM_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const QUESTION_LEVELS = new Set(['all', 'foundation', 'developing', 'securing', 'mastering']);
+const MIXED_MODULE_ID = 'mixed';
+const MIXED_MODULE_TITLE = 'Mixed Apps';
+const DEFAULT_MIXED_MODULE_IDS = ['instrument-identifier', 'melodic-intervals'];
 
 function shuffleArray(items = []) {
   const shuffled = items.slice();
@@ -145,6 +148,10 @@ function normaliseQuestionLevel(value) {
   return QUESTION_LEVELS.has(level) ? level : 'all';
 }
 
+function isMixedModuleId(value) {
+  return String(value || '').trim().toLowerCase() === MIXED_MODULE_ID;
+}
+
 function normaliseClipValue(value) {
   return String(value || '')
     .trim()
@@ -188,6 +195,13 @@ function melodicIntervalsQuestionMatchesLevel(question = {}, level = 'all') {
   return questionLevel === target;
 }
 
+function melodyMasterQuestionMatchesLevel(question = {}, level = 'all') {
+  const target = normaliseQuestionLevel(level);
+  if (target === 'all') return true;
+  const questionLevel = normaliseClipValue(clipValue(question, ['levelKey', 'level', 'Level']));
+  return questionLevel === target;
+}
+
 class RoomManager {
   constructor(options = {}) {
     this.rooms = new Map();
@@ -223,6 +237,22 @@ class RoomManager {
     return this.adapters.get(moduleId) || this.adapters.get(this.defaultModuleId) || this.getAdapters()[0];
   }
 
+  normaliseMixedModuleIds(moduleIds = DEFAULT_MIXED_MODULE_IDS) {
+    const source = Array.isArray(moduleIds) ? moduleIds : String(moduleIds || '').split(',');
+    const allowed = new Set(DEFAULT_MIXED_MODULE_IDS);
+    const unique = [];
+    source.forEach((moduleId) => {
+      const cleanModuleId = String(moduleId || '').trim();
+      if (!allowed.has(cleanModuleId) || !this.adapters.has(cleanModuleId) || unique.includes(cleanModuleId)) return;
+      unique.push(cleanModuleId);
+    });
+    return unique.length ? unique : DEFAULT_MIXED_MODULE_IDS.filter((moduleId) => this.adapters.has(moduleId));
+  }
+
+  isMixedRoom(room = {}) {
+    return isMixedModuleId(room.moduleId);
+  }
+
   getQuestions(moduleId = this.defaultModuleId) {
     const adapter = this.getAdapter(moduleId);
     if (!adapter || typeof adapter.getQuestions !== 'function') return [];
@@ -238,6 +268,7 @@ class RoomManager {
 
     const filtered = indexes.filter((index) => {
       if (moduleId === 'instrument-identifier') return instrumentIdentifierQuestionMatchesLevel(questions[index], level);
+      if (moduleId === 'melody-master') return melodyMasterQuestionMatchesLevel(questions[index], level);
       if (moduleId === 'melodic-intervals') return melodicIntervalsQuestionMatchesLevel(questions[index], level);
       return true;
     });
@@ -248,11 +279,54 @@ class RoomManager {
     return this.getQuestionIndexes(moduleId, options).length;
   }
 
+  getRoomQuestionCount(room = {}, options = {}) {
+    if (!this.isMixedRoom(room)) return this.getQuestionCount(room.moduleId, options);
+    return this.normaliseMixedModuleIds(room.mixedModuleIds).reduce((total, moduleId) => {
+      return total + this.getQuestionCount(moduleId, options);
+    }, 0);
+  }
+
   buildRandomQuestionOrder(moduleId, questionCount = 1, options = {}) {
     const indexes = this.getQuestionIndexes(moduleId, options);
     const totalQuestions = indexes.length || 1;
     const count = Math.max(1, Math.min(Number(questionCount) || 1, totalQuestions));
     return shuffleArray(indexes.length ? indexes : [0]).slice(0, count);
+  }
+
+  buildMixedQuestionOrder(moduleIds = DEFAULT_MIXED_MODULE_IDS, questionCount = 1, options = {}) {
+    const pools = this.normaliseMixedModuleIds(moduleIds)
+      .filter((moduleId) => moduleId !== 'melody-master')
+      .map((moduleId) => ({
+        moduleId,
+        indexes: shuffleArray(this.getQuestionIndexes(moduleId, options))
+      }))
+      .filter((pool) => pool.indexes.length);
+
+    const totalQuestions = pools.reduce((sum, pool) => sum + pool.indexes.length, 0);
+    const count = Math.max(1, Math.min(Number(questionCount) || 1, totalQuestions || 1));
+    const order = [];
+
+    while (order.length < count && pools.some((pool) => pool.indexes.length)) {
+      pools.forEach((pool) => {
+        if (order.length >= count || !pool.indexes.length) return;
+        order.push({
+          moduleId: pool.moduleId,
+          questionIndex: pool.indexes.shift()
+        });
+      });
+    }
+
+    return shuffleArray(order);
+  }
+
+  getQuestionTargetFromOrder(room = {}, orderPosition = 0) {
+    if (!Array.isArray(room.questionOrder) || !room.questionOrder.length) {
+      if (this.isMixedRoom(room)) return { moduleId: this.normaliseMixedModuleIds(room.mixedModuleIds)[0], questionIndex: 0 };
+      return Number(room.questionIndex || 0);
+    }
+    return room.questionOrder[Math.max(0, Number(orderPosition) || 0)] ?? (this.isMixedRoom(room)
+      ? { moduleId: this.normaliseMixedModuleIds(room.mixedModuleIds)[0], questionIndex: 0 }
+      : Number(room.questionIndex || 0));
   }
 
   makeRoomCode() {
@@ -287,9 +361,11 @@ class RoomManager {
     }
   }
 
-  createRoom({ moduleId, questionLevel = 'all', baseUrl, apiBase = '', ownerTeacherId = null, ownerTeacherCode = '' }) {
+  createRoom({ moduleId, questionLevel = 'all', mixedModuleIds = DEFAULT_MIXED_MODULE_IDS, baseUrl, apiBase = '', ownerTeacherId = null, ownerTeacherCode = '' }) {
     this.cleanupExpiredRooms();
-    const adapter = this.getAdapter(moduleId);
+    const mixedRoom = isMixedModuleId(moduleId);
+    const adapter = mixedRoom ? null : this.getAdapter(moduleId);
+    const cleanMixedModuleIds = this.normaliseMixedModuleIds(mixedModuleIds);
     const code = this.makeRoomCode();
     const sharedUrlParams = apiBase ? { classroomApi: apiBase } : {};
 
@@ -309,14 +385,17 @@ class RoomManager {
       apiBase,
       ownerTeacherId: ownerTeacherId || null,
       ownerTeacherCode: String(ownerTeacherCode || '').trim().toUpperCase(),
-      moduleId: adapter.id,
-      moduleTitle: adapter.title || adapter.id,
+      moduleId: mixedRoom ? MIXED_MODULE_ID : adapter.id,
+      moduleTitle: mixedRoom ? MIXED_MODULE_TITLE : (adapter.title || adapter.id),
       questionLevel: normaliseQuestionLevel(questionLevel),
-      studentMode: adapter.studentMode || 'generic',
+      mixedModuleIds: cleanMixedModuleIds,
+      studentMode: mixedRoom ? 'generic' : (adapter.studentMode || 'generic'),
       joinUrl,
       shortJoinUrl,
       studentShellUrl,
-      laptopJoinUrl: adapter.id === 'melody-master'
+      laptopJoinUrl: mixedRoom
+        ? studentShellUrl
+        : adapter.id === 'melody-master'
         ? melodyStudentUrl
         : adapter.id === 'instrument-identifier'
           ? instrumentStudentUrl
@@ -327,6 +406,7 @@ class RoomManager {
       submissions: new Map(),
       quizResults: new Map(),
       questionIndex: 0,
+      questionModuleId: mixedRoom ? cleanMixedModuleIds[0] : adapter.id,
       question: null,
       activeQuestion: null,
       submissionsOpen: false,
@@ -359,13 +439,44 @@ class RoomManager {
     return this.rooms.get(roomCode);
   }
 
-  setRoomModule(room, moduleId) {
+  setRoomModule(room, moduleId, options = {}) {
+    if (isMixedModuleId(moduleId)) {
+      if (room.moduleId === MIXED_MODULE_ID && options.mixedModuleIds) room.mixedModuleIds = this.normaliseMixedModuleIds(options.mixedModuleIds);
+      if (room.moduleId === MIXED_MODULE_ID) return room;
+      room.moduleId = MIXED_MODULE_ID;
+      room.moduleTitle = MIXED_MODULE_TITLE;
+      room.studentMode = 'generic';
+      room.mixedModuleIds = this.normaliseMixedModuleIds(options.mixedModuleIds);
+      room.questionIndex = 0;
+      room.questionModuleId = this.normaliseMixedModuleIds(room.mixedModuleIds)[0];
+      room.question = null;
+      room.activeQuestion = null;
+      room.submissions.clear();
+      room.quizResults = new Map();
+      room.quizStarted = false;
+      room.quizEnded = false;
+      room.quizQuestionNumber = 0;
+      room.questionOrder = [];
+      room.questionOrderPosition = 0;
+      room.totalMarks = 0;
+      room.totalNotes = 0;
+      room.questionRunId = 0;
+      room.playback = null;
+      room.roundId = Number(room.roundId || 1) + 1;
+      room.lastProgressSave = null;
+      room.dismissed = false;
+      room.laptopJoinUrl = `${room.baseUrl}/student/student-shell.html?room=${encodeURIComponent(room.code)}`;
+      return room;
+    }
+
     const adapter = this.getAdapter(moduleId);
     if (!adapter || adapter.id === room.moduleId) return room;
     room.moduleId = adapter.id;
     room.moduleTitle = adapter.title || adapter.id;
     room.studentMode = adapter.studentMode || 'generic';
+    room.mixedModuleIds = this.normaliseMixedModuleIds();
     room.questionIndex = 0;
+    room.questionModuleId = adapter.id;
     room.question = null;
     room.activeQuestion = null;
     room.submissions.clear();
@@ -386,7 +497,9 @@ class RoomManager {
       ? `${room.baseUrl}/modules/melody-master/student-laptop.html?room=${encodeURIComponent(room.code)}`
       : adapter.id === 'instrument-identifier'
         ? `${room.baseUrl}/modules/instrument-identifier/student-classroom.html?room=${encodeURIComponent(room.code)}`
-        : `${room.baseUrl}/student/student-shell.html?room=${encodeURIComponent(room.code)}`;
+        : adapter.id === 'melodic-intervals'
+          ? `${room.baseUrl}/modules/melodic-intervals/student-classroom.html?room=${encodeURIComponent(room.code)}`
+          : `${room.baseUrl}/student/student-shell.html?room=${encodeURIComponent(room.code)}`;
     return room;
   }
 
@@ -395,19 +508,25 @@ class RoomManager {
     return room;
   }
 
-  getQuestion(room, index = 0) {
-    const questions = this.getQuestions(room.moduleId);
+  getQuestion(room, index = 0, moduleId = '') {
+    const sourceModuleId = moduleId || room.moduleId;
+    const questions = this.getQuestions(sourceModuleId);
     if (!questions.length) return null;
     const safeIndex = Math.max(0, Math.min(Number(index) || 0, questions.length - 1));
     return questions[safeIndex] || questions[0];
   }
 
   startQuestion(room, index = 0, options = {}) {
-    const adapter = this.getAdapter(room.moduleId);
-    const questions = this.getQuestions(room.moduleId);
-    if (!questions.length) throw new Error(`No questions found for ${room.moduleTitle}.`);
+    const mixedRoom = this.isMixedRoom(room);
+    let activeModuleId = mixedRoom ? this.normaliseMixedModuleIds(room.mixedModuleIds)[0] : room.moduleId;
+    let adapter = this.getAdapter(activeModuleId);
+    let questions = this.getQuestions(activeModuleId);
+    if (!mixedRoom && !questions.length) throw new Error(`No questions found for ${room.moduleTitle}.`);
 
-    let targetIndex = Math.max(0, Math.min(Number(index) || 0, questions.length - 1));
+    let target = mixedRoom && index && typeof index === 'object'
+      ? { moduleId: index.moduleId, questionIndex: Number(index.questionIndex || 0) }
+      : index;
+    let targetIndex = Math.max(0, Math.min(Number(target) || 0, Math.max(questions.length - 1, 0)));
 
     if (options.resetQuiz) {
       room.dismissed = false;
@@ -416,36 +535,56 @@ class RoomManager {
       room.quizResults = new Map();
       room.quizQuestionNumber = 1;
       this.setQuestionLevel(room, options.questionLevel || room.questionLevel);
-      const availableQuestionCount = this.getQuestionCount(room.moduleId, { questionLevel: room.questionLevel }) || questions.length;
+      const availableQuestionCount = this.getRoomQuestionCount(room, { questionLevel: room.questionLevel }) || questions.length || 1;
       if (Number(options.quizLength)) room.quizTotal = Math.max(1, Math.min(Number(options.quizLength), availableQuestionCount));
       if (Number(options.maxListens)) room.maxListens = Math.max(1, Math.min(Number(options.maxListens), 8));
-      room.questionOrder = this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1, { questionLevel: room.questionLevel });
+      room.questionOrder = mixedRoom
+        ? this.buildMixedQuestionOrder(room.mixedModuleIds, room.quizTotal || 1, { questionLevel: room.questionLevel })
+        : this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1, { questionLevel: room.questionLevel });
       room.questionOrderPosition = 0;
-      targetIndex = room.questionOrder[0] ?? targetIndex;
+      target = this.getQuestionTargetFromOrder(room, 0);
     } else if (options.advanceQuiz) {
       room.quizStarted = true;
       room.quizEnded = false;
       room.quizQuestionNumber = Math.max(1, Number(room.quizQuestionNumber || 0) + 1);
       room.questionOrderPosition = Math.max(0, Number(room.questionOrderPosition || 0) + 1);
-      targetIndex = Array.isArray(room.questionOrder) && room.questionOrder.length
-        ? (room.questionOrder[room.questionOrderPosition] ?? targetIndex)
-        : targetIndex;
+      target = this.getQuestionTargetFromOrder(room, room.questionOrderPosition);
     } else if (!room.quizStarted) {
       room.quizStarted = true;
       room.quizEnded = false;
       room.quizQuestionNumber = Math.max(1, Number(room.quizQuestionNumber || 1));
       if (!Array.isArray(room.questionOrder) || !room.questionOrder.length) {
         this.setQuestionLevel(room, options.questionLevel || room.questionLevel);
-        room.questionOrder = this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1, { questionLevel: room.questionLevel });
+        room.questionOrder = mixedRoom
+          ? this.buildMixedQuestionOrder(room.mixedModuleIds, room.quizTotal || 1, { questionLevel: room.questionLevel })
+          : this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1, { questionLevel: room.questionLevel });
         room.questionOrderPosition = 0;
-        targetIndex = room.questionOrder[0] ?? targetIndex;
+        target = this.getQuestionTargetFromOrder(room, 0);
       }
     }
 
+    if (mixedRoom) {
+      const cleanTarget = target && typeof target === 'object'
+        ? target
+        : { moduleId: activeModuleId, questionIndex: Number(target || 0) };
+      activeModuleId = this.normaliseMixedModuleIds(room.mixedModuleIds).includes(cleanTarget.moduleId)
+        ? cleanTarget.moduleId
+        : this.normaliseMixedModuleIds(room.mixedModuleIds)[0];
+      adapter = this.getAdapter(activeModuleId);
+      questions = this.getQuestions(activeModuleId);
+      if (!questions.length) throw new Error(`No questions found for ${MIXED_MODULE_TITLE}.`);
+      targetIndex = Math.max(0, Math.min(Number(cleanTarget.questionIndex) || 0, questions.length - 1));
+    }
+
     room.questionIndex = Math.max(0, Math.min(Number(targetIndex) || 0, questions.length - 1));
-    room.question = this.getQuestion(room, room.questionIndex);
+    room.questionModuleId = activeModuleId;
+    room.question = this.getQuestion(room, room.questionIndex, activeModuleId);
     room.activeQuestion = adapter.prepareQuestion(room.question, { index: room.questionIndex, room });
-    if (room.moduleId === 'instrument-identifier') {
+    if (room.activeQuestion && mixedRoom) {
+      room.activeQuestion.roomModuleId = MIXED_MODULE_ID;
+      room.activeQuestion.mixedQuestion = true;
+    }
+    if (activeModuleId === 'instrument-identifier') {
       assertInstrumentIdentifierChoicesAreSafe(room.question, room.activeQuestion);
     }
     room.submissions.clear();
@@ -478,6 +617,7 @@ class RoomManager {
   prepareNextRound(room) {
     room.dismissed = false;
     room.questionIndex = 0;
+    room.questionModuleId = this.isMixedRoom(room) ? this.normaliseMixedModuleIds(room.mixedModuleIds)[0] : room.moduleId;
     room.question = null;
     room.activeQuestion = null;
     room.submissions.clear();
@@ -507,7 +647,10 @@ class RoomManager {
 
   resetQuestion(room) {
     if (!room.activeQuestion) throw new Error('No question active yet.');
-    return this.startQuestion(room, room.questionIndex || 0, { resetQuiz: false });
+    const target = this.isMixedRoom(room)
+      ? { moduleId: room.questionModuleId, questionIndex: room.questionIndex || 0 }
+      : (room.questionIndex || 0);
+    return this.startQuestion(room, target, { resetQuiz: false });
   }
 
   joinRoom(room, studentId, name, account = {}) {
@@ -558,7 +701,8 @@ class RoomManager {
       throw error;
     }
 
-    const adapter = this.getAdapter(room.moduleId);
+    const activeModuleId = room.activeQuestion?.moduleId || room.questionModuleId || room.moduleId;
+    const adapter = this.getAdapter(activeModuleId);
     const adapterScoring = adapter.checkAnswer(room.question, payload.answer ?? payload.answers ?? '', {
       ...payload,
       activeQuestion: room.activeQuestion,
@@ -630,6 +774,8 @@ class RoomManager {
       roomCode: room.code,
       moduleId: room.moduleId,
       moduleTitle: room.moduleTitle,
+      questionModuleId: room.questionModuleId || room.moduleId,
+      mixedModuleIds: this.isMixedRoom(room) ? this.normaliseMixedModuleIds(room.mixedModuleIds) : [],
       studentMode: room.studentMode,
       studentShellUrl: room.studentShellUrl,
       laptopJoinUrl: room.laptopJoinUrl,

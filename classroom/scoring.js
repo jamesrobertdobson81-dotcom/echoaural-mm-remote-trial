@@ -117,19 +117,21 @@ function recordQuizSubmission(room, studentId, submission) {
   if (!room.quizResults.has(studentId)) room.quizResults.set(studentId, new Map());
   const studentResults = room.quizResults.get(studentId);
   const resultKey = String(submission.questionRunId || room.questionRunId || `q-${room.questionIndex || 0}`);
+  const activeModuleId = room.activeQuestion?.moduleId || room.questionModuleId || room.moduleId;
   studentResults.set(resultKey, {
     ...submission,
     questionIndex: room.questionIndex,
     quizQuestionNumber: Number(room.quizQuestionNumber || 0),
     questionId: room.activeQuestion ? room.activeQuestion.id : undefined,
-    moduleId: room.moduleId
+    moduleId: activeModuleId,
+    moduleTitle: room.activeQuestion?.moduleTitle || room.moduleTitle
   });
 }
 
 function buildLeaderboard(students = []) {
   return students.slice().sort((a, b) => {
-    if (Number(b.cumulativeScore || 0) !== Number(a.cumulativeScore || 0)) return Number(b.cumulativeScore || 0) - Number(a.cumulativeScore || 0);
     if (Number(b.cumulativePercentage || 0) !== Number(a.cumulativePercentage || 0)) return Number(b.cumulativePercentage || 0) - Number(a.cumulativePercentage || 0);
+    if (Number(b.cumulativeScore || 0) !== Number(a.cumulativeScore || 0)) return Number(b.cumulativeScore || 0) - Number(a.cumulativeScore || 0);
     if (Number(b.questionsSubmitted || 0) !== Number(a.questionsSubmitted || 0)) return Number(b.questionsSubmitted || 0) - Number(a.questionsSubmitted || 0);
     return String(a.name).localeCompare(String(b.name));
   });

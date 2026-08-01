@@ -28,6 +28,7 @@
 
         <a class="topbar-link" href="../instrument-identifier/index.html" aria-label="Open Instrument Identifier"><span>Instrument Identifier</span></a>
         <a class="topbar-link" href="../melody-master/index.html" aria-label="Open Melody Master"><span>Melody Master</span></a>
+        <a class="topbar-link" href="../meter-master/index.html" aria-label="Open Meter Master"><span>Meter Master</span></a>
         <a class="topbar-link topbar-home-link" href="../../index.html" aria-label="Back to EchoAural home">
           <span class="back-label">Back to</span>
           <span class="mini-wordmark" aria-hidden="true"><span class="mini-wordmark-echo">Echo</span><span class="mini-wordmark-aural">Aural</span></span>
@@ -55,32 +56,37 @@
             </div>
             <h1 class="sr-only">Texture Trainer</h1>
           </div>
-          <p class="tt-panel-intro">Exam-style written answers for texture vocabulary. Listen, type, submit, improve.</p>
+          <p class="tt-panel-intro">Choose your settings, then start the quiz from the centre panel.</p>
         </div>
 
-        <h2>Question Focus</h2>
-        <div class="focus-card-grid" aria-label="Texture skills covered">
-          <div class="focus-card"><strong>Terms</strong><span>monophonic, homophonic, polyphonic</span></div>
-          <div class="focus-card"><strong>Evidence</strong><span>single line, chords, independent parts</span></div>
-          <div class="focus-card"><strong>Change</strong><span>layers added, texture thickens</span></div>
-        </div>
+        <div class="settings-card" aria-label="Texture Trainer settings">
+          <h2>Level</h2>
+          <div id="levelButtons" class="level-grid progression-level-grid" role="group" aria-label="Choose Texture Trainer level">
+            <button class="level-button is-selected" type="button" data-level="Foundation">
+              <strong>Foundation</strong>
+            </button>
+            <button class="level-button" type="button" data-level="Developing">
+              <strong>Developing</strong>
+            </button>
+            <button class="level-button" type="button" data-level="Securing">
+              <strong>Securing</strong>
+            </button>
+            <button class="level-button" type="button" data-level="Mastering">
+              <strong>Mastering</strong>
+            </button>
+          </div>
 
-        <div class="exam-note-card">
-          <p class="eyebrow">MVP MARKING</p>
-          <p>This version uses deterministic answer cards: accepted phrases, partial phrases and common wrong-answer phrases. No external AI/API is used.</p>
         </div>
-
-        <button id="restartButton" class="secondary-button" type="button">Restart Texture Round</button>
       </section>
 
       <section class="panel quiz-panel is-ready" id="gameScreen">
         <div class="panel-section-heading panel-section-heading-centre">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Written Response</span></h2>
+          <h2><span>Quiz</span></h2>
         </div>
 
         <div class="quiz-header">
-          <p id="roundText">Question 1 / 6</p>
+          <p id="roundText">Ready</p>
           <div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div>
         </div>
 
@@ -109,37 +115,81 @@
           <div class="console-heading">
             <p id="questionTitle" class="question-title">Texture Trainer</p>
             <div class="exam-prompt-line">
-              <h1 id="questionPrompt">Click start to begin the texture round.</h1>
+              <h1 id="questionPrompt">Choose a level, then start the texture round.</h1>
               <span id="questionMarks" class="question-marks" aria-label="Question marks" hidden></span>
             </div>
           </div>
 
           <div class="console-actions console-actions-start">
-            <button id="startButton" class="primary-button centre-start" type="button">Start Texture Trainer</button>
-          </div>
+            <button id="startButton" class="primary-button centre-start" type="button">Start Quiz</button>
+            <div class="settings-popover-wrap">
+              <div
+                id="textureAdvancedSettings"
+                class="advancedSettings settings-popover"
+                style="display: none;"
+                aria-hidden="true"
+              >
+                <div class="settings-popover-header">
+                  <p class="eyebrow">CUSTOMISE ROUND</p>
+                  <h3>Advanced Settings</h3>
+                </div>
 
-          <div class="response-area" id="responseArea" hidden>
-            <button id="playButton" class="play-button" type="button">Play Clip</button>
-            <label class="answer-label" for="studentAnswer">Your answer</label>
-            <textarea id="studentAnswer" rows="5" placeholder="Example: The texture is monophonic because there is one unaccompanied melodic line."></textarea>
-            <div class="response-actions">
-              <button id="submitButton" class="primary-button" type="button">Submit Answer</button>
-              <button id="nextButton" class="secondary-button" type="button" hidden>Next Question</button>
+                <h3>Questions</h3>
+                <div class="pillRow" aria-label="Number of questions">
+                  <label class="pill"><input type="radio" name="textureQuestionCount" value="3" />3</label>
+                  <label class="pill"><input type="radio" name="textureQuestionCount" value="5" checked />5</label>
+                  <label class="pill"><input type="radio" name="textureQuestionCount" value="10" />10</label>
+                </div>
+
+                <h3>Difficulty</h3>
+                <div class="pillRow difficultyRow" aria-label="Difficulty options">
+                  <label class="familyPill mixedDifficultyPill"><input type="checkbox" name="textureMixedDifficulty" value="mixed" />Mixed difficulty</label>
+                </div>
+                <p class="settings-hint">Overrides the level selected in the left panel for practice rounds.</p>
+              </div>
+
+              <button
+                id="textureSettingsToggle"
+                class="secondary-button advanced-settings-button"
+                type="button"
+                aria-controls="textureAdvancedSettings"
+                aria-expanded="false"
+              >
+                Advanced Settings
+              </button>
             </div>
           </div>
 
-          <div class="listening-cues" aria-label="Listening focus areas">
-            <span>Line</span><span>Layers</span><span>Independence</span><span>Accompaniment</span>
+          <div class="response-area" id="responseArea" hidden>
+            <div id="choiceArea" class="choice-area" role="group" aria-label="Answer choices" hidden></div>
+            <label id="answerLabel" class="answer-label" for="studentAnswer">Your answer</label>
+            <textarea id="studentAnswer" rows="5" placeholder="Example: The texture is monophonic because there is one unaccompanied melodic line."></textarea>
+            <div class="response-submit-row">
+              <button id="submitButton" class="primary-button" type="button">Submit Answer</button>
+            </div>
+            <button id="playButton" class="play-button" type="button">Replay Clip</button>
+            <button id="nextButton" class="secondary-button" type="button" hidden>Next Question</button>
           </div>
 
-          <p id="feedback" role="status" aria-live="polite"></p>
+          <div
+            id="roundFeedbackPanel"
+            class="tt-round-feedback-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Texture Trainer round feedback"
+            hidden
+          ></div>
+
+          <p id="feedback" class="sr-only" aria-live="polite" hidden></p>
+
+          <button id="restartButton" class="secondary-button" type="button">Restart Round</button>
         </div>
       </section>
 
       <aside class="panel info-panel">
         <div class="panel-section-heading">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Answer Card</span></h2>
+          <h2><span>Answers</span></h2>
         </div>
 
         <div id="answerCard" class="answerCard" aria-live="polite">
@@ -158,6 +208,7 @@
   </div>
 
   <script src="data/texture-questions.js"></script>
+  <script src="texture-question-system.js"></script>
   <script src="/account/tracking.js"></script>
   <script src="script.js"></script>
 </body>

@@ -117,6 +117,7 @@ const els = {
   teacherLaunchSubtitle: document.getElementById("teacherLaunchSubtitle"),
   teacherLaunchModule: document.getElementById("teacherLaunchModule"),
   teacherLaunchQuestionCount: document.getElementById("teacherLaunchQuestionCount"),
+  teacherLaunchPlayCount: document.getElementById("teacherLaunchPlayCount"),
   teacherLaunchLevel: document.getElementById("teacherLaunchLevel"),
   teacherLaunchHelper: document.getElementById("teacherLaunchHelper"),
   teacherLaunchMessage: document.getElementById("teacherLaunchMessage"),
@@ -129,7 +130,7 @@ const TEACHER_LAUNCH_COPY = {
     eyebrow: "Live classroom",
     title: "Start live session",
     subtitle: "Choose the app and question count, then open Teacher Mode with a room code already prepared.",
-    helper: "Level filters apply to Instrument Identifier and Melodic Intervals; Melody Master uses its normal mixed question bank here.",
+    helper: "Choose a level to focus this round, or use all levelled questions.",
     submit: "Open live room",
     autoCreate: "1"
   },
@@ -157,6 +158,7 @@ function openTeacherLaunchDialog(mode = "live") {
   els.teacherLaunchForm.reset();
   setTeacherLaunchValue(els.teacherLaunchModule, "instrument-identifier");
   setTeacherLaunchValue(els.teacherLaunchQuestionCount, "5");
+  setTeacherLaunchValue(els.teacherLaunchPlayCount, "4");
   setTeacherLaunchValue(els.teacherLaunchLevel, teacherLaunchMode === "live" ? "all" : "foundation");
   els.teacherLaunchEyebrow.textContent = copy.eyebrow;
   els.teacherLaunchTitle.textContent = copy.title;
@@ -183,10 +185,11 @@ function setTeacherLaunchValue(input, value) {
 
 function updateTeacherLaunchHelper() {
   const copy = TEACHER_LAUNCH_COPY[teacherLaunchMode] || TEACHER_LAUNCH_COPY.live;
-  const supportsLevelFilters = ["instrument-identifier", "melodic-intervals"].includes(els.teacherLaunchModule.value);
-  els.teacherLaunchHelper.textContent = supportsLevelFilters
-    ? copy.helper
-    : "Melody Master uses its normal question bank; level filters are available for Instrument Identifier and Melodic Intervals.";
+  const selectedModule = els.teacherLaunchModule.value;
+  const supportsLevelFilters = ["instrument-identifier", "melody-master", "melodic-intervals", "mixed"].includes(selectedModule);
+  els.teacherLaunchHelper.textContent = selectedModule === "mixed"
+    ? "First mixed version: blends Instrument Identifier and Melodic Intervals using the selected level."
+    : copy.helper;
 
   els.teacherLaunchForm.querySelectorAll('[data-target="teacherLaunchLevel"]').forEach((button) => {
     button.disabled = !supportsLevelFilters;
@@ -212,10 +215,14 @@ function submitTeacherLaunch(event) {
     launch: teacherLaunchMode,
     module: els.teacherLaunchModule.value || "instrument-identifier",
     quizLength: els.teacherLaunchQuestionCount.value || "5",
-    maxListens: "4",
+    maxListens: els.teacherLaunchPlayCount.value || "4",
     questionLevel: els.teacherLaunchLevel.value || "all",
     autoCreate: copy.autoCreate
   });
+
+  if (els.teacherLaunchModule.value === "mixed") {
+    params.set("mixedModules", "instrument-identifier,melodic-intervals");
+  }
 
   window.location.assign(`/teacher/?${params.toString()}`);
 }
@@ -891,7 +898,7 @@ function renderStudentProgress(progress) {
       <div class="individual-overall-metrics-v2">
         <div><span>Questions</span><strong>${overall.questions}</strong></div>
         <div><span>Rounds</span><strong>${overall.rounds}</strong></div>
-        <div><span>Apps started</span><strong>${overall.modulesStarted} / 4</strong></div>
+        <div><span>Apps started</span><strong>${overall.modulesStarted} / 5</strong></div>
       </div>
       <p>${escapeHtml(overall.compiledFeedback)}</p>
     </div>

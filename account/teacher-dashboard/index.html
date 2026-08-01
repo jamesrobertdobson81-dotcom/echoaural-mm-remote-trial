@@ -74,7 +74,7 @@
             </div>
             <div class="teacher-launch-actions-v8" aria-label="Teacher launch actions">
               <button class="primary-button compact-primary-v3" id="openLiveLaunchDialog" type="button">Start live session</button>
-              <button class="secondary-button compact-primary-v3" id="openHomeworkLaunchDialog" type="button">Set homework</button>
+              <button class="primary-button compact-primary-v3" id="openHomeworkLaunchDialog" type="button">Set homework</button>
             </div>
           </div>
 
@@ -265,6 +265,7 @@
       <form class="account-form teacher-launch-form-v8" id="teacherLaunchForm">
         <input id="teacherLaunchModule" name="module" type="hidden" value="instrument-identifier" />
         <input id="teacherLaunchQuestionCount" name="questionCount" type="hidden" value="5" />
+        <input id="teacherLaunchPlayCount" name="playCount" type="hidden" value="4" />
         <input id="teacherLaunchLevel" name="questionLevel" type="hidden" value="all" />
 
         <section class="teacher-launch-section-v8">
@@ -273,10 +274,10 @@
             <p>Pick the EchoAural app for this round.</p>
           </div>
           <div class="teacher-launch-option-grid-v8 module-options-v8" data-launch-group="module">
-            <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchModule" data-value="instrument-identifier" aria-pressed="true"><strong>Instrument Identifier</strong><span>Levelled II question bank</span></button>
-            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="melody-master" aria-pressed="false"><strong>Melody Master</strong><span>Melodic dictation rounds</span></button>
-            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="melodic-intervals" aria-pressed="false"><strong>Melodic Intervals</strong><span>Levelled interval recognition</span></button>
-            <button class="teacher-launch-option-v8 is-disabled" type="button" disabled><strong>Mixed apps</strong><span>Coming next</span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchModule" data-value="instrument-identifier" aria-pressed="true"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/instrument-identifier.svg" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Instrument Identifier</strong><span>Levelled II question bank</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="melody-master" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/melody-master.svg" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Melody Master</strong><span>Levelled dictation rounds</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="melodic-intervals" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/melodic-intervals.svg" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Melodic Intervals</strong><span>Levelled interval recognition</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="mixed" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/dashboard/progress-mode.svg" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Mixed apps</strong><span>II + Melodic Intervals</span></span></button>
           </div>
         </section>
 
@@ -295,8 +296,21 @@
 
         <section class="teacher-launch-section-v8">
           <div class="teacher-launch-section-heading-v8">
+            <span>Plays</span>
+            <p>Choose how many times each question can be played.</p>
+          </div>
+          <div class="teacher-launch-option-grid-v8 count-options-v8" data-launch-group="play-count">
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchPlayCount" data-value="1" aria-pressed="false"><strong>1</strong><span>Exam pace</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchPlayCount" data-value="2" aria-pressed="false"><strong>2</strong><span>Focused listen</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchPlayCount" data-value="3" aria-pressed="false"><strong>3</strong><span>Guided round</span></button>
+            <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchPlayCount" data-value="4" aria-pressed="true"><strong>4</strong><span>Practice support</span></button>
+          </div>
+        </section>
+
+        <section class="teacher-launch-section-v8">
+          <div class="teacher-launch-section-heading-v8">
             <span>Level</span>
-            <p>Use II progression levels where available.</p>
+            <p>Use progression levels where available.</p>
           </div>
           <div class="teacher-launch-option-grid-v8 level-options-v8" data-launch-group="level">
             <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="all" aria-pressed="true"><strong>All</strong><span>Mixed levelled questions</span></button>
@@ -307,7 +321,7 @@
           </div>
         </section>
 
-        <p class="launch-helper-v8" id="teacherLaunchHelper">Level filters apply to Instrument Identifier and Melodic Intervals; Melody Master uses its normal mixed question bank here.</p>
+        <p class="launch-helper-v8" id="teacherLaunchHelper">Choose a level to focus this round, or use all levelled questions.</p>
         <p class="form-message" id="teacherLaunchMessage" aria-live="polite"></p>
         <div class="dialog-actions">
           <button class="secondary-button" id="cancelTeacherLaunch" type="button">Cancel</button>
@@ -376,6 +390,6 @@
   </dialog>
 
   <script src="/account/account-common.js"></script>
-  <script src="/account/teacher-dashboard/teacher-dashboard.js"></script>
+  <script src="/account/teacher-dashboard/teacher-dashboard.js?v=mixed-ii-mi-20260717b"></script>
 </body>
 </html>

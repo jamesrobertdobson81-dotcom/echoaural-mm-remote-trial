@@ -357,6 +357,11 @@ const PROGRESS_MODULE_DEFINITIONS = {
     title: 'Texture Trainer',
     group: 'Texture Trainer',
     icon: '/assets/icons/modules/texture-trainer.svg'
+  },
+  'meter-master': {
+    title: 'Meter Master',
+    group: 'Meter Master',
+    icon: '/assets/icons/modules/meter-master.svg'
   }
 };
 
@@ -364,14 +369,16 @@ const PROGRESS_MODULE_ORDER = [
   'melody-master',
   'melodic-intervals',
   'instrument-identifier',
-  'texture-trainer'
+  'texture-trainer',
+  'meter-master'
 ];
 
 const PROGRESSION_LEVEL_LABELS = ['Foundation', 'Developing', 'Securing', 'Mastering'];
 const PROGRESSION_PASS_MARKS = {
   'melody-master': [100, 100, 100, 100],
   'melodic-intervals': [100, 100, 100, 100],
-  'instrument-identifier': [70, 70, 80, 80]
+  'instrument-identifier': [70, 70, 80, 80],
+  'meter-master': [100, 100, 100, 100]
 };
 
 function progressNumber(value) {
@@ -1165,7 +1172,8 @@ async function handleAccountApi(req, res, parsedUrl) {
 
       const body = await readJsonBody(req, 16_000);
       const moduleDefinitions = {
-        'instrument-identifier': 'Instrument Identifier'
+        'instrument-identifier': 'Instrument Identifier',
+        'meter-master': 'Meter Master'
       };
       const moduleId = String(body.moduleId || '').trim().toLowerCase();
       const moduleTitle = moduleDefinitions[moduleId];
@@ -1234,7 +1242,8 @@ async function handleAccountApi(req, res, parsedUrl) {
         'melody-master': 'Melodic Dictation',
         'melodic-intervals': 'Melodic Intervals',
         'instrument-identifier': 'Instrument Identifier',
-        'texture-trainer': 'Texture Trainer'
+        'texture-trainer': 'Texture Trainer',
+        'meter-master': 'Meter Master'
       };
       const moduleId = String(body.moduleId || '').trim().toLowerCase();
       const moduleTitle = moduleDefinitions[moduleId];
