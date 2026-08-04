@@ -73,7 +73,7 @@
               <h2 id="learningActivityHeading">Progress, sessions & homework</h2>
             </div>
             <div class="teacher-launch-actions-v8" aria-label="Teacher launch actions">
-              <button class="primary-button compact-primary-v3" id="openLiveLaunchDialog" type="button">Start live session</button>
+              <button class="primary-button compact-primary-v3" id="openLiveLaunchDialog" type="button">Start Live Session</button>
               <button class="primary-button compact-primary-v3" id="openHomeworkLaunchDialog" type="button">Set homework</button>
             </div>
           </div>
@@ -256,13 +256,14 @@
       <div class="student-progress-dialog-heading">
         <div>
           <p class="card-eyebrow" id="teacherLaunchEyebrow">Teacher tools</p>
-          <h2 class="section-title" id="teacherLaunchTitle">Start live session</h2>
-          <p class="section-copy" id="teacherLaunchSubtitle">Choose the app and question count, then open Teacher Mode with the room prepared.</p>
+          <h2 class="section-title" id="teacherLaunchTitle">Start Live Session</h2>
+          <p class="section-copy" id="teacherLaunchSubtitle">Choose the question source and session settings, then open Teacher Mode with the room prepared.</p>
         </div>
         <button class="dialog-close-button" id="closeTeacherLaunchDialog" type="button" aria-label="Close teacher launcher">×</button>
       </div>
 
       <form class="account-form teacher-launch-form-v8" id="teacherLaunchForm">
+        <input id="teacherLaunchSource" name="questionSource" type="hidden" value="app" />
         <input id="teacherLaunchModule" name="module" type="hidden" value="instrument-identifier" />
         <input id="teacherLaunchQuestionCount" name="questionCount" type="hidden" value="5" />
         <input id="teacherLaunchPlayCount" name="playCount" type="hidden" value="4" />
@@ -271,17 +272,42 @@
         <section class="teacher-launch-section-v8">
           <div class="teacher-launch-section-heading-v8">
             <span>Question source</span>
-            <p>Pick the EchoAural app for this round.</p>
+            <p>Choose how the questions for this session will be selected.</p>
           </div>
-          <div class="teacher-launch-option-grid-v8 module-options-v8" data-launch-group="module">
-            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchModule" data-value="instrument-identifier" aria-pressed="true"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/instrument-identifier.svg" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Instrument Identifier</strong><span>Levelled II question bank</span></span></button>
-            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="melody-master" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/melody-master.svg" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Melody Master</strong><span>Levelled dictation rounds</span></span></button>
-            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="melodic-intervals" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/melodic-intervals.svg" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Melodic Intervals</strong><span>Levelled interval recognition</span></span></button>
-            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-option data-target="teacherLaunchModule" data-value="mixed" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/dashboard/progress-mode.svg" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Mixed apps</strong><span>II + Melodic Intervals</span></span></button>
+          <div class="teacher-launch-option-grid-v8 module-options-v8 source-options-v9" data-launch-group="question-source">
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8 is-selected" type="button" data-launch-source="app" aria-pressed="true"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/instrument-identifier.png" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>App</strong><span>Choose one EchoAural app</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-source="mixed" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/dashboard/progress-mode.png" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Mixed Apps</strong><span>Questions selected across the app range</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-source="exam-lab" data-live-only aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/exam-lab.png" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>ExamLab</strong><span>One shared exam extract for the class</span></span></button>
           </div>
         </section>
 
-        <section class="teacher-launch-section-v8">
+        <section id="teacherLaunchAppSection" class="teacher-launch-section-v8 teacher-launch-app-section-v9">
+          <div class="teacher-launch-section-heading-v8">
+            <span>App</span>
+            <p>Choose the individual app question bank.</p>
+          </div>
+          <div class="field teacher-launch-app-picker-v9">
+            <label for="teacherLaunchApp">Individual app</label>
+            <select id="teacherLaunchApp" name="individualApp">
+              <option value="instrument-identifier">Instrument Identifier</option>
+              <option value="melody-master">Melody Master</option>
+              <option value="melodic-intervals">Melodic Intervals</option>
+            </select>
+          </div>
+        </section>
+
+        <section id="teacherLaunchClassSection" class="teacher-launch-section-v8" hidden>
+          <div class="teacher-launch-section-heading-v8">
+            <span>Class</span>
+            <p>Choose which class will join this ExamLab session.</p>
+          </div>
+          <div class="field">
+            <label for="teacherLaunchClass">ExamLab class</label>
+            <select id="teacherLaunchClass" name="classId"></select>
+          </div>
+        </section>
+
+        <section id="teacherLaunchQuestionSection" class="teacher-launch-section-v8">
           <div class="teacher-launch-section-heading-v8">
             <span>Questions</span>
             <p>Choose the length of the round.</p>
@@ -294,7 +320,7 @@
           </div>
         </section>
 
-        <section class="teacher-launch-section-v8">
+        <section id="teacherLaunchPlaySection" class="teacher-launch-section-v8">
           <div class="teacher-launch-section-heading-v8">
             <span>Plays</span>
             <p>Choose how many times each question can be played.</p>
@@ -307,7 +333,7 @@
           </div>
         </section>
 
-        <section class="teacher-launch-section-v8">
+        <section id="teacherLaunchLevelSection" class="teacher-launch-section-v8">
           <div class="teacher-launch-section-heading-v8">
             <span>Level</span>
             <p>Use progression levels where available.</p>
@@ -362,7 +388,7 @@
     <div class="dialog-inner category-detail-dialog-inner-v5">
       <div class="category-detail-heading-v5">
         <div class="category-detail-title-wrap-v5">
-          <div class="category-detail-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" id="categoryDetailIcon" style="--ea-icon:url('/assets/icons/dashboard/progress-mode.svg')"></span></div>
+          <div class="category-detail-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" id="categoryDetailIcon" style="--ea-icon:url('/assets/icons/dashboard/progress-mode.png')"></span></div>
           <div>
             <p class="card-eyebrow" id="categoryDetailEyebrow">Class learning</p>
             <h2 class="section-title" id="categoryDetailTitle">Detailed feedback</h2>

@@ -7,14 +7,15 @@ const moduleLinks = {
   "melodic-intervals": "/modules/melodic-intervals/",
   "instrument-identifier": "/modules/instrument-identifier/",
   "texture-trainer": "/modules/texture-trainer/",
-  "meter-master": "/modules/meter-master/"
+  "meter-master": "/modules/meter-master/",
+  "exam-lab": "/modules/exam-lab/"
 };
 
 const DASHBOARD_ICONS = {
-  practice: "/assets/icons/dashboard/practice-mode.svg",
-  progress: "/assets/icons/dashboard/progress-mode.svg",
-  quizzes: "/assets/icons/dashboard/join-live-session.svg",
-  homework: "/assets/icons/dashboard/homework.svg"
+  practice: "/assets/icons/dashboard/practice-mode.png",
+  progress: "/assets/icons/dashboard/progress-mode.png",
+  quizzes: "/assets/icons/dashboard/join-live-session.png",
+  homework: "/assets/icons/dashboard/homework.png"
 };
 
 const CATEGORY_CONFIG = {
@@ -302,7 +303,7 @@ function summaryMarkup(categoryKey, category) {
     </div>
 
     <div class="student-learning-footer-v3">
-      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds${practiceTimeText} · ${Number(overall.modulesStarted || 0)} / 5 apps</span>
+      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds${practiceTimeText} · ${Number(overall.modulesStarted || 0)} / 6 apps</span>
       <button class="secondary-button student-detail-button-v3" type="button" data-category-detail="${categoryKey}">Detailed feedback</button>
     </div>
   `;
@@ -422,7 +423,7 @@ function detailedCategoryMarkup(categoryKey, category) {
       <div class="category-detail-metrics-v5">
         <div><span>Questions</span><strong>${Number(overall.questions || 0)}</strong></div>
         <div><span>Rounds</span><strong>${Number(overall.rounds || 0)}</strong></div>
-        <div><span>Apps started</span><strong>${Number(overall.modulesStarted || 0)} / 5</strong></div>
+        <div><span>Apps started</span><strong>${Number(overall.modulesStarted || 0)} / 6</strong></div>
         <div><span>${categoryKey === "practice" ? "Practice time" : "Learning area"}</span><strong>${categoryKey === "practice" ? escapeHtml(formatDuration(overall.practiceSeconds)) : escapeHtml(config.title)}</strong></div>
       </div>
     </div>
@@ -517,7 +518,7 @@ function renderOverall(progress) {
   els.overallScore.textContent = `${formatMark(overall.score)} / ${formatMark(overall.maximumScore)} marks`;
   els.overallQuestions.textContent = String(overall.questions);
   els.overallRounds.textContent = String(overall.rounds);
-  els.overallModules.textContent = `${overall.modulesStarted} / 5`;
+  els.overallModules.textContent = `${overall.modulesStarted} / 6`;
   els.compiledFeedback.textContent = overall.compiledFeedback;
   els.studentNextStep.textContent = chooseNextStep(progress);
   renderRecentLearning(progress);

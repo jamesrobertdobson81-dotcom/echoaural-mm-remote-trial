@@ -35,6 +35,13 @@ function runTextureTrainerMarkingChecks({ textureQuestions, textureQuestionSyste
   );
 
   expectMarks(
+    "TT091",
+    "Homophonic",
+    1,
+    "Texture Trainer TT091 homophonic one-mark answer"
+  );
+
+  expectMarks(
     "TT112",
     "Contrapuntal with two independent parts.",
     2,

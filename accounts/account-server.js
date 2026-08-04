@@ -239,6 +239,7 @@ async function getStudentSession(req) {
       s.id,
       s.username,
       s.display_name,
+      s.class_id,
       s.active,
       t.id AS teacher_id,
       t.display_name AS teacher_name,
@@ -341,27 +342,32 @@ const PROGRESS_MODULE_DEFINITIONS = {
   'melody-master': {
     title: 'Melodic Dictation',
     group: 'Melody Master',
-    icon: '/assets/icons/modules/melody-master.svg'
+    icon: '/assets/icons/modules/melody-master.png'
   },
   'melodic-intervals': {
     title: 'Melodic Intervals',
     group: 'Melody Master',
-    icon: '/assets/icons/modules/melody-master.svg'
+    icon: '/assets/icons/modules/melodic-intervals.png'
   },
   'instrument-identifier': {
     title: 'Instrument Identifier',
     group: 'Instrument Identifier',
-    icon: '/assets/icons/modules/instrument-identifier.svg'
+    icon: '/assets/icons/modules/instrument-identifier.png'
   },
   'texture-trainer': {
     title: 'Texture Trainer',
     group: 'Texture Trainer',
-    icon: '/assets/icons/modules/texture-trainer.svg'
+    icon: '/assets/icons/modules/texture-trainer.png'
   },
   'meter-master': {
     title: 'Meter Master',
     group: 'Meter Master',
-    icon: '/assets/icons/modules/meter-master.svg'
+    icon: '/assets/icons/modules/meter-master.png'
+  },
+  'exam-lab': {
+    title: 'Exam Lab',
+    group: 'Exam Lab',
+    icon: '/assets/icons/modules/exam-lab.png'
   }
 };
 
@@ -370,7 +376,8 @@ const PROGRESS_MODULE_ORDER = [
   'melodic-intervals',
   'instrument-identifier',
   'texture-trainer',
-  'meter-master'
+  'meter-master',
+  'exam-lab'
 ];
 
 const PROGRESSION_LEVEL_LABELS = ['Foundation', 'Developing', 'Securing', 'Mastering'];
@@ -587,6 +594,21 @@ function buildProgressSummary(allRounds, allAttempts) {
             ? 'Keep extending answers with precise evidence about layers and independence.'
             : 'Name the texture first, then explain the number and relationship of musical lines.';
         feedback = `Written texture answers are averaging ${accuracy}%. ${nextStep}`;
+      } else if (moduleId === 'exam-lab') {
+        const missed = attempts.filter((attempt) => progressNumber(attempt.score) < progressNumber(attempt.maximum_score));
+        const skillMisses = new Map();
+        missed.forEach((attempt) => {
+          const skills = Array.isArray((attempt.answer_data || {}).skills) ? attempt.answer_data.skills : [];
+          skills.forEach((skill) => skillMisses.set(skill, (skillMisses.get(skill) || 0) + 1));
+        });
+        const focusSkill = [...skillMisses.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+        strength = `${score}/${maximumScore} Exam Lab marks`;
+        nextStep = focusSkill
+          ? `Review ${String(focusSkill).toLowerCase()} using the recommended practice route from the session diagnosis.`
+          : accuracy >= 85
+            ? 'Keep applying these skills to complete unfamiliar listening extracts.'
+            : 'Review the question feedback and the teacher’s recommended practice routes.';
+        feedback = `Exam Lab accuracy is ${accuracy}% across ${questionCount} questions. ${nextStep}`;
       }
     }
 
@@ -940,6 +962,179 @@ function buildClassProgressCategories(allStudents, allRounds, allAttempts) {
     quizzes: buildClassProgressSummary(allStudents, quizzes.rounds, quizzes.attempts),
     homework: buildClassProgressSummary(allStudents, homework.rounds, homework.attempts)
   };
+}
+
+function buildExamLabSessions(allStudents, allRounds, allAttempts) {
+  const studentById = new Map(allStudents.map((student) => [String(student.id), student]));
+  const examRounds = allRounds.filter((round) => round.module_id === 'exam-lab');
+  const groups = new Map();
+
+  examRounds.forEach((round) => {
+    const metadata = round.metadata || {};
+    const roomCode = String(metadata.roomCode || '').trim();
+    const classroomRoundId = Number(metadata.classroomRoundId || 1);
+    const key = roomCode ? `${roomCode}:${classroomRoundId}` : String(round.id);
+    const current = groups.get(key) || { rounds: [], attempts: [], roomCode, classroomRoundId };
+    current.rounds.push(round);
+    groups.set(key, current);
+  });
+
+  const roundGroupById = new Map();
+  groups.forEach((group) => group.rounds.forEach((round) => roundGroupById.set(String(round.id), group)));
+  allAttempts.filter((attempt) => attempt.module_id === 'exam-lab').forEach((attempt) => {
+    const group = roundGroupById.get(String(attempt.round_id));
+    if (group) group.attempts.push(attempt);
+  });
+
+  return Array.from(groups.values()).map((group) => {
+    const rounds = group.rounds.slice().sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at));
+    const submittedRounds = rounds.filter((round) => (round.metadata || {}).submitted !== false);
+    const submitted = submittedRounds.length;
+    const totalAwarded = submittedRounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
+    const totalPossible = submittedRounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
+    const totalMarks = rounds.reduce((maximum, round) => Math.max(maximum, progressNumber(round.maximum_score)), 0);
+    const classNames = [...new Set(rounds.map((round) => studentById.get(String(round.student_id))?.class_name).filter(Boolean))];
+    const metadata = rounds[0]?.metadata || {};
+
+    const questionGroups = new Map();
+    group.attempts.forEach((attempt) => {
+      const data = attempt.answer_data || {};
+      const number = Number(data.questionNumber || 0);
+      const key = number || String(data.questionId || attempt.question_id || 'question');
+      const current = questionGroups.get(key) || {
+        number,
+        prompt: String(data.prompt || `Question ${number || questionGroups.size + 1}`),
+        marks: progressNumber(attempt.maximum_score),
+        skills: new Set(),
+        attempts: []
+      };
+      (Array.isArray(data.skills) ? data.skills : []).forEach((skill) => current.skills.add(String(skill)));
+      current.attempts.push(attempt);
+      questionGroups.set(key, current);
+    });
+
+    const questions = Array.from(questionGroups.values())
+      .sort((a, b) => a.number - b.number)
+      .map((question) => {
+        const submittedAttempts = question.attempts.filter((attempt) => (attempt.answer_data || {}).submitted !== false);
+        const available = submittedAttempts.length * question.marks;
+        const awarded = submittedAttempts.reduce((sum, attempt) => sum + progressNumber(attempt.score), 0);
+        return {
+          number: question.number,
+          prompt: question.prompt,
+          marks: question.marks,
+          successPercentage: available ? Math.round((awarded / available) * 100) : 0,
+          fullyCorrect: submittedAttempts.filter((attempt) => progressNumber(attempt.score) >= progressNumber(attempt.maximum_score)).length,
+          partiallyCorrect: submittedAttempts.filter((attempt) => progressNumber(attempt.score) > 0 && progressNumber(attempt.score) < progressNumber(attempt.maximum_score)).length,
+          incorrect: submittedAttempts.filter((attempt) => progressNumber(attempt.score) <= 0).length,
+          unanswered: question.attempts.filter((attempt) => (attempt.answer_data || {}).submitted === false).length,
+          skills: Array.from(question.skills)
+        };
+      });
+
+    const skillGroups = new Map();
+    group.attempts.filter((attempt) => (attempt.answer_data || {}).submitted !== false).forEach((attempt) => {
+      const data = attempt.answer_data || {};
+      const studentName = studentById.get(String(attempt.student_id))?.display_name || 'Student';
+      (Array.isArray(data.skills) ? data.skills : []).forEach((skillName) => {
+        const skill = String(skillName || '').trim();
+        if (!skill) return;
+        const current = skillGroups.get(skill) || { skill, awarded: 0, available: 0, affectedStudents: new Set() };
+        current.awarded += progressNumber(attempt.score);
+        current.available += progressNumber(attempt.maximum_score);
+        if (progressNumber(attempt.score) < progressNumber(attempt.maximum_score)) current.affectedStudents.add(studentName);
+        skillGroups.set(skill, current);
+      });
+    });
+    const skills = Array.from(skillGroups.values()).map((skill) => ({
+      skill: skill.skill,
+      awarded: skill.awarded,
+      available: skill.available,
+      percentage: skill.available ? Math.round((skill.awarded / skill.available) * 100) : 0,
+      affectedStudents: Array.from(skill.affectedStudents)
+    }));
+
+    const recommendationGroups = new Map();
+    group.attempts
+      .filter((attempt) => (attempt.answer_data || {}).submitted !== false && progressNumber(attempt.score) < progressNumber(attempt.maximum_score))
+      .forEach((attempt) => {
+        const data = attempt.answer_data || {};
+        const route = data.route && typeof data.route === 'object' ? data.route : {};
+        const moduleTitle = String(route.module || '').trim() || 'No live practice route yet';
+        const key = moduleTitle;
+        const current = recommendationGroups.get(key) || {
+          route: {
+            module: moduleTitle,
+            path: String(route.path || ''),
+            status: route.status === 'live' ? 'live' : 'planned',
+            focus: String(route.focus || '')
+          },
+          affectedStudents: new Set(),
+          skills: new Set(),
+          reasons: new Set()
+        };
+        const studentName = studentById.get(String(attempt.student_id))?.display_name || 'Student';
+        current.affectedStudents.add(studentName);
+        (Array.isArray(data.skills) ? data.skills : []).forEach((skill) => current.skills.add(String(skill)));
+        current.reasons.add(String(route.focus || data.prompt || 'Review the missed Exam Lab question.'));
+        recommendationGroups.set(key, current);
+      });
+
+    const individuals = rounds.map((round) => {
+      const student = studentById.get(String(round.student_id)) || {};
+      const outcomes = group.attempts
+        .filter((attempt) => String(attempt.round_id) === String(round.id))
+        .sort((a, b) => Number((a.answer_data || {}).questionNumber || 0) - Number((b.answer_data || {}).questionNumber || 0))
+        .map((attempt) => {
+          const data = attempt.answer_data || {};
+          return {
+            number: Number(data.questionNumber || 0),
+            prompt: String(data.prompt || 'Exam Lab question'),
+            answer: String(data.answer || ''),
+            marks: progressNumber(attempt.score),
+            maximumScore: progressNumber(attempt.maximum_score),
+            correctResponse: String(data.correctResponse || ''),
+            feedback: String(attempt.feedback || ''),
+            missingMarkPoints: Array.isArray(data.missingMarkPoints) ? data.missingMarkPoints : [],
+            issues: Array.isArray(data.issues) ? data.issues : [],
+            skills: Array.isArray(data.skills) ? data.skills : [],
+            route: data.route && typeof data.route === 'object' ? data.route : {}
+          };
+        });
+      return {
+        id: student.id || round.student_id,
+        name: student.display_name || 'Student',
+        className: String((round.metadata || {}).className || student.class_name || 'Unassigned'),
+        submitted: (round.metadata || {}).submitted !== false,
+        score: progressNumber(round.score),
+        maximumScore: progressNumber(round.maximum_score),
+        percentage: progressPercentage(progressNumber(round.score), progressNumber(round.maximum_score)),
+        outcomes
+      };
+    });
+
+    return {
+      title: 'Exam Lab Live Session',
+      sourceTitle: String(metadata.sourceTitle || ''),
+      completedAt: rounds[0]?.completed_at || null,
+      className: String(metadata.className || (classNames.length === 1 ? classNames[0] : classNames.length > 1 ? 'Multiple classes' : 'Unassigned students')),
+      participatingStudents: rounds.length,
+      submittedStudents: submitted,
+      classAverage: totalPossible ? Math.round((totalAwarded / totalPossible) * 100) : 0,
+      totalMarks,
+      totalAwarded,
+      totalPossible,
+      questions,
+      skills,
+      individuals,
+      recommendations: Array.from(recommendationGroups.values()).map((item) => ({
+        route: item.route,
+        affectedStudents: Array.from(item.affectedStudents),
+        skills: Array.from(item.skills),
+        reasons: Array.from(item.reasons)
+      }))
+    };
+  }).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
 }
 
 async function handleAccountApi(req, res, parsedUrl) {
@@ -1412,10 +1607,11 @@ async function handleAccountApi(req, res, parsedUrl) {
 
       const [studentResult, roundResult, attemptResult] = await Promise.all([
         getPool().query(`
-          SELECT id, username, display_name, active, created_at, last_login_at
-          FROM students
-          WHERE teacher_id = $1
-          ORDER BY active DESC, LOWER(display_name), LOWER(username)
+          SELECT s.id, s.username, s.display_name, s.active, s.created_at, s.last_login_at, s.class_id, c.class_name
+          FROM students s
+          LEFT JOIN classes c ON c.id = s.class_id
+          WHERE s.teacher_id = $1
+          ORDER BY s.active DESC, LOWER(s.display_name), LOWER(s.username)
         `, [teacher.id]),
         getPool().query(`
           SELECT
@@ -1459,7 +1655,8 @@ async function handleAccountApi(req, res, parsedUrl) {
       return sendJson(res, 200, {
         ok: true,
         ...combined,
-        categories: buildClassProgressCategories(allStudents, allRounds, allAttempts)
+        categories: buildClassProgressCategories(allStudents, allRounds, allAttempts),
+        examLabSessions: buildExamLabSessions(allStudents, allRounds, allAttempts)
       });
     }
 
@@ -1763,6 +1960,7 @@ module.exports = {
   handleAccountApi,
   getTeacherSession,
   getStudentSession,
+  buildExamLabSessions,
   TEACHER_COOKIE,
   STUDENT_COOKIE
 };

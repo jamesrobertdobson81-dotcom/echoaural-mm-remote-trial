@@ -652,7 +652,7 @@ function renderEmptyAnswerCard() {
   answerCard.innerHTML = `
     <div class="answerCard-empty">
       <div class="answer-empty-brand" aria-hidden="true">
-        <span class="answer-empty-icon"><img src="../../assets/icons/modules/meter-master.svg" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');" /></span>
+        <span class="answer-empty-icon"><img src="../../assets/icons/modules/meter-master.png" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');" /></span>
         <span class="answer-empty-wave"><span></span><span></span><span></span><span></span><span></span></span>
       </div>
       <p class="eyebrow">FEEDBACK PANEL</p>

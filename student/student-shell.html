@@ -21,7 +21,7 @@
       <nav class="topbar-actions" aria-label="Mixed classroom navigation">
         <span class="topbar-module-chip" aria-label="Current live question app">
           <span class="topbar-module-icon" aria-hidden="true">
-            <img id="topbarModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" />
+            <img id="topbarModuleIcon" src="/assets/icons/dashboard/progress-mode.png" alt="" />
           </span>
           <span class="topbar-module-wordmark" aria-hidden="true">
             <span id="topbarModuleMain">Mixed</span><span id="topbarModuleGradient">Apps</span>
@@ -31,7 +31,7 @@
       </nav>
     </header>
 
-    <main class="three-panel-layout">
+    <main id="genericClassroomLayout" class="three-panel-layout">
       <section class="panel setup-panel">
         <div class="panel-section-heading">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -42,7 +42,7 @@
           <p class="eyebrow">ECHOAURAL LIVE SESSION</p>
           <div class="mixed-hero-lockup">
             <span class="mixed-hero-icon" aria-hidden="true">
-              <img id="sideModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" />
+              <img id="sideModuleIcon" src="/assets/icons/dashboard/progress-mode.png" alt="" />
             </span>
             <div class="mixed-title-lockup" aria-hidden="true">
               <span class="mixed-title-wave"><span></span><span></span><span></span><span></span><span></span></span>
@@ -86,7 +86,7 @@
           <div class="console-orbit" aria-hidden="true"></div>
           <div class="console-ready-brand" aria-hidden="true">
             <div class="mixed-console-lockup">
-              <span class="mixed-console-icon"><img id="waitingModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" /></span>
+              <span class="mixed-console-icon"><img id="waitingModuleIcon" src="/assets/icons/dashboard/progress-mode.png" alt="" /></span>
               <span class="console-title-text"><span class="console-title-main">Mixed</span><span class="console-title-gradient">Apps</span></span>
             </div>
           </div>
@@ -102,7 +102,7 @@
           <div class="console-orbit" aria-hidden="true"></div>
           <div class="console-ready-brand" aria-hidden="true">
             <div class="mixed-console-lockup">
-              <span class="mixed-console-icon"><img id="centreModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" /></span>
+              <span class="mixed-console-icon"><img id="centreModuleIcon" src="/assets/icons/dashboard/progress-mode.png" alt="" /></span>
               <span class="console-title-text"><span id="centreModuleMain" class="console-title-main">Mixed</span><span id="centreModuleGradient" class="console-title-gradient">Apps</span></span>
             </div>
           </div>
@@ -130,7 +130,7 @@
 
         <div class="mixed-answer-card">
           <div class="mixed-answer-brand" aria-hidden="true">
-            <span class="mixed-answer-icon"><img id="answerModuleIcon" src="/assets/icons/dashboard/progress-mode.svg" alt="" /></span>
+            <span class="mixed-answer-icon"><img id="answerModuleIcon" src="/assets/icons/dashboard/progress-mode.png" alt="" /></span>
             <span class="mixed-answer-title"><span id="answerModuleMain">Mixed</span><span id="answerModuleGradient">Apps</span></span>
           </div>
           <p id="answerHint" class="mixed-answer-hint">Your answer panel will update for each app question.</p>
@@ -138,7 +138,74 @@
         </div>
       </aside>
     </main>
+
+    <main id="examLabLiveLayout" class="exam-lab-live-layout" hidden>
+      <aside class="panel exam-lab-session-panel" aria-labelledby="examLabSessionHeading">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2 id="examLabSessionHeading"><span>Exam Lab Live</span></h2>
+        </div>
+        <div class="exam-lab-live-brand" aria-hidden="true">
+          <img src="/assets/icons/modules/exam-lab.png" alt="" />
+          <strong><span>Exam</span><em>Lab</em></strong>
+        </div>
+        <p class="eyebrow">TEACHER-CONTROLLED LISTENING</p>
+        <p class="exam-lab-live-intro">Follow the printed score and answer each question independently.</p>
+        <div class="exam-lab-session-facts">
+          <div><span>Room</span><strong id="examLabRoomCode">—</strong></div>
+          <div><span>Student</span><strong id="examLabStudentName">—</strong></div>
+          <div><span>Status</span><strong id="examLabStudentStatus">Waiting</strong></div>
+        </div>
+        <div class="exam-lab-play-state" id="examLabPlayState" role="status" aria-live="polite">
+          Waiting for the teacher to play the extract.
+        </div>
+        <p class="exam-lab-audio-note">Audio plays from the teacher’s device.</p>
+      </aside>
+
+      <section class="panel exam-lab-score-panel" aria-label="Printed score">
+        <div class="panel-section-heading exam-lab-heading-row">
+          <div>
+            <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+            <h2><span>Printed score</span></h2>
+          </div>
+          <div class="exam-lab-score-toolbar" aria-label="Score zoom controls">
+            <button id="examLabZoomOut" type="button" aria-label="Zoom score out">−</button>
+            <span id="examLabZoomLabel">100%</span>
+            <button id="examLabZoomIn" type="button" aria-label="Zoom score in">+</button>
+            <button id="examLabFitScore" type="button">Fit</button>
+          </div>
+        </div>
+        <div id="examLabWaiting" class="exam-lab-waiting-card">
+          <div class="listening-visual" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <strong>Waiting for the teacher to start</strong>
+          <p>The score and questions will appear here when the session begins.</p>
+        </div>
+        <div id="examLabScoreScroll" class="exam-lab-score-scroll" tabindex="0" aria-label="Scrollable printed score" hidden>
+          <div id="examLabScoreCanvas" class="exam-lab-score-canvas"><img id="examLabScoreImage" alt="" /></div>
+        </div>
+        <div id="examLabNoScore" class="exam-lab-waiting-card" hidden>This extract does not include a printed score.</div>
+      </section>
+
+      <section class="panel exam-lab-answer-panel" aria-labelledby="examLabAnswersHeading">
+        <div class="panel-section-heading exam-lab-heading-row">
+          <div>
+            <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+            <h2 id="examLabAnswersHeading"><span>Answer sheet</span></h2>
+          </div>
+          <strong id="examLabAnswerProgress" class="exam-lab-answer-progress">0/0</strong>
+        </div>
+        <form id="examLabAnswerForm" class="exam-lab-live-form" novalidate>
+          <div id="examLabQuestionList" class="exam-lab-live-questions"></div>
+          <div class="exam-lab-submit-dock">
+            <p id="examLabFormMessage" role="status" aria-live="polite">Wait for the session to begin.</p>
+            <button id="examLabSubmitButton" class="primary-button" type="submit" disabled>Submit Answers</button>
+          </div>
+        </form>
+      </section>
+    </main>
   </div>
+
+  <div id="examLabPrivateFeedback" class="exam-lab-private-feedback" role="dialog" aria-modal="true" aria-label="Private Exam Lab feedback" hidden></div>
 
   <audio id="studentAudio" preload="auto"></audio>
   <script src="/shared/js/classroom-client.js"></script>

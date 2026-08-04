@@ -3053,7 +3053,7 @@ function renderAnswerPanelHome() {
       <div class="answer-empty-brand" aria-hidden="true">
         <span class="answer-empty-icon">
           <img
-            src="../../assets/icons/modules/melody-master.svg"
+            src="../../assets/icons/modules/melody-master.png"
             alt=""
             onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
           />

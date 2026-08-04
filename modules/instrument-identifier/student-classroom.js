@@ -289,7 +289,7 @@
       <div class="answerCard-empty">
         <div class="answer-empty-brand" aria-hidden="true">
           <span class="answer-empty-icon">
-            <img src="/assets/icons/modules/instrument-identifier.svg" alt="" onerror="this.style.display='none';" />
+            <img src="/assets/icons/modules/instrument-identifier.png" alt="" onerror="this.style.display='none';" />
           </span>
           <span class="answer-empty-wave"><span></span><span></span><span></span><span></span><span></span></span>
         </div>

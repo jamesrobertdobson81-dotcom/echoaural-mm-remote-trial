@@ -22,7 +22,9 @@
   ];
   const TextureQuestionSystem = window.EchoAuralTextureQuestionSystem || null;
 
-  const rawQuestions = Array.isArray(window.textureQuestions) ? window.textureQuestions : [];
+  const rawQuestions = Array.isArray(window.textureReviewQuestions)
+    ? window.textureReviewQuestions
+    : (Array.isArray(window.textureQuestions) ? window.textureQuestions : []);
   const questions = rawQuestions.map((question, index) => (
     TextureQuestionSystem?.normaliseQuestion
       ? TextureQuestionSystem.normaliseQuestion(question, index)
@@ -353,6 +355,7 @@
       ["Specific term", question.specificTextureTerm],
       ["Audio", question.audio],
       ["Timing", timingText(question)],
+      ["Review note", question.reviewNote],
       ["Source", sourceText(question)]
     ].filter(([, value]) => String(value || "").trim());
 

@@ -31,11 +31,24 @@ const els = {
   finalLeaderboardModal: document.getElementById('finalLeaderboardModal'),
   finalLeaderboardContent: document.getElementById('finalLeaderboardContent'),
   finalModuleEyebrow: document.getElementById('finalModuleEyebrow'),
-  closeFinalLeaderboardButton: document.getElementById('closeFinalLeaderboardButton')
+  closeFinalLeaderboardButton: document.getElementById('closeFinalLeaderboardButton'),
+  classResultsPanel: document.getElementById('classResultsPanel'),
+  classResultsEyebrow: document.getElementById('classResultsEyebrow'),
+  classResultsHeading: document.getElementById('classResultsHeading'),
+  quizLengthSettingsSection: document.getElementById('quizLengthSettingsSection'),
+  playLimitSettingsSection: document.getElementById('playLimitSettingsSection'),
+  finalLeaderboardTitle: document.getElementById('finalLeaderboardTitle')
 };
 
 const launchParams = new URLSearchParams(window.location.search);
 const requestedLaunchModuleId = String(launchParams.get('module') || '').trim();
+const DASHBOARD_LAUNCH_MODULE_IDS = new Set([
+  'instrument-identifier',
+  'melody-master',
+  'melodic-intervals',
+  'mixed',
+  'exam-lab'
+]);
 const QUESTION_LEVEL_LABELS = {
   all: 'All levels',
   foundation: 'Foundation',
@@ -68,12 +81,14 @@ function parseMixedModuleIds(value = '') {
 
 const dashboardLaunch = {
   enabled: launchParams.get('dashboardLaunch') === '1',
+  moduleId: DASHBOARD_LAUNCH_MODULE_IDS.has(requestedLaunchModuleId) ? requestedLaunchModuleId : '',
   mode: launchParams.get('launch') === 'homework' ? 'homework' : 'live',
   autoCreate: launchParams.get('autoCreate') === '1',
   questionLevel: normaliseQuestionLevel(launchParams.get('questionLevel')),
-  quizLength: numberFromParam('quizLength', 3, [3, 5, 10, 15]),
+  quizLength: numberFromParam('quizLength', 3, [1, 3, 5, 10, 15]),
   maxListens: numberFromParam('maxListens', 4, [1, 2, 3, 4, 5, 6, 7, 8]),
-  mixedModuleIds: parseMixedModuleIds(launchParams.get('mixedModules'))
+  mixedModuleIds: parseMixedModuleIds(launchParams.get('mixedModules')),
+  classId: String(launchParams.get('classId') || '').trim()
 };
 
 if (dashboardLaunch.enabled) {
@@ -81,7 +96,7 @@ if (dashboardLaunch.enabled) {
 }
 
 let modules = [];
-let selectedModuleId = requestedLaunchModuleId || 'melody-master';
+let selectedModuleId = dashboardLaunch.moduleId || requestedLaunchModuleId || 'melody-master';
 let roomCode = '';
 let currentState = null;
 let pollTimer = null;
@@ -101,7 +116,8 @@ const TEACHER_MODULE_CATALOG = [
   { id: 'instrument-identifier', title: 'Instrument Identifier', shortLabel: 'II', active: true, status: 'Live' },
   { id: 'melody-master', title: 'Melody Master', shortLabel: 'MM', active: true, status: 'Live' },
   { id: 'melodic-intervals', title: 'Melodic Intervals', shortLabel: 'MI', active: true, status: 'Live', showInSelector: false, parentModule: 'melody-master' },
-  { id: 'mixed', title: 'Mixed Apps', shortLabel: 'MIX', active: true, status: 'Live', iconPath: '/assets/icons/dashboard/progress-mode.svg' },
+  { id: 'mixed', title: 'Mixed Apps', shortLabel: 'MIX', active: true, status: 'Live', iconPath: '/assets/icons/dashboard/progress-mode.png' },
+  { id: 'exam-lab', title: 'Exam Lab', shortLabel: 'EL', active: true, status: 'Live', iconPath: '/assets/icons/modules/exam-lab.png' },
   { id: 'cadence-coach', title: 'Cadence Coach', shortLabel: 'CC', active: false, status: 'Coming Soon' },
   { id: 'texture-trainer', title: 'Texture Trainer', shortLabel: 'TT', active: false, status: 'Coming Soon' },
   { id: 'meter-master', title: 'Meter Master', shortLabel: 'MT', active: false, status: 'Coming Soon' },
@@ -114,15 +130,15 @@ function getActiveTeacherModuleIds() {
 
 function normaliseSelectedTeacherModule() {
   const activeIds = getActiveTeacherModuleIds();
-  if (!activeIds.includes(selectedModuleId)) selectedModuleId = requestedLaunchModuleId === 'mixed' ? 'mixed' : 'melody-master';
-}
-
-function isMixedDashboardLaunch() {
-  return dashboardLaunch.enabled && requestedLaunchModuleId === 'mixed';
+  if (dashboardLaunch.enabled && activeIds.includes(dashboardLaunch.moduleId)) {
+    selectedModuleId = dashboardLaunch.moduleId;
+    return;
+  }
+  if (!activeIds.includes(selectedModuleId)) selectedModuleId = 'melody-master';
 }
 
 function getEffectiveSessionModuleId() {
-  if (isMixedDashboardLaunch()) return 'mixed';
+  if (dashboardLaunch.enabled && dashboardLaunch.moduleId) return dashboardLaunch.moduleId;
   return selectedModuleId;
 }
 
@@ -243,6 +259,22 @@ function getSelectedModule() {
   return getDisplayModule(selectedModuleId);
 }
 
+function isExamLabMode(state = currentState) {
+  return (state?.moduleId || selectedModuleId) === 'exam-lab';
+}
+
+function updateExamLabPresentation(state = currentState) {
+  const examLab = isExamLabMode(state);
+  document.body.classList.toggle('exam-lab-teacher-mode', examLab);
+  if (els.classResultsEyebrow) els.classResultsEyebrow.textContent = examLab ? 'PRIVATE CLASS DIAGNOSIS' : 'CLASS RESULTS';
+  if (els.classResultsHeading) els.classResultsHeading.textContent = examLab ? 'Session status' : 'Leaderboard';
+  if (els.closeSubmissionsButton) els.closeSubmissionsButton.textContent = examLab ? 'Lock Submissions' : 'Close Submissions';
+  if (els.endQuizButton) els.endQuizButton.textContent = examLab ? 'Finish Session' : 'End Quiz';
+  if (els.quizLengthSettingsSection) els.quizLengthSettingsSection.hidden = examLab;
+  if (els.playLimitSettingsSection) els.playLimitSettingsSection.hidden = examLab;
+  if (examLab) quizSettings.quizLength = 1;
+}
+
 function getModuleFallback(module = {}) {
   return String(module.shortLabel || module.title || module.id || 'EA')
     .split(/\s+/)
@@ -261,7 +293,7 @@ function getModuleTitleParts(title = '') {
 
 function getModuleIconPath(module = {}) {
   if (module.iconPath) return module.iconPath;
-  return `/assets/icons/modules/${encodeURIComponent(module.id || 'melody-master')}.svg`;
+  return `/assets/icons/modules/${encodeURIComponent(module.id || 'melody-master')}.png`;
 }
 
 function getModuleWaveformMarkup() {
@@ -283,6 +315,7 @@ function getModuleWaveformMarkup() {
 function renderModuleSelector() {
   normaliseSelectedTeacherModule();
   const selected = getSelectedModule();
+  updateExamLabPresentation(currentState);
   els.selectedModuleChip.textContent = selected.title || 'Choose module';
   if (els.settingsModuleEyebrow) els.settingsModuleEyebrow.textContent = (selected.title || 'EchoAural').toUpperCase();
   if (els.finalModuleEyebrow) els.finalModuleEyebrow.textContent = (selected.title || 'EchoAural').toUpperCase();
@@ -324,6 +357,10 @@ function selectModule(moduleId) {
     return;
   }
   if (!moduleId || moduleId === selectedModuleId) return;
+  if (roomCode && (moduleId === 'exam-lab' || selectedModuleId === 'exam-lab')) {
+    setNotice('Create a new room when changing to or from Exam Lab.', 'good');
+    return;
+  }
   selectedModuleId = moduleId;
   quizSettings.saved = false;
   renderModuleSelector();
@@ -353,6 +390,7 @@ function formatPlayButtonLabel(prefix, playsRemaining, maxListens) {
 
 function getQuestionTitle(question) {
   if (!question) return 'No question active';
+  if (currentState?.moduleId === 'exam-lab' || question.moduleId === 'exam-lab') return 'Exam Lab listening extract';
   // Instrument Identifier resource titles often contain the answer, so keep the
   // teacher display safe for projected screens and student-facing classrooms.
   if (currentState?.moduleId === 'instrument-identifier' || question.moduleId === 'instrument-identifier') {
@@ -381,6 +419,10 @@ function getQuizInfo(state = currentState) {
 
 function updateSettingsSummary() {
   const moduleTitle = getSelectedModule().title || 'EchoAural';
+  if (isExamLabMode()) {
+    els.settingsSummary.textContent = `${moduleTitle} · one complete server-selected extract · configured playback limit`;
+    return;
+  }
   const levelLabel = quizSettings.questionLevel && quizSettings.questionLevel !== 'all'
     ? ` · ${QUESTION_LEVEL_LABELS[quizSettings.questionLevel] || 'Levelled'}`
     : '';
@@ -398,6 +440,7 @@ function selectOption(groupEl, value) {
 
 function openSettingsModal() {
   isEditingQuizSettings = true;
+  if (isExamLabMode()) quizSettings.quizLength = 1;
   selectOption(els.quizLengthOptions, quizSettings.quizLength);
   selectOption(els.playLimitOptions, quizSettings.maxListens);
   updateSettingsSummary();
@@ -448,14 +491,14 @@ function updatePrimaryButton(state = currentState) {
 
   if (quiz.ended) {
     primaryAction = 'complete';
-    els.primaryQuizButton.textContent = 'Quiz Complete';
+    els.primaryQuizButton.textContent = isExamLabMode(state) ? 'Session Complete' : 'Quiz Complete';
     els.primaryQuizButton.disabled = true;
     return;
   }
 
   if (!state?.active) {
     primaryAction = 'start';
-    els.primaryQuizButton.textContent = 'Start Quiz';
+    els.primaryQuizButton.textContent = isExamLabMode(state) ? 'Start Exam Lab' : 'Start Quiz';
     return;
   }
 
@@ -468,12 +511,14 @@ function updatePrimaryButton(state = currentState) {
 
   if (quiz.listens >= quiz.maxListens) {
     primaryAction = quiz.current >= quiz.total ? 'finish' : 'next';
-    els.primaryQuizButton.textContent = quiz.current >= quiz.total ? 'Finish Quiz' : 'Next Question';
+    els.primaryQuizButton.textContent = quiz.current >= quiz.total
+      ? (isExamLabMode(state) ? 'Finish Session' : 'Finish Quiz')
+      : 'Next Question';
     return;
   }
 
   primaryAction = 'play';
-  const prefix = quiz.listens > 0 ? 'Replay Excerpt' : 'Play Excerpt';
+  const prefix = quiz.listens > 0 ? 'Replay Extract' : (isExamLabMode(state) ? 'Play Extract' : 'Play Excerpt');
   els.primaryQuizButton.textContent = formatPlayButtonLabel(prefix, quiz.playsRemaining, quiz.maxListens);
 }
 
@@ -488,14 +533,20 @@ function updateTeacherStatus(state = currentState) {
     return;
   }
   if (quiz.ended) {
-    setNotice(`Quiz complete · ${quiz.current || quiz.total}/${quiz.total} questions.`, 'good');
+    setNotice(isExamLabMode(state)
+      ? 'Exam Lab session complete · private feedback released.'
+      : `Quiz complete · ${quiz.current || quiz.total}/${quiz.total} questions.`, 'good');
     return;
   }
   if (!state?.active) {
-    setNotice(`Quiz ready · ${quiz.total} ${pluralise(quiz.total, 'question')} · ${quiz.maxListens}/${quiz.maxListens} plays remaining.`, 'good');
+    setNotice(isExamLabMode(state)
+      ? `Exam Lab ready · ${Number(state?.totalMarks || 0)} marks · ${quiz.maxListens} permitted playings.`
+      : `Quiz ready · ${quiz.total} ${pluralise(quiz.total, 'question')} · ${quiz.maxListens}/${quiz.maxListens} plays remaining.`, 'good');
     return;
   }
-  setNotice(`Question ${quiz.current}/${quiz.total} · ${quiz.playsRemaining}/${quiz.maxListens} plays remaining.`, 'good');
+  setNotice(isExamLabMode(state)
+    ? `Exam Lab active · ${quiz.playsRemaining}/${quiz.maxListens} playings remaining · ${Number(state?.summary?.submitted || 0)} submitted.`
+    : `Question ${quiz.current}/${quiz.total} · ${quiz.playsRemaining}/${quiz.maxListens} plays remaining.`, 'good');
 }
 
 function updateSessionCard(payload) {
@@ -508,19 +559,21 @@ function updateSessionCard(payload) {
   els.roomCode.textContent = roomCode;
   els.joinLink.value = payload.shortJoinUrl || payload.laptopJoinUrl || payload.joinUrl || 'Create a session first';
   els.copyLinkButton.disabled = false;
-  setNotice(dashboardLaunch.enabled ? 'Dashboard launch ready. Settings are being applied…' : 'Select Settings', 'good');
+  setNotice(dashboardLaunch.enabled || payload.moduleId === 'exam-lab' ? 'Session created. Settings are being applied…' : 'Select Settings', 'good');
 }
 
 function classroomSettingsPayload() {
   const sessionModuleId = getEffectiveSessionModuleId();
-  return {
+  const payload = {
     roomCode,
     moduleId: sessionModuleId,
-    quizLength: quizSettings.quizLength,
+    quizLength: isExamLabMode() ? 1 : quizSettings.quizLength,
     maxListens: quizSettings.maxListens,
-    questionLevel: quizSettings.questionLevel,
-    mixedModuleIds: getEffectiveMixedModuleIds(sessionModuleId)
+    questionLevel: quizSettings.questionLevel
   };
+  const mixedModuleIds = getEffectiveMixedModuleIds(sessionModuleId);
+  if (mixedModuleIds) payload.mixedModuleIds = mixedModuleIds;
+  return payload;
 }
 
 async function applyRoomSettings() {
@@ -547,16 +600,44 @@ function renderStudents(students = []) {
     return;
   }
   els.studentList.className = `student-list ${getListDensityClass(students.length)}`.trim();
+  const examLab = isExamLabMode();
+  const released = Boolean(currentState?.feedbackReleased);
   els.studentList.innerHTML = students.map((student) => `
     <article class="student-pill ${student.connected ? 'is-online' : 'is-away'} ${student.submitted ? 'is-submitted' : ''}">
       <span class="student-dot" aria-hidden="true"></span>
       <strong>${escapeHTML(student.name)}</strong>
-      <small>${student.submitted ? `${student.score}/${student.total}` : student.connected ? 'joined' : 'away'}</small>
+      <small>${examLab
+        ? (student.submitted ? (released && student.score !== null ? `${student.score}/${student.total}` : 'submitted') : student.connected ? 'answering' : 'away')
+        : student.submitted ? `${student.score}/${student.total}` : student.connected ? 'joined' : 'away'}</small>
     </article>
   `).join('');
 }
 
 function renderLeaderboard(state) {
+  if (isExamLabMode(state)) {
+    const students = state.students || [];
+    const summary = state.summary || {};
+    const analysis = state.examLabAnalysis;
+    els.classAverage.textContent = state.feedbackReleased && analysis ? `Average ${analysis.classAverage}%` : 'Results private';
+    els.submittedSummary.textContent = `${Number(summary.submitted || 0)} / ${Number(summary.joined || 0)}`;
+    els.accuracySummary.textContent = state.feedbackReleased && analysis ? `${analysis.classAverage}%` : 'Hidden';
+    els.submissionsStatus.textContent = state.submissionsOpen ? 'Open' : state.submissionsClosed ? 'Locked' : 'Waiting';
+    els.leaderboardList.style.setProperty('--leaderboard-count', Math.max(students.length, 1));
+    if (!students.length) {
+      els.leaderboardList.className = 'leaderboard-list empty-state';
+      els.leaderboardList.textContent = 'Completion status will appear as students join.';
+      return;
+    }
+    els.leaderboardList.className = `leaderboard-list exam-lab-status-list ${getListDensityClass(students.length)}`.trim();
+    els.leaderboardList.innerHTML = students.map((student) => `
+      <article class="leaderboard-row exam-lab-status-row ${student.submitted ? 'is-current-submitted' : ''}">
+        <span class="exam-lab-status-dot" aria-hidden="true"></span>
+        <div class="leaderboard-name-block"><strong>${escapeHTML(student.name)}</strong><small>${student.submitted ? 'Answers submitted' : state.submissionsOpen ? 'Answering' : 'Not submitted'}</small></div>
+        <em>${student.submitted ? 'Submitted' : 'Waiting'}</em>
+      </article>
+    `).join('');
+    return;
+  }
   const leaderboard = state.leaderboard || [];
   const summary = state.summary || {};
   const joined = Number(summary.joined || 0);
@@ -592,7 +673,69 @@ function renderLeaderboard(state) {
   }).join('');
 }
 
+function examLabPracticeHref(route = {}) {
+  if (route.status !== 'live' || !route.path || route.path === '#') return '';
+  const clean = String(route.path).replace(/^\.\.\//, '');
+  return clean.startsWith('/') ? clean : `/modules/${clean}`;
+}
+
+function getExamLabAnalysisMarkup(state = currentState) {
+  const analysis = state?.examLabAnalysis;
+  if (!analysis) return '<div class="empty-state final-empty-state">No submitted Exam Lab results were recorded.</div>';
+  const questionRows = (analysis.questions || []).map((question) => `
+    <article class="exam-lab-analysis-row ${question.successPercentage >= 70 ? 'is-secure' : 'is-focus'}">
+      <div><strong>Question ${Number(question.number || 0)} · ${Number(question.marks || 0)} ${pluralise(question.marks, 'mark')}</strong><span>${escapeHTML(question.prompt)}</span></div>
+      <em>${Number(question.successPercentage || 0)}%</em>
+      <p>${Number(question.fullyCorrect || 0)} fully correct · ${Number(question.partiallyCorrect || 0)} partially correct · ${Number(question.incorrect || 0)} incorrect · ${Number(question.unanswered || 0)} unanswered</p>
+      <small>Skills: ${escapeHTML((question.skills || []).join(', ') || 'Listening analysis')}</small>
+    </article>
+  `).join('');
+  const skillRows = (analysis.skills || []).map((skill) => `
+    <article class="exam-lab-skill-row ${skill.percentage >= 70 ? 'is-secure' : 'is-focus'}">
+      <div><strong>${escapeHTML(skill.skill)}</strong><span>${escapeHTML((skill.affectedStudents || []).length ? `Review with ${skill.affectedStudents.join(', ')}` : 'Secure across submitted work')}</span></div>
+      <em>${Number(skill.percentage || 0)}%</em>
+    </article>
+  `).join('');
+  const individuals = (analysis.individuals || []).map((student) => {
+    if (!student.result) return `<details class="exam-lab-individual"><summary><span>${escapeHTML(student.name)}</span><strong>Not submitted</strong></summary><p>No answers were submitted before the session ended.</p></details>`;
+    const outcomes = (student.result.outcomes || []).map((outcome) => `
+      <article class="exam-lab-individual-question">
+        <div><strong>Question ${Number(outcome.number || 0)}</strong><span>${escapeHTML(outcome.answer || 'No answer')}</span></div>
+        <em>${Number(outcome.marks || 0)} / ${Number(outcome.maxMarks || 0)}</em>
+        <p>${escapeHTML(outcome.feedback || '')}</p>
+        ${(outcome.missingMarkPoints || []).length ? `<small>Missing: ${escapeHTML(outcome.missingMarkPoints.join('; '))}</small>` : ''}
+      </article>
+    `).join('');
+    return `<details class="exam-lab-individual"><summary><span>${escapeHTML(student.name)}</span><strong>${Number(student.result.score || 0)} / ${Number(student.result.maximumScore || 0)} · ${Number(student.result.percentage || 0)}%</strong></summary><div>${outcomes}</div></details>`;
+  }).join('');
+  const recommendations = (analysis.recommendations || []).map((recommendation) => {
+    const route = recommendation.route || {};
+    const href = examLabPracticeHref(route);
+    return `<article class="exam-lab-recommendation">
+      <div><strong>${escapeHTML(route.module || 'No live practice route yet')}</strong><span>${escapeHTML((recommendation.skills || []).join(', ') || 'Listening skill gap')}</span></div>
+      <p>${escapeHTML((recommendation.reasons || []).join(' '))}</p>
+      <small>Affected students: ${escapeHTML((recommendation.affectedStudents || []).join(', ') || 'None')}</small>
+      ${href ? `<a href="${escapeHTML(href)}">Open practice route</a>` : '<em>No live practice route yet</em>'}
+    </article>`;
+  }).join('');
+
+  return `
+    <div class="final-leaderboard-hero exam-lab-analysis-hero">
+      <span>Class average</span>
+      <strong>${Number(analysis.classAverage || 0)}%</strong>
+      <small>${Number(analysis.submitted || 0)} of ${Number(analysis.joined || 0)} students submitted · ${Number(analysis.totalMarks || 0)} marks available</small>
+    </div>
+    ${analysis.sourceTitle ? `<p class="exam-lab-analysis-source">Source: ${escapeHTML(analysis.sourceTitle)}</p>` : ''}
+    <section class="exam-lab-analysis-section"><h3>Question analysis</h3><div class="exam-lab-analysis-list">${questionRows || '<p>No question evidence.</p>'}</div></section>
+    <section class="exam-lab-analysis-section"><h3>Skill analysis</h3><div class="exam-lab-skill-list">${skillRows || '<p>No skill evidence.</p>'}</div></section>
+    <section class="exam-lab-analysis-section"><h3>Individual results</h3><div class="exam-lab-individual-list">${individuals}</div></section>
+    <details class="exam-lab-homework-review" open><summary>Review recommended homework</summary><p>Recommendations are for teacher review only. No homework has been assigned automatically.</p><div>${recommendations || '<p>All tested skills were secure; no route is recommended.</p>'}</div></details>
+    <p class="final-leaderboard-reset-note">Close this diagnosis to keep the room open. Create a new room for another randomly selected Exam Lab extract.</p>
+  `;
+}
+
 function getFinalLeaderboardMarkup(state = currentState) {
+  if (isExamLabMode(state)) return getExamLabAnalysisMarkup(state);
   const leaderboard = state?.leaderboard || [];
   const summary = state?.summary || {};
   const rows = leaderboard.length
@@ -628,6 +771,8 @@ function getFinalLeaderboardMarkup(state = currentState) {
 
 function showFinalLeaderboard(state = currentState) {
   if (!els.finalLeaderboardModal || !els.finalLeaderboardContent) return;
+  if (els.finalLeaderboardTitle) els.finalLeaderboardTitle.textContent = isExamLabMode(state) ? 'Exam Lab class diagnosis' : 'Final leaderboard';
+  if (els.closeFinalLeaderboardButton) els.closeFinalLeaderboardButton.setAttribute('aria-label', isExamLabMode(state) ? 'Close Exam Lab diagnosis and return to Teacher Dashboard' : 'Close final leaderboard and reset classroom');
   els.finalLeaderboardContent.innerHTML = getFinalLeaderboardMarkup(state);
   els.finalLeaderboardModal.hidden = false;
 }
@@ -643,10 +788,15 @@ async function dismissFinalLeaderboard() {
   }
 
   try {
-    const response = await api('/api/classroom/next-round', { roomCode });
+    const examLab = isExamLabMode();
+    const response = await api(examLab ? '/api/classroom/dismiss' : '/api/classroom/next-round', { roomCode });
     hideFinalLeaderboard();
     renderState(response.state);
     updateTeacherStatus(response.state);
+    if (examLab) {
+      window.location.assign('/account/teacher-dashboard/');
+      return;
+    }
     setNotice('Room is still active. Choose settings and start the next round when ready.', 'good');
   } catch (error) {
     hideFinalLeaderboard();
@@ -689,6 +839,8 @@ function renderState(state) {
     updateSettingsSummary();
   }
 
+  updateExamLabPresentation(state);
+
   renderQuestionInfo(state);
   if (state.quiz && state.quiz.ended && !state.dismissed) showFinalLeaderboard(state);
   els.closeSubmissionsButton.disabled = !state.question || !state.submissionsOpen;
@@ -724,15 +876,18 @@ async function createSession() {
   setNotice('Creating classroom room…');
   try {
     const sessionModuleId = getEffectiveSessionModuleId();
-    const response = await api('/api/classroom/create', {
+    const payload = {
       moduleId: sessionModuleId,
       questionLevel: quizSettings.questionLevel,
-      mixedModuleIds: getEffectiveMixedModuleIds(sessionModuleId),
+      classId: sessionModuleId === 'exam-lab' ? dashboardLaunch.classId : '',
       frontendBase: window.EchoAuralClassroom.getFrontendBase(),
       apiBase: window.EchoAuralClassroom.getApiBase()
-    });
+    };
+    const mixedModuleIds = getEffectiveMixedModuleIds(sessionModuleId);
+    if (mixedModuleIds) payload.mixedModuleIds = mixedModuleIds;
+    const response = await api('/api/classroom/create', payload);
     updateSessionCard(response);
-    if (dashboardLaunch.enabled) {
+    if (dashboardLaunch.enabled || sessionModuleId === 'exam-lab') {
       const settingsResponse = await applyRoomSettings();
       updateTeacherStatus(settingsResponse.state);
     } else {
@@ -751,16 +906,18 @@ async function startQuiz() {
   if (!quizSettings.saved) return openSettingsModal();
   try {
     const sessionModuleId = getEffectiveSessionModuleId();
-    const response = await api('/api/classroom/start', {
+    const payload = {
       roomCode,
       moduleId: sessionModuleId,
       questionIndex: 0,
       resetQuiz: true,
       quizLength: quizSettings.quizLength,
       maxListens: quizSettings.maxListens,
-      questionLevel: quizSettings.questionLevel,
-      mixedModuleIds: getEffectiveMixedModuleIds(sessionModuleId)
-    });
+      questionLevel: quizSettings.questionLevel
+    };
+    const mixedModuleIds = getEffectiveMixedModuleIds(sessionModuleId);
+    if (mixedModuleIds) payload.mixedModuleIds = mixedModuleIds;
+    const response = await api('/api/classroom/start', payload);
     renderState(response.state);
     updateTeacherStatus(response.state);
     await playExcerpt({ leadInSeconds: selectedModuleId === 'melody-master' ? 2 : 1 });
@@ -857,7 +1014,9 @@ async function endQuiz() {
     const response = await api('/api/classroom/end', { roomCode });
     renderState(response.state);
     showFinalLeaderboard(response.state);
-    setNotice('Quiz ended. The final leaderboard is open.', 'good');
+    setNotice(isExamLabMode(response.state)
+      ? 'Session finished. Private feedback and the class diagnosis are now available.'
+      : 'Quiz ended. The final leaderboard is open.', 'good');
   } catch (error) {
     setNotice(error.message || 'Could not end the quiz.', 'bad');
   }

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#07111f" />
+  <title>Exam Lab | EchoAural</title>
+  <link rel="preload" href="assets/EXL003-skeleton-score.png" as="image" />
+  <link rel="preload" href="assets/EXL003.mp3" as="audio" type="audio/mpeg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand refined-logo" href="../../index.html" aria-label="Back to EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+      </a>
+
+      <nav class="topbar-actions" aria-label="Exam Lab navigation">
+        <a class="topbar-module-chip" href="#examWorkspace" aria-label="Exam Lab module">
+          <span class="topbar-module-icon" aria-hidden="true"><img src="../../assets/icons/modules/exam-lab.png" alt="" /></span>
+          <span class="topbar-el-mark" aria-hidden="true"><span>E</span><strong>L</strong></span>
+          <span class="sr-only">Exam Lab</span>
+        </a>
+        <label class="extract-selector-wrap">
+          <span class="sr-only">Choose Exam Lab extract</span>
+          <select class="topbar-question-chip" id="extractSelector" aria-label="Choose Exam Lab extract">
+            <option value="EXL001">EXL001</option>
+            <option value="EXL002">EXL002</option>
+            <option value="EXL003">EXL003</option>
+          </select>
+        </label>
+        <a class="topbar-link topbar-home-link" href="../../index.html">
+          <span class="back-label">Back to</span>
+          <span class="mini-wordmark" aria-hidden="true"><span class="mini-wordmark-echo">Echo</span><span class="mini-wordmark-aural">Aural</span></span>
+          <span class="sr-only">EchoAural home</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="exam-layout" id="examWorkspace">
+      <section class="panel score-panel" aria-label="Skeleton score">
+        <div class="panel-heading-row">
+          <div class="panel-section-heading">
+            <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+            <div>
+              <p class="eyebrow">CAMBRIDGE-STYLE LISTENING</p>
+            </div>
+          </div>
+          <div class="question-meta">
+            <span id="extractIdBadge">EXL003</span>
+            <span id="extractMarksBadge">10 marks</span>
+          </div>
+        </div>
+
+        <div class="audio-console" aria-label="Audio controls">
+          <button class="play-control" id="playButton" type="button" aria-describedby="playStatus">
+            <span class="play-icon" aria-hidden="true"></span>
+            <span class="play-copy">
+              <strong id="playButtonLabel">Play extract</strong>
+              <small id="playStatus">Four plays available</small>
+            </span>
+          </button>
+
+          <div class="play-limit" aria-label="Four-play limit">
+            <span class="play-limit-label">Plays</span>
+            <div class="play-pips" id="playPips" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <strong id="playsRemaining">4 remaining</strong>
+          </div>
+
+          <div class="audio-progress-wrap">
+            <div class="audio-progress" aria-hidden="true"><span id="audioProgress"></span></div>
+            <div class="time-row"><span id="currentTime">0:00</span><span id="durationTime">0:46</span></div>
+          </div>
+
+          <audio id="examAudio" preload="metadata"></audio>
+        </div>
+
+        <div class="score-stage" id="scoreStage">
+          <div class="score-toolbar" aria-label="Score controls">
+            <button id="zoomOutButton" type="button" aria-label="Zoom out">−</button>
+            <span id="zoomLabel">100%</span>
+            <button id="zoomInButton" type="button" aria-label="Zoom in">+</button>
+            <button id="fitScoreButton" type="button">Fit</button>
+          </div>
+          <div class="score-scroll" id="scoreScroll">
+            <div class="score-canvas" id="scoreCanvas">
+              <img id="scoreImage" alt="" />
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <aside class="panel answer-panel" aria-label="Exam answer sheet">
+        <div class="answer-panel-top">
+          <div class="panel-section-heading">
+            <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+            <div>
+              <p class="eyebrow">EXAM ANSWER SHEET</p>
+            </div>
+          </div>
+          <div class="completion-ring" aria-label="Answer completion">
+            <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18"></circle><circle id="completionCircle" cx="22" cy="22" r="18"></circle></svg>
+            <strong id="answerCount">0/8</strong>
+          </div>
+        </div>
+
+        <form id="answerForm" novalidate>
+          <div id="questionList" class="question-list"></div>
+          <div class="submit-dock">
+            <p id="formMessage" role="status" aria-live="polite">Complete every question before submitting.</p>
+            <button id="submitButton" class="primary-button" type="submit">Submit Answers</button>
+            <button id="retryButton" class="secondary-button" type="button" hidden>Try again</button>
+          </div>
+        </form>
+      </aside>
+    </main>
+  </div>
+
+  <div id="resultSummary" class="exl-round-feedback-panel" role="dialog" aria-modal="true" aria-label="Exam Lab round feedback" hidden></div>
+
+  <script src="data/exl001.js"></script>
+  <script src="data/exl002.js"></script>
+  <script src="data/exl003.js"></script>
+  <script src="marking.js"></script>
+  <script src="core/exam-lab-core.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -3269,3 +3269,61 @@ body.tt-round-feedback-open {
     grid-column: 1;
   }
 }
+
+.topbar-module-icon img[src$=".png"],
+.tt-hero-icon img[src$=".png"],
+.console-tt-icon img[src$=".png"],
+.answer-empty-icon img[src$=".png"] {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit;
+  object-fit: contain;
+  filter: none !important;
+}
+
+.topbar-module-icon,
+.tt-hero-icon,
+.console-tt-icon,
+.answer-empty-icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.topbar-module-icon img[src$=".png"],
+.tt-hero-icon img[src$=".png"],
+.console-tt-icon img[src$=".png"],
+.answer-empty-icon img[src$=".png"] {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.progression-level-grid .level-button {
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  align-content: center;
+  column-gap: 12px;
+  padding: 10px 36px 10px 10px;
+}
+
+.progression-level-grid .level-icon {
+  grid-column: 1;
+  grid-row: 1;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 14px;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .22);
+}
+
+.progression-level-grid .level-button strong {
+  grid-column: 2;
+  grid-row: 1;
+}

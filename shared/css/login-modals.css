@@ -172,6 +172,14 @@ body.ea-login-modal-open {
   opacity: .92;
 }
 
+.ea-login-role-icon img[src$=".png"] {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  filter: none;
+  opacity: 1;
+}
+
 .ea-login-eyebrow {
   margin: 0 0 10px;
   color: #8bdcff;
@@ -469,4 +477,19 @@ body.ea-login-modal-open {
     width: 44px;
     height: 44px;
   }
+}
+
+.ea-login-role-icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.ea-login-role-icon img[src$=".png"] {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
 }

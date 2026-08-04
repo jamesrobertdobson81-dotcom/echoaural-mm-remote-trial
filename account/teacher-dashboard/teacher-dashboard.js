@@ -115,21 +115,29 @@ const els = {
   teacherLaunchEyebrow: document.getElementById("teacherLaunchEyebrow"),
   teacherLaunchTitle: document.getElementById("teacherLaunchTitle"),
   teacherLaunchSubtitle: document.getElementById("teacherLaunchSubtitle"),
+  teacherLaunchSource: document.getElementById("teacherLaunchSource"),
   teacherLaunchModule: document.getElementById("teacherLaunchModule"),
+  teacherLaunchApp: document.getElementById("teacherLaunchApp"),
   teacherLaunchQuestionCount: document.getElementById("teacherLaunchQuestionCount"),
   teacherLaunchPlayCount: document.getElementById("teacherLaunchPlayCount"),
   teacherLaunchLevel: document.getElementById("teacherLaunchLevel"),
   teacherLaunchHelper: document.getElementById("teacherLaunchHelper"),
   teacherLaunchMessage: document.getElementById("teacherLaunchMessage"),
   teacherLaunchSubmit: document.getElementById("teacherLaunchSubmit"),
-  cancelTeacherLaunch: document.getElementById("cancelTeacherLaunch")
+  cancelTeacherLaunch: document.getElementById("cancelTeacherLaunch"),
+  teacherLaunchAppSection: document.getElementById("teacherLaunchAppSection"),
+  teacherLaunchQuestionSection: document.getElementById("teacherLaunchQuestionSection"),
+  teacherLaunchPlaySection: document.getElementById("teacherLaunchPlaySection"),
+  teacherLaunchLevelSection: document.getElementById("teacherLaunchLevelSection"),
+  teacherLaunchClassSection: document.getElementById("teacherLaunchClassSection"),
+  teacherLaunchClass: document.getElementById("teacherLaunchClass")
 };
 
 const TEACHER_LAUNCH_COPY = {
   live: {
     eyebrow: "Live classroom",
-    title: "Start live session",
-    subtitle: "Choose the app and question count, then open Teacher Mode with a room code already prepared.",
+    title: "Start Live Session",
+    subtitle: "Choose the question source and session settings, then open Teacher Mode with a room code already prepared.",
     helper: "Choose a level to focus this round, or use all levelled questions.",
     submit: "Open live room",
     autoCreate: "1"
@@ -145,6 +153,8 @@ const TEACHER_LAUNCH_COPY = {
 };
 
 let teacherLaunchMode = "live";
+let teacherLaunchStandardQuestionCount = "5";
+let teacherLaunchStandardLevel = "all";
 
 function formatMark(value) {
   const number = Number(value || 0);
@@ -156,10 +166,18 @@ function openTeacherLaunchDialog(mode = "live") {
   const copy = TEACHER_LAUNCH_COPY[teacherLaunchMode];
 
   els.teacherLaunchForm.reset();
+  els.teacherLaunchApp.value = "instrument-identifier";
   setTeacherLaunchValue(els.teacherLaunchModule, "instrument-identifier");
   setTeacherLaunchValue(els.teacherLaunchQuestionCount, "5");
   setTeacherLaunchValue(els.teacherLaunchPlayCount, "4");
   setTeacherLaunchValue(els.teacherLaunchLevel, teacherLaunchMode === "live" ? "all" : "foundation");
+  teacherLaunchStandardQuestionCount = "5";
+  teacherLaunchStandardLevel = teacherLaunchMode === "live" ? "all" : "foundation";
+  setTeacherLaunchSource("app");
+  els.teacherLaunchForm.querySelectorAll("[data-live-only]").forEach((button) => {
+    button.disabled = teacherLaunchMode !== "live";
+    button.classList.toggle("is-disabled", teacherLaunchMode !== "live");
+  });
   els.teacherLaunchEyebrow.textContent = copy.eyebrow;
   els.teacherLaunchTitle.textContent = copy.title;
   els.teacherLaunchSubtitle.textContent = copy.subtitle;
@@ -167,7 +185,7 @@ function openTeacherLaunchDialog(mode = "live") {
   updateTeacherLaunchHelper();
   setMessage(els.teacherLaunchMessage);
   els.teacherLaunchDialog.showModal();
-  window.setTimeout(() => els.teacherLaunchDialog.querySelector("[data-launch-option]:not(:disabled)")?.focus(), 0);
+  window.setTimeout(() => els.teacherLaunchDialog.querySelector("[data-launch-source]:not(:disabled), [data-launch-option]:not(:disabled)")?.focus(), 0);
 }
 
 function closeTeacherLaunchDialog() {
@@ -183,13 +201,55 @@ function setTeacherLaunchValue(input, value) {
   });
 }
 
+function setTeacherLaunchSource(source) {
+  const nextSource = ["app", "mixed", "exam-lab"].includes(source) ? source : "app";
+  const previousSource = els.teacherLaunchSource.value;
+  if (nextSource === "exam-lab" && previousSource !== "exam-lab") {
+    teacherLaunchStandardQuestionCount = els.teacherLaunchQuestionCount.value || "5";
+    teacherLaunchStandardLevel = els.teacherLaunchLevel.value || "all";
+  } else if (previousSource === "exam-lab" && nextSource !== "exam-lab") {
+    setTeacherLaunchValue(els.teacherLaunchQuestionCount, teacherLaunchStandardQuestionCount);
+    setTeacherLaunchValue(els.teacherLaunchLevel, teacherLaunchStandardLevel);
+  }
+  els.teacherLaunchSource.value = nextSource;
+  els.teacherLaunchForm.querySelectorAll("[data-launch-source]").forEach((button) => {
+    const selected = button.dataset.launchSource === nextSource;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  const moduleId = nextSource === "app" ? (els.teacherLaunchApp.value || "instrument-identifier") : nextSource;
+  setTeacherLaunchValue(els.teacherLaunchModule, moduleId);
+  updateTeacherLaunchHelper();
+}
+
 function updateTeacherLaunchHelper() {
   const copy = TEACHER_LAUNCH_COPY[teacherLaunchMode] || TEACHER_LAUNCH_COPY.live;
   const selectedModule = els.teacherLaunchModule.value;
+  const selectedSource = els.teacherLaunchSource.value;
+  const examLab = selectedModule === "exam-lab";
+  const showsStandardChoices = selectedSource === "app" || selectedSource === "mixed";
   const supportsLevelFilters = ["instrument-identifier", "melody-master", "melodic-intervals", "mixed"].includes(selectedModule);
-  els.teacherLaunchHelper.textContent = selectedModule === "mixed"
-    ? "First mixed version: blends Instrument Identifier and Melodic Intervals using the selected level."
-    : copy.helper;
+  els.teacherLaunchHelper.textContent = examLab
+    ? "ExamLab sets one server-selected exam extract for the whole class. The teacher controls all playback."
+    : selectedSource === "mixed"
+      ? "Mixed Apps creates a varied set of questions selected from the supported EchoAural apps."
+      : `${els.teacherLaunchApp.options[els.teacherLaunchApp.selectedIndex]?.text || "The selected app"} will supply every question in this session. ${copy.helper}`;
+
+  els.teacherLaunchAppSection.hidden = selectedSource !== "app";
+  els.teacherLaunchQuestionSection.hidden = !showsStandardChoices;
+  els.teacherLaunchPlaySection.hidden = !showsStandardChoices;
+  els.teacherLaunchLevelSection.hidden = !showsStandardChoices;
+  els.teacherLaunchClassSection.hidden = !examLab;
+  if (examLab) {
+    const active = activeClasses();
+    els.teacherLaunchClass.innerHTML = active.length
+      ? active.map((classItem) => `<option value="${escapeHtml(classItem.id)}">${escapeHtml(classItem.className)}</option>`).join("")
+      : '<option value="">All account students</option>';
+  }
+  if (examLab) {
+    setTeacherLaunchValue(els.teacherLaunchQuestionCount, "1");
+    setTeacherLaunchValue(els.teacherLaunchLevel, "all");
+  }
 
   els.teacherLaunchForm.querySelectorAll('[data-target="teacherLaunchLevel"]').forEach((button) => {
     button.disabled = !supportsLevelFilters;
@@ -204,6 +264,8 @@ function selectTeacherLaunchOption(button) {
   const input = document.getElementById(button.dataset.target);
   if (!input) return;
   setTeacherLaunchValue(input, button.dataset.value);
+  if (els.teacherLaunchSource.value !== "exam-lab" && input === els.teacherLaunchQuestionCount) teacherLaunchStandardQuestionCount = input.value;
+  if (els.teacherLaunchSource.value !== "exam-lab" && input === els.teacherLaunchLevel) teacherLaunchStandardLevel = input.value;
   if (input === els.teacherLaunchModule) updateTeacherLaunchHelper();
 }
 
@@ -219,6 +281,10 @@ function submitTeacherLaunch(event) {
     questionLevel: els.teacherLaunchLevel.value || "all",
     autoCreate: copy.autoCreate
   });
+
+  if (els.teacherLaunchModule.value === "exam-lab" && els.teacherLaunchClass.value) {
+    params.set("classId", els.teacherLaunchClass.value);
+  }
 
   if (els.teacherLaunchModule.value === "mixed") {
     params.set("mixedModules", "instrument-identifier,melodic-intervals");
@@ -635,7 +701,7 @@ function renderClassModules(modules = [], compact = false) {
 const CLASS_CATEGORY_CONFIG = {
   progress: {
     title: "Progress Mode",
-    icon: "/assets/icons/dashboard/progress-mode.svg",
+    icon: "/assets/icons/dashboard/progress-mode.png",
     headingId: "teacherPracticeHeading",
     eyebrow: "Levelled learning",
     subtitle: "Class progress from levelled student app work.",
@@ -644,7 +710,7 @@ const CLASS_CATEGORY_CONFIG = {
   },
   quizzes: {
     title: "Live Sessions",
-    icon: "/assets/icons/dashboard/join-live-session.svg",
+    icon: "/assets/icons/dashboard/join-live-session.png",
     headingId: "teacherQuizHeading",
     eyebrow: "Teacher-led learning",
     subtitle: "Saved results from live Teacher Mode rounds.",
@@ -653,7 +719,7 @@ const CLASS_CATEGORY_CONFIG = {
   },
   homework: {
     title: "Homework",
-    icon: "/assets/icons/dashboard/homework.svg",
+    icon: "/assets/icons/dashboard/homework.png",
     headingId: "teacherHomeworkHeading",
     eyebrow: "Assigned learning",
     subtitle: "Teacher-set activities completed outside live lessons.",
@@ -706,6 +772,78 @@ function renderClassCategory(targetId, categoryKey, category) {
   target.innerHTML = classCategorySummaryMarkup(categoryKey, category);
 }
 
+function examLabDashboardRouteHref(route = {}) {
+  if (route.status !== "live" || !route.path || route.path === "#") return "";
+  const clean = String(route.path).replace(/^\.\.\//, "");
+  return clean.startsWith("/") ? clean : `/modules/${clean}`;
+}
+
+function renderExamLabDashboardSessions(sessions = []) {
+  if (!sessions.length) return `
+    <section class="exam-lab-dashboard-section-v9">
+      <div class="category-detail-section-heading-v5"><div><p class="card-eyebrow">Exam Lab</p><h3>Session diagnosis</h3></div></div>
+      <div class="progress-empty-state">Finished Exam Lab sessions will appear here after an account-based live session ends.</div>
+    </section>`;
+
+  return `<section class="exam-lab-dashboard-section-v9">
+    <div class="category-detail-section-heading-v5"><div><p class="card-eyebrow">Exam Lab</p><h3>Session diagnosis</h3></div><span>${sessions.length} saved session${sessions.length === 1 ? "" : "s"}</span></div>
+    <div class="exam-lab-session-list-v9">${sessions.map((session, sessionIndex) => {
+      const questions = (session.questions || []).map((question) => `
+        <article class="exam-lab-heatmap-row-v9 ${scoreClass(question.successPercentage, 1)}">
+          <div><strong>Question ${Number(question.number || 0)} · ${formatMark(question.marks)} ${Number(question.marks) === 1 ? "mark" : "marks"}</strong><span>${escapeHtml(question.prompt)}</span></div>
+          <em>${Number(question.successPercentage || 0)}%</em>
+          <p>${Number(question.fullyCorrect || 0)} fully correct · ${Number(question.partiallyCorrect || 0)} partially correct · ${Number(question.incorrect || 0)} incorrect · ${Number(question.unanswered || 0)} unanswered</p>
+          <small>Skills: ${escapeHtml((question.skills || []).join(", ") || "Listening analysis")}</small>
+        </article>`).join("");
+      const skills = (session.skills || []).map((skill) => `
+        <article class="exam-lab-dashboard-skill-v9 ${scoreClass(skill.percentage, 1)}">
+          <div><strong>${escapeHtml(skill.skill)}</strong><span>${escapeHtml((skill.affectedStudents || []).length ? `Affected: ${skill.affectedStudents.join(", ")}` : "Secure across submitted work")}</span></div>
+          <em>${Number(skill.percentage || 0)}%</em>
+        </article>`).join("");
+      const individuals = (session.individuals || []).map((student) => `
+        <details class="exam-lab-dashboard-student-v9">
+          <summary><span>${escapeHtml(student.name)} <small>${escapeHtml(student.className || "")}</small></span><strong>${student.submitted ? `${formatMark(student.score)} / ${formatMark(student.maximumScore)} · ${Number(student.percentage || 0)}%` : "Not submitted"}</strong></summary>
+          <div>${(student.outcomes || []).map((outcome) => `
+            <article>
+              <div><strong>Question ${Number(outcome.number || 0)}</strong><span>${escapeHtml(outcome.answer || "No answer")}</span></div>
+              <em>${formatMark(outcome.marks)} / ${formatMark(outcome.maximumScore)}</em>
+              <p>${escapeHtml(outcome.feedback || "")}</p>
+              ${outcome.correctResponse ? `<small><strong>Accepted response:</strong> ${escapeHtml(outcome.correctResponse)}</small>` : ""}
+              ${(outcome.missingMarkPoints || []).length ? `<small><strong>Missing:</strong> ${escapeHtml(outcome.missingMarkPoints.join("; "))}</small>` : ""}
+            </article>`).join("")}</div>
+        </details>`).join("");
+      const recommendations = (session.recommendations || []).map((recommendation) => {
+        const route = recommendation.route || {};
+        const href = examLabDashboardRouteHref(route);
+        return `<article class="exam-lab-dashboard-recommendation-v9">
+          <div><strong>${escapeHtml(route.module || "No live practice route yet")}</strong><span>${escapeHtml((recommendation.skills || []).join(", ") || "Listening skill gap")}</span></div>
+          <p>${escapeHtml((recommendation.reasons || []).join(" "))}</p>
+          <small>Affected students: ${escapeHtml((recommendation.affectedStudents || []).join(", ") || "None")}</small>
+          ${href ? `<a href="${escapeHtml(href)}">Open practice route</a>` : "<em>No live practice route yet</em>"}
+        </article>`;
+      }).join("");
+      return `<details class="exam-lab-dashboard-session-v9" ${sessionIndex === 0 ? "open" : ""}>
+        <summary>
+          <span><strong>${escapeHtml(session.title || "Exam Lab Live Session")}</strong><small>${escapeHtml(formatDateTime(session.completedAt))} · ${escapeHtml(session.className || "Unassigned students")}</small></span>
+          <em>${Number(session.classAverage || 0)}% class average</em>
+        </summary>
+        <div class="exam-lab-session-body-v9">
+          <div class="exam-lab-session-summary-v9">
+            <div><span>Students</span><strong>${Number(session.submittedStudents || 0)} / ${Number(session.participatingStudents || 0)} submitted</strong></div>
+            <div><span>Marks</span><strong>${formatMark(session.totalMarks)} available</strong></div>
+            <div><span>Average</span><strong>${Number(session.classAverage || 0)}%</strong></div>
+          </div>
+          ${session.sourceTitle ? `<p class="exam-lab-dashboard-source-v9">Source: ${escapeHtml(session.sourceTitle)}</p>` : ""}
+          <section><h4>Question heatmap</h4><div class="exam-lab-heatmap-list-v9">${questions}</div></section>
+          <section><h4>Skill analysis</h4><div class="exam-lab-dashboard-skill-list-v9">${skills}</div></section>
+          <section><h4>Individual results</h4><div class="exam-lab-dashboard-student-list-v9">${individuals}</div></section>
+          <details class="exam-lab-dashboard-homework-v9"><summary>Review recommended homework</summary><p>No work is assigned automatically. Review the affected students and routes below.</p><div>${recommendations || "<p>No additional route is recommended.</p>"}</div></details>
+        </div>
+      </details>`;
+    }).join("")}</div>
+  </section>`;
+}
+
 function detailedCategoryMarkup(categoryKey, category) {
   const config = CLASS_CATEGORY_CONFIG[categoryKey];
   const overall = category?.overall || {};
@@ -755,6 +893,7 @@ function detailedCategoryMarkup(categoryKey, category) {
       </div>
       ${renderClassModules(category?.modules || [], false)}
     </section>
+    ${categoryKey === "quizzes" ? renderExamLabDashboardSessions(state.classProgress?.examLabSessions || []) : ""}
   `;
 }
 
@@ -862,7 +1001,7 @@ function renderIndividualQuestions(questions = []) {
   }).join("")}</div>`;
 }
 
-function individualCategory(title, subtitle, category, featured = false, icon = "/assets/icons/dashboard/progress-mode.svg", categoryKey = "") {
+function individualCategory(title, subtitle, category, featured = false, icon = "/assets/icons/dashboard/progress-mode.png", categoryKey = "") {
   const overall = category?.overall || {};
   const hasEvidence = Number(overall.questions || 0) > 0;
   return `
@@ -898,14 +1037,14 @@ function renderStudentProgress(progress) {
       <div class="individual-overall-metrics-v2">
         <div><span>Questions</span><strong>${overall.questions}</strong></div>
         <div><span>Rounds</span><strong>${overall.rounds}</strong></div>
-        <div><span>Apps started</span><strong>${overall.modulesStarted} / 5</strong></div>
+        <div><span>Apps started</span><strong>${overall.modulesStarted} / 6</strong></div>
       </div>
       <p>${escapeHtml(overall.compiledFeedback)}</p>
     </div>
     <div class="individual-category-grid-v2">
-      ${individualCategory("Progress Mode", "Levelled learning", categories.progress, false, "/assets/icons/dashboard/progress-mode.svg", "progress")}
-      ${individualCategory("Live Sessions", "Teacher-led learning", categories.quizzes, true, "/assets/icons/dashboard/join-live-session.svg", "quizzes")}
-      ${individualCategory("Homework", "Assigned learning", categories.homework, false, "/assets/icons/dashboard/homework.svg", "homework")}
+      ${individualCategory("Progress Mode", "Levelled learning", categories.progress, false, "/assets/icons/dashboard/progress-mode.png", "progress")}
+      ${individualCategory("Live Sessions", "Teacher-led learning", categories.quizzes, true, "/assets/icons/dashboard/join-live-session.png", "quizzes")}
+      ${individualCategory("Homework", "Assigned learning", categories.homework, false, "/assets/icons/dashboard/homework.png", "homework")}
     </div>
   `;
 }
@@ -1254,12 +1393,22 @@ els.openHomeworkLaunchDialog.addEventListener("click", () => openTeacherLaunchDi
 els.closeTeacherLaunchDialog.addEventListener("click", closeTeacherLaunchDialog);
 els.cancelTeacherLaunch.addEventListener("click", closeTeacherLaunchDialog);
 els.teacherLaunchDialog.addEventListener("click", (event) => {
+  const source = event.target.closest("[data-launch-source]");
+  if (source) {
+    if (!source.disabled) setTeacherLaunchSource(source.dataset.launchSource);
+    return;
+  }
   const option = event.target.closest("[data-launch-option]");
   if (option) {
     selectTeacherLaunchOption(option);
     return;
   }
   if (event.target === els.teacherLaunchDialog) closeTeacherLaunchDialog();
+});
+els.teacherLaunchApp.addEventListener("change", () => {
+  if (els.teacherLaunchSource.value !== "app") return;
+  setTeacherLaunchValue(els.teacherLaunchModule, els.teacherLaunchApp.value);
+  updateTeacherLaunchHelper();
 });
 els.teacherLaunchForm.addEventListener("submit", submitTeacherLaunch);
 
