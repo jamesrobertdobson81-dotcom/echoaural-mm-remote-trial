@@ -3,6 +3,7 @@
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { getPool } = require('../db/pool');
+const { getQuestionSkillMetadata, enrichAnswerData } = require('../shared/js/skill-metadata');
 
 const TEACHER_COOKIE = 'ea_teacher_session';
 const STUDENT_COOKIE = 'ea_student_session';
@@ -396,6 +397,89 @@ function progressPercentage(score, maximum) {
   return maximum > 0 ? Math.round((score / maximum) * 100) : 0;
 }
 
+function buildCanonicalSkillEvidence(attempts = []) {
+  const groups = new Map();
+
+  for (const attempt of attempts) {
+    const metadata = getQuestionSkillMetadata(attempt.question_id);
+    if (!metadata.primary_skill_code) continue;
+    const answerData = enrichAnswerData(attempt.question_id, attempt.answer_data || {});
+    if (answerData.submitted === false) continue;
+    const skillCode = String(metadata.primary_skill_code).trim();
+    const maximumScore = Math.max(0, progressNumber(attempt.maximum_score));
+    if (!skillCode || maximumScore <= 0) continue;
+
+    const current = groups.get(skillCode) || {
+      skillCode,
+      skillName: String(answerData.skillName || skillCode).trim() || skillCode,
+      musicalElement: String(answerData.musicalElement || '').trim(),
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      clipIds: new Set(),
+      questionIds: new Set(),
+      moduleIds: new Set(),
+      learningStages: new Set(),
+      difficultyBands: new Set()
+    };
+
+    current.score += Math.min(Math.max(0, progressNumber(attempt.score)), maximumScore);
+    current.maximumScore += maximumScore;
+    current.questions += 1;
+    if (answerData.clipId) current.clipIds.add(String(answerData.clipId));
+    if (attempt.question_id) current.questionIds.add(String(attempt.question_id));
+    if (attempt.module_id) current.moduleIds.add(String(attempt.module_id));
+    if (answerData.learningStage) current.learningStages.add(String(answerData.learningStage));
+    if (answerData.difficultyBand) current.difficultyBands.add(String(answerData.difficultyBand));
+    groups.set(skillCode, current);
+  }
+
+  return Array.from(groups.values())
+    .map((skill) => ({
+      skillCode: skill.skillCode,
+      skillName: skill.skillName,
+      musicalElement: skill.musicalElement,
+      score: Math.round(skill.score * 100) / 100,
+      maximumScore: Math.round(skill.maximumScore * 100) / 100,
+      percentage: progressPercentage(skill.score, skill.maximumScore),
+      questions: skill.questions,
+      uniqueQuestions: skill.questionIds.size,
+      uniqueClips: skill.clipIds.size,
+      modules: skill.moduleIds.size,
+      learningStages: Array.from(skill.learningStages),
+      difficultyBands: Array.from(skill.difficultyBands),
+      reliable: skill.questionIds.size >= 3 || skill.clipIds.size >= 2
+    }))
+    .sort((a, b) => b.questions - a.questions || a.skillName.localeCompare(b.skillName));
+}
+
+function canonicalSkillPriorities(skills = []) {
+  const reliable = skills.filter((skill) => skill.reliable);
+  if (!reliable.length) return { strongest: null, focus: null };
+
+  const strongest = reliable.slice().sort((a, b) => (
+    b.percentage - a.percentage || b.questions - a.questions
+  ))[0];
+  const focus = reliable.length > 1
+    ? reliable.slice().sort((a, b) => (
+      a.percentage - b.percentage || b.questions - a.questions
+    ))[0]
+    : null;
+  return { strongest, focus };
+}
+
+function canonicalSkillFeedback(skills, audience = 'student') {
+  const { strongest, focus } = canonicalSkillPriorities(skills);
+  if (!strongest) return '';
+  if (!focus || focus.skillCode === strongest.skillCode) {
+    const owner = audience === 'class' ? 'Class skill evidence' : 'Your skill evidence';
+    return ` ${owner} currently shows ${strongest.skillName.toLowerCase()} at ${strongest.percentage}%.`;
+  }
+  const owner = audience === 'class' ? 'The strongest evidenced class skill' : 'Your strongest evidenced skill';
+  const priority = audience === 'class' ? 'the next class skill priority' : 'your next skill priority';
+  return ` ${owner} is ${strongest.skillName.toLowerCase()} at ${strongest.percentage}%; ${priority} is ${focus.skillName.toLowerCase()} at ${focus.percentage}%.`;
+}
+
 function progressionStageForModule(moduleId, moduleRounds) {
   const passMarks = PROGRESSION_PASS_MARKS[moduleId];
   if (!passMarks) return null;
@@ -509,6 +593,8 @@ function buildProgressCategories(allRounds, allAttempts) {
 
 function buildProgressSummary(allRounds, allAttempts) {
   const scoredRounds = allRounds.filter((round) => !isPracticeTimeRound(round) && !isPracticeScoreRound(round));
+  const scoredRoundIds = new Set(scoredRounds.map((round) => String(round.id)));
+  const scoredAttempts = allAttempts.filter((attempt) => scoredRoundIds.has(String(attempt.round_id)));
   const practiceTimeRounds = allRounds.filter(isPracticeTimeRound);
   const totalPracticeSeconds = practiceTimeRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
 
@@ -524,6 +610,10 @@ function buildProgressSummary(allRounds, allAttempts) {
     const practiceSeconds = moduleRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
     const practiceSessions = moduleRounds.filter(isPracticeTimeRound).length;
     const accuracy = progressPercentage(score, maximumScore);
+    const skills = buildCanonicalSkillEvidence(
+      scoredAttempts.filter((attempt) => attempt.module_id === moduleId)
+    );
+    const skillPriorities = canonicalSkillPriorities(skills);
     let feedback = 'Complete a round to start building personalised feedback.';
     let strength = 'No evidence yet';
     let nextStep = 'Open this activity and complete a first round.';
@@ -629,6 +719,9 @@ function buildProgressSummary(allRounds, allAttempts) {
       nextStep,
       feedback,
       progressionStage,
+      skills,
+      strongestSkill: skillPriorities.strongest,
+      focusSkill: skillPriorities.focus,
       lastCompletedAt: rounds[0]?.completed_at || null,
       lastPracticeAt: moduleRounds.find(isPracticeTimeRound)?.completed_at || null
     };
@@ -641,6 +734,8 @@ function buildProgressSummary(allRounds, allAttempts) {
   const startedModules = moduleSummaries.filter((module) => module.questions > 0);
   const strongestModule = startedModules.slice().sort((a, b) => b.percentage - a.percentage)[0] || null;
   const focusModule = startedModules.slice().sort((a, b) => a.percentage - b.percentage)[0] || null;
+  const skills = buildCanonicalSkillEvidence(scoredAttempts);
+  const skillPriorities = canonicalSkillPriorities(skills);
   let compiledFeedback = 'Complete an EchoAural round while logged in to start the progress record.';
 
   if (totalQuestions) {
@@ -657,7 +752,7 @@ function buildProgressSummary(allRounds, allAttempts) {
     const focusText = focusModule
       ? ` The next priority is ${focusModule.title}: ${focusModule.nextStep}`
       : '';
-    compiledFeedback = `${opening}${strengthText}${focusText}`;
+    compiledFeedback = `${opening}${strengthText}${focusText}${canonicalSkillFeedback(skills)}`;
   }
 
   const roundSourceById = new Map(
@@ -678,10 +773,13 @@ function buildProgressSummary(allRounds, allAttempts) {
       compiledFeedback,
       strongestModule: strongestModule?.title || null,
       focusModule: focusModule?.title || null,
+      strongestSkill: skillPriorities.strongest,
+      focusSkill: skillPriorities.focus,
       lastCompletedAt: scoredRounds[0]?.completed_at || null,
       lastPracticeAt: practiceTimeRounds[0]?.completed_at || null
     },
     modules: moduleSummaries,
+    skills,
     recentRounds: scoredRounds.slice(0, 10).map((round) => ({
       id: round.id,
       moduleId: round.module_id,
@@ -834,6 +932,8 @@ function buildClassModuleFeedback(moduleSummary) {
 
 function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
   const scoredRounds = allRounds.filter((round) => !isPracticeTimeRound(round) && !isPracticeScoreRound(round));
+  const scoredRoundIds = new Set(scoredRounds.map((round) => String(round.id)));
+  const scoredAttempts = allAttempts.filter((attempt) => scoredRoundIds.has(String(attempt.round_id)));
   const practiceTimeRounds = allRounds.filter(isPracticeTimeRound);
   const totalPracticeSeconds = practiceTimeRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
   const activeStudents = allStudents.filter((student) => student.active);
@@ -860,6 +960,7 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
     const definition = PROGRESS_MODULE_DEFINITIONS[moduleId];
     const moduleRounds = allRounds.filter((round) => round.module_id === moduleId);
     const rounds = scoredRounds.filter((round) => round.module_id === moduleId);
+    const attempts = scoredAttempts.filter((attempt) => attempt.module_id === moduleId);
     const score = rounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
     const maximumScore = rounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
     const questions = rounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
@@ -872,6 +973,8 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
         .map((round) => String(round.student_id))
     ).size;
     const value = progressPercentage(score, maximumScore);
+    const skills = buildCanonicalSkillEvidence(attempts);
+    const skillPriorities = canonicalSkillPriorities(skills);
     const summary = {
       moduleId,
       title: definition.title,
@@ -887,6 +990,9 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
       practiceSessions,
       practiceStudents: practiceStudentCount,
       level: progressLevel(value, questions),
+      skills,
+      strongestSkill: skillPriorities.strongest,
+      focusSkill: skillPriorities.focus,
       lastCompletedAt: rounds[0]?.completed_at || null,
       lastPracticeAt: moduleRounds.find(isPracticeTimeRound)?.completed_at || null
     };
@@ -900,6 +1006,8 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
   const startedModules = modules.filter((module) => module.questions > 0);
   const strongestModule = startedModules.slice().sort((a, b) => b.percentage - a.percentage)[0] || null;
   const focusModule = startedModules.slice().sort((a, b) => a.percentage - b.percentage)[0] || null;
+  const skills = buildCanonicalSkillEvidence(scoredAttempts);
+  const skillPriorities = canonicalSkillPriorities(skills);
   const participatingActiveStudents = activeStudents.filter((student) => participatingIds.has(String(student.id))).length;
   const participation = activeStudents.length
     ? Math.round((participatingActiveStudents / activeStudents.length) * 100)
@@ -923,7 +1031,7 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
     const evidence = participation < 100
       ? ` Results currently include ${participatingActiveStudents} of ${activeStudents.length} active students.`
       : '';
-    compiledFeedback = `${opening}${strongest}${focus}${evidence}`;
+    compiledFeedback = `${opening}${strongest}${focus}${canonicalSkillFeedback(skills, 'class')}${evidence}`;
   }
 
   return {
@@ -943,10 +1051,13 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
       compiledFeedback,
       strongestModule: strongestModule?.title || null,
       focusModule: focusModule?.title || null,
+      strongestSkill: skillPriorities.strongest,
+      focusSkill: skillPriorities.focus,
       lastCompletedAt: scoredRounds[0]?.completed_at || null,
       lastPracticeAt: practiceTimeRounds[0]?.completed_at || null
     },
     modules,
+    skills,
     students
   };
 }
@@ -1464,12 +1575,13 @@ async function handleAccountApi(req, res, parsedUrl) {
 
       const cleanQuestions = questions.map((question, index) => {
         const maximumScore = normaliseMark(question.maximumScore);
+        const questionId = cleanShortText(question.questionId || `Q${index + 1}`, 120);
         return {
-          questionId: cleanShortText(question.questionId || `Q${index + 1}`, 120),
+          questionId,
           score: Math.min(normaliseMark(question.score), maximumScore || Number.MAX_SAFE_INTEGER),
           maximumScore,
           feedback: cleanShortText(question.feedback, 1000),
-          answerData: cleanJson(question.answerData)
+          answerData: cleanJson(enrichAnswerData(questionId, question.answerData))
         };
       });
 
@@ -1960,6 +2072,11 @@ module.exports = {
   handleAccountApi,
   getTeacherSession,
   getStudentSession,
+  buildCanonicalSkillEvidence,
+  canonicalSkillPriorities,
+  canonicalSkillFeedback,
+  buildProgressSummary,
+  buildClassProgressSummary,
   buildExamLabSessions,
   TEACHER_COOKIE,
   STUDENT_COOKIE

@@ -1,0 +1,197 @@
+{
+  "version": "1.0.0",
+  "skills": [
+    {
+      "skill_code": "INS.FAMILY",
+      "musical_element": "Instrumentation",
+      "skill_name": "Instrument family",
+      "description": "Recognise an instrumental family by timbre."
+    },
+    {
+      "skill_code": "INS.INDIVIDUAL",
+      "musical_element": "Instrumentation",
+      "skill_name": "Individual instrument",
+      "description": "Recognise and name an individual instrument by timbre."
+    },
+    {
+      "skill_code": "INS.TECHNIQUE",
+      "musical_element": "Instrumentation",
+      "skill_name": "Playing technique",
+      "description": "Recognise an instrumental or vocal playing technique."
+    },
+    {
+      "skill_code": "INS.ENSEMBLE",
+      "musical_element": "Instrumentation",
+      "skill_name": "Ensemble and performing forces",
+      "description": "Identify an ensemble or combination of performing forces."
+    },
+    {
+      "skill_code": "INS.ROLE",
+      "musical_element": "Instrumentation",
+      "skill_name": "Musical role",
+      "description": "Identify melody, accompaniment or other instrumental roles."
+    },
+    {
+      "skill_code": "MEL.DIRECTION",
+      "musical_element": "Melody",
+      "skill_name": "Melodic direction",
+      "description": "Recognise ascending, descending and repeated motion."
+    },
+    {
+      "skill_code": "MEL.INTERVAL.NUMBER",
+      "musical_element": "Melody",
+      "skill_name": "Interval number",
+      "description": "Recognise the numerical size of a melodic interval."
+    },
+    {
+      "skill_code": "MEL.INTERVAL.QUALITY",
+      "musical_element": "Melody",
+      "skill_name": "Interval quality",
+      "description": "Recognise the full quality and number of a melodic interval."
+    },
+    {
+      "skill_code": "MEL.DICTATION.PITCH",
+      "musical_element": "Melody",
+      "skill_name": "Melodic dictation pitch",
+      "description": "Place or identify pitches in a heard melody."
+    },
+    {
+      "skill_code": "MEL.DEVICE",
+      "musical_element": "Melody",
+      "skill_name": "Melodic device",
+      "description": "Recognise and name a melodic device."
+    },
+    {
+      "skill_code": "MEL.ORNAMENT",
+      "musical_element": "Melody",
+      "skill_name": "Ornamentation",
+      "description": "Recognise and name an ornament."
+    },
+    {
+      "skill_code": "RHY.METRE",
+      "musical_element": "Meter and rhythm",
+      "skill_name": "Metre classification",
+      "description": "Recognise simple, compound, regular and irregular metre."
+    },
+    {
+      "skill_code": "RHY.TIME_SIGNATURE",
+      "musical_element": "Meter and rhythm",
+      "skill_name": "Time signature",
+      "description": "Identify or write the time signature."
+    },
+    {
+      "skill_code": "RHY.PULSE",
+      "musical_element": "Meter and rhythm",
+      "skill_name": "Pulse",
+      "description": "Recognise the beat grouping and main pulse."
+    },
+    {
+      "skill_code": "RHY.TEMPO",
+      "musical_element": "Meter and rhythm",
+      "skill_name": "Tempo",
+      "description": "Recognise, describe or estimate tempo."
+    },
+    {
+      "skill_code": "RHY.DEVICE",
+      "musical_element": "Meter and rhythm",
+      "skill_name": "Rhythmic device",
+      "description": "Recognise rhythmic features such as syncopation, dotted rhythm or ostinato."
+    },
+    {
+      "skill_code": "TEX.TYPE",
+      "musical_element": "Texture",
+      "skill_name": "Texture type",
+      "description": "Recognise and name musical texture."
+    },
+    {
+      "skill_code": "TEX.ROLE",
+      "musical_element": "Texture",
+      "skill_name": "Textural roles",
+      "description": "Distinguish melody, accompaniment and independent parts."
+    },
+    {
+      "skill_code": "HAR.TONALITY",
+      "musical_element": "Harmony and tonality",
+      "skill_name": "Tonality and key",
+      "description": "Recognise key, major/minor tonality or modality."
+    },
+    {
+      "skill_code": "HAR.CADENCE",
+      "musical_element": "Harmony and tonality",
+      "skill_name": "Cadence",
+      "description": "Recognise and name a cadence."
+    },
+    {
+      "skill_code": "HAR.CHORD",
+      "musical_element": "Harmony and tonality",
+      "skill_name": "Chords and harmony",
+      "description": "Recognise chords, harmonic devices or harmonic movement."
+    },
+    {
+      "skill_code": "DYN.LEVEL",
+      "musical_element": "Dynamics and articulation",
+      "skill_name": "Dynamic level",
+      "description": "Recognise a dynamic level."
+    },
+    {
+      "skill_code": "DYN.CHANGE",
+      "musical_element": "Dynamics and articulation",
+      "skill_name": "Dynamic change",
+      "description": "Recognise a crescendo, diminuendo or other dynamic change."
+    },
+    {
+      "skill_code": "ART.TYPE",
+      "musical_element": "Dynamics and articulation",
+      "skill_name": "Articulation",
+      "description": "Recognise articulation and phrasing."
+    },
+    {
+      "skill_code": "STR.FORM",
+      "musical_element": "Structure and form",
+      "skill_name": "Form and structure",
+      "description": "Recognise a form, section or structural plan."
+    },
+    {
+      "skill_code": "STR.DEVICE",
+      "musical_element": "Structure and form",
+      "skill_name": "Structural device",
+      "description": "Recognise repetition, contrast, sequence or other structural process."
+    },
+    {
+      "skill_code": "CTX.PERIOD",
+      "musical_element": "Context and genre",
+      "skill_name": "Historical period",
+      "description": "Identify a musical period from heard characteristics."
+    },
+    {
+      "skill_code": "CTX.GENRE",
+      "musical_element": "Context and genre",
+      "skill_name": "Genre and style",
+      "description": "Identify genre, style or tradition."
+    },
+    {
+      "skill_code": "CTX.TECHNOLOGY",
+      "musical_element": "Context and genre",
+      "skill_name": "Music technology",
+      "description": "Recognise production and music-technology techniques."
+    },
+    {
+      "skill_code": "NOT.SCORE_READING",
+      "musical_element": "Notation and exam application",
+      "skill_name": "Score reading",
+      "description": "Use a supplied score to locate or identify musical features."
+    },
+    {
+      "skill_code": "EXM.WRITTEN",
+      "musical_element": "Notation and exam application",
+      "skill_name": "Written musical explanation",
+      "description": "Apply musical vocabulary in a written exam response."
+    },
+    {
+      "skill_code": "EXM.COMPARISON",
+      "musical_element": "Notation and exam application",
+      "skill_name": "Comparison",
+      "description": "Compare musical features across passages or extracts."
+    }
+  ]
+}

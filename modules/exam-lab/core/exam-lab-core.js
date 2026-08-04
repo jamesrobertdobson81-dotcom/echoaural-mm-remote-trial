@@ -53,14 +53,20 @@
 
   function serialisePublicQuestion(question, index) {
     const responseType = cleanText(question.responseType, 40);
+    const options = responseType === "multiple-choice"
+      ? (Array.isArray(question.options) ? question.options.map((option) => cleanText(option, 240)) : [])
+      : responseType === "rhythm-choice"
+        ? (Array.isArray(question.options) ? question.options.map((option, optionIndex) => ({
+          id: `option-${optionIndex + 1}`,
+          pattern: Array.isArray(option?.pattern) ? option.pattern.map((group) => cleanText(group, 40)) : []
+        })) : [])
+        : [];
     return {
       id: publicQuestionId(index),
       number: Number(question.number || index + 1),
       prompt: cleanText(question.prompt, 1000),
       responseType,
-      options: responseType === "multiple-choice"
-        ? (Array.isArray(question.options) ? question.options.map((option) => cleanText(option, 240)) : [])
-        : [],
+      options,
       placeholder: cleanText(question.placeholder, 240),
       marks: Number(question.marks || 1)
     };
@@ -79,6 +85,15 @@
       score: extract.score ? moduleAssetPath(options.scoreUrl || "") : "",
       scoreAlt: extract.score ? "Printed score for the listening extract." : "",
       scoreRequired: Boolean(extract.scoreRequired || extract.score),
+      scoreMasks: extract.score && Array.isArray(extract.scoreMasks)
+        ? extract.scoreMasks.map((mask) => ({
+          type: mask?.type === "blank-stave" ? "blank-stave" : "plain",
+          left: Math.max(0, Math.min(100, Number(mask?.left) || 0)),
+          top: Math.max(0, Math.min(100, Number(mask?.top) || 0)),
+          width: Math.max(0, Math.min(100, Number(mask?.width) || 0)),
+          height: Math.max(0, Math.min(100, Number(mask?.height) || 0))
+        }))
+        : [],
       questions: extract.questions.map(serialisePublicQuestion),
       ...(includeAudio ? { audio: moduleAssetPath(options.audioUrl || "") } : {})
     };
@@ -187,11 +202,24 @@
     return [source.composer, source.work, source.movement].map((item) => cleanText(item, 240)).filter(Boolean).join(" — ");
   }
 
+  function markingAnswerFor(question, answer, options = {}) {
+    if (question.responseType !== "rhythm-choice") return answer;
+    const rhythmOptions = Array.isArray(question.options) ? question.options : [];
+    const publicMatch = /^option-(\d+)$/.exec(cleanText(answer, 40));
+    if (publicMatch) {
+      return cleanText(rhythmOptions[Number(publicMatch[1]) - 1]?.id, 120);
+    }
+    if (options.allowInternalIds && rhythmOptions.some((option) => cleanText(option?.id, 120) === cleanText(answer, 120))) {
+      return answer;
+    }
+    return "";
+  }
+
   function markExtract(extract, rawAnswers, options = {}) {
     const { questions } = validateExtract(extract);
     const answers = normaliseAnswers(extract, rawAnswers, options);
     const outcomes = questions.map((question, index) => {
-      const markingResult = markQuestion(question, answers[index]);
+      const markingResult = markQuestion(question, markingAnswerFor(question, answers[index], options));
       const marks = Math.max(0, Math.min(Number(question.marks || 0), Number(markingResult.marks || 0)));
       const details = Array.isArray(markingResult.details) ? markingResult.details.map((detail) => ({
         id: cleanText(detail.id, 120),

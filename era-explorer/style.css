@@ -1,0 +1,99 @@
+@import url("../modules/instrument-identifier/style.css");
+
+/* ContextCoach (Era Explorer) — chart rose accent #FF7AC8 */
+.app-shell[data-brand-app="context-coach"] {
+  --module-accent: #FF7AC8;
+}
+
+.topbar-ii-gradient,
+.ii-title-gradient,
+.console-title-gradient {
+  background: none;
+  color: #FF7AC8;
+  -webkit-text-fill-color: #FF7AC8;
+  text-shadow: 0 0 12px rgba(255, 122, 200, .35);
+  animation: none;
+}
+
+.era-transparent-placeholder {
+  color: transparent;
+  background:
+    radial-gradient(circle at 70% 18%, rgba(255, 122, 200, .12), transparent 42%),
+    rgba(5, 13, 28, .28);
+}
+
+.quiz-panel.is-active .console-actions-replay {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.quiz-panel.is-active #nextButton {
+  min-width: 172px;
+}
+
+.quiz-panel.is-complete #nextButton {
+  display: none !important;
+}
+
+.answer-option .option-label {
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+  font-size: 1.05em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* Full-colour era/composer tiles: no II invert filter, no dark shell wrapper. */
+.era-tile-icon-shell,
+.era-period-icon-shell {
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 22% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.era-tile-icon-img,
+.era-period-icon-img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 0 !important;
+  filter: none !important;
+  /* Crop past any residual corner fringe so the tile fills the shell cleanly. */
+  transform: scale(1.08) !important;
+  transform-origin: center center !important;
+}
+
+/* Module branding tile — full colour, no white SVG invert. */
+.topbar-module-icon,
+.ii-hero-icon,
+.console-ii-icon,
+.answer-empty-icon {
+  overflow: hidden !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.topbar-module-icon img,
+.ii-hero-icon img,
+.console-ii-icon img,
+.answer-empty-icon img {
+  filter: none !important;
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: scale(1.06);
+  transform-origin: center center;
+}
+
+@media (max-width: 760px) {
+  .quiz-panel.is-active .console-actions-replay {
+    gap: 8px;
+  }
+}

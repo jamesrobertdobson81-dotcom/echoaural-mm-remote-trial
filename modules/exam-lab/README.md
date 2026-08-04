@@ -1,6 +1,6 @@
 # EchoAural Exam Lab
 
-Three self-contained question sets using supplied skeleton scores and audio extracts. Exam Lab is available both as independent practice and as an authenticated, teacher-controlled Classroom Live activity.
+Eleven self-contained question sets using supplied audio extracts, with skeleton scores where required. Exam Lab is available both as independent practice and as an authenticated, teacher-controlled Classroom Live activity. EXL009 and EXL010 are reserved for later addition.
 
 ## Included
 
@@ -12,6 +12,14 @@ Three self-contained question sets using supplied skeleton scores and audio extr
 - EXL001: seven questions / nine marks
 - EXL002: eight questions / nine marks
 - EXL003: eight questions / ten marks
+- EXL004: seven questions / ten marks
+- EXL005: eight questions / ten marks
+- EXL006: eight questions / ten marks
+- EXL007: seven questions / ten marks
+- EXL008: twelve questions / twelve marks
+- EXL011: eleven questions / eleven marks (score-free)
+- EXL012: eleven questions / eleven marks (score-free)
+- EXL013: eleven questions / eleven marks (score-free)
 - deterministic marking and model answers
 - Cambridge requirement IDs and skill tags per question
 - targeted route metadata for smaller EchoAural apps
@@ -32,19 +40,15 @@ Open `index.html`, or serve the project normally and visit:
 
 `/modules/exam-lab/index.html`
 
-EXL003 opens by default. The extract selector can open any installed set. Direct links remain available at:
+EXL008 opens by default. The extract selector can open any installed set. Direct links use:
 
-`/modules/exam-lab/index.html?extract=EXL001`
-
-`/modules/exam-lab/index.html?extract=EXL002`
-
-`/modules/exam-lab/index.html?extract=EXL003`
+`/modules/exam-lab/index.html?extract=EXL001` through `/modules/exam-lab/index.html?extract=EXL008`, plus `EXL011`, `EXL012` and `EXL013`
 
 ## Classroom Live
 
 Teachers launch Exam Lab from Teacher Dashboard’s **Start Exam Lab** action. The dashboard offers existing active-class selection but deliberately has no extract picker. The existing Classroom Live server creates the room, selects one whole enabled extract, stores that selection privately in the in-memory room, and returns the standard room code and join link.
 
-The selected extract does not change on polling, student reconnect, or teacher refresh while that room survives. A bounded two-item recent list is held per teacher in server memory. With the current three extracts, selection prefers the extract outside that teacher’s last two sessions and falls back to the complete pool if no non-recent option exists. This recent list does **not** survive a server restart; persisting it did not justify a new database subsystem at this stage.
+The selected extract does not change on polling, student reconnect, or teacher refresh while that room survives. A bounded two-item recent list is held per teacher in server memory. With the current eleven extracts, selection prefers an extract outside that teacher’s last two sessions and falls back to the complete pool if no non-recent option exists. This recent list does **not** survive a server restart; persisting it did not justify a new database subsystem at this stage.
 
 Exam Lab rooms require an authenticated teacher. Students must use an active EchoAural student account belonging to that teacher, and must belong to the selected class when a class is specified. Teacher control endpoints verify room ownership. The score asset is served only to the owner or a joined authorised student; the audio asset is served only to the owning teacher. Student state contains neither an audio path nor playback controls.
 

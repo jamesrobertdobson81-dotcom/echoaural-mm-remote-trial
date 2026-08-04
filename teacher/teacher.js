@@ -119,6 +119,7 @@ const TEACHER_MODULE_CATALOG = [
   { id: 'mixed', title: 'Mixed Apps', shortLabel: 'MIX', active: true, status: 'Live', iconPath: '/assets/icons/dashboard/progress-mode.png' },
   { id: 'exam-lab', title: 'Exam Lab', shortLabel: 'EL', active: true, status: 'Live', iconPath: '/assets/icons/modules/exam-lab.png' },
   { id: 'cadence-coach', title: 'Cadence Coach', shortLabel: 'CC', active: false, status: 'Coming Soon' },
+  { id: 'context-coach', title: 'ContextCoach', shortLabel: 'CX', active: false, status: 'Coming Soon', iconPath: '/assets/icons/modules/context-coach.png' },
   { id: 'texture-trainer', title: 'Texture Trainer', shortLabel: 'TT', active: false, status: 'Coming Soon' },
   { id: 'meter-master', title: 'Meter Master', shortLabel: 'MT', active: false, status: 'Coming Soon' },
   { id: 'harmony-explorer', title: 'Harmony Explorer', shortLabel: 'HX', active: false, status: 'Coming Soon' }

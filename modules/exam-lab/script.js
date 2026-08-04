@@ -21,7 +21,15 @@
     audioProgress: $("audioProgress"),
     currentTime: $("currentTime"),
     durationTime: $("durationTime"),
+    referencePanel: $("referencePanel"),
+    scoreStage: $("scoreStage"),
+    auralOnlyStage: $("auralOnlyStage"),
+    auralEyebrow: $("auralEyebrow"),
+    auralTitle: $("auralTitle"),
+    auralDescription: $("auralDescription"),
+    auralPassageGuide: $("auralPassageGuide"),
     scoreImage: $("scoreImage"),
+    scoreMasks: $("scoreMasks"),
     scoreCanvas: $("scoreCanvas"),
     scoreScroll: $("scoreScroll"),
     zoomIn: $("zoomInButton"),
@@ -46,7 +54,8 @@
     submitted: false,
     zoom: 1,
     lastResult: null,
-    startingPlayback: false
+    startingPlayback: false,
+    rhythmOptionOrders: new Map()
   };
 
   const formatTime = (seconds) => {
@@ -56,7 +65,58 @@
     return `${mins}:${secs}`;
   };
 
-  function renderQuestions() {
+  function shuffledRhythmOptions(question, forceShuffle = false) {
+    if (!forceShuffle && state.rhythmOptionOrders.has(question.id)) return state.rhythmOptionOrders.get(question.id);
+    const options = question.options.slice();
+    for (let index = options.length - 1; index > 0; index -= 1) {
+      const target = Math.floor(Math.random() * (index + 1));
+      [options[index], options[target]] = [options[target], options[index]];
+    }
+    state.rhythmOptionOrders.set(question.id, options);
+    return options;
+  }
+
+  function rhythmNote(x, y = 46) {
+    return `<ellipse cx="${x}" cy="${y}" rx="7" ry="4.6" transform="rotate(-18 ${x} ${y})"></ellipse><path d="M${x + 6} ${y - 1}V18"></path>`;
+  }
+
+  function rhythmGroup(type, start) {
+    if (type === "q-ss") {
+      const notes = [start, start + 29, start + 49];
+      return `${notes.map((x) => rhythmNote(x)).join("")}<path class="rhythm-beam" d="M${start + 5} 18H${start + 55}V23H${start + 5}Z"></path><path class="rhythm-beam" d="M${start + 34} 25H${start + 55}V30H${start + 34}Z"></path>`;
+    }
+    if (type === "ssss") {
+      const notes = [start, start + 19, start + 38, start + 57];
+      return `${notes.map((x) => rhythmNote(x)).join("")}<path class="rhythm-beam" d="M${start + 5} 18H${start + 63}V23H${start + 5}Z"></path><path class="rhythm-beam" d="M${start + 5} 25H${start + 63}V30H${start + 5}Z"></path>`;
+    }
+    if (type === "crotchet") return rhythmNote(start + 30);
+    if (type === "qq") {
+      const notes = [start + 8, start + 48];
+      return `${notes.map((x) => rhythmNote(x)).join("")}<path class="rhythm-beam" d="M${start + 13} 18H${start + 54}V23H${start + 13}Z"></path>`;
+    }
+    const notes = [start + 8, start + 49];
+    return `${notes.map((x) => rhythmNote(x)).join("")}<circle class="rhythm-dot" cx="${start + 20}" cy="43" r="2.2"></circle><path class="rhythm-beam" d="M${start + 13} 18H${start + 55}V23H${start + 13}Z"></path><path class="rhythm-beam" d="M${start + 39} 25H${start + 55}V30H${start + 39}Z"></path>`;
+  }
+
+  function renderRhythmNotation(pattern) {
+    const starts = [18, 108, 198];
+    return `<svg class="rhythm-notation" viewBox="0 0 286 78" role="img" aria-label="Notated rhythm option">
+      <g class="rhythm-staff">${[27, 36, 45, 54, 63].map((y) => `<path d="M5 ${y}H280"></path>`).join("")}<path class="rhythm-barline" d="M280 27V63"></path></g>
+      <g class="rhythm-notes">${pattern.map((group, index) => rhythmGroup(group, starts[index])).join("")}</g>
+    </svg>`;
+  }
+
+  function renderScoreMasks() {
+    els.scoreMasks.innerHTML = (set.scoreMasks || []).map((mask) => {
+      const style = `left:${Number(mask.left)}%;top:${Number(mask.top)}%;width:${Number(mask.width)}%;height:${Number(mask.height)}%;`;
+      if (mask.type === "blank-stave") {
+        return `<span class="score-mask score-mask-blank-stave" style="${style}"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${[31, 43, 55, 67, 79].map((y) => `<line x1="0" y1="${y}" x2="100" y2="${y}"></line>`).join("")}</svg></span>`;
+      }
+      return `<span class="score-mask score-mask-plain" style="${style}"></span>`;
+    }).join("");
+  }
+
+  function renderQuestions(forceRhythmShuffle = false) {
     els.questionList.innerHTML = set.questions.map((q) => {
       const inputId = `answer-${q.id}`;
       let response = "";
@@ -66,6 +126,13 @@
           ${q.options.map((option, index) => `<label class="choice-option">
             <input type="radio" name="${q.id}" value="${escapeHtml(option)}" ${index === 0 ? "" : ""} />
             <span>${escapeHtml(option)}</span>
+          </label>`).join("")}
+        </div>`;
+      } else if (q.responseType === "rhythm-choice") {
+        response = `<div class="rhythm-choice-grid" role="radiogroup" aria-label="${escapeHtml(q.prompt)}">
+          ${shuffledRhythmOptions(q, forceRhythmShuffle).map((option, index) => `<label class="rhythm-choice-option">
+            <input type="radio" name="${q.id}" value="${escapeHtml(option.id)}" />
+            <span><strong>${String.fromCharCode(65 + index)}</strong>${renderRhythmNotation(option.pattern)}</span>
           </label>`).join("")}
         </div>`;
       } else if (q.responseType === "extended-text") {
@@ -78,7 +145,7 @@
         <div class="question-head">
           <span class="question-number">${q.number}</span>
           <div class="question-copy">
-            ${q.responseType === "multiple-choice" ? `<span class="question-label">${escapeHtml(q.prompt)}</span>` : `<label for="${inputId}">${escapeHtml(q.prompt)}</label>`}
+            ${q.responseType === "multiple-choice" || q.responseType === "rhythm-choice" ? `<span class="question-label">${escapeHtml(q.prompt)}</span>` : `<label for="${inputId}">${escapeHtml(q.prompt)}</label>`}
           </div>
           <span class="question-marks">[${q.marks}]</span>
         </div>
@@ -93,7 +160,7 @@
   }
 
   function getAnswer(q) {
-    if (q.responseType === "multiple-choice") {
+    if (q.responseType === "multiple-choice" || q.responseType === "rhythm-choice") {
       return els.answerForm.querySelector(`input[name="${q.id}"]:checked`)?.value || "";
     }
     return els.answerForm.elements[q.id]?.value || "";
@@ -177,7 +244,11 @@
           : `<span class="route-link planned">${escapeHtml(routeText)}</span>`;
       const detail = renderMarkingDetail(q, result);
       let message;
-      if (q.markingFeedbackMode === "answer-coach") {
+      if (q.markingFeedbackMode === "two-change") {
+        message = result.correct ? "Two distinct changes credited." : `${result.marks} of 2 changes credited.`;
+      } else if (q.markingFeedbackMode === "paired-comparison") {
+        message = result.correct ? "Two distinct paired comparisons credited." : `${result.marks} of 2 paired comparisons credited.`;
+      } else if (q.markingFeedbackMode === "answer-coach") {
         message = result.correct ? "Two distinct musical reasons credited." : `${result.marks} of 2 musical reasons credited.`;
       } else if (q.showAllMarkPoints) {
         message = result.correct ? "Both mark points credited." : "Review the two separate mark points.";
@@ -193,15 +264,24 @@
   }
 
   function renderMarkingDetail(q, result) {
+    if (q.markingFeedbackMode === "two-change") {
+      const credited = result.details.filter((detail) => detail.credited).slice(0, q.marks);
+      const changes = [0, 1].map((index) => {
+        const detail = credited[index];
+        return `<li class="${detail ? "is-credited" : "is-uncredited"}"><strong>Change ${index + 1}:</strong> ${detail ? escapeHtml(detail.label) : "Missing point."}</li>`;
+      }).join("");
+      return `<ul class="mark-point-feedback">${changes}</ul>`;
+    }
+
     if (q.showAllMarkPoints) {
       return `<ul class="mark-point-feedback">${result.details.map((detail) => `<li class="${detail.credited ? "is-credited" : "is-uncredited"}"><strong>${detail.credited ? "Credited" : "Not credited"}:</strong> ${escapeHtml(detail.label)}</li>`).join("")}</ul>`;
     }
 
-    if (q.markingFeedbackMode === "answer-coach") {
-      const credited = result.details.filter((detail) => detail.credited);
+    if (q.markingFeedbackMode === "answer-coach" || q.markingFeedbackMode === "paired-comparison") {
+      const credited = result.details.filter((detail) => detail.credited).slice(0, q.marks);
       const creditedItems = credited.length
         ? credited.map((detail) => `<li class="is-credited"><strong>${escapeHtml(detail.label)}:</strong> ${escapeHtml(detail.explanation)}</li>`).join("")
-        : "<li class=\"is-uncredited\">No valid musical feature was credited.</li>";
+        : `<li class="is-uncredited">No valid ${q.markingFeedbackMode === "paired-comparison" ? "paired comparison" : "musical feature"} was credited.</li>`;
       const issues = result.marks < q.marks && result.issues.length
         ? `<div class="answer-coach-issues">${result.issues.map((issue) => `<span>${escapeHtml(issue)}</span>`).join("")}</div>`
         : "";
@@ -287,9 +367,7 @@
     state.submitted = false;
     state.lastResult = null;
     els.answerForm.reset();
-    els.answerForm.querySelectorAll("input, textarea").forEach((field) => { field.disabled = false; });
-    els.questionList.querySelectorAll(".question-card").forEach((card) => card.classList.remove("is-correct", "is-incorrect"));
-    els.questionList.querySelectorAll(".question-feedback").forEach((feedback) => { feedback.hidden = true; feedback.innerHTML = ""; });
+    renderQuestions(true);
     closeSummary();
     els.resultSummary.innerHTML = "";
     els.submitButton.hidden = false;
@@ -371,8 +449,28 @@
     els.extractIdBadge.textContent = set.id;
     els.extractMarksBadge.textContent = `${set.totalMarks} marks`;
     els.audio.src = set.audio;
-    els.scoreImage.src = set.score;
-    els.scoreImage.alt = set.scoreAlt;
+    const hasScore = Boolean(set.scoreRequired !== false && set.score);
+    document.body.classList.toggle("score-free-extract", !hasScore);
+    els.referencePanel.setAttribute("aria-label", hasScore ? "Skeleton score" : "Aural-only listening reference");
+    els.scoreStage.hidden = !hasScore;
+    els.auralOnlyStage.hidden = hasScore;
+    if (hasScore) {
+      els.scoreImage.src = set.score;
+      els.scoreImage.alt = set.scoreAlt;
+      renderScoreMasks();
+    } else {
+      els.scoreImage.removeAttribute("src");
+      els.scoreImage.alt = "";
+      els.scoreMasks.innerHTML = "";
+      const guide = set.listeningGuide || [];
+      els.auralEyebrow.textContent = set.lyricsRequired ? "MUSIC AND WORDS" : "AURAL-ONLY EXTRACT";
+      els.auralTitle.textContent = guide.length ? "Listen with a passage guide" : "Listen without a score";
+      els.auralDescription.textContent = guide.length
+        ? "No skeleton score is supplied. Use the guide to locate the two passages while listening."
+        : "No skeleton score is supplied for this extract. Base each answer on what you hear.";
+      els.auralPassageGuide.innerHTML = guide.map((passage) => `<div><strong>${escapeHtml(passage.label)}</strong><span>${escapeHtml(passage.text)}</span></div>`).join("");
+      els.auralPassageGuide.hidden = !guide.length;
+    }
     els.durationTime.textContent = "0:00";
     updateCompletion();
     updatePlayUI();

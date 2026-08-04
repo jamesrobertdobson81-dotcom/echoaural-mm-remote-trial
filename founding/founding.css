@@ -381,7 +381,7 @@ summary:focus-visible {
 .preview-apps {
   margin-top: 34px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
 }
 
@@ -425,7 +425,7 @@ summary:focus-visible {
     drop-shadow(0 0 10px rgba(56,189,248,.18));
 }
 
-.preview-app-icon img[src$=".png"] {
+.preview-app-icon img[src*=".png"] {
   width: 100%;
   height: 100%;
   border-radius: inherit;
@@ -702,8 +702,8 @@ summary:focus-visible {
   filter: brightness(0) invert(1);
 }
 
-.app-icon img[src$=".png"],
-.mode-icon img[src$=".png"] {
+.app-icon img[src*=".png"],
+.mode-icon img[src*=".png"] {
   width: 100%;
   height: 100%;
   border-radius: inherit;
@@ -1388,9 +1388,9 @@ summary:focus-visible {
   overflow: hidden;
 }
 
-.preview-app-icon img[src$=".png"],
-.app-icon img[src$=".png"],
-.mode-icon img[src$=".png"] {
+.preview-app-icon img[src*=".png"],
+.app-icon img[src*=".png"],
+.mode-icon img[src*=".png"] {
   position: absolute;
   inset: 0;
   width: 100% !important;

@@ -5,7 +5,19 @@ const path = require('path');
 const vm = require('vm');
 const core = require('./core/exam-lab-core.js');
 
-const DATA_FILES = ['exl001.js', 'exl002.js', 'exl003.js'];
+const DATA_FILES = [
+  'exl001.js',
+  'exl002.js',
+  'exl003.js',
+  'exl004.js',
+  'exl005.js',
+  'exl006.js',
+  'exl007.js',
+  'exl008.js',
+  'exl011.js',
+  'exl012.js',
+  'exl013.js'
+];
 let cachedRegistry = null;
 
 function loadRegistry(options = {}) {

@@ -24,3 +24,11 @@ backups/
 *-backup-*/
 *.backup-*
 *.backup
+
+# Local branding backup / temp crops
+echoaural-5-pre-rebrand.tar.gz
+_backup_echoaural_5/
+.tmp-brand-crops/
+.tmp-brand-pack/
+.tmp-exl*/
+RESTORE-ECHOAURAL-5-BACKUP.command

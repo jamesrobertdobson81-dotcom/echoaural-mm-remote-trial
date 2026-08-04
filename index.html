@@ -13,6 +13,7 @@
 
   <link rel="stylesheet" href="shared/css/brand.css" />
   <link rel="stylesheet" href="/shared/css/login-modals.css" />
+  <link rel="stylesheet" href="shared/css/ea-brand-logos.css" />
 </head>
 
 <body>
@@ -72,19 +73,7 @@
     <section class="hero-stage" aria-label="EchoAural homepage hero">
       <section class="module-launcher" id="apps" aria-label="EchoAural app modules">
         <div class="launcher-heading">
-          <p class="launcher-kicker">Choose a listening skill.</p>
-
-          <h2 class="launcher-brand-title refined-launcher-title">
-            <span class="launcher-title-wave" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
-            </span>
-
-            <span class="launcher-title-wordmark">
-              <span class="launcher-title-echo">Echo</span><span class="launcher-title-aural">Aural</span>
-            </span>
-
-            <span class="launcher-title-apps">Apps</span>
-          </h2>
+          <p class="launcher-kicker">Choose an App</p>
         </div>
 
         <div class="module-grid module-grid-main">
@@ -102,7 +91,7 @@
             </span>
             <span class="module-icon" data-fallback="II">
               <img
-                src="assets/icons/modules/instrument-identifier.png"
+                src="assets/icons/modules/instrument-identifier.png?v=7"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
@@ -116,8 +105,6 @@
               </span>
             </span>
             <span class="sr-only">Instrument Identifier</span>
-
-            <span class="module-status live-status">Live</span>
           </a>
 
           <a class="module-card live" href="#apps" data-launch-url="modules/melody-master/index.html" aria-label="Launch Melody Master">
@@ -134,7 +121,7 @@
             </span>
             <span class="module-icon" data-fallback="MM">
               <img
-                src="assets/icons/modules/melody-master.png"
+                src="assets/icons/modules/melody-master.png?v=7"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
@@ -148,8 +135,6 @@
               </span>
             </span>
             <span class="sr-only">Melody Master</span>
-
-            <span class="module-status live-status">Live</span>
           </a>
 
           <a class="module-card live" href="#apps" data-launch-url="modules/texture-trainer/index.html" aria-label="Launch Texture Trainer">
@@ -166,7 +151,7 @@
             </span>
             <span class="module-icon" data-fallback="TT">
               <img
-                src="assets/icons/modules/texture-trainer.png"
+                src="assets/icons/modules/texture-trainer.png?v=7"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
@@ -180,8 +165,6 @@
               </span>
             </span>
             <span class="sr-only">Texture Trainer</span>
-
-            <span class="module-status live-status">Live</span>
           </a>
 
           <a class="module-card live" href="#apps" data-launch-url="modules/meter-master/index.html" aria-label="Launch Meter Master">
@@ -198,7 +181,8 @@
             </span>
             <span class="module-icon" data-fallback="MT">
               <img
-                src="assets/icons/modules/meter-master.png"
+                class="meter-master-logo"
+                src="assets/icons/modules/meter-master.png?v=7"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
@@ -212,8 +196,6 @@
               </span>
             </span>
             <span class="sr-only">Meter Master</span>
-
-            <span class="module-status live-status">Live</span>
           </a>
 
           <a class="module-card locked" href="#apps" data-module="Harmony Explorer" aria-label="Harmony Explorer coming soon">
@@ -230,7 +212,7 @@
             </span>
             <span class="module-icon" data-fallback="HX">
               <img
-                src="assets/icons/modules/harmony-explorer.png"
+                src="assets/icons/modules/harmony-explorer.png?v=7"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
@@ -244,8 +226,36 @@
               </span>
             </span>
             <span class="sr-only">Harmony Explorer</span>
+          </a>
 
-            <span class="module-status">Coming Soon</span>
+          <a class="module-card live" href="#apps" data-launch-url="era-explorer/index.html" aria-label="Launch ContextCoach">
+            <span class="module-card-waveform" aria-hidden="true">
+              <span style="--h: 28%; --delay: 0s;"></span>
+              <span style="--h: 48%; --delay: .06s;"></span>
+              <span style="--h: 76%; --delay: .12s;"></span>
+              <span style="--h: 100%; --delay: .18s;"></span>
+              <span style="--h: 68%; --delay: .24s;"></span>
+              <span style="--h: 42%; --delay: .30s;"></span>
+              <span style="--h: 58%; --delay: .36s;"></span>
+              <span style="--h: 84%; --delay: .42s;"></span>
+              <span style="--h: 62%; --delay: .48s;"></span>
+            </span>
+            <span class="module-icon" data-fallback="CC">
+              <img
+                src="assets/icons/modules/context-coach.png?v=2"
+                alt=""
+                aria-hidden="true"
+                onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
+              />
+            </span>
+
+            <span class="module-title-wordmark" aria-hidden="true">
+              <span class="module-title-text">
+                <span class="module-title-main">Context</span>
+                <span class="module-title-gradient">Coach</span>
+              </span>
+            </span>
+            <span class="sr-only">ContextCoach</span>
           </a>
         </div>
 
@@ -279,10 +289,9 @@
               </span>
             </span>
             <span class="sr-only">Progress Mode</span>
-            <span class="module-status live-status">Mode</span>
           </button>
 
-          <button class="module-card live module-card-mode" type="button" data-index-disabled="Exam Lab is not available from the homepage." aria-label="Exam Lab unavailable from the homepage">
+          <a class="module-card live module-card-mode" href="modules/exam-lab/index.html" aria-label="Open Exam Lab">
             <span class="module-card-waveform" aria-hidden="true">
               <span style="--h: 28%; --delay: 0s;"></span>
               <span style="--h: 48%; --delay: .06s;"></span>
@@ -309,8 +318,7 @@
               </span>
             </span>
             <span class="sr-only">Exam Lab</span>
-            <span class="module-status live-status">Live</span>
-          </button>
+          </a>
 
           <button class="module-card live module-card-mode" type="button" aria-label="Live Session">
             <span class="module-card-waveform" aria-hidden="true">
@@ -339,7 +347,35 @@
               </span>
             </span>
             <span class="sr-only">Live Session</span>
-            <span class="module-status live-status">Classroom</span>
+          </button>
+
+          <button class="module-card live module-card-mode" type="button" aria-label="Homework Mode">
+            <span class="module-card-waveform" aria-hidden="true">
+              <span style="--h: 28%; --delay: 0s;"></span>
+              <span style="--h: 48%; --delay: .06s;"></span>
+              <span style="--h: 76%; --delay: .12s;"></span>
+              <span style="--h: 100%; --delay: .18s;"></span>
+              <span style="--h: 68%; --delay: .24s;"></span>
+              <span style="--h: 42%; --delay: .30s;"></span>
+              <span style="--h: 58%; --delay: .36s;"></span>
+              <span style="--h: 84%; --delay: .42s;"></span>
+              <span style="--h: 62%; --delay: .48s;"></span>
+            </span>
+            <span class="module-icon" data-fallback="HW">
+              <img
+                src="assets/icons/dashboard/homework.png"
+                alt=""
+                aria-hidden="true"
+                onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
+              />
+            </span>
+            <span class="module-title-wordmark" aria-hidden="true">
+              <span class="module-title-text">
+                <span class="module-title-main">Homework</span>
+                <span class="module-title-gradient">Mode</span>
+              </span>
+            </span>
+            <span class="sr-only">Homework Mode</span>
           </button>
         </div>
 
