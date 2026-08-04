@@ -119,7 +119,7 @@ button { cursor: pointer; }
 }
 .account-wordmark-echo { color: white; }
 .account-wordmark-aural {
-  background: var(--brand-gradient);
+  background: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -2718,7 +2718,7 @@ button:disabled { cursor: wait; opacity: .62; transform: none !important; }
   filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(56,189,248,.18));
 }
 
-.teacher-launch-option-v8 .teacher-launch-module-icon-v8 img[src$=".png"] {
+.teacher-launch-option-v8 .teacher-launch-module-icon-v8 img[src*=".png"] {
   width: 100%;
   height: 100%;
   border-radius: inherit;
@@ -3078,9 +3078,9 @@ button:disabled { cursor: wait; opacity: .62; transform: none !important; }
   overflow: hidden;
 }
 
-.category-module-icon-v2 img[src$=".png"],
-.class-module-icon img[src$=".png"],
-.teacher-launch-option-v8 .teacher-launch-module-icon-v8 img[src$=".png"] {
+.category-module-icon-v2 img[src*=".png"],
+.class-module-icon img[src*=".png"],
+.teacher-launch-option-v8 .teacher-launch-module-icon-v8 img[src*=".png"] {
   position: absolute;
   inset: 0;
   width: 100% !important;

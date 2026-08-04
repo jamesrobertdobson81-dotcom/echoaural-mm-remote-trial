@@ -1,0 +1,33 @@
+skill_code,musical_element,skill_name,description
+INS.FAMILY,Instrumentation,Instrument family,Recognise an instrumental family by timbre.
+INS.INDIVIDUAL,Instrumentation,Individual instrument,Recognise and name an individual instrument by timbre.
+INS.TECHNIQUE,Instrumentation,Playing technique,Recognise an instrumental or vocal playing technique.
+INS.ENSEMBLE,Instrumentation,Ensemble and performing forces,Identify an ensemble or combination of performing forces.
+INS.ROLE,Instrumentation,Musical role,"Identify melody, accompaniment or other instrumental roles."
+MEL.DIRECTION,Melody,Melodic direction,"Recognise ascending, descending and repeated motion."
+MEL.INTERVAL.NUMBER,Melody,Interval number,Recognise the numerical size of a melodic interval.
+MEL.INTERVAL.QUALITY,Melody,Interval quality,Recognise the full quality and number of a melodic interval.
+MEL.DICTATION.PITCH,Melody,Melodic dictation pitch,Place or identify pitches in a heard melody.
+MEL.DEVICE,Melody,Melodic device,Recognise and name a melodic device.
+MEL.ORNAMENT,Melody,Ornamentation,Recognise and name an ornament.
+RHY.METRE,Meter and rhythm,Metre classification,"Recognise simple, compound, regular and irregular metre."
+RHY.TIME_SIGNATURE,Meter and rhythm,Time signature,Identify or write the time signature.
+RHY.PULSE,Meter and rhythm,Pulse,Recognise the beat grouping and main pulse.
+RHY.TEMPO,Meter and rhythm,Tempo,"Recognise, describe or estimate tempo."
+RHY.DEVICE,Meter and rhythm,Rhythmic device,"Recognise rhythmic features such as syncopation, dotted rhythm or ostinato."
+TEX.TYPE,Texture,Texture type,Recognise and name musical texture.
+TEX.ROLE,Texture,Textural roles,"Distinguish melody, accompaniment and independent parts."
+HAR.TONALITY,Harmony and tonality,Tonality and key,"Recognise key, major/minor tonality or modality."
+HAR.CADENCE,Harmony and tonality,Cadence,Recognise and name a cadence.
+HAR.CHORD,Harmony and tonality,Chords and harmony,"Recognise chords, harmonic devices or harmonic movement."
+DYN.LEVEL,Dynamics and articulation,Dynamic level,Recognise a dynamic level.
+DYN.CHANGE,Dynamics and articulation,Dynamic change,"Recognise a crescendo, diminuendo or other dynamic change."
+ART.TYPE,Dynamics and articulation,Articulation,Recognise articulation and phrasing.
+STR.FORM,Structure and form,Form and structure,"Recognise a form, section or structural plan."
+STR.DEVICE,Structure and form,Structural device,"Recognise repetition, contrast, sequence or other structural process."
+CTX.PERIOD,Context and genre,Historical period,Identify a musical period from heard characteristics.
+CTX.GENRE,Context and genre,Genre and style,"Identify genre, style or tradition."
+CTX.TECHNOLOGY,Context and genre,Music technology,Recognise production and music-technology techniques.
+NOT.SCORE_READING,Notation and exam application,Score reading,Use a supplied score to locate or identify musical features.
+EXM.WRITTEN,Notation and exam application,Written musical explanation,Apply musical vocabulary in a written exam response.
+EXM.COMPARISON,Notation and exam application,Comparison,Compare musical features across passages or extracts.

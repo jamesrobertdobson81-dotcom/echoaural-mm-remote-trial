@@ -1,6 +1,7 @@
 'use strict';
 
 const { buildCumulativeResults } = require('./scoring');
+const { enrichAnswerData } = require('../shared/js/skill-metadata');
 
 const MODULE_TITLES = {
   mixed: 'Mixed Apps',
@@ -146,7 +147,7 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
       score: number(outcome.marks),
       maximumScore: number(outcome.maxMarks),
       feedback: cleanText(outcome.feedback, 1000),
-      answerData: cleanJson({
+      answerData: cleanJson(enrichAnswerData(outcome.internalQuestionId, {
         source: 'classroom_live',
         submitted,
         roomCode: room.code,
@@ -176,7 +177,7 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
           status: outcome.route.status === 'live' ? 'live' : 'planned',
           focus: cleanText(outcome.route.focus, 300)
         } : {}
-      })
+      }))
     }));
     const score = questions.reduce((sum, question) => sum + question.score, 0);
     const maximumScore = questions.reduce((sum, question) => sum + question.maximumScore, 0);
@@ -221,7 +222,10 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
       score: Math.min(number(result.score), maximumScore || Number.MAX_SAFE_INTEGER),
       maximumScore,
       feedback: cleanText(result.feedback || result.shortComment, 1000),
-      answerData: buildAnswerData(room, rawQuestion, result)
+      answerData: enrichAnswerData(
+        result.questionId || rawQuestion?.id || `Q${index + 1}`,
+        buildAnswerData(room, rawQuestion, result)
+      )
     };
   });
 

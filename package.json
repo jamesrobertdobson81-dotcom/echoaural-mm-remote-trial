@@ -7,8 +7,9 @@
   "scripts": {
     "start": "node server.js",
     "classroom": "node server.js",
-    "check": "node tools/check-project.js && node --test modules/exam-lab/tests/*.test.js && node tools/check-exam-lab-integration.js",
+    "check": "node tools/check-project.js && node tools/check-skill-metadata.js && node --test modules/exam-lab/tests/*.test.js era-explorer/tests/*.test.js && node tools/check-exam-lab-integration.js",
     "check:exam-lab": "node --test modules/exam-lab/tests/*.test.js && node tools/check-exam-lab-integration.js",
+    "check:era-explorer": "node --test era-explorer/tests/*.test.js",
     "generate:mm": "node tools/generate-melody-master-clips.js",
     "generate:ii": "node tools/generate-clips.js",
     "db:start": "bash tools/db-start.sh",

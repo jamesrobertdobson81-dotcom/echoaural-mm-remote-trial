@@ -13,7 +13,7 @@ const marking = require(path.join(moduleRoot, "marking.js"));
 
 function loadQuestionSets() {
   const context = vm.createContext({ window: {} });
-  ["exl001.js", "exl002.js", "exl003.js"].forEach((file) => {
+  ["exl001.js", "exl002.js", "exl003.js", "exl004.js", "exl005.js", "exl006.js", "exl007.js", "exl008.js", "exl011.js", "exl012.js", "exl013.js"].forEach((file) => {
     const source = fs.readFileSync(path.join(moduleRoot, "data", file), "utf8");
     vm.runInContext(source, context, { filename: file });
   });
@@ -47,12 +47,12 @@ function parseCsvRow(row) {
   return cells;
 }
 
-test("registry and extract selector include EXL001, EXL002 and EXL003", () => {
-  assert.deepEqual(Object.keys(sets).sort(), ["EXL001", "EXL002", "EXL003"]);
+test("registry and extract selector include EXL001 to EXL008 and EXL011 to EXL013", () => {
+  assert.deepEqual(Object.keys(sets).sort(), ["EXL001", "EXL002", "EXL003", "EXL004", "EXL005", "EXL006", "EXL007", "EXL008", "EXL011", "EXL012", "EXL013"]);
   const html = fs.readFileSync(path.join(moduleRoot, "index.html"), "utf8");
   assert.match(html, /id="extractSelector"/);
-  ["EXL001", "EXL002", "EXL003"].forEach((id) => assert.match(html, new RegExp(`<option value="${id}">${id}</option>`)));
-  assert.match(html, /data\/exl003\.js/);
+  ["EXL001", "EXL002", "EXL003", "EXL004", "EXL005", "EXL006", "EXL007", "EXL008", "EXL011", "EXL012", "EXL013"].forEach((id) => assert.match(html, new RegExp(`<option value="${id}">${id}</option>`)));
+  assert.match(html, /data\/exl013\.js/);
 });
 
 test("EXL001 and EXL002 retain their established question sets", () => {

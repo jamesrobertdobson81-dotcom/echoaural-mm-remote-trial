@@ -1,0 +1,480 @@
+/* EchoAural logo system — shared mark, thin wordmarks, chart app accents.
+   Import after local module CSS so these rules win for logo lockups only. */
+
+:root {
+  --ea-blue: #3FA6FF;
+  --ea-magenta: #FF5DBA;
+  --ea-teal: #27E1C1;
+  --ea-amber: #FFAA2B;
+  --ea-purple: #A66BFF;
+  --ea-rose: #FF7AC8;
+  --ea-wordmark-gradient: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
+  --ea-waveform-gradient: linear-gradient(90deg, #FF5DBA 0%, #A66BFF 50%, #3FA6FF 100%);
+  --ea-mark-fill: #0A1224;
+}
+
+/* —— Circle / EA / waveform mark —— */
+.brand-wave,
+.refined-wave,
+.account-wave {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex: 0 0 auto !important;
+  box-sizing: border-box !important;
+  width: 62px !important;
+  height: 62px !important;
+  gap: 2.5px !important;
+  padding: 11px 9px 11px 26px !important;
+  border-radius: 50% !important;
+  border: 2px solid transparent !important;
+  background:
+    linear-gradient(var(--ea-mark-fill), var(--ea-mark-fill)) padding-box,
+    var(--ea-waveform-gradient) border-box !important;
+  box-shadow: 0 0 14px rgba(255, 93, 186, .18), 0 0 18px rgba(63, 166, 255, .14) !important;
+  overflow: hidden !important;
+  font-size: 1.55rem !important;
+}
+
+.brand-wave::before,
+.refined-wave::before,
+.account-wave::before {
+  content: "EA" !important;
+  position: absolute !important;
+  left: 16% !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 1 !important;
+  color: #fff !important;
+  font-size: .62em !important;
+  font-weight: 500 !important;
+  letter-spacing: -.05em !important;
+  line-height: 1 !important;
+  pointer-events: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+}
+
+.brand-wave span,
+.refined-wave span,
+.account-wave span {
+  width: 3px !important;
+  min-height: 0 !important;
+  border-radius: 999px !important;
+  flex: 0 0 auto !important;
+  display: block !important;
+  transform-origin: 50% 50% !important;
+  animation: eaWaveIdlePulseResolve 2.4s ease-in-out infinite !important;
+  box-shadow: 0 0 7px rgba(255, 93, 186, .26), 0 0 10px rgba(63, 166, 255, .18) !important;
+}
+
+.brand-wave span:nth-child(1),
+.refined-wave span:nth-child(1),
+.account-wave span:nth-child(1) {
+  height: 22% !important;
+  background: #FF5DBA !important;
+  animation-delay: 0s !important;
+}
+.brand-wave span:nth-child(2),
+.refined-wave span:nth-child(2),
+.account-wave span:nth-child(2) {
+  height: 42% !important;
+  background: linear-gradient(180deg, #FF5DBA, #A66BFF) !important;
+  animation-delay: .08s !important;
+}
+.brand-wave span:nth-child(3),
+.refined-wave span:nth-child(3),
+.account-wave span:nth-child(3) {
+  height: 68% !important;
+  background: #A66BFF !important;
+  animation-delay: .16s !important;
+}
+.brand-wave span:nth-child(4),
+.refined-wave span:nth-child(4),
+.account-wave span:nth-child(4) {
+  height: 92% !important;
+  background: linear-gradient(180deg, #A66BFF, #3FA6FF) !important;
+  animation-delay: .24s !important;
+}
+.brand-wave span:nth-child(5),
+.refined-wave span:nth-child(5),
+.account-wave span:nth-child(5) {
+  height: 64% !important;
+  background: #3FA6FF !important;
+  animation-delay: .32s !important;
+}
+.brand-wave span:nth-child(6),
+.refined-wave span:nth-child(6),
+.account-wave span:nth-child(6) {
+  height: 40% !important;
+  background: linear-gradient(180deg, #3FA6FF, #27E1C1) !important;
+  animation-delay: .4s !important;
+}
+.brand-wave span:nth-child(7),
+.refined-wave span:nth-child(7),
+.account-wave span:nth-child(7) {
+  height: 24% !important;
+  background: #27E1C1 !important;
+  animation-delay: .48s !important;
+}
+
+.product-nav .refined-wave,
+.product-nav .brand-wave {
+  width: 78px !important;
+  height: 78px !important;
+  gap: 3px !important;
+  padding: 14px 12px 14px 34px !important;
+  font-size: 2.05rem !important;
+}
+
+.brand-lockup.small .refined-wave,
+.brand-lockup.small .brand-wave {
+  width: 48px !important;
+  height: 48px !important;
+  gap: 2px !important;
+  padding: 9px 7px 9px 20px !important;
+  font-size: 1.2rem !important;
+}
+
+.brand-lockup.small .refined-wave span,
+.brand-lockup.small .brand-wave span {
+  width: 2.4px !important;
+}
+
+@keyframes eaWaveIdlePulseResolve {
+  0%, 100% { transform: scaleY(.42); opacity: .55; }
+  25% { transform: scaleY(.78); opacity: .82; }
+  50% { transform: scaleY(1.18); opacity: 1; }
+  75% { transform: scaleY(.7); opacity: .78; }
+}
+
+/* —— Thin EchoAural wordmark (keep Aural animation) —— */
+.wordmark,
+.account-wordmark,
+.mini-wordmark,
+.launcher-title-wordmark,
+.brand > strong,
+.review-topbar .brand > strong {
+  font-weight: 500 !important;
+  letter-spacing: -.028em !important;
+}
+
+.wordmark-echo,
+.account-wordmark-echo,
+.mini-wordmark-echo,
+.launcher-title-echo,
+.brand > strong > span:first-child,
+.review-topbar .brand > strong > span:first-child {
+  color: rgba(255, 255, 255, .96) !important;
+  font-weight: 500 !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .96);
+}
+
+.wordmark-aural,
+.account-wordmark-aural,
+.mini-wordmark-aural,
+.launcher-title-aural,
+.brand > strong > span:last-child,
+.review-topbar .brand > strong > span:last-child {
+  background: var(--ea-wordmark-gradient) !important;
+  background-size: 165% 165% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  font-weight: 500 !important;
+  animation: echoTextGlow 6.2s ease-in-out infinite !important;
+}
+
+@keyframes echoTextGlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* —— App text logos: one compound word (MeterMaster); first word slightly bolder —— */
+.module-title-text,
+.teacher-module-title-text,
+.module-choice-title-text,
+.ii-title-text,
+.mm-title-text,
+.tt-title-text,
+.meter-title-text,
+.console-title-text,
+.mixed-title-text,
+.mixed-answer-title,
+.topbar-module-wordmark,
+.preview-app-logo,
+.exam-lab-live-brand strong {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  column-gap: 0 !important;
+  row-gap: 0 !important;
+  width: auto !important;
+  max-width: 100%;
+  white-space: nowrap !important;
+  letter-spacing: -.03em !important;
+  line-height: 1 !important;
+}
+
+.module-title-main,
+.module-title-gradient,
+.teacher-module-title-main,
+.teacher-module-title-gradient,
+.module-choice-title-main,
+.module-choice-title-gradient,
+.topbar-ii-main,
+.topbar-mm-main,
+.topbar-tt-main,
+.topbar-el-main,
+.ii-title-main,
+.ii-title-gradient,
+.mm-title-main,
+.mm-title-gradient,
+.tt-title-main,
+.tt-title-gradient,
+.meter-title-main,
+.meter-title-gradient,
+.console-title-main,
+.console-title-gradient,
+.mixed-title-main,
+.mixed-title-gradient,
+.mixed-answer-title span,
+.preview-app-logo b,
+.preview-app-logo em,
+.exam-lab-live-brand strong > span {
+  display: inline !important;
+  width: auto !important;
+  white-space: nowrap !important;
+}
+
+.module-title-text,
+.teacher-module-title-text,
+.module-choice-title-text,
+.topbar-ii-mark,
+.topbar-mm-mark,
+.topbar-tt-mark,
+.topbar-el-mark,
+.ii-title-text,
+.mm-title-text,
+.tt-title-text,
+.meter-title-text,
+.console-title-text,
+.mixed-title-text,
+.mixed-answer-title,
+.preview-app-logo {
+  font-weight: 500 !important;
+  letter-spacing: -.03em !important;
+}
+
+/* Homescreen: size to InstrumentIdentifier with ~3mm side margin; same size for all app logos */
+.module-grid .module-title-text {
+  font-size: clamp(0.84rem, calc((100cqi - 6mm) / 8.22), 1.25rem) !important;
+}
+
+.module-grid .module-title-main {
+  text-shadow:
+    0 0 1px rgba(0, 0, 0, .6),
+    0 1px 2px rgba(0, 0, 0, .5),
+    0 8px 18px rgba(0, 0, 0, .3) !important;
+}
+
+.module-grid .module-title-gradient {
+  text-shadow:
+    0 0 1px rgba(0, 0, 0, .55),
+    0 1px 2px rgba(0, 0, 0, .45),
+    0 0 14px color-mix(in srgb, var(--module-accent, #fff) 42%, transparent) !important;
+}
+
+/* Mode logos: compound weight like apps; first word white, second word Aural gradient */
+.module-grid-secondary .module-title-main {
+  color: rgba(255, 255, 255, .98) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .98) !important;
+  background: none !important;
+  font-weight: 700 !important;
+  text-shadow:
+    0 0 1px rgba(0, 0, 0, .6),
+    0 1px 2px rgba(0, 0, 0, .5),
+    0 8px 18px rgba(0, 0, 0, .3) !important;
+}
+
+.module-grid-secondary .module-title-gradient {
+  background: var(--ea-wordmark-gradient) !important;
+  background-size: 165% 165% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  font-weight: 500 !important;
+  text-shadow: none !important;
+  animation: echoTextGlow 6.2s ease-in-out infinite !important;
+}
+
+/* First word slightly bolder */
+.module-title-main,
+.teacher-module-title-main,
+.module-choice-title-main,
+.topbar-ii-main,
+.topbar-mm-main,
+.topbar-tt-main,
+.topbar-el-main,
+.ii-title-main,
+.mm-title-main,
+.tt-title-main,
+.meter-title-main,
+.console-title-main,
+.mixed-title-main,
+.mixed-answer-title span:first-child,
+.preview-app-logo b,
+.exam-lab-live-brand strong > span:first-child {
+  color: rgba(255, 255, 255, .96) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .96) !important;
+  background: none !important;
+  font-weight: 700 !important;
+}
+
+/* Second word: accent (or white if uncharted), lighter weight */
+.module-title-gradient,
+.teacher-module-title-gradient,
+.module-choice-title-gradient,
+.topbar-ii-gradient,
+.topbar-mm-gradient,
+.topbar-tt-gradient,
+.topbar-el-gradient,
+.ii-title-gradient,
+.mm-title-gradient,
+.tt-title-gradient,
+.meter-title-gradient,
+.console-title-gradient,
+.topbar-module-wordmark span:last-child,
+.mixed-title-gradient,
+.mixed-answer-title span:last-child,
+.preview-app-logo em,
+.exam-lab-live-brand strong > span:last-child {
+  background: none !important;
+  color: var(--module-accent, rgba(255, 255, 255, .96)) !important;
+  -webkit-text-fill-color: var(--module-accent, rgba(255, 255, 255, .96)) !important;
+  font-weight: 500 !important;
+  font-style: normal !important;
+  animation: none !important;
+}
+
+/* Keep full-colour PNG app tiles (never invert to white line icons). */
+.module-icon img[src*=".png"],
+.module-choice-icon img[src*=".png"],
+.teacher-module-icon img[src*=".png"],
+.topbar-module-icon img[src*=".png"],
+.ii-hero-icon img[src*=".png"],
+.console-ii-icon img[src*=".png"],
+.console-mm-icon img[src*=".png"],
+.console-tt-icon img[src*=".png"],
+.console-meter-icon img[src*=".png"],
+.mixed-console-icon img[src*=".png"],
+.answer-empty-icon img[src*=".png"] {
+  filter: none !important;
+}
+
+/* Chart app accents */
+.module-grid-main .module-card:nth-child(1),
+.teacher-module-card[data-module-id="instrument-identifier"],
+body[data-module="instrument-identifier"],
+.app-shell[data-brand-app="instrument-identifier"] {
+  --module-accent: var(--ea-blue);
+}
+
+.module-grid-main .module-card:nth-child(2),
+.teacher-module-card[data-module-id="melody-master"],
+body[data-module="melody-master"],
+.app-shell[data-brand-app="melody-master"] {
+  --module-accent: var(--ea-magenta);
+}
+
+.module-grid-main .module-card:nth-child(3),
+.teacher-module-card[data-module-id="texture-trainer"],
+body[data-module="texture-trainer"],
+.app-shell[data-brand-app="texture-trainer"] {
+  --module-accent: var(--ea-teal);
+}
+
+.module-grid-main .module-card:nth-child(4),
+.teacher-module-card[data-module-id="meter-master"],
+body[data-module="meter-master"],
+.app-shell[data-brand-app="meter-master"] {
+  --module-accent: var(--ea-amber);
+}
+
+.module-grid-main .module-card:nth-child(5),
+.teacher-module-card[data-module-id="harmony-explorer"],
+body[data-module="harmony-explorer"],
+.app-shell[data-brand-app="harmony-explorer"] {
+  --module-accent: var(--ea-purple);
+}
+
+.module-grid-main .module-card:nth-child(6),
+.teacher-module-card[data-module-id="context-coach"],
+.teacher-module-card[data-module-id="era-explorer"],
+body[data-module="context-coach"],
+body[data-module="era-explorer"],
+.app-shell[data-brand-app="context-coach"] {
+  --module-accent: var(--ea-rose);
+}
+
+.module-grid-main .module-card .module-title-gradient,
+.teacher-module-card[data-module-id="instrument-identifier"] .teacher-module-title-gradient,
+.teacher-module-card[data-module-id="melody-master"] .teacher-module-title-gradient,
+.teacher-module-card[data-module-id="texture-trainer"] .teacher-module-title-gradient,
+.teacher-module-card[data-module-id="meter-master"] .teacher-module-title-gradient,
+.teacher-module-card[data-module-id="harmony-explorer"] .teacher-module-title-gradient,
+.teacher-module-card[data-module-id="context-coach"] .teacher-module-title-gradient,
+.app-shell[data-brand-app="instrument-identifier"] .topbar-ii-gradient,
+.app-shell[data-brand-app="instrument-identifier"] .ii-title-gradient,
+.app-shell[data-brand-app="instrument-identifier"] .console-title-gradient,
+.app-shell[data-brand-app="melody-master"] .topbar-mm-gradient,
+.app-shell[data-brand-app="melody-master"] .mm-title-gradient,
+.app-shell[data-brand-app="melody-master"] .console-title-gradient,
+.app-shell[data-brand-app="texture-trainer"] .topbar-tt-gradient,
+.app-shell[data-brand-app="texture-trainer"] .tt-title-gradient,
+.app-shell[data-brand-app="texture-trainer"] .console-title-gradient,
+.app-shell[data-brand-app="meter-master"] .topbar-mm-gradient,
+.app-shell[data-brand-app="meter-master"] .meter-title-gradient,
+.app-shell[data-brand-app="meter-master"] .console-title-gradient,
+.app-shell[data-brand-app="context-coach"] .topbar-ii-gradient,
+.app-shell[data-brand-app="context-coach"] .ii-title-gradient,
+.app-shell[data-brand-app="context-coach"] .console-title-gradient {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--module-accent) 32%, transparent);
+}
+
+.launcher-title-wave.brand-wave,
+.launcher-title-wave.refined-wave {
+  width: 42px !important;
+  height: 42px !important;
+  gap: 2px !important;
+  padding: 8px 6px 8px 17px !important;
+  font-size: 1.05rem !important;
+}
+
+.launcher-title-wave.brand-wave span,
+.launcher-title-wave.refined-wave span {
+  width: 2.2px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-wave span,
+  .refined-wave span,
+  .account-wave span,
+  .wordmark-aural,
+  .account-wordmark-aural,
+  .mini-wordmark-aural,
+  .launcher-title-aural,
+  .module-grid-secondary .module-title-gradient {
+    animation: none !important;
+  }
+}

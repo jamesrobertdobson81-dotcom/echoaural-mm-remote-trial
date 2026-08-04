@@ -152,7 +152,7 @@ button:disabled { cursor: not-allowed; opacity: 0.62; }
 .mini-wordmark-echo { color: #f8fbff; }
 .wordmark-aural,
 .mini-wordmark-aural {
-  background: linear-gradient(135deg, var(--gold), var(--blue));
+  background: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -178,6 +178,8 @@ button:disabled { cursor: not-allowed; opacity: 0.62; }
   color: var(--soft);
   transition: transform .18s ease, border-color .18s ease, background .18s ease;
 }
+
+.topbar-tt-gradient { color: #27E1C1; }
 
 .topbar-link { padding: 0 15px; font-size: .9rem; font-weight: 750; }
 .topbar-module-chip { gap: 9px; padding: 5px 13px 5px 8px; }
@@ -1237,6 +1239,20 @@ svg {
   color: transparent;
   -webkit-text-fill-color: transparent;
   animation: ttTextGlow 6.4s ease-in-out infinite;
+}
+
+.wordmark-aural,
+.mini-wordmark-aural {
+  background: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
+}
+
+.topbar-tt-gradient,
+.tt-title-gradient,
+.console-title-gradient {
+  background: none;
+  color: #27E1C1;
+  -webkit-text-fill-color: #27E1C1;
+  text-shadow: 0 0 12px rgba(39, 225, 193, .35);
 }
 
 .brand-wave,
@@ -2783,8 +2799,10 @@ textarea::placeholder {
 .topbar-tt-gradient,
 .tt-title-gradient,
 .console-title-gradient {
-  background-image: linear-gradient(115deg, #0e7490, #0891b2 28%, #22d3ee 58%, #67e8f9 80%, #38bdf8);
-  background-size: 220% 220%;
+  background: none;
+  color: #27E1C1;
+  -webkit-text-fill-color: #27E1C1;
+  text-shadow: 0 0 12px rgba(39, 225, 193, .35);
 }
 
 .listening-visual span {
@@ -3270,10 +3288,10 @@ body.tt-round-feedback-open {
   }
 }
 
-.topbar-module-icon img[src$=".png"],
-.tt-hero-icon img[src$=".png"],
-.console-tt-icon img[src$=".png"],
-.answer-empty-icon img[src$=".png"] {
+.topbar-module-icon img[src*=".png"],
+.tt-hero-icon img[src*=".png"],
+.console-tt-icon img[src*=".png"],
+.answer-empty-icon img[src*=".png"] {
   width: 100% !important;
   height: 100% !important;
   border-radius: inherit;
@@ -3289,10 +3307,10 @@ body.tt-round-feedback-open {
   overflow: hidden;
 }
 
-.topbar-module-icon img[src$=".png"],
-.tt-hero-icon img[src$=".png"],
-.console-tt-icon img[src$=".png"],
-.answer-empty-icon img[src$=".png"] {
+.topbar-module-icon img[src*=".png"],
+.tt-hero-icon img[src*=".png"],
+.console-tt-icon img[src*=".png"],
+.answer-empty-icon img[src*=".png"] {
   position: absolute;
   inset: 0;
   width: 100% !important;
@@ -3321,6 +3339,8 @@ body.tt-round-feedback-open {
   object-fit: cover;
   object-position: center;
   box-shadow: 0 8px 18px rgba(0, 0, 0, .22);
+  /* Homepage Texture Trainer accent #27E1C1 */
+  filter: hue-rotate(-57deg) saturate(.95) brightness(1.2);
 }
 
 .progression-level-grid .level-button strong {

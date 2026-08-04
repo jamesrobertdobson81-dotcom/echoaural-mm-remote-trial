@@ -1655,7 +1655,7 @@ body {
   filter: brightness(0) invert(1) drop-shadow(0 0 4px rgba(255, 255, 255, .2)) drop-shadow(0 0 10px rgba(56, 189, 248, .22));
 }
 
-.module-choice-icon img[src$=".png"] {
+.module-choice-icon img[src*=".png"] {
   width: 100%;
   height: 100%;
   border-radius: inherit;
@@ -2121,7 +2121,7 @@ body {
   transition: transform .28s cubic-bezier(.2, .8, .2, 1);
 }
 
-.teacher-module-icon img[src$=".png"] {
+.teacher-module-icon img[src*=".png"] {
   width: 100%;
   height: 100%;
   border-radius: inherit;
@@ -2195,13 +2195,27 @@ body {
   text-shadow: 0 1px 0 rgba(255, 255, 255, .08), 0 10px 20px rgba(0, 0, 0, .16);
 }
 
+/* Match homepage chart accents; uncharted modules stay white/white on blue tiles. */
 .teacher-module-title-gradient {
-  background: var(--ea-gradient);
-  background-size: 170% 170%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+  background: none;
+  color: var(--module-accent, rgba(255, 255, 255, .96));
+  -webkit-text-fill-color: var(--module-accent, rgba(255, 255, 255, .96));
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .08), 0 10px 20px rgba(0, 0, 0, .16);
+}
+
+.teacher-module-card[data-module-id="instrument-identifier"] { --module-accent: #3FA6FF; }
+.teacher-module-card[data-module-id="melody-master"] { --module-accent: #FF5DBA; }
+.teacher-module-card[data-module-id="texture-trainer"] { --module-accent: #27E1C1; }
+.teacher-module-card[data-module-id="meter-master"] { --module-accent: #FFAA2B; }
+.teacher-module-card[data-module-id="harmony-explorer"] { --module-accent: #A66BFF; }
+.teacher-module-card[data-module-id="context-coach"] { --module-accent: #FF7AC8; }
+
+.teacher-module-card[data-module-id="instrument-identifier"] .teacher-module-title-gradient,
+.teacher-module-card[data-module-id="melody-master"] .teacher-module-title-gradient,
+.teacher-module-card[data-module-id="texture-trainer"] .teacher-module-title-gradient,
+.teacher-module-card[data-module-id="meter-master"] .teacher-module-title-gradient,
+.teacher-module-card[data-module-id="harmony-explorer"] .teacher-module-title-gradient {
+  text-shadow: 0 0 12px color-mix(in srgb, var(--module-accent) 35%, transparent);
 }
 
 .teacher-module-status {
@@ -2472,8 +2486,8 @@ body.dashboard-launched .leaderboard-panel .summary-grid {
   overflow: hidden;
 }
 
-.module-choice-icon img[src$=".png"],
-.teacher-module-icon img[src$=".png"] {
+.module-choice-icon img[src*=".png"],
+.teacher-module-icon img[src*=".png"] {
   position: absolute;
   inset: 0;
   width: 100% !important;

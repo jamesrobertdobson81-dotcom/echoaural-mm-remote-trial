@@ -14,7 +14,8 @@ const createExamLabAdapter = require(path.join(moduleDir, 'teacher-adapter.js'))
 const { RoomManager } = require(path.join(root, 'classroom', 'room-manager.js'));
 const { startPlayback } = require(path.join(root, 'classroom', 'classroom-server.js'));
 const { buildTeacherModeRoundPayload } = require(path.join(root, 'classroom', 'progress-recorder.js'));
-const { buildExamLabSessions } = require(path.join(root, 'accounts', 'account-server.js'));
+const { buildExamLabSessions, buildProgressSummary } = require(path.join(root, 'accounts', 'account-server.js'));
+const { getQuestionSkillMetadata } = require(path.join(root, 'shared', 'js', 'skill-metadata.js'));
 
 let checks = 0;
 
@@ -39,6 +40,10 @@ function read(relativePath) {
 
 function correctAnswer(question) {
   if (question.responseType === 'multiple-choice') return question.correctChoice;
+  if (question.responseType === 'rhythm-choice') {
+    const index = question.options.findIndex((option) => option.id === question.correctChoice);
+    return `option-${index + 1}`;
+  }
   const points = question.markPoints || question.markComponents || question.reasonCategories;
   if (Array.isArray(points)) {
     return points.slice(0, question.marks).map((point) => (
@@ -51,6 +56,10 @@ function correctAnswer(question) {
 function incorrectAnswer(question) {
   if (question.responseType === 'multiple-choice') {
     return question.options.find((option) => option !== question.correctChoice) || 'Incorrect';
+  }
+  if (question.responseType === 'rhythm-choice') {
+    const index = question.options.findIndex((option) => option.id !== question.correctChoice);
+    return `option-${index + 1}`;
   }
   return 'unrelated response';
 }
@@ -95,9 +104,9 @@ function createStartedRoom(manager, options = {}) {
 createExamLabAdapter.resetRecentHistory();
 const extracts = loadRegistry({ moduleDir, reload: true });
 
-equal(extracts.length, 3, 'Three production Exam Lab extracts should load.');
-assert.deepEqual(extracts.map((extract) => extract.questions.length), [7, 8, 8]); checks += 1;
-assert.deepEqual(extracts.map((extract) => extract.totalMarks), [9, 9, 10]); checks += 1;
+equal(extracts.length, 11, 'Eleven production Exam Lab extracts should load.');
+assert.deepEqual(extracts.map((extract) => extract.questions.length), [7, 8, 8, 7, 8, 8, 7, 12, 11, 11, 11]); checks += 1;
+assert.deepEqual(extracts.map((extract) => extract.totalMarks), [9, 9, 10, 10, 10, 10, 10, 12, 11, 11, 11]); checks += 1;
 check(extracts.every((extract) => extract.questions.reduce((sum, question) => sum + question.marks, 0) === extract.totalMarks), 'Every extract total must equal its question marks.');
 check(extracts.every((extract) => fs.existsSync(path.join(moduleDir, extract.audio))), 'Every extract needs local audio.');
 check(extracts.every((extract) => !extract.score || fs.existsSync(path.join(moduleDir, extract.score))), 'Every score reference must resolve.');
@@ -113,6 +122,7 @@ for (const extract of extracts) {
 
 const exl001 = extracts[0];
 const exl003 = extracts[2];
+const exl006 = extracts[5];
 equal(marking.markQuestion(exl001.questions[3], 'perfect fifth').marks, 2, 'Perfect fifth should earn both cadence-question marks.');
 equal(marking.markQuestion(exl001.questions[3], 'perfect').marks, 1, 'Perfect should earn the quality mark.');
 equal(marking.markQuestion(exl001.questions[3], '5th').marks, 1, '5th should earn the number mark.');
@@ -128,6 +138,12 @@ check(!containsKey(publicExtract, blockedKeys), 'Public extract data must omit m
 check(!Object.hasOwn(publicExtract, 'audio'), 'Student-safe public extract data must omit audio.');
 check(!JSON.stringify(publicExtract).includes('EXL003'), 'Public extract data must omit internal extract IDs.');
 check(publicExtract.questions.every((question, index) => question.id === `question-${index + 1}`), 'Public question IDs should be neutral and sequential.');
+const publicExl006 = core.serialisePublicExtract(exl006);
+const publicRhythmQuestion = publicExl006.questions.find((question) => question.responseType === 'rhythm-choice');
+check(publicRhythmQuestion?.options.length === 4, 'Rhythm-choice notation should be available to live students.');
+check(publicRhythmQuestion.options.every((option, index) => option.id === `option-${index + 1}`), 'Rhythm-choice IDs should be neutral.');
+check(!JSON.stringify(publicRhythmQuestion).includes('correct'), 'Rhythm-choice data must not reveal the correct internal option ID.');
+check(publicExl006.scoreMasks.length === 1 && publicExl006.scoreMasks[0].type === 'blank-stave', 'Live score data should retain the EXL006 answer mask.');
 throws(() => core.normaliseAnswers(exl003, [{ questionId: 'EXL003-Q01', answer: 'B minor' }]), /invalid question reference/i, 'Internal question IDs must be rejected by the live core.');
 throws(() => core.normaliseAnswers(exl003, [{ questionId: 'question-1', answer: 'B minor' }, { questionId: 'question-1', answer: 'B minor' }]), /invalid question reference/i, 'Duplicate question IDs must be rejected.');
 throws(() => core.markExtract(exl003, answerPayload(exl003).slice(0, -1)), /answer every question/i, 'Incomplete submissions must be rejected.');
@@ -221,6 +237,10 @@ equal(payload.metadata.className, 'Year 10 Music', 'Persistence should retain th
 equal(payload.maximumScore, extract.totalMarks, 'Persistence maximum must match server data.');
 check(payload.questions.every((question) => typeof question.answerData.answer === 'string'), 'Persistence should retain raw answers for diagnosis.');
 check(payload.questions.every((question) => Array.isArray(question.answerData.skills)), 'Persistence should retain structured skills.');
+check(payload.questions.every((question) => typeof question.answerData.skillCode === 'string' && question.answerData.skillCode), 'Persistence should add canonical primary skill codes.');
+check(payload.questions.every((question) => (
+  question.answerData.skillCode === getQuestionSkillMetadata(question.questionId).primary_skill_code
+)), 'Persistence should use the canonical primary skill mapped to each question.');
 equal(unsubmittedPayload.metadata.submitted, false, 'Persistence should retain joined students who did not submit.');
 check(unsubmittedPayload.questions.every((question) => question.answerData.submitted === false && question.score === 0), 'Unsubmitted participation should remain explicitly unanswered.');
 
@@ -279,6 +299,29 @@ equal(dashboardSessions[0].submittedStudents, 1, 'Dashboard should distinguish s
 check(dashboardSessions[0].questions.every((question) => question.unanswered === 1), 'Dashboard question analysis should count unsubmitted answers separately.');
 check(Array.isArray(dashboardSessions[0].recommendations), 'Dashboard recommendations should be structured for teacher review.');
 
+const canonicalProgress = buildProgressSummary([{
+  id: 'canonical-round',
+  module_id: 'meter-master',
+  module_title: 'Meter Master',
+  score: 2,
+  maximum_score: 3,
+  question_count: 3,
+  metadata: { source: 'teacher_mode' },
+  completed_at: completedAt
+}], ['MMX001', 'MMX002', 'MMX003'].map((questionId, index) => ({
+  id: `canonical-attempt-${index}`,
+  round_id: 'canonical-round',
+  module_id: 'meter-master',
+  question_id: questionId,
+  score: index < 2 ? 1 : 0,
+  maximum_score: 1,
+  answer_data: {},
+  completed_at: completedAt
+})));
+equal(canonicalProgress.skills[0].skillCode, 'RHY.METRE', 'Progress aggregation should group historical attempts by canonical skill.');
+equal(canonicalProgress.skills[0].uniqueQuestions, 3, 'Canonical skill evidence should count unique questions.');
+check(canonicalProgress.overall.compiledFeedback.includes('metre classification'), 'Compiled progress feedback should name a sufficiently evidenced canonical skill.');
+
 const fakeAdapter = {
   id: 'fake-module',
   title: 'Fake Module',
@@ -311,6 +354,7 @@ check(instrumentRoom.activeQuestion.choices.length > 0, 'Instrument Identifier C
 const standaloneHtml = read('modules/exam-lab/index.html');
 const standaloneScript = read('modules/exam-lab/script.js');
 const studentHtml = read('student/student-shell.html');
+const studentJs = read('student/student.js');
 const teacherJs = read('teacher/teacher.js');
 const dashboardHtml = read('account/teacher-dashboard/index.html');
 const dashboardJs = read('account/teacher-dashboard/teacher-dashboard.js');
@@ -320,6 +364,8 @@ check(/ExamLabCore\.markExtract/.test(standaloneScript), 'Standalone mode should
 check(/ea\.examLab\.results\.v1/.test(standaloneScript) && /examlab:completed/.test(standaloneScript), 'Standalone persistence and completion events should remain intact.');
 check(/Submit Answers/.test(studentHtml), 'Student live mode should use the approved submit label.');
 check(/Score zoom controls/.test(studentHtml) && /tabindex="0"/.test(studentHtml), 'The live score should be zoomable and keyboard-scrollable.');
+check(/examLabScoreMasks/.test(studentHtml) && /renderExamLabScoreMasks/.test(studentJs), 'Student live mode should render score-answer masks.');
+check(/rhythm-choice/.test(studentJs) && /renderExamLabRhythm/.test(studentJs), 'Student live mode should render rhythm-choice questions.');
 check(/Audio plays from the teacher.s device/.test(studentHtml), 'Student live mode should explain teacher-device playback.');
 check(/Play Extract/.test(teacherJs) && /Lock Submissions/.test(teacherJs) && /Finish Session/.test(teacherJs), 'Teacher controls should use Exam Lab session wording.');
 check(/moduleId:\s*DASHBOARD_LAUNCH_MODULE_IDS\.has\(requestedLaunchModuleId\)\s*\?\s*requestedLaunchModuleId\s*:\s*''/.test(teacherJs), 'Teacher Mode should validate and retain the Dashboard-selected app type.');
@@ -332,7 +378,7 @@ check(/id="teacherLaunchApp"/.test(dashboardHtml) && /Instrument Identifier/.tes
 check(/showsStandardChoices\s*=\s*selectedSource\s*===\s*"app"\s*\|\|\s*selectedSource\s*===\s*"mixed"/.test(dashboardJs), 'Questions, plays and level choices should appear only for App or Mixed Apps.');
 check(!/EXL00[123]/.test(`${teacherJs}\n${dashboardHtml}\n${dashboardJs}\n${studentHtml}`), 'Classroom and dashboard UI source must not name internal extract IDs.');
 check(/No work is assigned automatically/.test(dashboardJs), 'Dashboard recommendations must require teacher review.');
-check(/assets\/icons\/modules\/exam-lab\.png/.test(home) && /Exam Lab/.test(home), 'The homepage should include the Exam Lab tile.');
+check(/href="modules\/exam-lab\/index\.html"/.test(home) && /assets\/icons\/modules\/exam-lab\.png/.test(home), 'The homepage should link to Exam Lab.');
 check(extracts.every((extract) => read(`modules/exam-lab/ExamLab_${extract.id}_Cambridge_Skill_Map.csv`).includes(extract.questions[0].id)), 'Each migrated CSV should match its extract data.');
 
 console.log(`Exam Lab integration check passed: ${checks} focused assertions.`);

@@ -7,6 +7,8 @@
 
   const normalise = (value) => String(value || "")
     .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[‘’']/g, "")
     .replace(/[–—]/g, "-")
     .replace(/[^a-z0-9]+/g, " ")
@@ -63,6 +65,12 @@
     });
   }
 
+  function completeAnswerMatches(answer, accepted) {
+    const cleaned = normalise(answer);
+    if (!cleaned) return false;
+    return (accepted || []).some((item) => cleaned === normalise(item));
+  }
+
   function editDistance(left, right) {
     const a = normalise(left);
     const b = normalise(right);
@@ -96,6 +104,16 @@
           && !phraseIsNegated(clause, token)
         ));
       });
+    });
+  }
+
+  function completeFuzzyAnswerMatches(answer, accepted, maxDistance) {
+    const cleaned = normalise(answer);
+    if (!cleaned) return false;
+    return (accepted || []).some((item) => {
+      const target = normalise(item);
+      return Math.abs(cleaned.length - target.length) <= maxDistance
+        && editDistance(cleaned, target) <= maxDistance;
     });
   }
 
@@ -140,10 +158,100 @@
     };
   }
 
+  function getPassageTexts(answer, firstMarkers = [], secondMarkers = []) {
+    const prepared = String(answer || "")
+      .replace(/,\s*(?=(?:whereas\s+)?(?:at\s+)?(?:30|65)\b)/gi, ". ");
+    const clauses = prepared
+      .split(/[.!?;\n]+|\b(?:whereas|whilst|while|compared with|compared to|in contrast(?: to)?|but)\b/gi)
+      .map(normalise)
+      .filter(Boolean);
+    const passages = { first: [], second: [] };
+    let activePassages = [];
+
+    clauses.forEach((clause) => {
+      const firstMentioned = firstMarkers.some((marker) => containsPhrase(clause, marker));
+      const secondMentioned = secondMarkers.some((marker) => containsPhrase(clause, marker));
+      if (firstMentioned || secondMentioned) {
+        activePassages = [];
+        if (firstMentioned) activePassages.push("first");
+        if (secondMentioned) activePassages.push("second");
+      }
+      activePassages.forEach((passage) => passages[passage].push(clause));
+    });
+
+    return {
+      first: passages.first.join(". "),
+      second: passages.second.join(". ")
+    };
+  }
+
+  function pairedComparisonResponse(question, answer) {
+    const passageTexts = getPassageTexts(answer, question.firstPassageMarkers, question.secondPassageMarkers);
+    const details = question.pairedComparisonPoints.map((point) => {
+      const directMatches = findNonNegatedPhrases(answer, point.directComparisons || []);
+      const firstMatches = findNonNegatedPhrases(passageTexts.first, point.firstPassageAnswers || []);
+      const secondMatches = findNonNegatedPhrases(passageTexts.second, point.secondPassageAnswers || []);
+      return {
+        id: point.id,
+        label: point.label || point.id,
+        explanation: point.explanation || "",
+        suggestion: point.suggestion || "",
+        credited: directMatches.length > 0 || (firstMatches.length > 0 && secondMatches.length > 0),
+        matchedPhrases: [...directMatches, ...firstMatches, ...secondMatches],
+        firstPassageMatched: firstMatches.length > 0,
+        secondPassageMatched: secondMatches.length > 0
+      };
+    });
+    const credited = details.filter((detail) => detail.credited);
+    const marks = Math.min(question.marks, credited.length);
+    const issues = findNonCreditIssues(question, answer);
+    if (details.some((detail) => !detail.credited && (detail.firstPassageMatched || detail.secondPassageMatched))) {
+      issues.push(question.incompleteComparisonFeedback || "Each point must compare both passages.");
+    }
+
+    return {
+      marks,
+      correct: marks === question.marks,
+      evidence: credited.map((detail) => detail.id),
+      details,
+      issues: [...new Set(issues)]
+    };
+  }
+
+  function linkedExplanationResponse(question, answer) {
+    const base = markPointResponse(question, answer, question.markPoints);
+    const feature = base.details.find((detail) => detail.id === "feature");
+    const effect = base.details.find((detail) => detail.id === "effect");
+    const featureCredited = Boolean(feature?.credited);
+    const effectRecognised = Boolean(effect?.credited);
+    if (effect) effect.credited = featureCredited && effectRecognised;
+    const marks = featureCredited ? 1 + (effectRecognised ? 1 : 0) : 0;
+    const issues = [...base.issues];
+    if (effectRecognised && !featureCredited) issues.push("Link the effect to an accurate musical feature.");
+    return {
+      marks,
+      correct: marks === question.marks,
+      evidence: base.details.filter((detail) => detail.credited).map((detail) => detail.id),
+      details: base.details,
+      issues: [...new Set(issues)]
+    };
+  }
+
   function markQuestion(question, answer) {
-    if (question.responseType === "multiple-choice") {
-      const correct = normalise(answer) === normalise(question.correctChoice);
+    if (question.responseType === "multiple-choice" || question.responseType === "rhythm-choice") {
+      const correct = normalise(answer) === normalise(question.correctChoice)
+        || (question.strictAnswerMatch
+          ? completeAnswerMatches(answer, question.acceptedAnswers)
+          : answerMatches(answer, question.acceptedAnswers));
       return { marks: correct ? question.marks : 0, correct, evidence: [], details: [], issues: [] };
+    }
+
+    if (Array.isArray(question.pairedComparisonPoints)) {
+      return pairedComparisonResponse(question, answer);
+    }
+
+    if (question.linkedExplanation) {
+      return linkedExplanationResponse(question, answer);
     }
 
     if (Array.isArray(question.markPoints)) {
@@ -158,8 +266,10 @@
       return markPointResponse(question, answer, question.markComponents);
     }
 
-    const correct = answerMatches(answer, question.acceptedAnswers)
-      || (question.acceptMisspellings && fuzzyAnswerMatches(answer, question.acceptedAnswers, question.maxEditDistance || 1));
+    const answerMatcher = question.strictAnswerMatch ? completeAnswerMatches : answerMatches;
+    const fuzzyMatcher = question.strictAnswerMatch ? completeFuzzyAnswerMatches : fuzzyAnswerMatches;
+    const correct = answerMatcher(answer, question.acceptedAnswers)
+      || (question.acceptMisspellings && fuzzyMatcher(answer, question.acceptedAnswers, question.maxEditDistance || 1));
     return { marks: correct ? question.marks : 0, correct, evidence: [], details: [], issues: [] };
   }
 
@@ -168,7 +278,9 @@
     containsPhrase,
     findNonNegatedPhrases,
     answerMatches,
+    completeAnswerMatches,
     fuzzyAnswerMatches,
+    completeFuzzyAnswerMatches,
     markQuestion
   });
 });

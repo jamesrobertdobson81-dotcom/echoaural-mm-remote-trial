@@ -135,8 +135,12 @@ body.exam-lab-live-student .exam-lab-live-layout > .panel {
   scrollbar-color: rgba(56,189,248,.6) rgba(2,6,23,.12);
 }
 .exam-lab-score-scroll:focus-visible { outline: 3px solid #38bdf8; outline-offset: 2px; }
-.exam-lab-score-canvas { width: 100%; min-width: 100%; margin: 0 auto; }
+.exam-lab-score-canvas { position: relative; width: 100%; min-width: 100%; margin: 0 auto; }
 .exam-lab-score-canvas img { display: block; width: 100%; height: auto; }
+.exam-lab-score-masks { position: absolute; inset: 0; pointer-events: none; }
+.exam-lab-score-mask { position: absolute; display: block; background: #fff; }
+.exam-lab-score-mask-blank-stave svg { display: block; width: 100%; height: 100%; }
+.exam-lab-score-mask-blank-stave line { stroke: #111; stroke-width: 1.4; }
 
 .exam-lab-answer-progress {
   display: grid;
@@ -209,6 +213,39 @@ body.exam-lab-live-student .exam-lab-live-layout > .panel {
 }
 .exam-lab-choice-grid input:checked + span { border-color: #38bdf8; background: linear-gradient(135deg, rgba(56,189,248,.24), rgba(168,85,247,.22)); color: #fff; }
 .exam-lab-choice-grid input:focus-visible + span { outline: 3px solid #38bdf8; outline-offset: 2px; }
+.exam-lab-rhythm-choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 7px; margin: 9px 0 0 37px; }
+.exam-lab-rhythm-choice-grid label { position: relative; min-width: 0; }
+.exam-lab-rhythm-choice-grid input { position: absolute; opacity: 0; pointer-events: none; }
+.exam-lab-rhythm-choice-grid > label > span {
+  min-height: 88px;
+  display: grid;
+  grid-template-columns: 25px minmax(0,1fr);
+  align-items: center;
+  gap: 5px;
+  padding: 7px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 11px;
+  background: rgba(2,6,23,.42);
+  color: #e2e8f0;
+  cursor: pointer;
+}
+.exam-lab-rhythm-choice-grid > label > span > strong {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(139,92,246,.46), rgba(56,189,248,.34));
+  font-size: .75rem;
+}
+.exam-lab-rhythm-choice-grid input:checked + span { border-color: #38bdf8; background: linear-gradient(135deg, rgba(56,189,248,.24), rgba(168,85,247,.22)); color: #fff; }
+.exam-lab-rhythm-choice-grid input:focus-visible + span { outline: 3px solid #38bdf8; outline-offset: 2px; }
+.exam-lab-rhythm-notation { width: 100%; min-width: 0; height: 70px; overflow: visible; }
+.exam-lab-rhythm-staff path { fill: none; stroke: rgba(226,232,240,.72); stroke-width: 1; }
+.exam-lab-rhythm-staff .exam-lab-rhythm-barline { stroke-width: 1.5; }
+.exam-lab-rhythm-notes { fill: #f8fbff; stroke: #f8fbff; stroke-width: 1.7; stroke-linecap: square; }
+.exam-lab-rhythm-notes .exam-lab-rhythm-beam,
+.exam-lab-rhythm-notes .exam-lab-rhythm-dot { stroke: none; }
 
 .exam-lab-submit-dock {
   flex: 0 0 auto;
@@ -276,6 +313,7 @@ body.exam-lab-live-student .exam-lab-live-layout > .panel {
   .exam-lab-session-panel { min-height: 420px !important; }
   .exam-lab-score-panel { min-height: 70vh !important; }
   .exam-lab-choice-grid { grid-template-columns: 1fr; }
+  .exam-lab-rhythm-choice-grid { grid-template-columns: 1fr; }
   .exam-lab-submit-dock { grid-template-columns: 1fr; }
   .exam-lab-submit-dock button { width: 100%; }
 }
@@ -651,15 +689,41 @@ body.mixed-classroom-student {
   color: var(--text);
 }
 
-.wordmark-aural,
+.wordmark-aural {
+  background: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Chart apps: accent second word. Uncharted (mixed, exam-lab, melodic-intervals): white. */
 .topbar-module-wordmark span:last-child,
 .mixed-title-gradient,
 .console-title-gradient,
 .mixed-answer-title span:last-child {
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: none;
+  color: var(--module-accent, rgba(255, 255, 255, .96));
+  -webkit-text-fill-color: var(--module-accent, rgba(255, 255, 255, .96));
+}
+
+body[data-module="instrument-identifier"] {
+  --module-accent: #3FA6FF;
+}
+
+body[data-module="melody-master"] {
+  --module-accent: #FF5DBA;
+}
+
+body[data-module="texture-trainer"] {
+  --module-accent: #27E1C1;
+}
+
+body[data-module="meter-master"] {
+  --module-accent: #FFAA2B;
+}
+
+body[data-module="harmony-explorer"] {
+  --module-accent: #A66BFF;
 }
 
 .topbar-actions {
@@ -1433,11 +1497,11 @@ body[data-module="melodic-intervals"] .mixed-submit-button {
   }
 }
 
-.topbar-module-icon img[src$=".png"],
-.mixed-hero-icon img[src$=".png"],
-.mixed-console-icon img[src$=".png"],
-.mixed-answer-icon img[src$=".png"],
-.examlab-card img[src$=".png"] {
+.topbar-module-icon img[src*=".png"],
+.mixed-hero-icon img[src*=".png"],
+.mixed-console-icon img[src*=".png"],
+.mixed-answer-icon img[src*=".png"],
+.examlab-card img[src*=".png"] {
   width: 100% !important;
   height: 100% !important;
   border-radius: inherit;
@@ -1453,10 +1517,10 @@ body[data-module="melodic-intervals"] .mixed-submit-button {
   overflow: hidden;
 }
 
-.topbar-module-icon img[src$=".png"],
-.mixed-hero-icon img[src$=".png"],
-.mixed-console-icon img[src$=".png"],
-.mixed-answer-icon img[src$=".png"] {
+.topbar-module-icon img[src*=".png"],
+.mixed-hero-icon img[src*=".png"],
+.mixed-console-icon img[src*=".png"],
+.mixed-answer-icon img[src*=".png"] {
   position: absolute;
   inset: 0;
   width: 100% !important;
@@ -1466,8 +1530,8 @@ body[data-module="melodic-intervals"] .mixed-submit-button {
   object-fit: cover;
 }
 
-.exam-lab-live-brand img[src$=".png"],
-.examlab-card img[src$=".png"] {
+.exam-lab-live-brand img[src*=".png"],
+.examlab-card img[src*=".png"] {
   border-radius: 15px;
   object-fit: cover;
   transform: none;

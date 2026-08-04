@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#07111f" />
   <title>Exam Lab | EchoAural</title>
-  <link rel="preload" href="assets/EXL003-skeleton-score.png" as="image" />
-  <link rel="preload" href="assets/EXL003.mp3" as="audio" type="audio/mpeg" />
+  <link rel="preload" href="assets/EXL008.mp3" as="audio" type="audio/mpeg" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -31,6 +31,14 @@
             <option value="EXL001">EXL001</option>
             <option value="EXL002">EXL002</option>
             <option value="EXL003">EXL003</option>
+            <option value="EXL004">EXL004</option>
+            <option value="EXL005">EXL005</option>
+            <option value="EXL006">EXL006</option>
+            <option value="EXL007">EXL007</option>
+            <option value="EXL008">EXL008</option>
+            <option value="EXL011">EXL011</option>
+            <option value="EXL012">EXL012</option>
+            <option value="EXL013">EXL013</option>
           </select>
         </label>
         <a class="topbar-link topbar-home-link" href="../../index.html">
@@ -42,7 +50,7 @@
     </header>
 
     <main class="exam-layout" id="examWorkspace">
-      <section class="panel score-panel" aria-label="Skeleton score">
+      <section class="panel score-panel" id="referencePanel" aria-label="Listening reference">
         <div class="panel-heading-row">
           <div class="panel-section-heading">
             <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -51,8 +59,8 @@
             </div>
           </div>
           <div class="question-meta">
-            <span id="extractIdBadge">EXL003</span>
-            <span id="extractMarksBadge">10 marks</span>
+            <span id="extractIdBadge">EXL008</span>
+            <span id="extractMarksBadge">12 marks</span>
           </div>
         </div>
 
@@ -73,7 +81,7 @@
 
           <div class="audio-progress-wrap">
             <div class="audio-progress" aria-hidden="true"><span id="audioProgress"></span></div>
-            <div class="time-row"><span id="currentTime">0:00</span><span id="durationTime">0:46</span></div>
+            <div class="time-row"><span id="currentTime">0:00</span><span id="durationTime">0:51</span></div>
           </div>
 
           <audio id="examAudio" preload="metadata"></audio>
@@ -89,6 +97,29 @@
           <div class="score-scroll" id="scoreScroll">
             <div class="score-canvas" id="scoreCanvas">
               <img id="scoreImage" alt="" />
+              <div class="score-masks" id="scoreMasks" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="aural-only-stage" id="auralOnlyStage" aria-label="Aural-only listening extract" hidden>
+          <div class="aural-stage-glow" aria-hidden="true"></div>
+          <div class="aural-stage-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="aural-only-content">
+            <p class="eyebrow" id="auralEyebrow">AURAL-ONLY EXTRACT</p>
+            <div class="aural-stage-wave" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <h2 id="auralTitle">Listen without a score</h2>
+            <p id="auralDescription">No skeleton score is supplied for this extract. Base each answer on what you hear.</p>
+            <div class="aural-passage-guide" id="auralPassageGuide" aria-label="Listening passage guide" hidden></div>
+            <div class="aural-listening-steps" aria-label="Listening process">
+              <span><strong>01</strong> Listen</span>
+              <i aria-hidden="true"></i>
+              <span><strong>02</strong> Analyse</span>
+              <i aria-hidden="true"></i>
+              <span><strong>03</strong> Respond</span>
             </div>
           </div>
         </div>
@@ -105,7 +136,7 @@
           </div>
           <div class="completion-ring" aria-label="Answer completion">
             <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18"></circle><circle id="completionCircle" cx="22" cy="22" r="18"></circle></svg>
-            <strong id="answerCount">0/8</strong>
+            <strong id="answerCount">0/12</strong>
           </div>
         </div>
 
@@ -126,6 +157,14 @@
   <script src="data/exl001.js"></script>
   <script src="data/exl002.js"></script>
   <script src="data/exl003.js"></script>
+  <script src="data/exl004.js"></script>
+  <script src="data/exl005.js"></script>
+  <script src="data/exl006.js"></script>
+  <script src="data/exl007.js"></script>
+  <script src="data/exl011.js"></script>
+  <script src="data/exl012.js"></script>
+  <script src="data/exl013.js"></script>
+  <script src="data/exl008.js"></script>
   <script src="marking.js"></script>
   <script src="core/exam-lab-core.js"></script>
   <script src="script.js"></script>

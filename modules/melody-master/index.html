@@ -7,10 +7,11 @@
   <title>Melody Master | EchoAural</title>
 
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
 </head>
 
 <body>
-  <div class="app-shell">
+  <div class="app-shell" data-brand-app="melody-master">
     <header class="topbar">
       <a class="brand refined-logo" href="../../index.html" aria-label="Back to EchoAural home">
         <span class="brand-wave refined-wave" aria-hidden="true">
@@ -110,16 +111,7 @@
           <label class="melody-skill-button">
             <input type="radio" name="quizMode" value="dictation" checked />
             <span class="melody-skill-icon" aria-hidden="true">
-              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
-                <path d="M10 18h44" />
-                <path d="M10 28h44" />
-                <path d="M10 38h44" />
-                <path d="M10 48h44" />
-                <circle cx="22" cy="28" r="4" />
-                <circle cx="34" cy="18" r="4" />
-                <circle cx="46" cy="38" r="4" />
-                <path d="M26 28l8-10 12 20" />
-              </svg>
+              <img class="melody-skill-icon-img" src="../../assets/icons/modules/melodic-dictation.png?v=1" alt="" />
             </span>
             <strong>Dictation</strong>
           </label>
@@ -127,15 +119,7 @@
           <label class="melody-skill-button">
             <input type="radio" name="quizMode" value="intervals" />
             <span class="melody-skill-icon" aria-hidden="true">
-              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
-                <path d="M10 18h44" />
-                <path d="M10 28h44" />
-                <path d="M10 38h44" />
-                <path d="M10 48h44" />
-                <circle cx="22" cy="38" r="4" />
-                <circle cx="42" cy="18" r="4" />
-                <path d="M28 38l14-20" />
-              </svg>
+              <img class="melody-skill-icon-img" src="../../assets/icons/modules/melodic-intervals.png?v=2" alt="" />
             </span>
             <strong>Intervals</strong>
           </label>
@@ -143,13 +127,7 @@
           <label class="melody-skill-button">
             <input type="radio" name="quizMode" value="devices" />
             <span class="melody-skill-icon" aria-hidden="true">
-              <svg class="mode-icon-svg" viewBox="0 0 64 64" role="img">
-                <path d="M12 42c8-16 16-16 24 0s16 16 24 0" />
-                <path d="M12 26c8-16 16-16 24 0s16 16 24 0" />
-                <circle cx="16" cy="48" r="3" />
-                <circle cx="32" cy="36" r="3" />
-                <circle cx="48" cy="48" r="3" />
-              </svg>
+              <img class="melody-skill-icon-img" src="../../assets/icons/modules/melodic-devices.png?v=1" alt="" />
             </span>
             <strong>Devices</strong>
           </label>

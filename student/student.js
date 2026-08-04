@@ -55,6 +55,7 @@
     scoreScroll: document.getElementById('examLabScoreScroll'),
     scoreCanvas: document.getElementById('examLabScoreCanvas'),
     scoreImage: document.getElementById('examLabScoreImage'),
+    scoreMasks: document.getElementById('examLabScoreMasks'),
     noScore: document.getElementById('examLabNoScore'),
     zoomOut: document.getElementById('examLabZoomOut'),
     zoomIn: document.getElementById('examLabZoomIn'),
@@ -746,9 +747,59 @@
     if (examEls.zoomLabel) examEls.zoomLabel.textContent = `${Math.round(examLabZoom * 100)}%`;
   }
 
+  function examLabRhythmNote(x, y = 46) {
+    return `<ellipse cx="${x}" cy="${y}" rx="7" ry="4.6" transform="rotate(-18 ${x} ${y})"></ellipse><path d="M${x + 6} ${y - 1}V18"></path>`;
+  }
+
+  function examLabRhythmGroup(type, start) {
+    if (type === 'q-ss') {
+      const notes = [start, start + 29, start + 49];
+      return `${notes.map((x) => examLabRhythmNote(x)).join('')}<path class="exam-lab-rhythm-beam" d="M${start + 5} 18H${start + 55}V23H${start + 5}Z"></path><path class="exam-lab-rhythm-beam" d="M${start + 34} 25H${start + 55}V30H${start + 34}Z"></path>`;
+    }
+    if (type === 'ssss') {
+      const notes = [start, start + 19, start + 38, start + 57];
+      return `${notes.map((x) => examLabRhythmNote(x)).join('')}<path class="exam-lab-rhythm-beam" d="M${start + 5} 18H${start + 63}V23H${start + 5}Z"></path><path class="exam-lab-rhythm-beam" d="M${start + 5} 25H${start + 63}V30H${start + 5}Z"></path>`;
+    }
+    if (type === 'crotchet') return examLabRhythmNote(start + 30);
+    if (type === 'qq') {
+      const notes = [start + 8, start + 48];
+      return `${notes.map((x) => examLabRhythmNote(x)).join('')}<path class="exam-lab-rhythm-beam" d="M${start + 13} 18H${start + 54}V23H${start + 13}Z"></path>`;
+    }
+    const notes = [start + 8, start + 49];
+    return `${notes.map((x) => examLabRhythmNote(x)).join('')}<circle class="exam-lab-rhythm-dot" cx="${start + 20}" cy="43" r="2.2"></circle><path class="exam-lab-rhythm-beam" d="M${start + 13} 18H${start + 55}V23H${start + 13}Z"></path><path class="exam-lab-rhythm-beam" d="M${start + 39} 25H${start + 55}V30H${start + 39}Z"></path>`;
+  }
+
+  function renderExamLabRhythm(pattern) {
+    const starts = [18, 108, 198];
+    return `<svg class="exam-lab-rhythm-notation" viewBox="0 0 286 78" role="img" aria-label="Notated rhythm option">
+      <g class="exam-lab-rhythm-staff">${[27, 36, 45, 54, 63].map((y) => `<path d="M5 ${y}H280"></path>`).join('')}<path class="exam-lab-rhythm-barline" d="M280 27V63"></path></g>
+      <g class="exam-lab-rhythm-notes">${(pattern || []).map((group, index) => examLabRhythmGroup(group, starts[index])).join('')}</g>
+    </svg>`;
+  }
+
+  function shuffledExamLabRhythmOptions(options = []) {
+    const output = options.slice();
+    for (let index = output.length - 1; index > 0; index -= 1) {
+      const target = Math.floor(Math.random() * (index + 1));
+      [output[index], output[target]] = [output[target], output[index]];
+    }
+    return output;
+  }
+
+  function renderExamLabScoreMasks(masks = []) {
+    if (!examEls.scoreMasks) return;
+    examEls.scoreMasks.innerHTML = masks.map((mask) => {
+      const style = `left:${Number(mask.left)}%;top:${Number(mask.top)}%;width:${Number(mask.width)}%;height:${Number(mask.height)}%;`;
+      if (mask.type === 'blank-stave') {
+        return `<span class="exam-lab-score-mask exam-lab-score-mask-blank-stave" style="${style}"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${[31, 43, 55, 67, 79].map((y) => `<line x1="0" y1="${y}" x2="100" y2="${y}"></line>`).join('')}</svg></span>`;
+      }
+      return `<span class="exam-lab-score-mask exam-lab-score-mask-plain" style="${style}"></span>`;
+    }).join('');
+  }
+
   function examLabAnswer(question) {
     if (!examEls.form || !question?.id) return '';
-    if (question.responseType === 'multiple-choice') {
+    if (question.responseType === 'multiple-choice' || question.responseType === 'rhythm-choice') {
       return examEls.form.querySelector(`input[name="${question.id}"]:checked`)?.value || '';
     }
     return examEls.form.elements[question.id]?.value || '';
@@ -781,6 +832,10 @@
         control = `<div class="exam-lab-choice-grid" role="radiogroup" aria-label="${escapeHTML(item.prompt)}">
           ${(item.options || []).map((option) => `<label><input type="radio" name="${escapeHTML(item.id)}" value="${escapeHTML(option)}" /><span>${escapeHTML(option)}</span></label>`).join('')}
         </div>`;
+      } else if (item.responseType === 'rhythm-choice') {
+        control = `<div class="exam-lab-rhythm-choice-grid" role="radiogroup" aria-label="${escapeHTML(item.prompt)}">
+          ${shuffledExamLabRhythmOptions(item.options || []).map((option, optionIndex) => `<label><input type="radio" name="${escapeHTML(item.id)}" value="${escapeHTML(option.id)}" /><span><strong>${String.fromCharCode(65 + optionIndex)}</strong>${renderExamLabRhythm(option.pattern)}</span></label>`).join('')}
+        </div>`;
       } else if (item.responseType === 'extended-text') {
         control = `<textarea id="${escapeHTML(inputId)}" name="${escapeHTML(item.id)}" rows="3" maxlength="2000" placeholder="${escapeHTML(item.placeholder || 'Write your musical answer.')}"></textarea>`;
       } else {
@@ -789,7 +844,7 @@
       return `<article class="exam-lab-live-question">
         <div class="exam-lab-question-head">
           <span>${Number(item.number || index + 1)}</span>
-          ${item.responseType === 'multiple-choice'
+          ${item.responseType === 'multiple-choice' || item.responseType === 'rhythm-choice'
             ? `<strong>${escapeHTML(item.prompt)}</strong>`
             : `<label for="${escapeHTML(inputId)}">${escapeHTML(item.prompt)}</label>`}
           <em>[${Number(item.marks || 1)}]</em>
@@ -884,6 +939,7 @@
       examEls.waiting.hidden = false;
       examEls.scoreScroll.hidden = true;
       examEls.noScore.hidden = true;
+      renderExamLabScoreMasks([]);
       examEls.questionList.innerHTML = '';
       examEls.submitButton.disabled = true;
       examEls.formMessage.textContent = state.quiz?.ended ? 'This session has finished.' : 'Wait for the session to begin.';
@@ -894,9 +950,11 @@
     if (question.score) {
       examEls.scoreImage.src = question.score;
       examEls.scoreImage.alt = question.scoreAlt || 'Printed score for the listening extract.';
+      renderExamLabScoreMasks(question.scoreMasks || []);
       examEls.scoreScroll.hidden = false;
       examEls.noScore.hidden = true;
     } else {
+      renderExamLabScoreMasks([]);
       examEls.scoreScroll.hidden = true;
       examEls.noScore.hidden = false;
     }
