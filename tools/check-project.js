@@ -6,6 +6,11 @@ const root = path.resolve(__dirname, '..');
 const requiredFiles = [
   'index.html',
   'server.js',
+  'modules/exam-lab/index.html',
+  'modules/exam-lab/script.js',
+  'modules/exam-lab/marking.js',
+  'modules/exam-lab/core/exam-lab-core.js',
+  'modules/exam-lab/teacher-adapter.js',
   'modules/instrument-identifier/index.html',
   'modules/instrument-identifier/script.js',
   'modules/instrument-identifier/progression.js',
@@ -58,6 +63,9 @@ if (!home.includes('modules/texture-trainer/index.html')) {
 }
 if (!home.includes('modules/meter-master/index.html')) {
   fail('Home page does not link to Meter Master.');
+}
+if (!home.includes('assets/icons/modules/exam-lab.png') || !home.includes('Exam Lab')) {
+  fail('Home page does not include the Exam Lab tile.');
 }
 
 const textureData = read('modules/texture-trainer/data/texture-questions.js');

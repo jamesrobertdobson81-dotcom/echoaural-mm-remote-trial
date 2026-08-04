@@ -5928,6 +5928,12 @@ body::after {
     drop-shadow(0 0 18px rgba(56, 189, 248, .42));
 }
 
+.teacher-mode-topbar-link.nav-explore-button.nav-action-button img[src$=".png"],
+.teacher-mode-topbar-link.nav-explore-button.nav-action-button:hover img[src$=".png"] {
+  border-radius: 6px;
+  filter: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .teacher-mode-topbar-link.nav-explore-button.nav-action-button,
   .teacher-mode-topbar-link.nav-explore-button.nav-action-button img {
@@ -7278,4 +7284,68 @@ body.mm-round-review-open .console-orbit {
   .melodic-devices-feedback-panel .melodic-devices-mark-metrics {
     grid-template-columns: 1fr;
   }
+}
+
+.topbar-module-icon img[src$=".png"],
+.mm-hero-icon img[src$=".png"],
+.console-mm-icon img[src$=".png"],
+.answer-empty-icon img[src$=".png"] {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit;
+  object-fit: contain;
+  filter: none !important;
+}
+
+.topbar-module-icon,
+.mm-hero-icon,
+.console-mm-icon,
+.answer-empty-icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.topbar-module-icon img[src$=".png"],
+.mm-hero-icon img[src$=".png"],
+.console-mm-icon img[src$=".png"],
+.answer-empty-icon img[src$=".png"] {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.teacher-mode-topbar-link.nav-explore-button.nav-action-button img[src$=".png"],
+.teacher-mode-topbar-link.nav-explore-button.nav-action-button:hover img[src$=".png"] {
+  object-fit: cover;
+  transform: none;
+}
+
+.setup-panel .progression-level-grid .level-button {
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  align-content: center;
+  column-gap: 11px;
+  padding: 8px 36px 8px 9px;
+}
+
+.setup-panel .progression-level-grid .level-icon {
+  grid-column: 1;
+  grid-row: 1;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 13px;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .22);
+}
+
+.setup-panel .progression-level-grid .level-button strong {
+  grid-column: 2;
+  grid-row: 1;
 }

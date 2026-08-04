@@ -8,7 +8,8 @@ const MODULE_TITLES = {
   'melodic-intervals': 'Melodic Intervals',
   'instrument-identifier': 'Instrument Identifier',
   'texture-trainer': 'Texture Trainer',
-  'meter-master': 'Meter Master'
+  'meter-master': 'Meter Master',
+  'exam-lab': 'Exam Lab'
 };
 
 function number(value) {
@@ -99,6 +100,114 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
   if (!room || !roomManager || !participant?.accountStudentId || !participant?.accountTeacherId) return null;
 
   const results = buildCumulativeResults(room, participant.id);
+
+  if (room.moduleId === 'exam-lab') {
+    const privateResult = room.submissions.get(participant.id)?.privateResult
+      || results.find((result) => result.privateResult)?.privateResult
+      || null;
+    const extract = roomManager.getQuestion(room, room.examLab?.extractIndex || room.questionIndex || 0, 'exam-lab');
+    if (!extract || !Array.isArray(extract.questions)) return null;
+    const submitted = Boolean(privateResult && Array.isArray(privateResult.outcomes));
+    const source = extract.source || {};
+    const sourceTitle = submitted
+      ? privateResult.sourceTitle
+      : [source.composer, source.work, source.movement].map((item) => cleanText(item, 240)).filter(Boolean).join(' — ');
+    const outcomes = submitted ? privateResult.outcomes : extract.questions.map((question, index) => {
+      const points = question.markPoints || question.markComponents || question.reasonCategories || [];
+      return {
+        internalQuestionId: question.id,
+        publicQuestionId: `question-${index + 1}`,
+        number: Number(question.number || index + 1),
+        prompt: question.prompt,
+        responseType: question.responseType,
+        answer: '',
+        marks: 0,
+        maxMarks: Number(question.marks || 0),
+        correct: false,
+        correctResponse: question.modelAnswer || question.correctChoice || '',
+        evidence: [],
+        details: points.map((point) => ({
+          label: point.label || point.id || 'Required musical point',
+          explanation: point.explanation || '',
+          suggestion: point.suggestion || '',
+          credited: false
+        })),
+        missingMarkPoints: points.map((point) => point.label || point.id || 'Required musical point'),
+        issues: ['No answer was submitted before the session finished.'],
+        skills: Array.isArray(question.skills) ? question.skills : [],
+        route: question.route || {},
+        feedback: 'No answer was submitted before the session finished.'
+      };
+    });
+    const questions = outcomes.map((outcome) => ({
+      moduleId: 'exam-lab',
+      moduleTitle: 'Exam Lab',
+      questionId: cleanText(outcome.internalQuestionId, 120),
+      score: number(outcome.marks),
+      maximumScore: number(outcome.maxMarks),
+      feedback: cleanText(outcome.feedback, 1000),
+      answerData: cleanJson({
+        source: 'classroom_live',
+        submitted,
+        roomCode: room.code,
+        classroomRoundId: Number(room.roundId || 1),
+        extractId: cleanText(privateResult?.internalExtractId || extract.id, 120),
+        questionId: cleanText(outcome.publicQuestionId, 120),
+        questionNumber: Number(outcome.number || 0),
+        title: `Question ${Number(outcome.number || 0)}`,
+        prompt: cleanText(outcome.prompt, 1000),
+        responseType: cleanText(outcome.responseType, 80),
+        answer: cleanText(outcome.answer, 2000),
+        correctResponse: cleanText(outcome.correctResponse, 1000),
+        correct: Boolean(outcome.correct),
+        evidence: Array.isArray(outcome.evidence) ? outcome.evidence.slice(0, 20).map((item) => cleanText(item, 120)) : [],
+        details: Array.isArray(outcome.details) ? outcome.details.slice(0, 20).map((detail) => ({
+          label: cleanText(detail.label, 500),
+          explanation: cleanText(detail.explanation, 1000),
+          suggestion: cleanText(detail.suggestion, 1000),
+          credited: Boolean(detail.credited)
+        })) : [],
+        missingMarkPoints: Array.isArray(outcome.missingMarkPoints) ? outcome.missingMarkPoints.slice(0, 20).map((item) => cleanText(item, 500)) : [],
+        issues: Array.isArray(outcome.issues) ? outcome.issues.slice(0, 20).map((item) => cleanText(item, 1000)) : [],
+        skills: Array.isArray(outcome.skills) ? outcome.skills.slice(0, 20).map((item) => cleanText(item, 120)) : [],
+        route: outcome.route && typeof outcome.route === 'object' ? {
+          module: cleanText(outcome.route.module, 120),
+          path: cleanText(outcome.route.path, 300),
+          status: outcome.route.status === 'live' ? 'live' : 'planned',
+          focus: cleanText(outcome.route.focus, 300)
+        } : {}
+      })
+    }));
+    const score = questions.reduce((sum, question) => sum + question.score, 0);
+    const maximumScore = questions.reduce((sum, question) => sum + question.maximumScore, 0);
+    return {
+      teacherId: participant.accountTeacherId,
+      studentId: participant.accountStudentId,
+      moduleId: 'exam-lab',
+      moduleTitle: 'Exam Lab',
+      score,
+      maximumScore,
+      questions,
+      roundFeedback: buildRoundFeedback(score, maximumScore, questions.length),
+      metadata: {
+        source: 'teacher_mode',
+        attemptSource: 'classroom_live',
+        roomCode: room.code,
+        classroomRoundId: Number(room.roundId || 1),
+        moduleId: 'exam-lab',
+        activityType: 'exam_lab',
+        extractId: cleanText(privateResult?.internalExtractId || extract.id, 120),
+        sourceTitle: cleanText(sourceTitle, 500),
+        classId: cleanText(room.classId, 120),
+        className: cleanText(room.className, 120),
+        submitted,
+        teacherMode: true,
+        feedbackReleased: Boolean(room.quizEnded)
+      },
+      clientRoundId: `teacher-mode:${room.code}:${Number(room.roundId || 1)}:${participant.accountStudentId}`
+    };
+  }
+
   if (!results.length) return null;
 
   const questions = results.map((result, index) => {

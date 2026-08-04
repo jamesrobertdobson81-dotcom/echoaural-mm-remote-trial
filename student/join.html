@@ -106,7 +106,9 @@
       setMessage('Joining room…');
       let studentId = ensureStudentId();
       try {
-        const response = await api('/api/classroom/join', { roomCode, studentId, name });
+        const accessStorageKey = `ea_classroom_access_${roomCode}`;
+        const studentAccessToken = window.sessionStorage.getItem(accessStorageKey) || '';
+        const response = await api('/api/classroom/join', { roomCode, studentId, name, studentAccessToken });
         studentId = String(response.studentId || studentId);
         name = String(response.studentName || name);
         window.sessionStorage.setItem('ea_classroom_student_tab_id', studentId);
@@ -115,6 +117,9 @@
         window.localStorage.setItem('ea_classroom_last_room', response.roomCode || roomCode);
         window.localStorage.setItem('ea_mm_classroom_student_name', name);
         window.localStorage.setItem('ea_mm_classroom_last_room', response.roomCode || roomCode);
+        if (response.studentAccessToken) {
+          window.sessionStorage.setItem(`ea_classroom_access_${response.roomCode || roomCode}`, response.studentAccessToken);
+        }
 
         if (response.moduleId === 'melody-master') {
           const target = `/modules/melody-master/student-laptop.html?room=${encodeURIComponent(response.roomCode || roomCode)}&name=${encodeURIComponent(name)}&student=${encodeURIComponent(studentId)}`;

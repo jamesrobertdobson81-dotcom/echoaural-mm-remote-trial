@@ -6,6 +6,7 @@ const {
   recordQuizSubmission,
   buildLeaderboard
 } = require('./scoring');
+const crypto = require('crypto');
 
 const DEFAULT_MAX_LISTENS = 4;
 const DEFAULT_QUIZ_TOTAL = 3;
@@ -237,6 +238,12 @@ class RoomManager {
     return this.adapters.get(moduleId) || this.adapters.get(this.defaultModuleId) || this.getAdapters()[0];
   }
 
+  getRequiredAdapter(moduleId = this.defaultModuleId) {
+    const adapter = this.adapters.get(moduleId);
+    if (!adapter) throw new Error(`Classroom module "${moduleId || 'unknown'}" is not available on this server.`);
+    return adapter;
+  }
+
   normaliseMixedModuleIds(moduleIds = DEFAULT_MIXED_MODULE_IDS) {
     const source = Array.isArray(moduleIds) ? moduleIds : String(moduleIds || '').split(',');
     const allowed = new Set(DEFAULT_MIXED_MODULE_IDS);
@@ -319,6 +326,16 @@ class RoomManager {
     return shuffleArray(order);
   }
 
+  buildRoomQuestionOrder(room, questionCount = 1, options = {}) {
+    if (this.isMixedRoom(room)) return this.buildMixedQuestionOrder(room.mixedModuleIds, questionCount, options);
+    const adapter = this.getAdapter(room.moduleId);
+    if (adapter && typeof adapter.getQuestionOrder === 'function') {
+      const order = adapter.getQuestionOrder(room, questionCount, options);
+      if (Array.isArray(order) && order.length) return order.slice(0, Math.max(1, Number(questionCount) || 1));
+    }
+    return this.buildRandomQuestionOrder(room.moduleId, questionCount, options);
+  }
+
   getQuestionTargetFromOrder(room = {}, orderPosition = 0) {
     if (!Array.isArray(room.questionOrder) || !room.questionOrder.length) {
       if (this.isMixedRoom(room)) return { moduleId: this.normaliseMixedModuleIds(room.mixedModuleIds)[0], questionIndex: 0 };
@@ -361,10 +378,20 @@ class RoomManager {
     }
   }
 
-  createRoom({ moduleId, questionLevel = 'all', mixedModuleIds = DEFAULT_MIXED_MODULE_IDS, baseUrl, apiBase = '', ownerTeacherId = null, ownerTeacherCode = '' }) {
+  createRoom({
+    moduleId,
+    questionLevel = 'all',
+    mixedModuleIds = DEFAULT_MIXED_MODULE_IDS,
+    baseUrl,
+    apiBase = '',
+    ownerTeacherId = null,
+    ownerTeacherCode = '',
+    classId = null,
+    className = ''
+  }) {
     this.cleanupExpiredRooms();
     const mixedRoom = isMixedModuleId(moduleId);
-    const adapter = mixedRoom ? null : this.getAdapter(moduleId);
+    const adapter = mixedRoom ? null : this.getRequiredAdapter(moduleId);
     const cleanMixedModuleIds = this.normaliseMixedModuleIds(mixedModuleIds);
     const code = this.makeRoomCode();
     const sharedUrlParams = apiBase ? { classroomApi: apiBase } : {};
@@ -385,8 +412,11 @@ class RoomManager {
       apiBase,
       ownerTeacherId: ownerTeacherId || null,
       ownerTeacherCode: String(ownerTeacherCode || '').trim().toUpperCase(),
+      classId: classId || null,
+      className: String(className || '').trim().slice(0, 80),
       moduleId: mixedRoom ? MIXED_MODULE_ID : adapter.id,
       moduleTitle: mixedRoom ? MIXED_MODULE_TITLE : (adapter.title || adapter.id),
+      activityType: mixedRoom ? 'quiz' : (adapter.activityType || 'quiz'),
       questionLevel: normaliseQuestionLevel(questionLevel),
       mixedModuleIds: cleanMixedModuleIds,
       studentMode: mixedRoom ? 'generic' : (adapter.studentMode || 'generic'),
@@ -428,6 +458,7 @@ class RoomManager {
       lastProgressSave: null,
       dismissed: false
     };
+    if (!mixedRoom && typeof adapter.initialiseRoom === 'function') adapter.initialiseRoom(room);
     this.rooms.set(code, room);
     return room;
   }
@@ -445,6 +476,7 @@ class RoomManager {
       if (room.moduleId === MIXED_MODULE_ID) return room;
       room.moduleId = MIXED_MODULE_ID;
       room.moduleTitle = MIXED_MODULE_TITLE;
+      room.activityType = 'quiz';
       room.studentMode = 'generic';
       room.mixedModuleIds = this.normaliseMixedModuleIds(options.mixedModuleIds);
       room.questionIndex = 0;
@@ -465,14 +497,16 @@ class RoomManager {
       room.roundId = Number(room.roundId || 1) + 1;
       room.lastProgressSave = null;
       room.dismissed = false;
+      delete room.examLab;
       room.laptopJoinUrl = `${room.baseUrl}/student/student-shell.html?room=${encodeURIComponent(room.code)}`;
       return room;
     }
 
-    const adapter = this.getAdapter(moduleId);
-    if (!adapter || adapter.id === room.moduleId) return room;
+    const adapter = this.getRequiredAdapter(moduleId);
+    if (adapter.id === room.moduleId) return room;
     room.moduleId = adapter.id;
     room.moduleTitle = adapter.title || adapter.id;
+    room.activityType = adapter.activityType || 'quiz';
     room.studentMode = adapter.studentMode || 'generic';
     room.mixedModuleIds = this.normaliseMixedModuleIds();
     room.questionIndex = 0;
@@ -493,6 +527,8 @@ class RoomManager {
     room.roundId = Number(room.roundId || 1) + 1;
     room.lastProgressSave = null;
     room.dismissed = false;
+    delete room.examLab;
+    if (typeof adapter.initialiseRoom === 'function') adapter.initialiseRoom(room);
     room.laptopJoinUrl = adapter.id === 'melody-master'
       ? `${room.baseUrl}/modules/melody-master/student-laptop.html?room=${encodeURIComponent(room.code)}`
       : adapter.id === 'instrument-identifier'
@@ -536,11 +572,15 @@ class RoomManager {
       room.quizQuestionNumber = 1;
       this.setQuestionLevel(room, options.questionLevel || room.questionLevel);
       const availableQuestionCount = this.getRoomQuestionCount(room, { questionLevel: room.questionLevel }) || questions.length || 1;
-      if (Number(options.quizLength)) room.quizTotal = Math.max(1, Math.min(Number(options.quizLength), availableQuestionCount));
-      if (Number(options.maxListens)) room.maxListens = Math.max(1, Math.min(Number(options.maxListens), 8));
-      room.questionOrder = mixedRoom
-        ? this.buildMixedQuestionOrder(room.mixedModuleIds, room.quizTotal || 1, { questionLevel: room.questionLevel })
-        : this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1, { questionLevel: room.questionLevel });
+      const requestedQuizLength = typeof adapter.normaliseQuizLength === 'function'
+        ? adapter.normaliseQuizLength(options.quizLength, room)
+        : options.quizLength;
+      const requestedMaxListens = typeof adapter.normaliseMaxListens === 'function'
+        ? adapter.normaliseMaxListens(options.maxListens, room)
+        : options.maxListens;
+      if (Number(requestedQuizLength)) room.quizTotal = Math.max(1, Math.min(Number(requestedQuizLength), availableQuestionCount));
+      if (Number(requestedMaxListens)) room.maxListens = Math.max(1, Math.min(Number(requestedMaxListens), 8));
+      room.questionOrder = this.buildRoomQuestionOrder(room, room.quizTotal || 1, { questionLevel: room.questionLevel });
       room.questionOrderPosition = 0;
       target = this.getQuestionTargetFromOrder(room, 0);
     } else if (options.advanceQuiz) {
@@ -555,9 +595,7 @@ class RoomManager {
       room.quizQuestionNumber = Math.max(1, Number(room.quizQuestionNumber || 1));
       if (!Array.isArray(room.questionOrder) || !room.questionOrder.length) {
         this.setQuestionLevel(room, options.questionLevel || room.questionLevel);
-        room.questionOrder = mixedRoom
-          ? this.buildMixedQuestionOrder(room.mixedModuleIds, room.quizTotal || 1, { questionLevel: room.questionLevel })
-          : this.buildRandomQuestionOrder(room.moduleId, room.quizTotal || 1, { questionLevel: room.questionLevel });
+        room.questionOrder = this.buildRoomQuestionOrder(room, room.quizTotal || 1, { questionLevel: room.questionLevel });
         room.questionOrderPosition = 0;
         target = this.getQuestionTargetFromOrder(room, 0);
       }
@@ -574,6 +612,8 @@ class RoomManager {
       questions = this.getQuestions(activeModuleId);
       if (!questions.length) throw new Error(`No questions found for ${MIXED_MODULE_TITLE}.`);
       targetIndex = Math.max(0, Math.min(Number(cleanTarget.questionIndex) || 0, questions.length - 1));
+    } else {
+      targetIndex = Math.max(0, Math.min(Number(target) || 0, Math.max(questions.length - 1, 0)));
     }
 
     room.questionIndex = Math.max(0, Math.min(Number(targetIndex) || 0, questions.length - 1));
@@ -670,6 +710,9 @@ class RoomManager {
     }
 
     const existing = room.students.get(studentId) || {};
+    const accessToken = room.moduleId === 'exam-lab'
+      ? (existing.accessToken || crypto.randomBytes(24).toString('base64url'))
+      : null;
     room.students.set(studentId, {
       ...existing,
       id: studentId,
@@ -677,7 +720,8 @@ class RoomManager {
       lastSeen: Date.now(),
       accountStudentId: accountStudentId || existing.accountStudentId || null,
       accountTeacherId: accountTeacherId || existing.accountTeacherId || null,
-      persistentAccount: Boolean(accountStudentId || existing.accountStudentId)
+      persistentAccount: Boolean(accountStudentId || existing.accountStudentId),
+      accessToken
     });
     return { ok: true, student: room.students.get(studentId) };
   }
@@ -727,6 +771,8 @@ class RoomManager {
       firstWrongNote: scoring.firstWrongNote,
       firstContourError: scoring.firstContourError,
       firstIntervalSizeError: scoring.firstIntervalSizeError,
+      answerData: scoring.answerData,
+      privateResult: scoring.privateResult,
       submittedAt: new Date().toISOString(),
       questionRunId: room.questionRunId
     };
@@ -737,6 +783,11 @@ class RoomManager {
 
   createRoomState(room, studentId = '') {
     const now = Date.now();
+    const roomAdapter = this.isMixedRoom(room) ? null : this.getAdapter(room.moduleId);
+    const isExamLab = room.moduleId === 'exam-lab';
+    const released = Boolean(room.quizEnded);
+    const role = studentId ? 'student' : 'teacher';
+    const canExposeClassScores = !isExamLab || (role === 'teacher' && released);
     const students = Array.from(room.students.values()).map((student) => {
       const submission = room.submissions.get(student.id);
       const questionTotal = room.totalMarks || room.totalNotes || 0;
@@ -749,13 +800,13 @@ class RoomManager {
         name: student.name,
         connected: now - Number(student.lastSeen || 0) < 15000,
         submitted: Boolean(submission),
-        score,
-        total,
-        percentage,
+        score: canExposeClassScores ? score : null,
+        total: canExposeClassScores ? total : null,
+        percentage: canExposeClassScores ? percentage : null,
         submittedAt: submission ? submission.submittedAt : null,
-        cumulativeScore: cumulative.score,
-        cumulativeTotal: cumulative.total,
-        cumulativePercentage: cumulative.percentage,
+        cumulativeScore: canExposeClassScores ? cumulative.score : null,
+        cumulativeTotal: canExposeClassScores ? cumulative.total : null,
+        cumulativePercentage: canExposeClassScores ? cumulative.percentage : null,
         questionsSubmitted: cumulative.questionsSubmitted,
         persistentAccount: Boolean(student.accountStudentId)
       };
@@ -767,6 +818,15 @@ class RoomManager {
     const cumulativeTotalPossible = students.reduce((sum, student) => sum + Number(student.cumulativeTotal || 0), 0);
     const cumulativeTotalCorrect = students.reduce((sum, student) => sum + Number(student.cumulativeScore || 0), 0);
     const studentSubmission = studentId ? room.submissions.get(studentId) : null;
+    const publicQuestion = roomAdapter && typeof roomAdapter.serialiseQuestion === 'function'
+      ? roomAdapter.serialiseQuestion(room.activeQuestion, { role, room, released })
+      : (room.activeQuestion || null);
+    const publicStudentSubmission = roomAdapter && typeof roomAdapter.serialiseSubmission === 'function'
+      ? roomAdapter.serialiseSubmission(studentSubmission, { role: 'student', room, released })
+      : (studentSubmission || null);
+    const classAnalysis = isExamLab && role === 'teacher' && released && typeof roomAdapter?.buildClassAnalysis === 'function'
+      ? roomAdapter.buildClassAnalysis(room)
+      : null;
 
     return {
       ok: true,
@@ -774,6 +834,11 @@ class RoomManager {
       roomCode: room.code,
       moduleId: room.moduleId,
       moduleTitle: room.moduleTitle,
+      activityType: room.activityType || 'quiz',
+      classroom: room.classId || room.className ? {
+        ...(role === 'teacher' && room.classId ? { id: room.classId } : {}),
+        name: room.className || 'Selected class'
+      } : null,
       questionModuleId: room.questionModuleId || room.moduleId,
       mixedModuleIds: this.isMixedRoom(room) ? this.normaliseMixedModuleIds(room.mixedModuleIds) : [],
       studentMode: room.studentMode,
@@ -785,6 +850,7 @@ class RoomManager {
       listens: room.listens,
       maxListens: Number(room.maxListens || DEFAULT_MAX_LISTENS),
       dismissed: Boolean(room.dismissed),
+      feedbackReleased: released,
       quiz: {
         totalQuestions: Number(room.quizTotal || DEFAULT_QUIZ_TOTAL),
         currentQuestionNumber: Number(room.quizQuestionNumber || 0),
@@ -799,11 +865,12 @@ class RoomManager {
       questionLevel: normaliseQuestionLevel(room.questionLevel),
       progressSave: room.lastProgressSave || null,
       playback: room.playback || null,
-      question: room.activeQuestion || null,
+      question: publicQuestion,
       totalNotes: room.totalNotes || 0,
       totalMarks: room.totalMarks || 0,
       students,
-      leaderboard: buildLeaderboard(students),
+      leaderboard: isExamLab ? [] : buildLeaderboard(students),
+      examLabAnalysis: classAnalysis,
       summary: {
         joined: students.length,
         connected: students.filter((student) => student.connected).length,
@@ -817,8 +884,8 @@ class RoomManager {
       student: studentId ? {
         id: studentId,
         submitted: Boolean(studentSubmission),
-        submission: studentSubmission || null,
-        results: buildCumulativeResults(room, studentId),
+        submission: publicStudentSubmission,
+        results: isExamLab ? [] : buildCumulativeResults(room, studentId),
         persistentAccount: Boolean(room.students.get(studentId)?.accountStudentId)
       } : null
     };

@@ -2,8 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const os = require('os');
+const crypto = require('crypto');
 const { RoomManager, DEFAULT_MAX_LISTENS } = require('./room-manager');
 const { getTeacherSession, getStudentSession } = require('../accounts/account-server');
+const { getPool } = require('../db/pool');
 const { saveTeacherModeProgress } = require('./progress-recorder');
 
 const MIME_TYPES = {
@@ -167,7 +169,11 @@ function createAdapters(projectRoot) {
   const instrumentAdapter = require(path.join(projectRoot, 'modules', 'instrument-identifier', 'teacher-adapter.js'))(context);
   const textureAdapter = require(path.join(projectRoot, 'modules', 'texture-trainer', 'teacher-adapter.js'))(context);
   const melodicIntervalsAdapter = require(path.join(projectRoot, 'modules', 'melodic-intervals', 'teacher-adapter.js'))(context);
-  return [melodyAdapter, instrumentAdapter, textureAdapter, melodicIntervalsAdapter];
+  const examLabAdapter = require(path.join(projectRoot, 'modules', 'exam-lab', 'teacher-adapter.js'))({
+    ...context,
+    moduleDir: path.join(projectRoot, 'modules', 'exam-lab')
+  });
+  return [melodyAdapter, instrumentAdapter, textureAdapter, melodicIntervalsAdapter, examLabAdapter];
 }
 
 function sendJson(res, statusCode, payload) {
@@ -216,6 +222,7 @@ function resolveQuestionAudioForBrowser(room, audioPath = '') {
   if (moduleId === 'instrument-identifier') return `/modules/instrument-identifier/${raw.replace(/^\.\//, '')}`;
   if (moduleId === 'texture-trainer') return `/modules/texture-trainer/${raw.replace(/^\.\//, '')}`;
   if (moduleId === 'melodic-intervals') return `/modules/melodic-intervals/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'exam-lab') return `/modules/exam-lab/${raw.replace(/^\.\//, '')}`;
 
   return raw;
 }
@@ -228,6 +235,13 @@ function resolveQuestionAudioSequenceForBrowser(room, question = {}) {
 function startPlayback(room, body = {}) {
   if (!room.activeQuestion) throw new Error('No question active yet.');
 
+  const now = Date.now();
+  if (room.moduleId === 'exam-lab' && room.playback && Number(room.playback.endsAt || 0) > now) {
+    const error = new Error('The extract is already playing.');
+    error.code = 'PLAYBACK_ACTIVE';
+    throw error;
+  }
+
   const maxListens = Number(room.maxListens || DEFAULT_MAX_LISTENS);
   if (room.listens >= maxListens) {
     throw new Error(`The class has already used all ${maxListens} ${maxListens === 1 ? 'play' : 'plays'} for this question.`);
@@ -235,7 +249,6 @@ function startPlayback(room, body = {}) {
 
   room.listens += 1;
 
-  const now = Date.now();
   const question = room.activeQuestion || {};
   const guidedPlayback = question.guidedPlayback || {};
 
@@ -264,6 +277,7 @@ function startPlayback(room, body = {}) {
     scoreCoverage: guidedPlayback.scoreCoverage || 'full-audio',
     sections: question.moduleId === 'melody-master' ? 3 : 1
   };
+  room.playback.endsAt = room.playback.audioStartAt + Math.round(audioDurationSeconds * 1000);
 
   return {
     audio: question.audio,
@@ -309,11 +323,116 @@ function createClassroomServer(options = {}) {
     }
   }
 
-  async function persistentParticipantIsAuthorised(req, room, studentId) {
+  function isExamLabRoom(room) {
+    return room?.moduleId === 'exam-lab';
+  }
+
+  function requestedClassroomModule(body = {}, fallback = '') {
+    const explicitModuleId = String(body.moduleId || body.module || '').trim();
+    if (explicitModuleId) return explicitModuleId;
+    if (body.mixedModuleIds) return 'mixed';
+    return String(fallback || '').trim();
+  }
+
+  function accessTokensMatch(left, right) {
+    const first = Buffer.from(String(left || ''));
+    const second = Buffer.from(String(right || ''));
+    return first.length > 0 && first.length === second.length && crypto.timingSafeEqual(first, second);
+  }
+
+  async function requireExamLabTeacher(req, res, room) {
+    if (!isExamLabRoom(room)) return true;
+    const teacher = await optionalTeacherSession(req);
+    if (!teacher) {
+      sendJson(res, 401, { ok: false, error: 'Teacher login required for Exam Lab.' });
+      return false;
+    }
+    if (!room.ownerTeacherId || String(room.ownerTeacherId) !== String(teacher.id)) {
+      sendJson(res, 403, { ok: false, error: 'This Exam Lab room belongs to another teacher.' });
+      return false;
+    }
+    return true;
+  }
+
+  async function persistentParticipantIsAuthorised(req, room, studentId, accessToken = '') {
     const participant = room?.students?.get(studentId);
+    if (!participant) return false;
     if (!participant?.accountStudentId) return true;
     const student = await optionalStudentSession(req);
     return Boolean(student && student.id === participant.accountStudentId);
+  }
+
+  async function participantIsAuthorised(req, room, studentId, accessToken = '') {
+    const participant = room?.students?.get(studentId);
+    if (!participant) return false;
+    if (!isExamLabRoom(room)) return persistentParticipantIsAuthorised(req, room, studentId, accessToken);
+    if (participant.accountStudentId) {
+      const student = await optionalStudentSession(req);
+      return Boolean(student && String(student.id) === String(participant.accountStudentId));
+    }
+    return accessTokensMatch(accessToken, participant.accessToken);
+  }
+
+  async function resolveOwnedClass(teacher, classId) {
+    const requestedClassId = String(classId || '').trim();
+    if (!requestedClassId) return null;
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestedClassId)) {
+      const error = new Error('Choose a valid class.');
+      error.statusCode = 400;
+      throw error;
+    }
+    const result = await getPool().query(`
+      SELECT id, class_name
+      FROM classes
+      WHERE id = $1
+        AND teacher_id = $2
+        AND active = TRUE
+      LIMIT 1
+    `, [requestedClassId, teacher.id]);
+    if (!result.rows[0]) {
+      const error = new Error('That class is not available to this teacher account.');
+      error.statusCode = 403;
+      throw error;
+    }
+    return result.rows[0];
+  }
+
+  async function serveExamLabAsset(req, res, room, kind) {
+    if (!room || !isExamLabRoom(room)) return sendJson(res, 404, { ok: false, error: 'Exam Lab room not found.' });
+
+    if (kind === 'audio') {
+      if (!(await requireExamLabTeacher(req, res, room))) return true;
+    } else {
+      const teacher = await optionalTeacherSession(req);
+      const teacherOwnsRoom = teacher && String(teacher.id) === String(room.ownerTeacherId || '');
+      if (!teacherOwnsRoom) {
+        const student = await optionalStudentSession(req);
+        const joined = student && Array.from(room.students.values()).some((participant) => (
+          String(participant.accountStudentId || '') === String(student.id)
+        ));
+        const correctTeacher = student && String(student.teacher_id || '') === String(room.ownerTeacherId || '');
+        const correctClass = !room.classId || (student && String(student.class_id || '') === String(room.classId));
+        if (!joined || !correctTeacher || !correctClass) {
+          return sendJson(res, 403, { ok: false, error: 'This Exam Lab score is not available to this account.' });
+        }
+      }
+    }
+
+    const adapter = roomManager.getAdapter('exam-lab');
+    const extract = typeof adapter?.getExtract === 'function' ? adapter.getExtract(room) : null;
+    const relativePath = kind === 'audio' ? extract?.audio : extract?.score;
+    const examLabRoot = path.join(projectRoot, 'modules', 'exam-lab');
+    const filePath = relativePath ? path.resolve(examLabRoot, relativePath) : '';
+    if (!filePath || !filePath.startsWith(`${examLabRoot}${path.sep}`) || !fs.existsSync(filePath)) {
+      return sendJson(res, 404, { ok: false, error: `Exam Lab ${kind} is unavailable.` });
+    }
+
+    res.writeHead(200, {
+      'Content-Type': MIME_TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
+      'Cache-Control': 'private, no-store'
+    });
+    fs.createReadStream(filePath).pipe(res);
+    return true;
   }
 
   async function saveEndedRoomProgress(room) {
@@ -358,12 +477,20 @@ function createClassroomServer(options = {}) {
         });
       }
 
+      if (req.method === 'GET' && (pathname === '/api/classroom/exam-lab/score' || pathname === '/api/classroom/exam-lab/audio')) {
+        const room = roomManager.getRoom(parsedUrl.searchParams.get('roomCode'));
+        const kind = pathname.endsWith('/audio') ? 'audio' : 'score';
+        return serveExamLabAsset(req, res, room, kind);
+      }
+
       if (req.method === 'GET' && pathname === '/api/classroom/state') {
         const room = roomManager.getRoom(parsedUrl.searchParams.get('roomCode'));
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
 
         const studentId = String(parsedUrl.searchParams.get('studentId') || '').trim();
-        if (!(await persistentParticipantIsAuthorised(req, room, studentId))) {
+        if (!studentId) {
+          if (!(await requireExamLabTeacher(req, res, room))) return true;
+        } else if (!(await participantIsAuthorised(req, room, studentId, parsedUrl.searchParams.get('accessToken')))) {
           return sendJson(res, 401, { ok: false, error: 'Student account login required for this classroom place.' });
         }
         roomManager.touchStudent(room, studentId);
@@ -383,7 +510,13 @@ function createClassroomServer(options = {}) {
           || normalizePublicBaseUrl(process.env.PUBLIC_API_URL);
 
         const teacherAccount = await optionalTeacherSession(req);
-        const requestedModuleId = body.mixedModuleIds ? 'mixed' : (body.moduleId || body.module || 'melody-master');
+        const requestedModuleId = requestedClassroomModule(body, 'melody-master');
+        if (requestedModuleId === 'exam-lab' && !teacherAccount) {
+          return sendJson(res, 401, { ok: false, error: 'Teacher login required to start Exam Lab.' });
+        }
+        const selectedClass = requestedModuleId === 'exam-lab'
+          ? await resolveOwnedClass(teacherAccount, body.classId)
+          : null;
         const room = roomManager.createRoom({
           moduleId: requestedModuleId,
           questionLevel: body.questionLevel,
@@ -391,7 +524,9 @@ function createClassroomServer(options = {}) {
           baseUrl: frontendBase,
           apiBase,
           ownerTeacherId: teacherAccount?.id || null,
-          ownerTeacherCode: teacherAccount?.teacher_code || ''
+          ownerTeacherCode: teacherAccount?.teacher_code || '',
+          classId: selectedClass?.id || null,
+          className: selectedClass?.class_name || ''
         });
 
         return sendJson(res, 200, {
@@ -412,7 +547,11 @@ function createClassroomServer(options = {}) {
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
 
-        const requestedModuleId = body.mixedModuleIds ? 'mixed' : body.moduleId;
+        const requestedModuleId = requestedClassroomModule(body);
+        if (requestedModuleId !== room.moduleId && (isExamLabRoom(room) || requestedModuleId === 'exam-lab')) {
+          return sendJson(res, 400, { ok: false, error: 'Create a new room when changing to or from Exam Lab.' });
+        }
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
         roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
 
         return sendJson(res, 200, {
@@ -425,15 +564,23 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
 
-        const requestedModuleId = body.mixedModuleIds ? 'mixed' : body.moduleId;
+        const requestedModuleId = requestedClassroomModule(body);
+        if (requestedModuleId && requestedModuleId !== room.moduleId && (isExamLabRoom(room) || requestedModuleId === 'exam-lab')) {
+          return sendJson(res, 400, { ok: false, error: 'Create a new room when changing to or from Exam Lab.' });
+        }
         if (requestedModuleId && requestedModuleId !== room.moduleId) roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
         if (requestedModuleId === room.moduleId && body.mixedModuleIds) roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
         roomManager.setQuestionLevel(room, body.questionLevel);
 
         const questionCount = roomManager.getRoomQuestionCount(room, { questionLevel: room.questionLevel }) || 1;
-        const quizLength = Math.max(1, Math.min(Number(body.quizLength) || room.quizTotal || 3, questionCount));
-        const maxListens = Math.max(1, Math.min(Number(body.maxListens) || room.maxListens || DEFAULT_MAX_LISTENS, 8));
+        const quizLength = isExamLabRoom(room)
+          ? 1
+          : Math.max(1, Math.min(Number(body.quizLength) || room.quizTotal || 3, questionCount));
+        const maxListens = isExamLabRoom(room)
+          ? Number(room.maxListens || 1)
+          : Math.max(1, Math.min(Number(body.maxListens) || room.maxListens || DEFAULT_MAX_LISTENS, 8));
 
         room.quizTotal = quizLength;
         room.maxListens = maxListens;
@@ -449,17 +596,21 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
 
         if (room.quizEnded && body.resetQuiz) await saveEndedRoomProgress(room);
-        const requestedModuleId = body.mixedModuleIds ? 'mixed' : body.moduleId;
+        const requestedModuleId = requestedClassroomModule(body);
+        if (requestedModuleId && requestedModuleId !== room.moduleId && (isExamLabRoom(room) || requestedModuleId === 'exam-lab')) {
+          return sendJson(res, 400, { ok: false, error: 'Create a new room when changing to or from Exam Lab.' });
+        }
         if (requestedModuleId && requestedModuleId !== room.moduleId) roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
         if (requestedModuleId === room.moduleId && body.mixedModuleIds) roomManager.setRoomModule(room, requestedModuleId, { mixedModuleIds: body.mixedModuleIds });
         roomManager.setQuestionLevel(room, body.questionLevel);
 
         const question = roomManager.startQuestion(room, body.questionIndex || 0, {
           resetQuiz: Boolean(body.resetQuiz),
-          quizLength: body.quizLength,
-          maxListens: body.maxListens,
+          quizLength: isExamLabRoom(room) ? 1 : body.quizLength,
+          maxListens: isExamLabRoom(room) ? room.maxListens : body.maxListens,
           questionLevel: body.questionLevel
         });
 
@@ -474,6 +625,7 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
 
         if (room.quizStarted && Number(room.quizQuestionNumber || 0) >= Number(room.quizTotal || 1)) {
           roomManager.endQuiz(room);
@@ -505,10 +657,19 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
 
         if (!room.activeQuestion) roomManager.startQuestion(room, room.questionIndex || 0);
 
-        const playback = startPlayback(room, body);
+        let playback;
+        try {
+          playback = startPlayback(room, body);
+        } catch (error) {
+          if (error.code === 'PLAYBACK_ACTIVE') {
+            return sendJson(res, 409, { ok: false, error: 'The extract is already playing.', state: roomManager.createRoomState(room) });
+          }
+          throw error;
+        }
 
         return sendJson(res, 200, {
           ok: true,
@@ -526,6 +687,7 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
 
         roomManager.closeSubmissions(room);
 
@@ -539,6 +701,7 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
 
         const question = roomManager.resetQuestion(room);
 
@@ -553,6 +716,7 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
 
         roomManager.endQuiz(room);
         const progressSaved = await saveEndedRoomProgress(room);
@@ -568,6 +732,7 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
 
         if (room.quizEnded) await saveEndedRoomProgress(room);
         roomManager.prepareNextRound(room);
@@ -582,6 +747,7 @@ function createClassroomServer(options = {}) {
         const body = await readJsonBody(req);
         const room = roomManager.getRoom(body.roomCode);
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
+        if (!(await requireExamLabTeacher(req, res, room))) return true;
 
         roomManager.dismiss(room);
         const progressSaved = await saveEndedRoomProgress(room);
@@ -599,14 +765,29 @@ function createClassroomServer(options = {}) {
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code. Check the teacher screen.' });
 
         const accountStudent = await optionalStudentSession(req);
+        if (isExamLabRoom(room) && !accountStudent) {
+          return sendJson(res, 401, { ok: false, error: 'Sign in with your EchoAural student account before joining Exam Lab.' });
+        }
         if (accountStudent && room.ownerTeacherId && room.ownerTeacherId !== accountStudent.teacher_id) {
           return sendJson(res, 403, { ok: false, error: 'This classroom belongs to a different teacher account.' });
+        }
+        if (isExamLabRoom(room) && room.classId && String(accountStudent.class_id || '') !== String(room.classId)) {
+          return sendJson(res, 403, { ok: false, error: 'This Exam Lab room is for a different class.' });
         }
 
         const studentId = accountStudent
           ? `account-${accountStudent.id}`
           : safeStudentId(body.studentId);
         const studentName = accountStudent?.display_name || body.name;
+        const existingParticipant = room.students.get(studentId);
+        if (
+          isExamLabRoom(room)
+          && existingParticipant
+          && !accountStudent
+          && !accessTokensMatch(body.studentAccessToken, existingParticipant.accessToken)
+        ) {
+          return sendJson(res, 401, { ok: false, error: 'Rejoin Exam Lab from the original browser tab.' });
+        }
         const joined = roomManager.joinRoom(room, studentId, studentName, accountStudent ? {
           studentId: accountStudent.id,
           teacherId: accountStudent.teacher_id
@@ -614,11 +795,13 @@ function createClassroomServer(options = {}) {
 
         if (!joined.ok) return sendJson(res, 400, { ok: false, error: joined.error });
 
-        const submission = room.submissions.get(studentId) || null;
+        const state = roomManager.createRoomState(room, studentId);
+        const submission = state.student?.submission || null;
 
         return sendJson(res, 200, {
           ok: true,
           studentId,
+          studentAccessToken: isExamLabRoom(room) ? joined.student.accessToken : '',
           studentName: joined.student.name,
           persistentAccount: Boolean(joined.student.accountStudentId),
           roomCode: room.code,
@@ -628,10 +811,10 @@ function createClassroomServer(options = {}) {
           studentShellUrl: room.studentShellUrl,
           laptopJoinUrl: room.laptopJoinUrl,
           submissionsOpen: room.submissionsOpen,
-          question: room.activeQuestion,
+          question: state.question,
           alreadySubmitted: Boolean(submission),
           submission,
-          state: roomManager.createRoomState(room, studentId)
+          state
         });
       }
 
@@ -641,17 +824,18 @@ function createClassroomServer(options = {}) {
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code.' });
 
         const studentId = String(body.studentId || '').trim();
-        if (!(await persistentParticipantIsAuthorised(req, room, studentId))) {
-          return sendJson(res, 401, { ok: false, error: 'Student account login required for this classroom place.' });
+        if (!(await participantIsAuthorised(req, room, studentId, body.accessToken))) {
+          return sendJson(res, 401, { ok: false, error: 'Student access expired. Rejoin the classroom.' });
         }
 
         try {
           const submission = roomManager.submitAnswer(room, studentId, body);
+          const state = roomManager.createRoomState(room, studentId);
 
           return sendJson(res, 200, {
             ok: true,
-            submission,
-            state: roomManager.createRoomState(room, studentId)
+            submission: isExamLabRoom(room) ? state.student?.submission : submission,
+            state
           });
         } catch (error) {
           const status = error.code === 'ALREADY_SUBMITTED' || error.code === 'SUBMISSIONS_CLOSED' ? 400 : 404;
@@ -667,7 +851,7 @@ function createClassroomServer(options = {}) {
       return false;
     } catch (error) {
       console.error('[EchoAural classroom] API error:', error);
-      sendJson(res, 500, { ok: false, error: error.message || 'Server error.' });
+      sendJson(res, Number(error.statusCode || 500), { ok: false, error: error.message || 'Server error.' });
       return true;
     }
   }
@@ -772,5 +956,6 @@ module.exports = {
   getLocalNetworkIp,
   getMp3DurationSeconds,
   normalizePublicBaseUrl,
+  startPlayback,
   MIME_TYPES
 };

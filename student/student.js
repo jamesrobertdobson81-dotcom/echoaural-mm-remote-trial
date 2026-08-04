@@ -44,6 +44,30 @@
     answerModuleGradient: document.getElementById('answerModuleGradient')
   };
 
+  const examEls = {
+    genericLayout: document.getElementById('genericClassroomLayout'),
+    layout: document.getElementById('examLabLiveLayout'),
+    roomCode: document.getElementById('examLabRoomCode'),
+    studentName: document.getElementById('examLabStudentName'),
+    studentStatus: document.getElementById('examLabStudentStatus'),
+    playState: document.getElementById('examLabPlayState'),
+    waiting: document.getElementById('examLabWaiting'),
+    scoreScroll: document.getElementById('examLabScoreScroll'),
+    scoreCanvas: document.getElementById('examLabScoreCanvas'),
+    scoreImage: document.getElementById('examLabScoreImage'),
+    noScore: document.getElementById('examLabNoScore'),
+    zoomOut: document.getElementById('examLabZoomOut'),
+    zoomIn: document.getElementById('examLabZoomIn'),
+    zoomLabel: document.getElementById('examLabZoomLabel'),
+    fitScore: document.getElementById('examLabFitScore'),
+    form: document.getElementById('examLabAnswerForm'),
+    questionList: document.getElementById('examLabQuestionList'),
+    answerProgress: document.getElementById('examLabAnswerProgress'),
+    formMessage: document.getElementById('examLabFormMessage'),
+    submitButton: document.getElementById('examLabSubmitButton'),
+    feedback: document.getElementById('examLabPrivateFeedback')
+  };
+
   const params = new URLSearchParams(window.location.search);
   let roomCode = normaliseRoomCode(params.get('room') || window.localStorage.getItem('ea_classroom_last_room'));
   let studentId = String(params.get('student') || window.sessionStorage.getItem('ea_classroom_student_tab_id') || '').trim();
@@ -57,6 +81,10 @@
   let submitted = false;
   let studentAudioUnlocked = false;
   let studentAudioTimer = null;
+  let examLabAccessToken = roomCode ? (window.sessionStorage.getItem(`ea_classroom_access_${roomCode}`) || '') : '';
+  let examLabRenderedRunId = null;
+  let examLabZoom = 1;
+  let examLabFeedbackKey = '';
 
   const SILENT_AUDIO_DATA_URI = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
   const MI_NOTE_ASSET = '/modules/melody-master/assets/icons/notes/crotchet-sibelius.png';
@@ -186,7 +214,7 @@
         title: 'Instrument Identifier',
         main: 'Instrument',
         gradient: 'Identifier',
-        icon: '/assets/icons/modules/instrument-identifier.svg',
+        icon: '/assets/icons/modules/instrument-identifier.png',
         hint: 'Choose the instrument you can hear, then submit your answer.'
       };
     }
@@ -196,8 +224,18 @@
         title: 'Melodic Intervals',
         main: 'Melodic',
         gradient: 'Intervals',
-        icon: '/assets/icons/modules/melodic-intervals.svg',
+        icon: '/assets/icons/modules/melodic-intervals.png',
         hint: 'Read the stave, listen to the two notes, then choose the interval.'
+      };
+    }
+    if (moduleId === 'exam-lab') {
+      return {
+        id: 'exam-lab',
+        title: 'Exam Lab',
+        main: 'Exam',
+        gradient: 'Lab',
+        icon: '/assets/icons/modules/exam-lab.png',
+        hint: 'Complete the private answer sheet, then submit when ready.'
       };
     }
     return {
@@ -205,7 +243,7 @@
       title: 'Mixed Apps',
       main: 'Mixed',
       gradient: 'Apps',
-      icon: '/assets/icons/dashboard/progress-mode.svg',
+      icon: '/assets/icons/dashboard/progress-mode.png',
       hint: 'Your answer panel will update for each app question.'
     };
   }
@@ -274,7 +312,7 @@
   }
 
   async function api(path, body = null, method = body ? 'POST' : 'GET') {
-    const options = { method, headers: { Accept: 'application/json' } };
+    const options = { method, credentials: 'same-origin', headers: { Accept: 'application/json' } };
     if (body) {
       options.headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(body);
@@ -702,13 +740,231 @@
     }
   }
 
+  function setExamLabZoom(value) {
+    examLabZoom = Math.max(0.7, Math.min(1.75, Number(value) || 1));
+    if (examEls.scoreCanvas) examEls.scoreCanvas.style.width = `${examLabZoom * 100}%`;
+    if (examEls.zoomLabel) examEls.zoomLabel.textContent = `${Math.round(examLabZoom * 100)}%`;
+  }
+
+  function examLabAnswer(question) {
+    if (!examEls.form || !question?.id) return '';
+    if (question.responseType === 'multiple-choice') {
+      return examEls.form.querySelector(`input[name="${question.id}"]:checked`)?.value || '';
+    }
+    return examEls.form.elements[question.id]?.value || '';
+  }
+
+  function examLabCompletedCount(question = currentState?.question || {}) {
+    const questions = Array.isArray(question.questions) ? question.questions : [];
+    return questions.filter((item) => String(examLabAnswer(item) || '').trim()).length;
+  }
+
+  function updateExamLabCompletion() {
+    const question = currentState?.question || {};
+    const questions = Array.isArray(question.questions) ? question.questions : [];
+    const completed = examLabCompletedCount(question);
+    if (examEls.answerProgress) examEls.answerProgress.textContent = `${completed}/${questions.length}`;
+    if (!questions.length || currentState?.student?.submitted || !currentState?.submissionsOpen) return;
+    const remaining = questions.length - completed;
+    examEls.submitButton.disabled = remaining > 0;
+    examEls.formMessage.textContent = remaining
+      ? `Complete ${remaining} more question${remaining === 1 ? '' : 's'}.`
+      : 'All answers complete. Submit when ready.';
+  }
+
+  function renderExamLabQuestionControls(question = {}) {
+    const questions = Array.isArray(question.questions) ? question.questions : [];
+    examEls.questionList.innerHTML = questions.map((item, index) => {
+      const inputId = `exam-live-${item.id}`;
+      let control = '';
+      if (item.responseType === 'multiple-choice') {
+        control = `<div class="exam-lab-choice-grid" role="radiogroup" aria-label="${escapeHTML(item.prompt)}">
+          ${(item.options || []).map((option) => `<label><input type="radio" name="${escapeHTML(item.id)}" value="${escapeHTML(option)}" /><span>${escapeHTML(option)}</span></label>`).join('')}
+        </div>`;
+      } else if (item.responseType === 'extended-text') {
+        control = `<textarea id="${escapeHTML(inputId)}" name="${escapeHTML(item.id)}" rows="3" maxlength="2000" placeholder="${escapeHTML(item.placeholder || 'Write your musical answer.')}"></textarea>`;
+      } else {
+        control = `<input id="${escapeHTML(inputId)}" name="${escapeHTML(item.id)}" type="text" maxlength="500" autocomplete="off" />`;
+      }
+      return `<article class="exam-lab-live-question">
+        <div class="exam-lab-question-head">
+          <span>${Number(item.number || index + 1)}</span>
+          ${item.responseType === 'multiple-choice'
+            ? `<strong>${escapeHTML(item.prompt)}</strong>`
+            : `<label for="${escapeHTML(inputId)}">${escapeHTML(item.prompt)}</label>`}
+          <em>[${Number(item.marks || 1)}]</em>
+        </div>
+        ${control}
+      </article>`;
+    }).join('');
+    examEls.form.oninput = updateExamLabCompletion;
+    examEls.form.onchange = updateExamLabCompletion;
+    updateExamLabCompletion();
+  }
+
+  function lockExamLabForm(message) {
+    examEls.form.querySelectorAll('input, textarea').forEach((field) => { field.disabled = true; });
+    examEls.submitButton.disabled = true;
+    examEls.formMessage.textContent = message;
+  }
+
+  function examLabRouteHref(route = {}) {
+    if (route.status !== 'live' || !route.path || route.path === '#') return '';
+    const clean = String(route.path).replace(/^\.\.\//, '');
+    return clean.startsWith('/') ? clean : `/modules/${clean}`;
+  }
+
+  function showExamLabPrivateFeedback(result, state) {
+    if (!result || !examEls.feedback) return;
+    const feedbackKey = `${state.roomCode}:${state.roundId}:${result.score}:${result.maximumScore}`;
+    if (examLabFeedbackKey === feedbackKey && !examEls.feedback.hidden) return;
+    examLabFeedbackKey = feedbackKey;
+    const outcomeRows = (result.outcomes || []).map((outcome) => {
+      const missing = (outcome.missingMarkPoints || []).length
+        ? `<small>Missing: ${escapeHTML(outcome.missingMarkPoints.join('; '))}</small>`
+        : '';
+      return `<article class="exam-lab-feedback-row ${outcome.marks >= outcome.maxMarks ? 'is-secure' : 'is-focus'}">
+        <div><strong>Question ${Number(outcome.number || 0)}</strong><span>${escapeHTML(outcome.answer || 'No answer')}</span></div>
+        <em>${Number(outcome.marks || 0)} / ${Number(outcome.maxMarks || 0)}</em>
+        <p>${escapeHTML(outcome.feedback || '')}</p>
+        ${outcome.correctResponse ? `<small><strong>Accepted response:</strong> ${escapeHTML(outcome.correctResponse)}</small>` : ''}
+        ${missing}
+      </article>`;
+    }).join('');
+    const recommendations = (result.recommendations || []).map((recommendation) => {
+      const route = recommendation.route || {};
+      const href = examLabRouteHref(route);
+      return `<div class="exam-lab-feedback-route">
+        <strong>${escapeHTML(route.module || 'Review this skill')}</strong>
+        <span>${escapeHTML(recommendation.reason || route.focus || '')}</span>
+        ${href ? `<a href="${escapeHTML(href)}">Open practice</a>` : '<em>No live practice route yet</em>'}
+      </div>`;
+    }).join('');
+    examEls.feedback.innerHTML = `<section class="exam-lab-private-feedback-card">
+      <button id="examLabFeedbackClose" type="button" aria-label="Close private feedback">×</button>
+      <p class="eyebrow">PRIVATE ROUND FEEDBACK</p>
+      <div class="exam-lab-feedback-hero"><span>Your score</span><strong>${Number(result.score || 0)} / ${Number(result.maximumScore || 0)}</strong><small>${Number(result.percentage || 0)}%</small></div>
+      ${result.sourceTitle ? `<p class="exam-lab-source-reveal">Source: ${escapeHTML(result.sourceTitle)}</p>` : ''}
+      <div class="exam-lab-feedback-list">${outcomeRows}</div>
+      ${recommendations ? `<div class="exam-lab-feedback-routes"><h3>Recommended practice</h3>${recommendations}</div>` : ''}
+      <button id="examLabFeedbackReview" class="primary-button" type="button">Review Answers</button>
+    </section>`;
+    examEls.feedback.hidden = false;
+    document.body.classList.add('exam-lab-feedback-open');
+    const close = () => {
+      examEls.feedback.hidden = true;
+      document.body.classList.remove('exam-lab-feedback-open');
+    };
+    document.getElementById('examLabFeedbackClose')?.addEventListener('click', close);
+    document.getElementById('examLabFeedbackReview')?.addEventListener('click', close);
+  }
+
+  function renderExamLabState(state) {
+    const question = state.question || null;
+    const questions = Array.isArray(question?.questions) ? question.questions : [];
+    const ownSubmission = state.student?.submission || null;
+    const submittedState = Boolean(state.student?.submitted);
+    document.title = 'Exam Lab Live Session | EchoAural';
+    document.body.classList.add('exam-lab-live-student');
+    setModulePresentation('exam-lab');
+    examEls.genericLayout.hidden = true;
+    examEls.layout.hidden = false;
+    els.roomPill.textContent = `Room ${state.roomCode || roomCode}`;
+    examEls.roomCode.textContent = state.roomCode || roomCode;
+    examEls.studentName.textContent = studentName || 'Student';
+
+    const playback = state.playback || {};
+    const playing = Number(playback.endsAt || 0) > Number(state.serverNow || Date.now());
+    if (playing) examEls.playState.textContent = `Playing ${Number(playback.listen || state.listens || 1)} of ${Number(state.maxListens || 1)} — listen from the teacher’s device.`;
+    else if (state.listens) examEls.playState.textContent = `${Number(state.listens)} of ${Number(state.maxListens || 1)} playings used.`;
+    else examEls.playState.textContent = 'Waiting for the teacher to play the extract.';
+
+    if (!question) {
+      examEls.studentStatus.textContent = state.quiz?.ended ? 'Finished' : 'Waiting';
+      examEls.waiting.hidden = false;
+      examEls.scoreScroll.hidden = true;
+      examEls.noScore.hidden = true;
+      examEls.questionList.innerHTML = '';
+      examEls.submitButton.disabled = true;
+      examEls.formMessage.textContent = state.quiz?.ended ? 'This session has finished.' : 'Wait for the session to begin.';
+      return;
+    }
+
+    examEls.waiting.hidden = true;
+    if (question.score) {
+      examEls.scoreImage.src = question.score;
+      examEls.scoreImage.alt = question.scoreAlt || 'Printed score for the listening extract.';
+      examEls.scoreScroll.hidden = false;
+      examEls.noScore.hidden = true;
+    } else {
+      examEls.scoreScroll.hidden = true;
+      examEls.noScore.hidden = false;
+    }
+
+    if (examLabRenderedRunId !== Number(state.questionRunId || 0)) {
+      examLabRenderedRunId = Number(state.questionRunId || 0);
+      renderExamLabQuestionControls(question);
+    }
+
+    examEls.answerProgress.textContent = `${examLabCompletedCount(question)}/${questions.length}`;
+    if (state.feedbackReleased && ownSubmission?.examLabResult) {
+      examEls.studentStatus.textContent = 'Feedback released';
+      lockExamLabForm(`Session finished · ${ownSubmission.score} / ${ownSubmission.total} marks.`);
+      showExamLabPrivateFeedback(ownSubmission.examLabResult, state);
+    } else if (state.feedbackReleased) {
+      examEls.studentStatus.textContent = 'Finished';
+      lockExamLabForm('Session finished. No answers were submitted.');
+    } else if (submittedState) {
+      examEls.studentStatus.textContent = 'Submitted';
+      lockExamLabForm('Answers submitted. Private feedback will appear when the teacher finishes the session.');
+    } else if (!state.submissionsOpen) {
+      examEls.studentStatus.textContent = 'Locked';
+      lockExamLabForm('The teacher has locked submissions.');
+    } else {
+      examEls.studentStatus.textContent = 'Answering';
+      examEls.form.querySelectorAll('input, textarea').forEach((field) => { field.disabled = false; });
+      updateExamLabCompletion();
+    }
+  }
+
+  async function submitExamLabAnswers(event) {
+    event.preventDefault();
+    if (!currentState || currentState.moduleId !== 'exam-lab' || currentState.student?.submitted || !currentState.submissionsOpen) return;
+    const questions = Array.isArray(currentState.question?.questions) ? currentState.question.questions : [];
+    const answers = questions.map((question) => ({ questionId: question.id, answer: String(examLabAnswer(question) || '').trim() }));
+    if (answers.some((item) => !item.answer)) {
+      examEls.formMessage.textContent = 'Answer every question before submitting.';
+      return;
+    }
+    examEls.submitButton.disabled = true;
+    examEls.submitButton.textContent = 'Submitting…';
+    try {
+      const response = await api('/api/classroom/submit', {
+        roomCode,
+        studentId,
+        accessToken: examLabAccessToken,
+        answers
+      });
+      examEls.submitButton.textContent = 'Submitted';
+      renderExamLabState(response.state);
+    } catch (error) {
+      examEls.submitButton.textContent = 'Submit Answers';
+      examEls.submitButton.disabled = false;
+      examEls.formMessage.textContent = error.message || 'Could not submit your answers.';
+    }
+  }
+
   function handleState(state) {
     currentState = state;
-    updateMixedSummary(state);
     if (state.dismissed) {
       window.location.href = '/join';
       return;
     }
+    if (state.moduleId === 'exam-lab') {
+      renderExamLabState(state);
+      return;
+    }
+    updateMixedSummary(state);
     els.roomPill.textContent = `Room ${state.roomCode || roomCode}`;
     els.moduleEyebrow.textContent = String(state.moduleTitle || 'EchoAural').toUpperCase();
 
@@ -745,7 +1001,8 @@
   async function refreshState() {
     if (!roomCode || !studentId) return;
     try {
-      const state = await api(`/api/classroom/state?roomCode=${encodeURIComponent(roomCode)}&studentId=${encodeURIComponent(studentId)}`);
+      const accessQuery = examLabAccessToken ? `&accessToken=${encodeURIComponent(examLabAccessToken)}` : '';
+      const state = await api(`/api/classroom/state?roomCode=${encodeURIComponent(roomCode)}&studentId=${encodeURIComponent(studentId)}${accessQuery}`);
       handleState(state);
     } catch (error) {
       setWaiting(error.message || 'Connection lost. Check the room code or ask your teacher to recreate the session.');
@@ -795,6 +1052,11 @@
     els.enableAudioButton.addEventListener('click', unlockStudentAudio);
     els.manualPlayButton.addEventListener('click', () => playStudentQuestionAudio(currentState?.question || {}));
     els.submitButton.addEventListener('click', submitAnswer);
+    examEls.form.addEventListener('submit', submitExamLabAnswers);
+    examEls.zoomIn.addEventListener('click', () => setExamLabZoom(examLabZoom + 0.15));
+    examEls.zoomOut.addEventListener('click', () => setExamLabZoom(examLabZoom - 0.15));
+    examEls.fitScore.addEventListener('click', () => setExamLabZoom(1));
+    setExamLabZoom(1);
     setWaiting('You are in. Wait for your teacher to start the question.');
     startPolling();
   }

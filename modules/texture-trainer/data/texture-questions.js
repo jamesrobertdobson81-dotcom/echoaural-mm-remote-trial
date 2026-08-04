@@ -4345,7 +4345,6 @@ const TT_REVIEW_APPROVED_IDS = new Set([
   "TT035",
   "TT036",
   "TT037",
-  "TT039",
   "TT041",
   "TT042",
   "TT043",
@@ -4458,6 +4457,10 @@ const TT_REVIEW_DROPPED_IDS = new Set([
   "TT144",
   "TT145",
   "TT146"
+]);
+
+const TT_REVIEW_QUEUE_IDS = new Set([
+  "TT039"
 ]);
 
 const TT_REVIEW_LEVEL_OVERRIDES = {
@@ -4715,6 +4718,7 @@ const TT_REVIEW_QUESTION_OVERRIDES = {
     markPoints: [point("Texture", [...HOMOPHONIC_TERM_ACCEPTED, ...CHORDAL_ACCEPTED], [...HOMOPHONIC_PARTIAL, ...CHORDAL_PARTIAL])]
   },
   TT039: {
+    reviewNote: "Removed from live Texture Trainer rounds for review: the extract is homophonic, with only a soprano voice entering near the end. Rework the question later.",
     modelAnswer: "Award one mark for each valid point: voices enter one after another; entries imitate one another; independent lines overlap; the texture becomes thicker; the resulting texture is polyphonic, contrapuntal or fugal. (2)",
     markPoints: [
       point("Texture build 1", [...IMITATIVE_ACCEPTED, ...THICKENS_ACCEPTED], [...IMITATIVE_PARTIAL, ...THICKENS_PARTIAL]),
@@ -4850,6 +4854,20 @@ const TT_REVIEW_QUESTION_OVERRIDES = {
     questionType: "multiple-choice",
     modelAnswer: "Monophonic. (1)",
     markPoints: [point("Texture", MONOPHONIC_ACCEPTED, MONOPHONIC_PARTIAL)]
+  },
+  TT091: {
+    prompt: "Identify the texture. (1)",
+    maxMarks: 1,
+    responseType: "short-text",
+    questionType: "written-response",
+    answerOptions: [],
+    answerChoices: [],
+    target: "Homophonic texture",
+    textureFocus: "Homophonic texture",
+    preferredAnswer: "Homophonic",
+    correctChoice: "Homophonic",
+    modelAnswer: "Homophonic. (1)",
+    markPoints: [point("Texture", [...HOMOPHONIC_TERM_ACCEPTED, ...CHORDAL_ACCEPTED], [...HOMOPHONIC_PARTIAL, ...CHORDAL_PARTIAL])]
   },
   TT093: {
     prompt: "Describe the texture in two ways, including how the accompaniment supports the principal melody. (2)"
@@ -5046,6 +5064,10 @@ function applyTextureTrainerReviewOverrides(question) {
   return updatedQuestion;
 }
 
-window.textureQuestions = window.textureQuestions
-  .filter((question) => TT_REVIEW_APPROVED_IDS.has(question.id) && !TT_REVIEW_DROPPED_IDS.has(question.id))
-  .map(applyTextureTrainerReviewOverrides);
+const TT_REVIEW_READY_QUESTIONS = window.textureQuestions.map(applyTextureTrainerReviewOverrides);
+
+window.textureReviewQuestions = TT_REVIEW_READY_QUESTIONS
+  .filter((question) => (TT_REVIEW_APPROVED_IDS.has(question.id) || TT_REVIEW_QUEUE_IDS.has(question.id)) && !TT_REVIEW_DROPPED_IDS.has(question.id));
+
+window.textureQuestions = TT_REVIEW_READY_QUESTIONS
+  .filter((question) => TT_REVIEW_APPROVED_IDS.has(question.id) && !TT_REVIEW_DROPPED_IDS.has(question.id));

@@ -68,6 +68,12 @@ function normaliseScoring(adapterScoring = {}, fallback = {}) {
     feedback: safeString(adapterScoring.feedback ?? adapterScoring.shortComment, ''),
     matchType: safeString(adapterScoring.matchType, ''),
     modelAnswer: safeString(adapterScoring.modelAnswer, ''),
+    answerData: adapterScoring.answerData && typeof adapterScoring.answerData === 'object'
+      ? adapterScoring.answerData
+      : {},
+    privateResult: adapterScoring.privateResult && typeof adapterScoring.privateResult === 'object'
+      ? adapterScoring.privateResult
+      : null,
     firstWrongNote: adapterScoring.firstWrongNote || null,
     firstContourError: safeString(adapterScoring.firstContourError, ''),
     firstIntervalSizeError: safeString(adapterScoring.firstIntervalSizeError, '')
