@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadences | Harmony Explorer | EchoAural</title>
+  <link rel="stylesheet" href="../harmony-explorer/style.css" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
+</head>
+<body>
+  <div class="app-shell" data-brand-app="harmony-explorer">
+    <header class="topbar">
+      <a class="brand refined-logo" href="../harmony-explorer/index.html" aria-label="Back to Harmony Explorer">
+        <span class="brand-wave refined-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+        <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+      </a>
+      <nav class="topbar-actions" aria-label="Cadences navigation">
+        <a class="topbar-module-chip" href="#gameScreen" aria-label="Cadences module">
+          <span class="topbar-ii-mark" aria-hidden="true"><span class="topbar-ii-main">H</span><span class="topbar-ii-gradient">E</span></span>
+          <span class="sr-only">Cadences</span>
+        </a>
+        <a class="topbar-link topbar-home-link" href="../harmony-explorer/index.html"><span class="back-label">Back to</span><span class="mini-wordmark" aria-hidden="true"><span class="mini-wordmark-echo">Harmony</span><span class="mini-wordmark-aural">Explorer</span></span></a>
+      </nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel is-settings-locked" id="homeScreen">
+        <div class="panel-section-heading"><h2><span>Settings</span><span class="panel-heading-accent" aria-hidden="true"></span></h2></div>
+        <div class="panel-hero ii-panel-hero">
+          <div class="ii-hero-lockup">
+            <span class="ii-hero-icon" aria-hidden="true"><img src="../../assets/icons/modules/harmony-explorer.png" alt="" /></span>
+            <div class="ii-title-lockup" aria-hidden="true"><span class="ii-title-text"><span class="ii-title-main">Harmony</span><span class="ii-title-gradient">Explorer</span></span></div>
+          </div>
+          <p class="eyebrow ii-brand-eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+        </div>
+        <h2 class="melody-skill-heading">Skill</h2>
+        <div class="melody-skill-grid" aria-label="Selected Harmony Explorer skill">
+          <label class="melody-skill-button">
+            <input type="radio" name="harmonySkill" value="key-signatures" />
+            <span class="melody-skill-icon" aria-hidden="true"><img class="melody-skill-icon-img" src="../../assets/icons/modules/he-transparent/key-signatures-transparent.png" alt="" /></span>
+            <strong>Keys</strong>
+          </label>
+          <label class="melody-skill-button">
+            <input type="radio" name="harmonySkill" value="chord-identifier" />
+            <span class="melody-skill-icon" aria-hidden="true"><img class="melody-skill-icon-img" src="../../assets/icons/modules/he-transparent/chord-identifier-transparent.png" alt="" /></span>
+            <strong>Chords</strong>
+          </label>
+          <label class="melody-skill-button">
+            <input type="radio" name="harmonySkill" value="cadences" checked />
+            <span class="melody-skill-icon" aria-hidden="true"><img class="melody-skill-icon-img" src="../../assets/icons/modules/he-transparent/cadences-transparent.png" alt="" /></span>
+            <strong>Cadences</strong>
+          </label>
+        </div>
+        <h2>Level</h2>
+        <div class="level-grid progression-level-grid" aria-label="Selected Harmony Explorer level">
+          <label class="level-button"><input type="radio" name="harmonyLevel" value="foundation" /><img class="level-icon" src="../../assets/icons/levels/mm-transparent/foundation-transparent.png" alt="" /><strong>Foundation</strong></label>
+          <label class="level-button"><input type="radio" name="harmonyLevel" value="developing" /><img class="level-icon" src="../../assets/icons/levels/mm-transparent/developing-transparent.png" alt="" /><strong>Developing</strong></label>
+          <label class="level-button"><input type="radio" name="harmonyLevel" value="secure" /><img class="level-icon" src="../../assets/icons/levels/mm-transparent/securing-transparent.png" alt="" /><strong>Securing</strong></label>
+          <label class="level-button"><input type="radio" name="harmonyLevel" value="exam" /><img class="level-icon" src="../../assets/icons/levels/mm-transparent/mastering-transparent.png" alt="" /><strong>Mastering</strong></label>
+        </div>
+      </section>
+
+      <section class="panel quiz-panel is-ready" id="gameScreen">
+        <div class="panel-section-heading panel-section-heading-centre"><h2><span>Cadences</span><span class="panel-heading-accent" aria-hidden="true"></span></h2></div>
+        <div class="quiz-header"><p id="roundText">Ready</p><div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div></div>
+        <div class="statsRow ii-stats-row he-stats-row"><p id="scoreText" class="ii-mark-tile he-mark-tile">Mark: 0 / 0</p><p id="streakText">Streak: 0</p><p id="xpText">XP: 0</p></div>
+        <div class="listening-console cadence-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+          <div class="console-ready-brand ii-console-start-brand" aria-hidden="true">
+            <div class="console-ii-combined-lockup"><span class="console-ii-icon"><img src="../../assets/icons/modules/he-transparent/cadences-transparent.png" alt="" /></span><div class="console-ii-lockup"><span class="console-title-text"><span class="console-title-gradient is-skill-active">Cadences</span></span></div></div>
+          </div>
+          <div class="listening-visual ii-ready-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="console-actions console-actions-start"><button id="startButton" class="primary-button centre-start" type="button">Start Learning</button></div>
+
+          <div id="cadencePlayState" class="cadence-play" hidden>
+            <div class="console-actions console-actions-replay"><button id="replayButton" class="play-button cadence-gameplay-action" type="button">Replay Excerpt</button></div>
+            <div class="console-heading cadence-question-heading"><h1 class="sr-only">Identify the cadence</h1><p><span id="questionText">What type of cadence do you hear?</span><span class="he-question-marks">&nbsp;(1)</span></p></div>
+            <div class="cadence-score-card" role="img" aria-label="Final three bars of a four-part cadence score in F major">
+              <div id="cadenceScoreSplice" class="cadence-score-splice" aria-hidden="true">
+                <span class="cadence-score-pane cadence-score-opening"><img id="cadenceScoreOpening" src="" alt="" /></span>
+                <span class="cadence-score-pane cadence-score-bars"><img id="cadenceScoreBars" src="" alt="" /></span>
+              </div>
+            </div>
+            <div id="cadenceAnswers" class="answer-grid cadence-answer-grid" aria-label="Cadence answer choices"></div>
+            <form id="cadenceTypedForm" class="written-answer cadence-typed-answer" hidden><label for="cadenceTypedInput">Type your answer</label><input id="cadenceTypedInput" autocomplete="off" spellcheck="false" placeholder="e.g. perfect" /></form>
+          </div>
+          <p id="feedback" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="panel-section-heading"><h2><span>Answers</span><span class="panel-heading-accent" aria-hidden="true"></span></h2></div>
+        <div id="answerCard" class="answerCard" aria-live="polite">
+          <div class="answerCard-empty he-source-panel"><div class="answer-empty-stage" aria-hidden="true"><div class="answer-empty-orbit"><span class="answer-empty-icon"><img src="../../assets/icons/modes/mm-transparent/answers-transparent.png?v=3" alt="" /></span></div></div><div class="answer-empty-copy"><h2>Your answers will appear here</h2><p>Answer the question to see feedback.</p></div></div>
+        </div>
+      </aside>
+    </main>
+  </div>
+  <audio id="cadenceAudio" preload="auto"></audio>
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

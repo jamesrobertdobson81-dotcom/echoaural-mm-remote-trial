@@ -16,13 +16,16 @@ let roundHistory = [];
 let eaProgressRoundId = "";
 let eaLastRoundSave = Promise.resolve({ saved: false, reason: "not-started" });
 let roundFeedbackOverlay = null;
+let playMode = "play";
+let hasSubmitted = false;
+let awardedSoFar = 0;
+let possibleSoFar = 0;
 
 const clipData = typeof clips !== "undefined" ? clips : [];
 const iiLearningParams = new URLSearchParams(window.location.search);
 
 function getInstrumentLearningMode() {
   const mode = cleanText(iiLearningParams.get("eaMode"));
-  if (mode === "practice") return "practice";
   if (mode === "progress" || mode === "progression") return "progression";
   return "";
 }
@@ -94,11 +97,40 @@ const INSTRUMENT_ICON_MAP = {
   "harpsichord": "harpsichord.svg",
 
   "guitar": "guitar.svg",
-  "acoustic guitar": "acoustic-guitar.svg",
+  "acoustic guitar": "acoustic-guitar.png",
   "classical guitar": "guitar.svg",
-  "electric guitar": "electric-guitar.svg",
+  "electric guitar": "electric-guitar.png",
   "bass guitar": "bass-guitar.svg",
   "harp": "harp.svg",
+
+  "bandoneon": "bandoneon.png",
+  "bansuri": "bansuri.png",
+  "bongos": "bongos.png",
+  "claves": "claves.png",
+  "congas": "congas.png",
+  "cowbell": "cowbell.png",
+  "darbuka": "darbuka.png",
+  "dizi": "dizi.png",
+  "erhu": "erhu.png",
+  "guiro": "guiro.png",
+  "guzheng": "guzheng.png",
+  "maracas": "maracas.png",
+  "nay": "nay.png",
+  "oud": "oud.png",
+  "pipa": "pipa.png",
+  "qanun": "qanun.png",
+  "riqq": "riqq.png",
+  "sarangi": "sarangi.png",
+  "sitar": "sitar.png",
+  "sarod": "sarod.png",
+  "tanpura": "tanpura.png",
+  "tabla": "tabla.png",
+  "timbales": "timbales.png",
+  "yangqin": "yangqin.png",
+  "steel pan drums": "steel-pan-drums.png",
+  "steel pans": "steel-pan-drums.png",
+  "steel drums": "steel-pan-drums.png",
+  "electronic synth": "synthesiser.png",
 
   "timpani": "timpani.svg",
   "kettle drums": "timpani.svg",
@@ -112,17 +144,21 @@ const INSTRUMENT_ICON_MAP = {
   "marimba": "marimba.svg",
   "vibraphone": "vibraphone.svg",
 
-  "voice": "voice.svg",
-  "soprano": "voice.svg",
-  "alto": "voice.svg",
-  "tenor": "voice.svg",
-  "bass": "voice.svg",
-  "choir": "choir.svg"
+  "voice": "voice.png",
+  "soprano": "voice.png",
+  "alto": "voice.png",
+  "tenor": "voice.png",
+  "bass": "voice.png",
+  "choir": "voice.png"
 };
 
 const playButton = document.getElementById("playButton");
 const answersDiv = document.getElementById("answers");
+const instrumentsCentrePanel = document.getElementById("instrumentsCentrePanel");
+const trackInfo = document.getElementById("trackInfo");
 const feedback = document.getElementById("feedback");
+const iiResponseArea = document.getElementById("iiResponseArea");
+const iiStudentAnswer = document.getElementById("iiStudentAnswer");
 const scoreText = document.getElementById("scoreText");
 const roundText = document.getElementById("roundText");
 const progressInner = document.getElementById("progressInner");
@@ -130,6 +166,7 @@ const restartButton = document.getElementById("restartButton");
 const streakText = document.getElementById("streakText");
 const xpText = document.getElementById("xpText");
 const questionText = document.getElementById("questionText");
+const questionMarks = document.getElementById("questionMarks");
 const startButton = document.getElementById("startButton");
 const answerCard = document.getElementById("answerCard");
 const setupMessage = document.getElementById("setupMessage");
@@ -139,11 +176,69 @@ const settingsToggle = document.getElementById("settingsToggle");
 const advancedSettings = document.getElementById("advancedSettings");
 
 
+function syncSetupSelectionHighlights() {
+  document.querySelectorAll('input[name="iiSkill"], input[name="iiLevel"]').forEach((input) => {
+    const label = input.closest("label");
+    if (!label) return;
+    const selected = Boolean(input.checked);
+    label.classList.toggle("is-selected", selected);
+    label.setAttribute("aria-pressed", selected ? "true" : "false");
+  });
+}
+
+function setSetupSettingsLocked(locked) {
+  const setupPanel = document.getElementById("homeScreen");
+  if (setupPanel) {
+    setupPanel.classList.toggle("is-settings-locked", locked);
+    if (locked) {
+      setupPanel.setAttribute("aria-disabled", "true");
+    } else {
+      setupPanel.removeAttribute("aria-disabled");
+    }
+  }
+
+  // Snapshot selected tiles before disabling so blue selected chrome does not
+  // depend on :has(input:checked) while inputs are disabled mid-round.
+  if (locked) {
+    syncSetupSelectionHighlights();
+  }
+
+  document.querySelectorAll('input[name="iiSkill"], input[name="iiLevel"]').forEach((input) => {
+    const label = input.closest("label");
+    if (locked) {
+      // Keep the checked property; only block interaction.
+      input.setAttribute("disabled", "");
+      label?.classList.add("is-locked");
+      label?.setAttribute("aria-disabled", "true");
+    } else {
+      input.removeAttribute("disabled");
+      label?.classList.remove("is-locked");
+      label?.removeAttribute("aria-disabled");
+    }
+  });
+
+  if (!locked) {
+    syncSetupSelectionHighlights();
+  }
+
+  const skillGrid = setupPanel?.querySelector(".melody-skill-grid");
+  const levelGrid = setupPanel?.querySelector(".level-grid");
+  [skillGrid, levelGrid].forEach((grid) => {
+    if (!grid) return;
+    if (locked) {
+      grid.setAttribute("inert", "");
+    } else {
+      grid.removeAttribute("inert");
+    }
+  });
+}
+
 function setQuizVisualState(state) {
   if (!quizPanel) return;
 
   quizPanel.classList.remove("is-ready", "is-active", "is-complete");
   quizPanel.classList.add(`is-${state}`);
+  setSetupSettingsLocked(state === "active" || state === "complete");
 }
 
 function cleanText(text) {
@@ -196,6 +291,15 @@ function getClipQuestion(clip) {
 }
 
 function getClipProgressionLevel(clip) {
+  // Clips carrying an explicit reviewed level (from the II level-review
+  // pass) use it directly rather than the difficulty/type heuristic below,
+  // which was only ever a stand-in for a real per-clip level and could
+  // never place a clip in Foundation for anything other than an easy solo.
+  const explicitLevel = cleanText(getField(clip, ["level", "Level"]));
+  if (["foundation", "developing", "securing", "mastering"].includes(explicitLevel)) {
+    return explicitLevel;
+  }
+
   const difficulty = cleanText(getField(clip, ["difficulty", "DIFFICULTY", "Difficulty"]));
   const type = cleanText(getField(clip, ["type", "TYPE", "Type", "clipType", "Clip Type Clean"]));
   const isSolo = (
@@ -274,8 +378,47 @@ function shuffle(array) {
   return array.slice().sort(() => Math.random() - 0.5);
 }
 
+function usesGeneratedInstrumentChoices(clip) {
+  return clip.responseType !== "typed" && clip.responseType !== "mc-custom";
+}
+
+function asksForIndividualInstrument(clip) {
+  const question = cleanText(getField(clip, ["question"]));
+  return (
+    (question.includes("instrument") || question.includes("hand drums")) &&
+    !question.includes("instrumental family") &&
+    !question.includes("instrument family") &&
+    !question.includes("acoustic instruments") &&
+    !question.includes("how sound is produced")
+  );
+}
+
+function splitInstrumentSummary(value) {
+  const expanded = displayText(value).replace(/\(([^)]*)\)/g, (match, note) => {
+    const cleanNote = displayText(note);
+    if (/^any\s+/i.test(cleanNote)) return "";
+    if (/^accept\s+/i.test(cleanNote)) return `, ${cleanNote.replace(/^accept\s+/i, "")}`;
+    return "";
+  });
+
+  return expanded
+    .split(/\s*(?:,|\band\b)\s*/i)
+    .map(displayText)
+    .filter(Boolean);
+}
+
+function getIndividualInstrumentNames(clip) {
+  if (usesGeneratedInstrumentChoices(clip)) return [displayText(clip.instrument)].filter(Boolean);
+  if (!asksForIndividualInstrument(clip)) return [];
+  if (clip.responseType === "mc-custom") return (clip.choices || []).map(displayText).filter(Boolean);
+  return splitInstrumentSummary(clip.instrument);
+}
+
 function getUniqueInstrumentsFromClips(clipList) {
-  return [...new Set(clipList.map(clip => displayText(clip.instrument)))].filter(Boolean);
+  const instruments = clipList.flatMap(getIndividualInstrumentNames);
+  return instruments.filter((instrument, index) =>
+    instruments.findIndex(candidate => cleanText(candidate) === cleanText(instrument)) === index
+  );
 }
 
 function getFamilyBucket(clip) {
@@ -291,7 +434,10 @@ function getFamilyBucket(clip) {
 }
 
 function getInstrumentsInSameFamily(correctInstrument) {
-  const matchingClip = clipData.find(clip => cleanText(clip.instrument) === cleanText(correctInstrument));
+  const matchingClip = clipData.find(clip =>
+    usesGeneratedInstrumentChoices(clip) &&
+    cleanText(clip.instrument) === cleanText(correctInstrument)
+  );
   if (!matchingClip) return [];
 
   const bucket = getFamilyBucket(matchingClip);
@@ -338,6 +484,17 @@ function clipMatchesFamily(clip) {
   return selectedFamilies.includes(getFamilyBucket(clip));
 }
 
+function spacedRepetitionKey() {
+  const families = selectedFamilies.slice().sort().join(",") || "all";
+  return `ii:${cleanText(selectedMode)}:${cleanText(selectedDifficulty)}:${families}`;
+}
+
+function orderDeck(clips) {
+  const SR = window.EchoAuralSpacedRepetition;
+  if (!SR) return shuffle(clips);
+  return SR.orderByLeastRecentlyShown(clips, { key: spacedRepetitionKey(), idOf: (clip) => clip.id });
+}
+
 function buildQuestionDeck() {
   activeClips = clipData.filter(clip =>
     clipMatchesMode(clip) &&
@@ -345,20 +502,33 @@ function buildQuestionDeck() {
     clipMatchesFamily(clip)
   );
 
-  questionDeck = shuffle(activeClips);
+  questionDeck = orderDeck(activeClips);
 
   if (!unlimitedMode && questionDeck.length < totalQuestions) {
     totalQuestions = questionDeck.length;
+  }
+
+  // Keep the same answer (instrument) from appearing twice within one
+  // fixed-length round, without disturbing spaced-repetition order beyond
+  // that. Unlimited mode has no fixed round length, so it's left alone.
+  if (!unlimitedMode && window.EchoAuralSpacedRepetition?.dedupeByAnswer) {
+    questionDeck = window.EchoAuralSpacedRepetition.dedupeByAnswer(
+      questionDeck,
+      totalQuestions,
+      (clip) => cleanText(getField(clip, ["instrument", "answer"]))
+    );
   }
 }
 
 function getNextClip() {
   if (questionDeck.length === 0) {
-    if (unlimitedMode) questionDeck = shuffle(activeClips);
+    if (unlimitedMode) questionDeck = orderDeck(activeClips);
     else return null;
   }
 
-  return questionDeck.shift();
+  const clip = questionDeck.shift();
+  if (clip) window.EchoAuralSpacedRepetition?.markShown([clip], { key: spacedRepetitionKey(), idOf: (c) => c.id });
+  return clip;
 }
 
 function getAnswerChoices(correctInstrument) {
@@ -392,17 +562,98 @@ function getAnswerChoices(correctInstrument) {
 }
 
 function updateScore() {
-  scoreText.textContent = `Score: ${score} / ${questionsAnswered}`;
-  streakText.textContent = `Streak: ${streak}`;
-  xpText.textContent = `XP: ${xp}`;
+  if (scoreText) {
+    scoreText.textContent = `Mark: ${awardedSoFar} / ${possibleSoFar}`;
+  }
+  if (streakText) streakText.textContent = `Streak: ${streak}`;
+  if (xpText) xpText.textContent = `XP: ${xp}`;
 
   if (unlimitedMode) {
-    roundText.textContent = `Question ${questionsAnswered + 1} / Unlimited`;
+    roundText.textContent = `Question ${questionsAnswered + (hasSubmitted ? 0 : 1)} / Unlimited`;
     progressInner.style.width = "0%";
   } else {
-    roundText.textContent = `Question ${Math.min(questionsAnswered + 1, totalQuestions)} / ${totalQuestions}`;
-    progressInner.style.width = `${(questionsAnswered / totalQuestions) * 100}%`;
+    const displayIndex = Math.min(questionsAnswered + (hasSubmitted ? 0 : 1), totalQuestions);
+    roundText.textContent = gameOver
+      ? `Round complete · ${score}/${totalQuestions}`
+      : `Question ${Math.max(displayIndex, 1)} of ${totalQuestions}`;
+    const done = Math.min(questionsAnswered, totalQuestions);
+    progressInner.style.width = `${(done / totalQuestions) * 100}%`;
   }
+}
+
+function stripTrailingQuestionMarkSuffix(text) {
+  if (window.EAQuestionPromptMarks?.stripTrailing) {
+    return window.EAQuestionPromptMarks.stripTrailing(text);
+  }
+  return String(text ?? "")
+    .replace(/(?:[\s\u00A0\u202F]*)[(（]\s*\d+(?:\.\d+)?\s*[)）]\s*$/u, "")
+    .replace(/[\s\u00A0\u202F]+$/u, "");
+}
+
+function setQuestionPrompt(text, marks = 1) {
+  if (!questionText) return;
+
+  const promptEl = questionText.querySelector(".ii-question-prompt") || questionText;
+  promptEl.textContent = stripTrailingQuestionMarkSuffix(text || "");
+
+  if (!questionMarks) return;
+
+  if (marks > 0) {
+    questionMarks.textContent = `\u00A0(${marks})`;
+    questionMarks.hidden = false;
+    questionMarks.setAttribute("aria-hidden", "false");
+    questionMarks.setAttribute("aria-label", `${marks} mark${marks === 1 ? "" : "s"}`);
+    return;
+  }
+
+  questionMarks.textContent = "";
+  questionMarks.hidden = true;
+  questionMarks.setAttribute("aria-hidden", "true");
+  questionMarks.removeAttribute("aria-label");
+}
+
+function getNextButtonLabel() {
+  if (!unlimitedMode && questionsAnswered >= totalQuestions) return "See Feedback";
+  return "Next Question";
+}
+
+function setPlayButtonMode(mode) {
+  playMode = mode;
+  if (!playButton) return;
+  if (mode === "next") {
+    const label = getNextButtonLabel();
+    playButton.textContent = label;
+    playButton.setAttribute("aria-label", label === "See Feedback" ? "See round feedback" : "Next question");
+  } else if (mode === "replay") {
+    playButton.textContent = "Replay Clip";
+    playButton.setAttribute("aria-label", "Replay clip");
+  } else {
+    playButton.textContent = "Play Clip";
+    playButton.setAttribute("aria-label", "Play clip");
+  }
+}
+
+function buildTrackInfoHTML(clip) {
+  if (!clip) return "";
+  const composer = getField(clip, ["composer"]);
+  const work = getField(clip, ["work"]);
+  const movement = getField(clip, ["movement", "Movement / Section"]);
+  const title = [composer, work]
+    .map((part) => String(part || "").trim())
+    .filter(Boolean)
+    .join(" – ");
+  const sourceValue = getField(clip, ["source"]);
+  const rightsValue = getField(clip, ["rights"]);
+  const source = /musopen/i.test(sourceValue) ? "Musopen" : (/wikimedia|commons/i.test(sourceValue) ? "Wikimedia" : sourceValue);
+  const licenceMatch = rightsValue.match(/\b(?:PDM|CC0|CC BY(?:-NC)?(?:-SA)?|CC BY-SA)\s*\d(?:\.\d)?\b/i);
+  const licence = licenceMatch ? licenceMatch[0].toUpperCase() : (/public domain|\bPD\b/i.test(rightsValue) ? "Public domain" : rightsValue);
+  const details = [source, licence].filter(Boolean).join(" · ") || "—";
+  const fallbackId = getField(clip, ["id", "ID", "clipId"]) || "Clip";
+  return `
+    <strong title="${escapeAttr(title || fallbackId)}">${escapeHTML(title || fallbackId)}</strong>
+    <span class="score-track-info-movement" title="${escapeAttr(movement || "—")}">${escapeHTML(movement || "—")}</span>
+    <small title="${escapeAttr(details)}">${escapeHTML(details)}</small>
+  `;
 }
 
 function buildMetaRow(label, value) {
@@ -417,10 +668,26 @@ function buildMetaRow(label, value) {
 
 function renderReadyCard() {
   answerCard.innerHTML = `
-    <div class="answerCard-empty">
-      <p class="eyebrow">ANSWER PANEL</p>
-      <h2>Ready when you are.</h2>
-      <p class="muted">Start a round to see the correct answer, clip information and round summary here.</p>
+    <div class="answerCard-empty ii-source-panel">
+      <div class="answer-empty-stage" aria-hidden="true">
+        <div class="answer-empty-orbit">
+          <span class="answer-empty-sparkle answer-empty-sparkle-1" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-2" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-3" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-4" aria-hidden="true"></span>
+          <span class="answer-empty-icon">
+            <img
+              src="../../assets/icons/modes/mm-transparent/answers-transparent.png?v=3"
+              alt=""
+              onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
+            />
+          </span>
+        </div>
+      </div>
+      <div class="answer-empty-copy">
+        <h2>Your answers will appear here</h2>
+        <p>Complete a quiz to see your responses and performance feedback.</p>
+      </div>
     </div>
   `;
 }
@@ -495,19 +762,35 @@ function fadeOutAudio(callback) {
 function playCurrentClip() {
   if (!audio || gameOver) return;
 
+  if (playMode === "next") {
+    goToNextQuestion();
+    return;
+  }
+
   audio.currentTime = 0;
   audio.volume = 1;
   audio.play().catch(() => {
     alert("Audio could not play. Check the file path in clips.js.");
   });
 
-  playButton.textContent = "Replay Clip";
+  setPlayButtonMode("replay");
+}
+
+function goToNextQuestion() {
+  fadeOutAudio(() => {
+    if (!unlimitedMode && questionsAnswered >= totalQuestions) {
+      endGame();
+      return;
+    }
+    loadQuestion();
+  });
 }
 
 function loadQuestion() {
   if (gameOver) return;
 
   setQuizVisualState("active");
+  hasSubmitted = false;
 
   currentClip = getNextClip();
 
@@ -516,7 +799,7 @@ function loadQuestion() {
     return;
   }
 
-  questionText.textContent = getClipQuestion(currentClip);
+  setQuestionPrompt(getClipQuestion(currentClip), 1);
 
   if (audio) {
     audio.pause();
@@ -529,43 +812,78 @@ function loadQuestion() {
   answersDiv.innerHTML = "";
   feedback.textContent = "";
   feedback.className = "";
-  playButton.style.display = "block";
+  playButton.style.display = "inline-flex";
   playButton.disabled = false;
-  playButton.textContent = "Replay Clip";
+  setPlayButtonMode("play");
 
-  const instrument = getField(currentClip, ["instrument"]);
-  const choices = getAnswerChoices(instrument);
+  if (trackInfo) {
+    trackInfo.innerHTML = "";
+    trackInfo.setAttribute("aria-hidden", "true");
+  }
 
-  choices.forEach(choice => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "answer-option";
-    button.dataset.instrument = choice;
-    button.setAttribute("aria-label", `Choose ${choice}`);
+  // Typed-answer clips (responseType:"typed") are new/additive — no clip in
+  // the original 285 sets this, so every existing question falls straight
+  // into the unchanged multiple-choice branch below exactly as before.
+  if (currentClip.responseType === "typed") {
+    if (instrumentsCentrePanel) instrumentsCentrePanel.hidden = true;
+    if (iiResponseArea) {
+      iiResponseArea.hidden = false;
+      if (iiStudentAnswer) { iiStudentAnswer.value = ""; iiStudentAnswer.disabled = false; iiStudentAnswer.focus(); }
+    }
+  } else {
+    if (iiResponseArea) iiResponseArea.hidden = true;
+    if (instrumentsCentrePanel) instrumentsCentrePanel.hidden = false;
 
-    button.innerHTML = `
-      <span class="option-icon">${getInstrumentIcon(choice)}</span>
-      <span class="option-label">${escapeHTML(choice)}</span>
-    `;
+    const instrument = getField(currentClip, ["instrument"]);
+    // mc-custom clips supply their own 4 options (e.g. "Acoustic orchestra /
+    // Chip synthesiser / Solo piano / Rock band") instead of the auto-
+    // generated same-family distractors — absent on every existing clip, so
+    // getAnswerChoices(instrument) is still what runs for all 285 of them.
+    const choices = (currentClip.responseType === "mc-custom" && Array.isArray(currentClip.choices) && currentClip.choices.length)
+      ? shuffle(currentClip.choices)
+      : getAnswerChoices(instrument);
+    answersDiv.setAttribute("data-answer-count", String(choices.length));
 
-    button.addEventListener("click", () => checkAnswer(choice, button));
-    answersDiv.appendChild(button);
-  });
+    choices.forEach(choice => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "instruments-option";
+      button.dataset.instrument = choice;
+      button.setAttribute("role", "radio");
+      button.setAttribute("aria-checked", "false");
+      button.setAttribute("aria-label", `Choose ${choice}`);
+
+      button.innerHTML = `
+        <span class="option-icon">${getInstrumentIcon(choice)}</span>
+        <span class="option-label">${escapeHTML(choice)}</span>
+      `;
+
+      button.addEventListener("click", () => checkAnswer(choice, button));
+      answersDiv.appendChild(button);
+    });
+  }
 
   updateScore();
-  playCurrentClip();
+  window.setTimeout(() => {
+    if (!hasSubmitted && currentClip && !gameOver) {
+      playCurrentClip();
+    }
+  }, 180);
 }
 
 function checkAnswer(selectedInstrument, selectedButton) {
-  if (gameOver || !currentClip) return;
+  if (gameOver || !currentClip || hasSubmitted) return;
 
   const correctInstrument = getField(currentClip, ["instrument"]);
   const wasCorrect = cleanText(selectedInstrument) === cleanText(correctInstrument);
 
+  hasSubmitted = true;
   questionsAnswered++;
+  possibleSoFar += 1;
 
   if (wasCorrect) {
     score++;
+    awardedSoFar += 1;
     streak++;
     xp += 20;
     feedback.textContent = "Correct — well heard.";
@@ -583,6 +901,8 @@ function checkAnswer(selectedInstrument, selectedButton) {
     selectedInstrument,
     correctInstrument,
     wasCorrect,
+    awardedMarks: wasCorrect ? 1 : 0,
+    maxMarks: 1,
     family: getField(currentClip, ["family"]),
     type: getField(currentClip, ["type"]),
     difficulty: getField(currentClip, ["difficulty"])
@@ -591,20 +911,181 @@ function checkAnswer(selectedInstrument, selectedButton) {
   Array.from(answersDiv.querySelectorAll("button")).forEach(button => {
     const label = button.dataset.instrument || button.textContent.trim();
     button.disabled = true;
+    const isSelected = button === selectedButton;
+    const isCorrect = cleanText(label) === cleanText(correctInstrument);
 
-    if (cleanText(label) === cleanText(correctInstrument)) button.classList.add("correct");
-    if (button === selectedButton && !wasCorrect) button.classList.add("wrong");
+    if (isCorrect) button.classList.add("correct");
+    if (isSelected && !wasCorrect) button.classList.add("wrong");
+    button.setAttribute("aria-checked", isSelected ? "true" : "false");
   });
 
   showAnswerCard(wasCorrect);
+  if (trackInfo) {
+    trackInfo.innerHTML = buildTrackInfoHTML(currentClip);
+    trackInfo.removeAttribute("aria-hidden");
+  }
   updateScore();
+  setPlayButtonMode("next");
+}
 
-  setTimeout(() => {
-    fadeOutAudio(() => {
-      if (!unlimitedMode && questionsAnswered >= totalQuestions) endGame();
-      else loadQuestion();
-    });
-  }, 2400);
+// ---------- Typed-answer support (additive) ----------
+// Only used by clips with responseType:"typed" (none of the original 285).
+// checkAnswer() above is completely untouched; this is a self-contained
+// parallel path that ends in the same shared state (score/streak/xp/
+// roundHistory/answer card) so round summaries behave identically either
+// way.
+
+function normaliseAnswerText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function levenshteinDistance(left, right) {
+  const a = normaliseAnswerText(left);
+  const b = normaliseAnswerText(right);
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i += 1) {
+    let previous = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const old = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, previous + (a[i - 1] === b[j - 1] ? 0 : 1));
+      previous = old;
+    }
+  }
+  return row[b.length];
+}
+
+function fuzzyMatchAnswer(answer, target) {
+  const a = normaliseAnswerText(answer);
+  const b = normaliseAnswerText(target);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if ((` ${a} `).includes(` ${b} `)) return true;
+  const maxDistance = b.length <= 7 ? 1 : Math.max(2, Math.floor(b.length * 0.22));
+  return levenshteinDistance(a, b) <= maxDistance;
+}
+
+function markTypedAnswer(clip, rawAnswer) {
+  const maxMarks = Number(clip.maxMarks) || 1;
+  const points = Array.isArray(clip.markPoints) && clip.markPoints.length ? clip.markPoints : null;
+
+  if (!points) {
+    const accepted = (Array.isArray(clip.acceptedAnswers) && clip.acceptedAnswers.length)
+      ? clip.acceptedAnswers
+      : [getField(clip, ["instrument"])];
+    const matched = accepted.some(candidate => fuzzyMatchAnswer(rawAnswer, candidate));
+    return { awardedMarks: matched ? maxMarks : 0, maxMarks, wasCorrect: matched };
+  }
+
+  // Multi-point (e.g. "name two percussion instruments"): split on common
+  // list delimiters first so each named item can claim its own point;
+  // anything left over is also checked against the whole raw answer.
+  const segments = String(rawAnswer || "")
+    .split(/,|;|\band\b|\n|\/|\+/i)
+    .map(segment => segment.trim())
+    .filter(Boolean);
+  const remaining = points.slice();
+  let awarded = 0;
+
+  segments.forEach(segment => {
+    if (awarded >= maxMarks) return;
+    const index = remaining.findIndex(point => (point.acceptedAnswers || []).some(candidate => fuzzyMatchAnswer(segment, candidate)));
+    if (index !== -1) {
+      awarded += 1;
+      remaining.splice(index, 1);
+    }
+  });
+
+  remaining.slice().forEach(point => {
+    if (awarded >= maxMarks) return;
+    if ((point.acceptedAnswers || []).some(candidate => fuzzyMatchAnswer(rawAnswer, candidate))) {
+      awarded += 1;
+      const index = remaining.indexOf(point);
+      if (index !== -1) remaining.splice(index, 1);
+    }
+  });
+
+  awarded = Math.min(awarded, maxMarks);
+  return { awardedMarks: awarded, maxMarks, wasCorrect: awarded >= maxMarks };
+}
+
+function checkTypedAnswer() {
+  if (gameOver || !currentClip || hasSubmitted) return;
+  const rawAnswer = (iiStudentAnswer && iiStudentAnswer.value || "").trim();
+  if (!rawAnswer) {
+    feedback.textContent = "Type an answer before submitting.";
+    feedback.className = "bad";
+    if (iiStudentAnswer) iiStudentAnswer.focus();
+    return;
+  }
+
+  const result = markTypedAnswer(currentClip, rawAnswer);
+  const correctInstrument = getField(currentClip, ["instrument"]);
+
+  hasSubmitted = true;
+  questionsAnswered++;
+  possibleSoFar += result.maxMarks;
+
+  if (result.wasCorrect) {
+    score++;
+    awardedSoFar += result.maxMarks;
+    streak++;
+    xp += 20;
+    feedback.textContent = "Correct — well heard.";
+    feedback.className = "good";
+    triggerConfetti();
+  } else if (result.awardedMarks > 0) {
+    awardedSoFar += result.awardedMarks;
+    streak = 0;
+    xp += 10;
+    feedback.textContent = `Partly right (${result.awardedMarks}/${result.maxMarks}) — full answer: ${correctInstrument}.`;
+    feedback.className = "bad";
+  } else {
+    streak = 0;
+    xp += 5;
+    feedback.textContent = `Not quite — it was ${correctInstrument}.`;
+    feedback.className = "bad";
+  }
+
+  roundHistory.push({
+    questionId: getField(currentClip, ["id", "ID", "clipId"]) || `II-Q${questionsAnswered}`,
+    selectedInstrument: rawAnswer,
+    correctInstrument,
+    wasCorrect: result.wasCorrect,
+    awardedMarks: result.awardedMarks,
+    maxMarks: result.maxMarks,
+    family: getField(currentClip, ["family"]),
+    type: getField(currentClip, ["type"]),
+    difficulty: getField(currentClip, ["difficulty"])
+  });
+
+  if (iiStudentAnswer) iiStudentAnswer.disabled = true;
+
+  showAnswerCard(result.wasCorrect);
+  if (trackInfo) {
+    trackInfo.innerHTML = buildTrackInfoHTML(currentClip);
+    trackInfo.removeAttribute("aria-hidden");
+  }
+  updateScore();
+  setPlayButtonMode("next");
+}
+
+if (iiStudentAnswer) {
+  iiStudentAnswer.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      checkTypedAnswer();
+    }
+  });
 }
 
 function getMedal(percentage) {
@@ -644,11 +1125,6 @@ function saveInstrumentProgress(divisor, percentage) {
     return eaLastRoundSave;
   }
   const learningMode = getInstrumentLearningMode();
-  if (learningMode === "practice") {
-    eaLastRoundSave = Promise.resolve({ saved: false, reason: "practice-mode" });
-    return eaLastRoundSave;
-  }
-
   if (!eaProgressRoundId) resetInstrumentProgressRound();
   const medal = getMedal(percentage);
   const metadata = {
@@ -795,12 +1271,17 @@ function showRoundFeedbackWindow() {
 function endGame() {
   setQuizVisualState("complete");
   gameOver = true;
+  hasSubmitted = true;
   answersDiv.innerHTML = "";
+  if (instrumentsCentrePanel) instrumentsCentrePanel.hidden = true;
+  setQuestionPrompt("Round complete", 0);
+  playButton.style.display = "none";
   playButton.disabled = true;
-  playButton.textContent = "Round Complete";
-  restartButton.style.display = "block";
+  setPlayButtonMode("play");
+  restartButton.style.display = "inline-flex";
   progressInner.style.width = "100%";
   roundText.textContent = "Round complete";
+  updateScore();
 
   const divisor = unlimitedMode ? questionsAnswered : totalQuestions;
   const percentage = divisor > 0 ? Math.round((score / divisor) * 100) : 0;
@@ -831,12 +1312,90 @@ function endGame() {
   return roundSave;
 }
 
+function getSelectedIiSkill() {
+  return document.querySelector('input[name="iiSkill"]:checked')?.value || "instruments";
+}
+
+const II_SKILL_HEADING_LABELS = {
+  instruments: "Instruments",
+  ensembles: "Ensembles"
+};
+
+function getIiSkillHeadingLabel(skill = getSelectedIiSkill()) {
+  return II_SKILL_HEADING_LABELS[skill] || II_SKILL_HEADING_LABELS.instruments;
+}
+
+function syncCentrePanelHeading(skill = getSelectedIiSkill()) {
+  const panelTitle = document.querySelector(".panel-section-heading-centre h2 span:not(.panel-heading-accent)");
+  if (panelTitle) panelTitle.textContent = skill ? getIiSkillHeadingLabel(skill) : "Learning";
+}
+
+const consoleTitleMain = document.getElementById("consoleTitleMain");
+const consoleTitleGradient = document.getElementById("consoleTitleGradient");
+const DEFAULT_CONSOLE_TITLE_MAIN = consoleTitleMain ? consoleTitleMain.textContent : "";
+const DEFAULT_CONSOLE_TITLE_GRADIENT = consoleTitleGradient ? consoleTitleGradient.textContent : "";
+
+/** Big console title text: the suite wordmark until a skill is chosen, then
+ *  that skill's short name in the app's own flat accent colour. */
+function syncConsoleTitle(skill) {
+  if (!consoleTitleMain || !consoleTitleGradient) return;
+  if (skill) {
+    consoleTitleMain.textContent = "";
+    consoleTitleGradient.textContent = getIiSkillHeadingLabel(skill);
+    consoleTitleGradient.classList.add("is-skill-active");
+  } else {
+    consoleTitleMain.textContent = DEFAULT_CONSOLE_TITLE_MAIN;
+    consoleTitleGradient.textContent = DEFAULT_CONSOLE_TITLE_GRADIENT;
+    consoleTitleGradient.classList.remove("is-skill-active");
+  }
+}
+
+const CONSOLE_SKILL_ICONS = {
+  instruments: "../../assets/icons/modules/ii-transparent/instruments-transparent.png",
+  ensembles: "../../assets/icons/modules/ii-transparent/ensembles-transparent.png"
+};
+const DEFAULT_CONSOLE_ICON = "../../assets/icons/modules/instrument-identifier-home.png?v=1";
+const consoleSkillIcon = document.getElementById("consoleSkillIcon");
+
+function syncConsoleSkillIcon() {
+  if (!consoleSkillIcon) return;
+  const checked = document.querySelector('input[name="iiSkill"]:checked');
+  consoleSkillIcon.src = checked ? (CONSOLE_SKILL_ICONS[checked.value] || DEFAULT_CONSOLE_ICON) : DEFAULT_CONSOLE_ICON;
+}
+
+/** Start cannot begin until the user has explicitly picked both a skill and a level. */
+function updateStartAvailability() {
+  if (!startButton) return;
+  const hasSkill = !!document.querySelector('input[name="iiSkill"]:checked');
+  const hasLevel = !!document.querySelector('input[name="iiLevel"]:checked');
+  startButton.disabled = !(hasSkill && hasLevel);
+}
+
+function getEnsembleRecognitionLaunchUrl() {
+  const level = document.querySelector('input[name="iiLevel"]:checked')?.value || "Foundation";
+  const params = new URLSearchParams({
+    level,
+    autostart: "1"
+  });
+  return `../ensemble-recognition/index.html?${params.toString()}`;
+}
+
 function startGame() {
+  if (getSelectedIiSkill() === "ensembles") {
+    window.location.href = getEnsembleRecognitionLaunchUrl();
+    return;
+  }
+
+  // Freeze LHS settings from the Start Learning press (before loading delay).
+  syncSetupSelectionHighlights();
+  setSetupSettingsLocked(true);
+
   closeRoundFeedbackWindow();
   readSetupOptions();
   buildQuestionDeck();
 
   if (activeClips.length === 0) {
+    setSetupSettingsLocked(false);
     setupMessage.textContent = "No clips match those settings. Try Mixed difficulty.";
     return;
   }
@@ -849,15 +1408,18 @@ function startGame() {
   questionsAnswered = 0;
   streak = 0;
   xp = 0;
+  awardedSoFar = 0;
+  possibleSoFar = 0;
+  hasSubmitted = false;
   roundHistory = [];
   resetInstrumentProgressRound();
   gameOver = false;
 
   restartButton.style.display = "none";
   startButton.style.display = "none";
-  playButton.style.display = "block";
+  playButton.style.display = "inline-flex";
 
-  questionText.textContent = "Loading question...";
+  setQuestionPrompt("Loading question...", 0);
 
   loadQuestion();
 }
@@ -869,6 +1431,9 @@ function restartGame() {
     questionsAnswered = 0;
     streak = 0;
     xp = 0;
+    awardedSoFar = 0;
+    possibleSoFar = 0;
+    hasSubmitted = false;
     roundHistory = [];
     gameOver = false;
     setQuizVisualState("ready");
@@ -876,18 +1441,21 @@ function restartGame() {
     renderReadyCard();
 
     answersDiv.innerHTML = "";
+    if (instrumentsCentrePanel) instrumentsCentrePanel.hidden = true;
+    if (trackInfo) trackInfo.innerHTML = "";
     feedback.textContent = "";
     feedback.className = "";
     progressInner.style.width = "0%";
 
     roundText.textContent = "Ready";
-    scoreText.textContent = "Score: 0 / 0";
+    scoreText.textContent = "Mark: 0 / 0";
     streakText.textContent = "Streak: 0";
     xpText.textContent = "XP: 0";
-    questionText.textContent = "";
+    setQuestionPrompt("", 0);
 
     startButton.style.display = "block";
     playButton.style.display = "none";
+    setPlayButtonMode("play");
     restartButton.style.display = "none";
   });
 }
@@ -934,5 +1502,22 @@ playButton.addEventListener("click", playCurrentClip);
 restartButton.addEventListener("click", restartGame);
 startButton.addEventListener("click", startGame);
 
+document.querySelectorAll('input[name="iiSkill"], input[name="iiLevel"]').forEach((input) => {
+  input.addEventListener("change", () => {
+    syncSetupSelectionHighlights();
+    updateStartAvailability();
+    if (input.name === "iiSkill") {
+      syncCentrePanelHeading(getSelectedIiSkill());
+      syncConsoleTitle(getSelectedIiSkill());
+      syncConsoleSkillIcon();
+    }
+  });
+});
+
 setAdvancedSettingsOpen(false);
 setQuizVisualState("ready");
+syncSetupSelectionHighlights();
+updateStartAvailability();
+syncConsoleSkillIcon();
+syncCentrePanelHeading(document.querySelector('input[name="iiSkill"]:checked')?.value || null);
+syncConsoleTitle(document.querySelector('input[name="iiSkill"]:checked')?.value || null);

@@ -5,10 +5,9 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const crypto = require("node:crypto");
 
 const moduleRoot = path.resolve(__dirname, "..");
-const projectRoot = path.resolve(moduleRoot, "../..");
-const desktopRoot = path.resolve(projectRoot, "..");
 const marking = require(path.join(moduleRoot, "marking.js"));
 
 function loadQuestionSet() {
@@ -46,8 +45,7 @@ const score = (answers) => exl005.questions.reduce((total, item, index) => total
 
 test("EXL005 uses the supplied audio and is explicitly score-free", () => {
   const packagedAudio = fs.readFileSync(path.join(moduleRoot, "assets", "EXL005.mp3"));
-  const suppliedAudio = fs.readFileSync(path.join(desktopRoot, "EXL005.mp3"));
-  assert.deepEqual(packagedAudio, suppliedAudio);
+  assert.equal(crypto.createHash("sha256").update(packagedAudio).digest("hex"), "a5d1d6cd89ce49339f280fb3644b0be13d9c092bf0246885289f045c44364efd");
   assert.equal(exl005.audio, "assets/EXL005.mp3");
   assert.equal(exl005.scoreRequired, false);
   assert.equal(exl005.score, "");

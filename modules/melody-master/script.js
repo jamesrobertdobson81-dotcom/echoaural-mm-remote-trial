@@ -6,7 +6,8 @@ const LEVELLED_MELODY_CLIPS = (typeof melodyMasterLevelledClips !== "undefined" 
   ? melodyMasterLevelledClips
   : [];
 
-const ALL_MELODY_CLIPS = (LEVELLED_MELODY_CLIPS.length ? LEVELLED_MELODY_CLIPS : SOURCE_MELODY_CLIPS).slice();
+const MANUAL_LEVELLED_MELODY_CLIPS = LEVELLED_MELODY_CLIPS.filter((clip) => clip?.manualLevelVariant === true);
+const ALL_MELODY_CLIPS = [...SOURCE_MELODY_CLIPS, ...MANUAL_LEVELLED_MELODY_CLIPS];
 const MELODIC_DEVICES_DATA_URL = "data/melody-master-melodic-devices-50.json";
 
 const DICTATION_LEVELS = [
@@ -156,6 +157,7 @@ const showAnswerButton = document.getElementById("showAnswerButton");
 const resetButton = document.getElementById("restartButton");
 
 const questionText = document.getElementById("questionText");
+const questionMarks = document.getElementById("questionMarks");
 const feedback = document.getElementById("feedback");
 const scoreText = document.getElementById("scoreText");
 const streakText = document.getElementById("streakText");
@@ -197,22 +199,21 @@ function isMixedDifficultyMode() {
   return !isMelodyProgressionMode() && Boolean(mixedInput?.checked);
 }
 
-function getDictationQuestionIndexes(levelName = getSelectedDictationLevel()) {
+function getDictationQuestionIndexes() {
   if (isMixedDifficultyMode()) {
-    return ALL_MELODY_CLIPS.map((_clip, index) => index);
+    return SOURCE_MELODY_CLIPS.map((_clip, index) => index);
   }
 
-  const indexes = ALL_MELODY_CLIPS
-    .map((clip, index) => (
-      String(clip?.level || clip?.hiddenMetadata?.level || "").trim().toLowerCase() === String(levelName).toLowerCase()
-        ? index
-        : -1
-    ))
-    .filter(index => index >= 0);
+  const selectedLevel = getSelectedDictationLevel();
+  const matchingManualVariants = MANUAL_LEVELLED_MELODY_CLIPS.filter((clip) => clip.level === selectedLevel);
+  const manuallyReplacedSourceIds = new Set(matchingManualVariants.map((clip) => clip.sourceQuestionId));
 
-  return indexes.length || !LEVELLED_MELODY_CLIPS.length
-    ? indexes
-    : ALL_MELODY_CLIPS.map((_clip, index) => index);
+  return ALL_MELODY_CLIPS
+    .map((clip, index) => {
+      if (clip.manualLevelVariant === true) return clip.level === selectedLevel ? index : -1;
+      return manuallyReplacedSourceIds.has(clip.id) ? -1 : index;
+    })
+    .filter((index) => index >= 0);
 }
 
 function selectDictationMode() {
@@ -245,11 +246,31 @@ function shuffleArray(items = []) {
   return shuffled;
 }
 
+function dictationSpacedRepetitionKey() {
+  return `mm:dictation:${isMixedDifficultyMode() ? "mixed" : getSelectedDictationLevel()}`;
+}
+
 function buildRoundQuestionIndices(questionCount = DEFAULT_QUIZ_SETTINGS.questionCount) {
   const indexes = getDictationQuestionIndexes();
   const pool = indexes.length ? indexes : Array.from({ length: ALL_MELODY_CLIPS.length || 1 }, (_item, index) => index);
   const count = Math.max(1, Math.min(Number(questionCount) || DEFAULT_QUIZ_SETTINGS.questionCount, pool.length));
-  return shuffleArray(pool).slice(0, count);
+  // TEMPORARY AUTHORING AID: newly appended MM dictation questions open first for checking.
+  const newestQuestionIndex = pool[pool.length - 1];
+  const remainingPool = pool.filter((index) => index !== newestQuestionIndex);
+  const key = dictationSpacedRepetitionKey();
+  const idOf = (index) => ALL_MELODY_CLIPS[index]?.id ?? index;
+  const SR = window.EchoAuralSpacedRepetition;
+  const ordered = SR ? SR.orderByLeastRecentlyShown(remainingPool, { key, idOf }) : shuffleArray(remainingPool);
+  // Keep the same target melody from appearing twice in one round. The
+  // pinned newest-question slot's pitches count as already "used" so the
+  // rest of the round can't duplicate it either.
+  const pitchSignature = (index) => (ALL_MELODY_CLIPS[index]?.answerPitches || []).join(",");
+  const newestSignature = pitchSignature(newestQuestionIndex);
+  const candidates = ordered.filter((index) => pitchSignature(index) !== newestSignature || !newestSignature);
+  const deduped = SR?.dedupeByAnswer ? SR.dedupeByAnswer(candidates, count - 1, pitchSignature) : candidates;
+  const picked = deduped.slice(0, count - 1);
+  SR?.markShown(picked, { key, idOf });
+  return [newestQuestionIndex, ...picked];
 }
 
 function getRoundTotal() {
@@ -262,6 +283,20 @@ function getRoundLabel() {
   }
 
   return "Ready";
+}
+
+/** Whole-round progress for Melodic Devices — matches Melodic Intervals semantics. */
+function updateDevicesRoundProgress({ answered = false } = {}) {
+  if (!progressInner) return;
+
+  if (!isRoundActive) {
+    progressInner.style.width = answered ? "100%" : "0%";
+    return;
+  }
+
+  const total = Math.max(1, getRoundTotal());
+  const completed = answered ? roundQuestionPosition + 1 : roundQuestionPosition;
+  progressInner.style.width = `${Math.max(0, Math.min(100, (completed / total) * 100))}%`;
 }
 
 function resetPlayCounterForQuestion() {
@@ -332,6 +367,8 @@ function prepareMelodicDeviceQuestion(rawQuestion = {}) {
     id: String(rawQuestion.id || rawQuestion["Question ID"] || "").trim(),
     audioId,
     audio: audioPath,
+    score: String(rawQuestion.score || rawQuestion.scoreImage || rawQuestion["Score Path"] || "").trim(),
+    scoreAlt: String(rawQuestion.scoreAlt || rawQuestion["Score Alt"] || "Music score excerpt").trim(),
     sourceId: String(rawQuestion.sourceId || rawQuestion["Existing MM Source ID"] || "").trim(),
     level: normaliseDeviceLevel(rawQuestion.level || rawQuestion.Difficulty || "Foundation"),
     mode: String(rawQuestion.mode || rawQuestion["Question Mode"] || "Melodic devices").trim(),
@@ -342,6 +379,11 @@ function prepareMelodicDeviceQuestion(rawQuestion = {}) {
     acceptedAnswers: acceptedAnswers.length ? acceptedAnswers : [correctAnswer],
     answerSignature: normaliseDeviceAnswer(correctAnswer),
     acceptedSignatures: (acceptedAnswers.length ? acceptedAnswers : [correctAnswer]).map(normaliseDeviceAnswer),
+    responseType: String(rawQuestion.responseType || "Multiple choice").trim(),
+    markPoints: Array.isArray(rawQuestion.markPoints) ? rawQuestion.markPoints.map((point) => ({
+      label: String(point.label || "Point"),
+      acceptedSignatures: (point.acceptedAnswers || []).map(normaliseDeviceAnswer)
+    })) : [],
     marks: Math.max(1, Number(rawQuestion.marks || rawQuestion.Marks || 1) || 1),
     feedback: String(rawQuestion.feedback || rawQuestion["Feedback / Teaching Point"] || "").trim(),
     composer: String(rawQuestion.composer || rawQuestion.Composer || "").trim(),
@@ -356,7 +398,7 @@ function prepareMelodicDeviceQuestion(rawQuestion = {}) {
 
 async function loadMelodicDeviceQuestions() {
   if (!melodicDevicesLoadPromise) {
-    melodicDevicesLoadPromise = fetch(MELODIC_DEVICES_DATA_URL, { headers: { Accept: "application/json" } })
+    melodicDevicesLoadPromise = fetch(MELODIC_DEVICES_DATA_URL, { cache: "no-store", headers: { Accept: "application/json" } })
       .then((response) => {
         if (!response.ok) throw new Error(`Melodic Devices questions failed to load (${response.status}).`);
         return response.json();
@@ -364,7 +406,7 @@ async function loadMelodicDeviceQuestions() {
       .then((data) => {
         const questions = Array.isArray(data.questions) ? data.questions : [];
         melodicDeviceQuestions = questions.map(prepareMelodicDeviceQuestion).filter((question) => (
-          question.id && question.audio && question.choices.length && question.correctAnswer
+          question.id && question.audio && (question.choices.length || question.responseType === "Written response") && question.correctAnswer
         ));
         return melodicDeviceQuestions;
       });
@@ -397,21 +439,40 @@ function getDeviceQuestionIndexes(levelName = getSelectedDeviceLevel()) {
     .filter((index) => index >= 0);
 }
 
+function deviceSpacedRepetitionKey() {
+  return `mm:devices:${isMixedDifficultyMode() ? "mixed" : getSelectedDeviceLevel()}`;
+}
+
 function buildDeviceRoundQuestionIndices(questionCount = DEFAULT_QUIZ_SETTINGS.questionCount) {
   const pool = getDeviceQuestionIndexes();
   const count = Math.max(1, Math.min(Number(questionCount) || DEFAULT_QUIZ_SETTINGS.questionCount, pool.length || 1));
-  const available = shuffleArray(pool);
+  const deviceKey = deviceSpacedRepetitionKey();
+  const deviceIdOf = (index) => melodicDeviceQuestions[index]?.id ?? index;
+  const SR = window.EchoAuralSpacedRepetition;
+  const available = SR ? SR.orderByLeastRecentlyShown(pool, { key: deviceKey, idOf: deviceIdOf }) : shuffleArray(pool);
   const selected = [];
+  const requestedId = new URLSearchParams(window.location.search).get("deviceQuestion");
+  const requestedIndex = requestedId
+    ? melodicDeviceQuestions.findIndex((question) => question.id === requestedId)
+    : -1;
 
-  while (available.length && selected.length < count) {
-    const previousAudioId = selected.length
-      ? melodicDeviceQuestions[selected[selected.length - 1]]?.audioId
-      : "";
-    let nextPosition = available.findIndex((index) => melodicDeviceQuestions[index]?.audioId !== previousAudioId);
-    if (nextPosition < 0) nextPosition = 0;
-    selected.push(available.splice(nextPosition, 1)[0]);
+  const answerSignature = (index) => melodicDeviceQuestions[index]?.correctAnswer || melodicDeviceQuestions[index]?.audioId || "";
+
+  if (requestedIndex >= 0) {
+    selected.push(requestedIndex);
+    const shuffledPosition = available.indexOf(requestedIndex);
+    if (shuffledPosition >= 0) available.splice(shuffledPosition, 1);
   }
 
+  // Keep the same melodic-device answer (and, as a side effect, the same
+  // audio clip) from appearing twice in one round.
+  const remainingSlots = count - selected.length;
+  const requestedSignature = requestedIndex >= 0 ? answerSignature(requestedIndex) : "";
+  const candidates = available.filter((index) => !requestedSignature || answerSignature(index) !== requestedSignature);
+  const deduped = SR?.dedupeByAnswer ? SR.dedupeByAnswer(candidates, remainingSlots, answerSignature) : candidates;
+  selected.push(...deduped.slice(0, remainingSlots));
+
+  SR?.markShown(selected, { key: deviceKey, idOf: deviceIdOf });
   return selected;
 }
 
@@ -514,31 +575,70 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
-function getTrackInfoTitle() {
-  const title = MM001.title && MM001.title !== MM001.id ? MM001.title : "";
-  if (title) return title;
+function getTrackInfoSource(source = null) {
+  if (source) return source;
 
-  const parts = [MM001.composer, MM001.work, MM001.movement]
-    .map((part) => String(part || "").trim())
-    .filter(Boolean);
+  if (isDevicesRound() && currentDeviceQuestion) {
+    return {
+      id: currentDeviceQuestion.id,
+      title: "",
+      composer: currentDeviceQuestion.composer,
+      work: currentDeviceQuestion.work,
+      movement: currentDeviceQuestion.movement,
+      performer: currentDeviceQuestion.performer,
+      source: currentDeviceQuestion.sourceProvider,
+      rights: currentDeviceQuestion.licenceType
+    };
+  }
 
-  return parts.length ? parts.join(" – ") : "Melody Master Dictation";
+  return MM001;
 }
 
-function renderScoreTrackInfo() {
-  if (!scoreTrackInfo) return;
+function getTrackInfoTitle(source = getTrackInfoSource()) {
+  const track = source || {};
+  const title = track.title && track.title !== track.id ? track.title : "";
+  if (title) return title;
 
-  const title = getTrackInfoTitle();
-  const details = [MM001.performer, MM001.source, MM001.rights]
+  const parts = [track.composer, track.work, track.movement]
     .map((part) => String(part || "").trim())
     .filter(Boolean);
 
-  scoreTrackInfo.innerHTML = `
-    <span class="score-track-info-kicker">Track information</span>
-    <strong>${escapeHTML(title)}</strong>
-    ${details.length ? `<small>${escapeHTML(details.join(" · "))}</small>` : ""}
-  `;
+  return parts.length ? parts.join(" – ") : (isDevicesRound() ? "Melody Master Devices" : "Melody Master Dictation");
+}
 
+function getCompactTrackSource(value = "") {
+  const source = String(value || "").trim();
+  if (/musopen/i.test(source)) return "Musopen";
+  if (/wikimedia|commons/i.test(source)) return "Wikimedia";
+  if (/internet archive|archive\.org/i.test(source)) return "Internet Archive";
+  return source;
+}
+
+function getCompactTrackLicence(value = "") {
+  const licence = String(value || "").trim();
+  const recognised = licence.match(/\b(?:PDM|CC0|CC BY(?:-NC)?(?:-SA)?|CC BY-SA)\s*\d(?:\.\d)?\b/i);
+  if (recognised) return recognised[0].toUpperCase();
+  if (/public domain|\bPD\b/i.test(licence)) return "Public domain";
+  return licence;
+}
+
+function buildScoreTrackInfoHTML(source = getTrackInfoSource()) {
+  const track = source || {};
+  const title = [track.composer, track.work].map((part) => String(part || "").trim()).filter(Boolean).join(" – ") || getTrackInfoTitle(track);
+  const movement = String(track.movement || "").trim() || "—";
+  const detailLine = [getCompactTrackSource(track.source), getCompactTrackLicence(track.rights)].filter(Boolean).join(" · ") || "—";
+
+  return `
+    <strong title="${escapeHTML(title)}">${escapeHTML(title)}</strong>
+    <span class="score-track-info-movement" title="${escapeHTML(movement)}">${escapeHTML(movement)}</span>
+    <small title="${escapeHTML(detailLine)}">${escapeHTML(detailLine)}</small>
+  `;
+}
+
+function renderScoreTrackInfo(source = getTrackInfoSource()) {
+  if (!scoreTrackInfo) return;
+
+  scoreTrackInfo.innerHTML = buildScoreTrackInfoHTML(source);
   scoreTrackInfo.removeAttribute("aria-hidden");
 }
 
@@ -546,6 +646,40 @@ function clearScoreTrackInfo() {
   if (!scoreTrackInfo) return;
   scoreTrackInfo.innerHTML = "";
   scoreTrackInfo.setAttribute("aria-hidden", "true");
+}
+
+function revealDevicesTrackInfo(question = currentDeviceQuestion) {
+  const devicesTrackInfo = document.querySelector("#melodicDevicesPanel .devices-track-info");
+  if (!devicesTrackInfo || !question) return;
+
+  devicesTrackInfo.innerHTML = buildScoreTrackInfoHTML({
+    id: question.id,
+    title: "",
+    composer: question.composer,
+    work: question.work,
+    movement: question.movement,
+    performer: question.performer,
+    source: question.sourceProvider,
+    rights: question.licenceType
+  });
+  devicesTrackInfo.removeAttribute("aria-hidden");
+}
+
+function showDevicesTrackTitle(question = currentDeviceQuestion) {
+  const devicesTrackInfo = document.querySelector("#melodicDevicesPanel .devices-track-info");
+  if (!devicesTrackInfo || !question) return;
+
+  const title = [question.composer, question.work]
+    .map((part) => String(part || "").trim())
+    .filter(Boolean)
+    .join(" – ") || question.id;
+  const movement = String(question.movement || "").trim() || "—";
+  devicesTrackInfo.innerHTML = `
+    <strong title="${escapeHTML(title)}">${escapeHTML(title)}</strong>
+    <span class="score-track-info-movement" title="${escapeHTML(movement)}">${escapeHTML(movement)}</span>
+    <small aria-hidden="true">&nbsp;</small>
+  `;
+  devicesTrackInfo.removeAttribute("aria-hidden");
 }
 
 function setFeedback(message, state = "") {
@@ -562,14 +696,71 @@ function setTextListContent(container, values = []) {
   });
 }
 
+const MELODY_SKILL_HEADING_LABELS = {
+  dictation: "Dictation",
+  devices: "Devices",
+  intervals: "Intervals"
+};
+
+function getMelodySkillHeadingLabel(skill) {
+  return MELODY_SKILL_HEADING_LABELS[skill] || MELODY_SKILL_HEADING_LABELS.dictation;
+}
+
+const CONSOLE_SKILL_ICONS = {
+  dictation: "../../assets/icons/modules/mm-transparent/melodic-dictation-transparent.png",
+  intervals: "../../assets/icons/modules/mm-transparent/melodic-intervals-transparent.png",
+  devices: "../../assets/icons/modules/mm-transparent/melodic-devices-transparent.png"
+};
+const DEFAULT_CONSOLE_ICON = "../../assets/icons/modules/melody-master.png";
+const consoleSkillIcon = document.getElementById("consoleSkillIcon");
+
+function syncConsoleSkillIcon() {
+  if (!consoleSkillIcon) return;
+  const checked = document.querySelector('input[name="quizMode"]:checked');
+  consoleSkillIcon.src = checked ? (CONSOLE_SKILL_ICONS[checked.value] || DEFAULT_CONSOLE_ICON) : DEFAULT_CONSOLE_ICON;
+}
+
+/** Start cannot begin until the user has explicitly picked both a skill and a level. */
+function updateStartAvailability() {
+  if (!startButton) return;
+  const hasSkill = !!document.querySelector('input[name="quizMode"]:checked');
+  const hasLevel = !!document.querySelector('input[name="mmLevel"]:checked');
+  startButton.disabled = !(hasSkill && hasLevel);
+}
+
+function syncCentrePanelHeading(skill = getSelectedQuizMode()) {
+  const panelTitle = document.querySelector(".panel-section-heading-centre h2 span:not(.panel-heading-accent)");
+  if (panelTitle) panelTitle.textContent = skill ? getMelodySkillHeadingLabel(skill) : "Learning";
+}
+
+const consoleTitleMain = document.getElementById("consoleTitleMain");
+const consoleTitleGradient = document.getElementById("consoleTitleGradient");
+const DEFAULT_CONSOLE_TITLE_MAIN = consoleTitleMain ? consoleTitleMain.textContent : "";
+const DEFAULT_CONSOLE_TITLE_GRADIENT = consoleTitleGradient ? consoleTitleGradient.textContent : "";
+
+/** Big console title text: the suite wordmark until a skill is chosen, then
+ *  that skill's short name in the app's own flat accent colour. */
+function syncConsoleTitle(skill) {
+  if (!consoleTitleMain || !consoleTitleGradient) return;
+  if (skill) {
+    consoleTitleMain.textContent = "";
+    consoleTitleGradient.textContent = getMelodySkillHeadingLabel(skill);
+    consoleTitleGradient.classList.add("is-skill-active");
+  } else {
+    consoleTitleMain.textContent = DEFAULT_CONSOLE_TITLE_MAIN;
+    consoleTitleGradient.textContent = DEFAULT_CONSOLE_TITLE_GRADIENT;
+    consoleTitleGradient.classList.remove("is-skill-active");
+  }
+}
+
 function syncMelodyShellLabels(skill = activeRoundSkill) {
-  const panelTitle = document.querySelector(".panel-section-heading-centre h2 span");
   const kicker = document.querySelector(".console-question-kicker .eyebrow");
   const cues = document.querySelector(".mm-ready-cues");
   const instructions = document.querySelector(".dictation-instructions");
   const isDevices = skill === "devices";
 
-  if (panelTitle) panelTitle.textContent = isDevices ? "Devices" : "Dictation";
+  syncCentrePanelHeading(skill);
+  syncConsoleTitle(skill);
   if (kicker) kicker.textContent = isDevices ? "MELODIC DEVICES" : "MELODIC DICTATION";
   setTextListContent(cues, isDevices ? ["Contour", "Movement", "Devices"] : ["Pitch", "Contour", "Dictation"]);
   setTextListContent(instructions, isDevices ? ["PLAY & LISTEN", "CHOOSE ANSWER", "CHECK FEEDBACK"] : ["PLAY & LISTEN", "DRAG THE NOTES", "CHECK YOUR ANSWERS"]);
@@ -605,7 +796,7 @@ function getMissingNoteFocusPoint(slot = null) {
     : fallback;
 
   return {
-    x: Number.isFinite(Number(slot && slot.x)) ? Number(slot.x) : average(xValues, 78),
+    x: Number.isFinite(Number(slot && slot.x)) ? Number(slot && slot.x) : average(xValues, 78),
     y: average(pitchValues, 46)
   };
 }
@@ -671,8 +862,15 @@ function cacheScoreExpansionOrigin() {
   const layoutRect = layout ? layout.getBoundingClientRect() : quizPanel.getBoundingClientRect();
   const leftPanel = document.querySelector(".setup-panel");
   const rightPanel = document.querySelector(".info-panel");
-  const leftPanelRect = leftPanel ? leftPanel.getBoundingClientRect() : layoutRect;
-  const rightPanelRect = rightPanel ? rightPanel.getBoundingClientRect() : layoutRect;
+  // Progress Mode's focus-mode CSS keeps these panels in the DOM but sets
+  // display:none (only the centre quiz-panel is shown inside its iframe),
+  // which zeroes their getBoundingClientRect() — treat that the same as the
+  // "panel doesn't exist" case below rather than letting it collapse
+  // threePanelOuterWidth to 0, which pinned the expanded score popup at its
+  // ~320px floor there instead of the real available width.
+  const isPanelUsable = (panel) => !!panel && (panel.offsetWidth > 0 || panel.offsetHeight > 0);
+  const leftPanelRect = isPanelUsable(leftPanel) ? leftPanel.getBoundingClientRect() : layoutRect;
+  const rightPanelRect = isPanelUsable(rightPanel) ? rightPanel.getBoundingClientRect() : layoutRect;
 
   // Expanded score target: keep the same expanded width, but pin the final
   // left edge to the left edge of the settings console box.
@@ -680,22 +878,14 @@ function cacheScoreExpansionOrigin() {
   const safeViewportWidth = Math.max(320, window.innerWidth - 28);
   const expandedWidth = Math.min(threePanelOuterWidth, safeViewportWidth);
 
-  // Align the expanded tile centre with the centre of the Dictation title
-  // at the top of the middle console. The close button remains positioned
-  // at the centre-top of the PNG tile, so the X sits vertically underneath
-  // the Dictation heading.
-  const dictationHeading = document.querySelector(".quiz-panel .panel-section-heading-centre h2")
-    || document.querySelector(".quiz-panel .panel-section-heading-centre")
-    || quizPanel;
-  const headingRect = dictationHeading.getBoundingClientRect();
-  const scoreTileLeftNudgePx = 92;
-  const expandedCentre = headingRect.left + (headingRect.width / 2) - scoreTileLeftNudgePx;
+  // Shift the expanded tile left from viewport centre by ~1/3 of its width,
+  // then nudge slightly right (~one "t" width in question text).
+  const expandedCentre = (window.innerWidth / 2) - (expandedWidth / 3) + 20;
 
   const panelBottom = Math.max(leftPanelRect.bottom, rightPanelRect.bottom, layoutRect.bottom - 14);
   const bottomOffset = Math.max(10, window.innerHeight - panelBottom);
 
-  // Use the same Dictation-title centre for the pre-expansion state too,
-  // so the X remains vertically aligned beneath the heading.
+  // Use the same viewport centre for the pre-expansion animation origin.
   quizPanel.style.setProperty("--mm-score-expand-centre-x", `${expandedCentre}px`);
   quizPanel.style.setProperty("--mm-score-expand-top", `${rect.top}px`);
   quizPanel.style.setProperty("--mm-score-expand-start-width", `${rect.width}px`);
@@ -1304,6 +1494,36 @@ function getPlacedCount() {
   return dictationSlots.filter((slot) => slot.placed).length;
 }
 
+/** Centre-console Mark tile: cumulative earned / marks available from completed questions. */
+function updateCentreMarkTile() {
+  if (!scoreText) return;
+
+  if (isRoundActive) {
+    const summary = getRoundScoreSummary();
+    scoreText.textContent = `Mark: ${summary.awarded} / ${summary.possibleSoFar}`;
+    return;
+  }
+
+  if (isDevicesRound()) {
+    const questionTotal = Number(currentDeviceQuestion?.marks) || 0;
+    const questionAwarded = hasSubmittedCurrentQuestion
+      ? (Number(roundResults[roundQuestionPosition]?.awardedMarks) || 0)
+      : 0;
+    scoreText.textContent = `Mark: ${questionAwarded} / ${questionTotal}`;
+    return;
+  }
+
+  const questionTotal = getQuestionMaxMarksFromSource(MM001_SOURCE);
+  const questionAwarded = hasSubmittedCurrentQuestion && lastAttemptDiagnostic?.gcseMarking
+    ? lastAttemptDiagnostic.gcseMarking.awardedMarks
+    : 0;
+  scoreText.textContent = `Mark: ${questionAwarded} / ${questionTotal}`;
+}
+
+function updateDictationScoreTile() {
+  updateCentreMarkTile();
+}
+
 function updateDictationProgress() {
   const total = dictationSlots.length || 6;
   const placedCount = getPlacedCount();
@@ -1312,9 +1532,6 @@ function updateDictationProgress() {
   if (isShowingAnswer) return;
 
   if (progressInner) progressInner.style.width = `${progress}%`;
-  if (scoreText) scoreText.textContent = isLoaded ? `Placed: ${placedCount} / ${total}` : "Score: 0 / 6";
-  if (streakText) streakText.textContent = placedCount === total ? "Ready to check" : "Pitch snap";
-  if (xpText) xpText.textContent = isLoaded ? getNoteCountLabel(total) : "6 semiquavers";
   if (checkAnswerButton) {
     checkAnswerButton.disabled = placedCount !== total;
     syncSubmissionButtonLabel();
@@ -1553,12 +1770,12 @@ function loadMelodicDeviceQuestion(options = {}) {
   setQuizVisualState("active");
   if (quizPanel && !isTransitionIn) quizPanel.classList.remove("is-question-handoff-out", "is-question-handoff-in");
 
-  questionText.textContent = currentDeviceQuestion.question;
+  setQuestionPrompt(currentDeviceQuestion.question, currentDeviceQuestion.marks);
   roundText.textContent = isRoundActive ? getRoundLabel() : "Ready";
-  scoreText.textContent = `Score: 0 / ${currentDeviceQuestion.marks}`;
+  updateCentreMarkTile();
   streakText.textContent = currentDeviceQuestion.category || "Melodic devices";
   xpText.textContent = `${currentDeviceQuestion.level} · ${getPlayLimitLabel()}`;
-  progressInner.style.width = "0%";
+  updateDevicesRoundProgress({ answered: false });
 
   clearScoreTrackInfo();
   collapseScoreExpansion();
@@ -1631,6 +1848,7 @@ function playMelodicDeviceAudio(options = {}) {
   audio.pause();
   audio.currentTime = 0;
   audio.volume = 1;
+  revealDevicesTrackInfo(currentDeviceQuestion);
 
   playRemainingAtStartOfCurrentPlayback = getRemainingPlays();
   isAudioPlaying = true;
@@ -1685,8 +1903,8 @@ function resetMelodicDeviceQuestion() {
   playRemainingAtStartOfCurrentPlayback = null;
   resetPlayCounterForQuestion();
   setPlayButtonMode("play");
-  progressInner.style.width = "0%";
-  scoreText.textContent = `Score: 0 / ${currentDeviceQuestion.marks}`;
+  updateDevicesRoundProgress({ answered: false });
+  updateCentreMarkTile();
   streakText.textContent = currentDeviceQuestion.category || "Melodic devices";
   xpText.textContent = `${currentDeviceQuestion.level} · ${getPlayLimitLabel()}`;
   renderMelodicDevicesWorkspace(currentDeviceQuestion);
@@ -1702,8 +1920,13 @@ function submitMelodicDeviceAnswer(choice = "") {
   const acceptedSignatures = currentDeviceQuestion.acceptedSignatures.length
     ? currentDeviceQuestion.acceptedSignatures
     : [currentDeviceQuestion.answerSignature];
-  const isCorrect = acceptedSignatures.includes(answerSignature) || answerSignature === currentDeviceQuestion.answerSignature;
-  const awardedMarks = isCorrect ? currentDeviceQuestion.marks : 0;
+  const writtenMarks = currentDeviceQuestion.responseType === "Written response"
+    ? currentDeviceQuestion.markPoints.filter((point) => point.acceptedSignatures.some((accepted) => answerSignature.includes(accepted))).length
+    : 0;
+  const isCorrect = currentDeviceQuestion.responseType === "Written response"
+    ? writtenMarks === currentDeviceQuestion.marks
+    : acceptedSignatures.includes(answerSignature) || answerSignature === currentDeviceQuestion.answerSignature;
+  const awardedMarks = currentDeviceQuestion.responseType === "Written response" ? Math.min(writtenMarks, currentDeviceQuestion.marks) : (isCorrect ? currentDeviceQuestion.marks : 0);
   const result = {
     skill: "melodic-devices",
     questionId: currentDeviceQuestion.id,
@@ -1741,10 +1964,11 @@ function submitMelodicDeviceAnswer(choice = "") {
     button.setAttribute("aria-checked", buttonSignature === answerSignature ? "true" : "false");
   });
 
-  progressInner.style.width = "100%";
-  scoreText.textContent = `Mark: ${awardedMarks} / ${currentDeviceQuestion.marks}`;
+  updateDevicesRoundProgress({ answered: true });
+  updateCentreMarkTile();
   streakText.textContent = isCorrect ? "Correct" : "Review";
   xpText.textContent = currentDeviceQuestion.category || "Submitted";
+  revealDevicesTrackInfo(currentDeviceQuestion);
   setPlayButtonMode("next");
   setFeedback(
     isCorrect
@@ -1782,18 +2006,14 @@ function loadQuestion(options = {}) {
 
   if (quizPanel && !isTransitionIn) quizPanel.classList.remove("is-question-handoff-out", "is-question-handoff-in");
 
-  const totalSlots = MM001_DICTATION.slots.length || dictationSlots.length || 6;
-
-  questionText.textContent = "Complete the melody.";
+  setQuestionPrompt("Complete the melody.", getDictationQuestionMarkTotal());
   roundText.textContent = isRoundActive ? getRoundLabel() : "Ready";
-  scoreText.textContent = `Placed: 0 / ${totalSlots}`;
-  streakText.textContent = "Pitch snap";
-  xpText.textContent = `${getNoteCountLabel(totalSlots)} · ${getPlayLimitLabel()}`;
+  updateDictationScoreTile();
   progressInner.style.width = "0%";
 
   scoreImage.src = MM001.questionImage;
   scoreImage.alt = `${MM001.id} question score with missing notes`;
-  renderScoreTrackInfo();
+  clearScoreTrackInfo();
 
   audio = new Audio(MM001.audio);
   audio.volume = 1;
@@ -2005,7 +2225,7 @@ function resetDictation() {
   hasSubmittedCurrentQuestion = false;
   scoreImage.src = MM001.questionImage;
   scoreImage.alt = `${MM001.id} question score with missing notes`;
-  renderScoreTrackInfo();
+  clearScoreTrackInfo();
   scoreShell.classList.remove("showing-answer", "is-drop-target", "is-note-focus", "is-score-expanded");
   collapseScoreExpansion();
   if (scoreOverlay) {
@@ -2091,14 +2311,11 @@ function checkAnswer() {
   }
 
   progressInner.style.width = "100%";
-  scoreText.textContent = `Mark: ${gcseMarking.awardedMarks} / ${gcseMarking.maxMarks}`;
-  streakText.textContent = correctCount === total ? "Complete" : `${correctCount}/${total} pitches`;
-  xpText.textContent = gcseMarking.shapeCreditAvailable
-    ? (gcseMarking.shapeMarkAwarded ? "Shape credited" : "Shape not credited")
-    : "Submitted";
+  updateDictationScoreTile();
 
   hasSubmittedCurrentQuestion = true;
   isQuestionComplete = true;
+  renderScoreTrackInfo();
   syncSubmissionButtonLabel();
   setAnswerRevealButtonVisible(true);
   setPlayButtonMode("next");
@@ -2328,6 +2545,45 @@ function buildAttemptDiagnostic(correctFlags = []) {
   };
 }
 
+
+function getDictationQuestionMarkTotal() {
+  const totalNotes = dictationSlots.length
+    || (Array.isArray(MM001_DICTATION.slots) ? MM001_DICTATION.slots.length : 0);
+  const markScheme = getQuestionMarkScheme(totalNotes);
+  const shapeCreditAvailable = Boolean(markScheme.shapeCreditAvailable && totalNotes > 1);
+  return markScheme.pitchMarks + (shapeCreditAvailable ? markScheme.shapeMarks : 0);
+}
+
+function stripTrailingQuestionMarkSuffix(text) {
+  if (window.EAQuestionPromptMarks?.stripTrailing) {
+    return window.EAQuestionPromptMarks.stripTrailing(text);
+  }
+  return String(text ?? "")
+    .replace(/(?:[\s\u00A0\u202F]*)[(（]\s*\d+(?:\.\d+)?\s*[)）]\s*$/u, "")
+    .replace(/[\s\u00A0\u202F]+$/u, "");
+}
+
+function setQuestionPrompt(text, marks = 0) {
+  if (!questionText) return;
+
+  const promptEl = questionText.querySelector(".mm-question-prompt") || questionText;
+  promptEl.textContent = stripTrailingQuestionMarkSuffix(text);
+
+  if (!questionMarks) return;
+
+  if (marks > 0) {
+    questionMarks.textContent = `\u00A0(${marks})`;
+    questionMarks.hidden = false;
+    questionMarks.setAttribute("aria-hidden", "false");
+    questionMarks.setAttribute("aria-label", `${marks} mark${marks === 1 ? "" : "s"}`);
+    return;
+  }
+
+  questionMarks.textContent = "";
+  questionMarks.hidden = true;
+  questionMarks.setAttribute("aria-hidden", "true");
+  questionMarks.removeAttribute("aria-label");
+}
 
 function getQuestionMarkScheme(totalNotes = dictationSlots.length || 0) {
   const configuredScheme = (MM001_SOURCE && MM001_SOURCE.markScheme) || {};
@@ -3050,17 +3306,24 @@ function renderAnswerPanelHome() {
 
   answerCard.innerHTML = `
     <div class="answerCard-empty mm-source-panel">
-      <div class="answer-empty-brand" aria-hidden="true">
-        <span class="answer-empty-icon">
-          <img
-            src="../../assets/icons/modules/melody-master.png"
-            alt=""
-            onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
-          />
-        </span>
-        <span class="answer-empty-wave">
-          <span></span><span></span><span></span><span></span><span></span>
-        </span>
+      <div class="answer-empty-stage" aria-hidden="true">
+        <div class="answer-empty-orbit">
+          <span class="answer-empty-sparkle answer-empty-sparkle-1" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-2" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-3" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-4" aria-hidden="true"></span>
+          <span class="answer-empty-icon">
+            <img
+              src="../../assets/icons/modes/mm-transparent/answers-transparent.png?v=3"
+              alt=""
+              onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
+            />
+          </span>
+        </div>
+      </div>
+      <div class="answer-empty-copy">
+        <h2>Your answers will appear here</h2>
+        <p>Complete a quiz to see your responses and performance feedback.</p>
       </div>
     </div>
   `;
@@ -3109,6 +3372,12 @@ function wireMelodicDevicesOptionButtons(root = document) {
     button.dataset.devicesOptionBound = "true";
     button.addEventListener("click", () => submitMelodicDeviceAnswer(button.dataset.choice || ""));
   });
+  const writtenInput = root.querySelector(".melodic-devices-written-input");
+  const writtenSubmit = root.querySelector(".melodic-devices-written-submit");
+  if (writtenInput && writtenSubmit) {
+    writtenSubmit.addEventListener("click", () => submitMelodicDeviceAnswer(writtenInput.value));
+    writtenInput.addEventListener("input", () => { writtenSubmit.disabled = !writtenInput.value.trim(); });
+  }
 }
 
 function renderMelodicDevicesWorkspace(question = currentDeviceQuestion) {
@@ -3123,22 +3392,30 @@ function renderMelodicDevicesWorkspace(question = currentDeviceQuestion) {
   if (quizPanel) quizPanel.classList.add("is-devices-question");
 
   workspace.hidden = false;
+  workspace.classList.toggle("has-score", Boolean(question.score));
+  const shuffledChoices = shuffleArray(question.choices);
   workspace.innerHTML = `
-    <div class="melodic-devices-prompt-card">
-      <p class="eyebrow">MELODIC DEVICES</p>
-      <strong>Choose the best answer.</strong>
-      <small>${escapeHTML(question.level)} · ${escapeHTML(question.id)} · ${escapeHTML(getPlayLimitLabel())}</small>
-    </div>
-    <div class="melodic-devices-options" role="radiogroup" aria-label="Melodic Devices answer options">
-      ${question.choices.map((choice) => `
-        <button class="melodic-devices-option" type="button" data-choice="${escapeHTML(choice)}">
+    ${question.score ? `
+      <figure class="melodic-devices-score">
+        <img src="${escapeHTML(question.score)}" alt="${escapeHTML(question.scoreAlt)}" draggable="false">
+      </figure>
+    ` : ""}
+    <div class="melodic-devices-options" ${question.responseType === "Written response" ? "" : 'role="radiogroup"'} aria-label="Melodic Devices answer area" data-answer-count="${question.choices.length}">
+      ${question.responseType === "Written response" ? `
+        <label class="melodic-devices-written-label" for="melodicDevicesWrittenAnswer">Your answer</label>
+        <textarea id="melodicDevicesWrittenAnswer" class="melodic-devices-written-input" rows="4" placeholder="Describe what you hear."></textarea>
+        <button class="melodic-devices-written-submit" type="button" disabled>Submit answer</button>
+      ` : shuffledChoices.map((choice) => `
+        <button class="melodic-devices-option" type="button" data-choice="${escapeHTML(choice)}" role="radio" aria-checked="false">
           <span>${escapeHTML(choice)}</span>
         </button>
       `).join("")}
     </div>
+    <div class="score-track-info devices-track-info" aria-live="polite" aria-hidden="true"></div>
   `;
 
   wireMelodicDevicesOptionButtons(workspace);
+  showDevicesTrackTitle(question);
 }
 
 function renderMelodicDevicesAnswerPanelIntro(question = currentDeviceQuestion) {
@@ -3412,16 +3689,11 @@ function classroomEvaluateCurrentAttempt(options = {}) {
   if (setSubmittedState) {
     hasSubmittedCurrentQuestion = true;
     isQuestionComplete = true;
+    renderScoreTrackInfo();
   }
 
   if (progressInner) progressInner.style.width = "100%";
-  if (scoreText) scoreText.textContent = `Mark: ${lastAttemptDiagnostic.gcseMarking.awardedMarks} / ${lastAttemptDiagnostic.gcseMarking.maxMarks}`;
-  if (streakText) streakText.textContent = correctCount === payload.total ? "Complete" : `${correctCount}/${payload.total} pitches`;
-  if (xpText) {
-    xpText.textContent = lastAttemptDiagnostic.gcseMarking.shapeCreditAvailable
-      ? (lastAttemptDiagnostic.gcseMarking.shapeMarkAwarded ? "Shape credited" : "Shape not credited")
-      : "Submitted";
-  }
+  updateDictationScoreTile();
 
   return {
     payload,
@@ -3441,6 +3713,7 @@ function classroomRenderAttemptFeedback(evaluation = null, options = {}) {
 function classroomToggleAnswer() {
   hasSubmittedCurrentQuestion = true;
   isQuestionComplete = true;
+  renderScoreTrackInfo();
   showAnswer();
   return isShowingAnswer;
 }
@@ -3488,13 +3761,18 @@ function closeSettingsMenu() {
   if (settingsToggle) settingsToggle.setAttribute("aria-expanded", "false");
 }
 
+function getMelodicIntervalLevelKey() {
+  return getSelectedDictationLevel().trim().toLowerCase();
+}
+
 function getMelodicIntervalLaunchUrl() {
   const count = getSelectedRadioValue("questionCount", String(DEFAULT_QUIZ_SETTINGS.questionCount));
+  const plays = getSelectedRadioValue("playLimit", String(DEFAULT_QUIZ_SETTINGS.playLimit));
   const params = new URLSearchParams({
     mode: "recognition",
     count,
-    answerMode: "number",
-    set: "basic",
+    plays,
+    level: getMelodicIntervalLevelKey(),
     autostart: "1",
     source: "melody-master"
   });
@@ -3557,7 +3835,7 @@ async function startQuizRound() {
   isRoundActive = true;
 
   setActiveQuestion(roundQuestionIndices[0] || 0);
-  if (startButton) startButton.textContent = "Start Quiz";
+  if (startButton) startButton.textContent = "Start Learning";
   loadQuestion({ autoPlay: true, expandOnLoad: true });
 }
 
@@ -3581,10 +3859,27 @@ window.addEventListener("resize", queueNoteScaleUpdate);
 document.querySelectorAll('input[name="mmLevel"]').forEach((input) => {
   input.addEventListener("change", () => {
     updateSettingsAvailability();
+    updateStartAvailability();
   });
 });
-document.querySelectorAll('input[name="quizMode"]').forEach((input) => input.addEventListener("change", updateSettingsAvailability));
+document.querySelectorAll('input[name="quizMode"]').forEach((input) => {
+  input.addEventListener("change", () => {
+    updateSettingsAvailability();
+    updateStartAvailability();
+    syncCentrePanelHeading(getSelectedQuizMode());
+    syncConsoleTitle(getSelectedQuizMode());
+    syncConsoleSkillIcon();
+  });
+});
+if (new URLSearchParams(window.location.search).has("deviceQuestion")) {
+  const devicesModeInput = document.querySelector('input[name="quizMode"][value="devices"]');
+  if (devicesModeInput) devicesModeInput.checked = true;
+}
 updateSettingsAvailability();
+updateStartAvailability();
+syncCentrePanelHeading(document.querySelector('input[name="quizMode"]:checked')?.value || null);
+syncConsoleTitle(document.querySelector('input[name="quizMode"]:checked')?.value || null);
+syncConsoleSkillIcon();
 
 initialiseNoteScaleObserver();
 queueNoteScaleUpdate();

@@ -1,6 +1,6 @@
 EchoAural composer icon pack — blue-tile / white engraved portraits.
 
-Active assets (mapped in Era Explorer):
+Active assets (mapped in Era Explorer / ContextCoach):
 - Johann Sebastian Bach
 - George Frideric Handel
 - Antonio Vivaldi
@@ -25,3 +25,13 @@ Active assets (mapped in Era Explorer):
 - Johann Strauss II
 - Sergei Rachmaninoff
 - Gabriel Fauré
+- Alexander Borodin
+- Franz Schubert
+- Josef Suk
+- Mouret
+- Nikolai Rimsky-Korsakov
+- Bottesini
+- Dushkin
+- Glazunov
+- Kuhlau
+- von Weber

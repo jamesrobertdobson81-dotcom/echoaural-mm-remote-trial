@@ -3031,3 +3031,122 @@ EXL013-Q08,CLIP-EXL013,Instrumentation,INS.INDIVIDUAL,Individual instrument,,ide
 EXL013-Q09,CLIP-EXL013,Structure and form,STR.FORM,Form and structure,INS.INDIVIDUAL | EXM.WRITTEN,apply,Exam application,,,,high,Tagged
 EXL013-Q10,CLIP-EXL013,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
 EXL013-Q11,CLIP-EXL013,Context and genre,CTX.GENRE,Genre and style,CTX.PERIOD,identify,Exam application,,,,high,Tagged
+EXL014-Q01,CLIP-EXL014,Context and genre,CTX.GENRE,Genre and style,INS.FAMILY,identify,Exam application,,,,high,Tagged
+EXL014-Q02,CLIP-EXL014,Instrumentation,INS.FAMILY,Instrument family,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL014-Q03,CLIP-EXL014,Meter and rhythm,RHY.DEVICE,Rhythmic device,RHY.METRE,identify,Exam application,,,,high,Tagged
+EXL014-Q04,CLIP-EXL014,Melody,MEL.DEVICE,Melodic device,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL014-Q05,CLIP-EXL014,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL014-Q06,CLIP-EXL014,Texture,TEX.TYPE,Texture type,,identify,Exam application,,,,high,Tagged
+EXL014-Q07,CLIP-EXL014,Context and genre,CTX.TECHNOLOGY,Music technology,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL014-Q08,CLIP-EXL014,Texture,TEX.TYPE,Texture type,DYN.CHANGE,identify,Exam application,,,,high,Tagged
+EXL014-Q09,CLIP-EXL014,Context and genre,CTX.GENRE,Genre and style,RHY.PULSE,identify,Exam application,,,,high,Tagged
+EXL014-Q10,CLIP-EXL014,Context and genre,CTX.GENRE,Genre and style,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL014-Q11,CLIP-EXL014,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL015-Q01,CLIP-EXL015,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL015-Q02,CLIP-EXL015,Instrumentation,INS.INDIVIDUAL,Individual instrument,ART.TYPE,identify,Exam application,,,,high,Tagged
+EXL015-Q03,CLIP-EXL015,Meter and rhythm,RHY.DEVICE,Rhythmic device,RHY.PULSE,identify,Exam application,,,,high,Tagged
+EXL015-Q04,CLIP-EXL015,Context and genre,CTX.GENRE,Genre and style,HAR.TONALITY,identify,Exam application,,,,high,Tagged
+EXL015-Q05,CLIP-EXL015,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL015-Q06,CLIP-EXL015,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Exam application,,,,high,Tagged
+EXL015-Q07,CLIP-EXL015,Harmony and tonality,HAR.TONALITY,Tonality and key,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL015-Q08,CLIP-EXL015,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Exam application,,,,high,Tagged
+EXL015-Q09,CLIP-EXL015,Context and genre,CTX.GENRE,Genre and style,MEL.ORNAMENT,identify,Exam application,,,,high,Tagged
+EXL015-Q10,CLIP-EXL015,Melody,MEL.ORNAMENT,Ornamentation,,identify,Exam application,,,,high,Tagged
+EXL015-Q11,CLIP-EXL015,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL016-Q01,CLIP-EXL016,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL016-Q02,CLIP-EXL016,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Exam application,,,,high,Tagged
+EXL016-Q03,CLIP-EXL016,Instrumentation,INS.INDIVIDUAL,Individual instrument,ART.TYPE,identify,Exam application,,,,high,Tagged
+EXL016-Q04,CLIP-EXL016,Meter and rhythm,RHY.DEVICE,Rhythmic device,RHY.METRE,identify,Exam application,,,,high,Tagged
+EXL016-Q05,CLIP-EXL016,Harmony and tonality,HAR.TONALITY,Tonality and key,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL016-Q06,CLIP-EXL016,Melody,MEL.ORNAMENT,Ornamentation,,identify,Exam application,,,,high,Tagged
+EXL016-Q07,CLIP-EXL016,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL016-Q08,CLIP-EXL016,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Exam application,,,,high,Tagged
+EXL016-Q09,CLIP-EXL016,Context and genre,CTX.GENRE,Genre and style,HAR.TONALITY,identify,Exam application,,,,high,Tagged
+EXL016-Q10,CLIP-EXL016,Context and genre,CTX.GENRE,Genre and style,MEL.ORNAMENT,identify,Exam application,,,,high,Tagged
+EXL016-Q11,CLIP-EXL016,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL017-Q01,CLIP-EXL017,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL017-Q02,CLIP-EXL017,Instrumentation,INS.FAMILY,Instrument family,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL017-Q03,CLIP-EXL017,Meter and rhythm,RHY.DEVICE,Rhythmic device,RHY.METRE,identify,Exam application,,,,high,Tagged
+EXL017-Q04,CLIP-EXL017,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL017-Q05,CLIP-EXL017,Texture,TEX.TYPE,Texture type,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL017-Q06,CLIP-EXL017,Instrumentation,INS.INDIVIDUAL,Individual instrument,ART.TYPE,identify,Exam application,,,,high,Tagged
+EXL017-Q07,CLIP-EXL017,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Exam application,,,,high,Tagged
+EXL017-Q08,CLIP-EXL017,Texture,TEX.TYPE,Texture type,DYN.CHANGE,identify,Exam application,,,,high,Tagged
+EXL017-Q09,CLIP-EXL017,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Exam application,,,,high,Tagged
+EXL017-Q10,CLIP-EXL017,Context and genre,CTX.GENRE,Genre and style,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL017-Q11,CLIP-EXL017,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL018-Q01,CLIP-EXL018,Instrumentation,INS.INDIVIDUAL,Individual instrument,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL018-Q02,CLIP-EXL018,Meter and rhythm,RHY.DEVICE,Rhythmic device,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL018-Q03,CLIP-EXL018,Melody,MEL.DEVICE,Melodic device,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL018-Q04,CLIP-EXL018,Meter and rhythm,RHY.METRE,Metre classification,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL018-Q05,CLIP-EXL018,Meter and rhythm,RHY.PULSE,Pulse,INS.ROLE,identify,Exam application,,,,high,Tagged
+EXL018-Q06,CLIP-EXL018,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL018-Q07,CLIP-EXL018,Texture,TEX.TYPE,Texture type,DYN.CHANGE,identify,Exam application,,,,high,Tagged
+EXL018-Q08,CLIP-EXL018,Context and genre,CTX.GENRE,Genre and style,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL018-Q09,CLIP-EXL018,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL018-Q10,CLIP-EXL018,Context and genre,CTX.TECHNOLOGY,Music technology,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL018-Q11,CLIP-EXL018,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL019-Q01,CLIP-EXL019,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL019-Q02,CLIP-EXL019,Instrumentation,INS.INDIVIDUAL,Individual instrument,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL019-Q03,CLIP-EXL019,Instrumentation,INS.FAMILY,Instrument family,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL019-Q04,CLIP-EXL019,Instrumentation,INS.INDIVIDUAL,Individual instrument,ART.TYPE,identify,Exam application,,,,high,Tagged
+EXL019-Q05,CLIP-EXL019,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL019-Q06,CLIP-EXL019,Context and genre,CTX.GENRE,Genre and style,HAR.TONALITY,identify,Exam application,,,,high,Tagged
+EXL019-Q07,CLIP-EXL019,Melody,MEL.ORNAMENT,Ornamentation,MEL.DEVICE,identify,Exam application,,,,high,Tagged
+EXL019-Q08,CLIP-EXL019,Meter and rhythm,RHY.TEMPO,Tempo,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL019-Q09,CLIP-EXL019,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL019-Q10,CLIP-EXL019,Context and genre,CTX.GENRE,Genre and style,MEL.ORNAMENT,identify,Exam application,,,,high,Tagged
+EXL019-Q11,CLIP-EXL019,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL020-Q01,CLIP-EXL020,Instrumentation,INS.INDIVIDUAL,Individual instrument,CTX.TECHNOLOGY,identify,Exam application,,,,high,Tagged
+EXL020-Q02,CLIP-EXL020,Context and genre,CTX.TECHNOLOGY,Music technology,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL020-Q03,CLIP-EXL020,Melody,MEL.DEVICE,Melodic device,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL020-Q04,CLIP-EXL020,Meter and rhythm,RHY.DEVICE,Rhythmic device,RHY.PULSE,identify,Exam application,,,,high,Tagged
+EXL020-Q05,CLIP-EXL020,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL020-Q06,CLIP-EXL020,Texture,TEX.TYPE,Texture type,DYN.CHANGE,identify,Exam application,,,,high,Tagged
+EXL020-Q07,CLIP-EXL020,Meter and rhythm,RHY.DEVICE,Rhythmic device,RHY.METRE,identify,Exam application,,,,high,Tagged
+EXL020-Q08,CLIP-EXL020,Meter and rhythm,RHY.DEVICE,Rhythmic device,MEL.DEVICE,identify,Exam application,,,,high,Tagged
+EXL020-Q09,CLIP-EXL020,Context and genre,CTX.GENRE,Genre and style,CTX.TECHNOLOGY,identify,Exam application,,,,high,Tagged
+EXL020-Q10,CLIP-EXL020,Meter and rhythm,RHY.PULSE,Pulse,INS.ROLE,identify,Exam application,,,,high,Tagged
+EXL020-Q11,CLIP-EXL020,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL021-Q01,CLIP-EXL021,Instrumentation,INS.INDIVIDUAL,Individual instrument,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL021-Q02,CLIP-EXL021,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL021-Q03,CLIP-EXL021,Melody,MEL.DEVICE,Melodic device,HAR.CHORD,identify,Exam application,,,,high,Tagged
+EXL021-Q04,CLIP-EXL021,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Exam application,,,,high,Tagged
+EXL021-Q05,CLIP-EXL021,Melody,MEL.DEVICE,Melodic device,MEL.DIRECTION,identify,Exam application,,,,high,Tagged
+EXL021-Q06,CLIP-EXL021,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Exam application,,,,high,Tagged
+EXL021-Q07,CLIP-EXL021,Texture,TEX.ROLE,Textural roles,HAR.CHORD,identify,Exam application,,,,high,Tagged
+EXL021-Q08,CLIP-EXL021,Texture,TEX.TYPE,Texture type,DYN.CHANGE,identify,Exam application,,,,high,Tagged
+EXL021-Q09,CLIP-EXL021,Context and genre,CTX.GENRE,Genre and style,MEL.DEVICE,identify,Exam application,,,,high,Tagged
+EXL021-Q10,CLIP-EXL021,Meter and rhythm,RHY.PULSE,Pulse,INS.ROLE,identify,Exam application,,,,high,Tagged
+EXL021-Q11,CLIP-EXL021,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL022-Q01,CLIP-EXL022,Instrumentation,INS.FAMILY,Instrument family,CTX.TECHNOLOGY,identify,Exam application,,,,high,Tagged
+EXL022-Q02,CLIP-EXL022,Context and genre,CTX.TECHNOLOGY,Music technology,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL022-Q03,CLIP-EXL022,Meter and rhythm,RHY.METRE,Metre classification,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL022-Q04,CLIP-EXL022,Meter and rhythm,RHY.DEVICE,Rhythmic device,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL022-Q05,CLIP-EXL022,Melody,MEL.DEVICE,Melodic device,RHY.DEVICE,identify,Exam application,,,,high,Tagged
+EXL022-Q06,CLIP-EXL022,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL022-Q07,CLIP-EXL022,Texture,TEX.TYPE,Texture type,,identify,Exam application,,,,high,Tagged
+EXL022-Q08,CLIP-EXL022,Texture,TEX.TYPE,Texture type,DYN.CHANGE,identify,Exam application,,,,high,Tagged
+EXL022-Q09,CLIP-EXL022,Context and genre,CTX.GENRE,Genre and style,RHY.PULSE,identify,Exam application,,,,high,Tagged
+EXL022-Q10,CLIP-EXL022,Instrumentation,INS.INDIVIDUAL,Individual instrument,CTX.TECHNOLOGY,identify,Exam application,,,,high,Tagged
+EXL022-Q11,CLIP-EXL022,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL023-Q01,CLIP-EXL023,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL023-Q02,CLIP-EXL023,Instrumentation,INS.INDIVIDUAL,Individual instrument,CTX.GENRE,identify,Exam application,,,,high,Tagged
+EXL023-Q03,CLIP-EXL023,Instrumentation,INS.INDIVIDUAL,Individual instrument,ART.TYPE,identify,Exam application,,,,high,Tagged
+EXL023-Q04,CLIP-EXL023,Context and genre,CTX.GENRE,Genre and style,HAR.TONALITY,identify,Exam application,,,,high,Tagged
+EXL023-Q05,CLIP-EXL023,Melody,MEL.ORNAMENT,Ornamentation,MEL.DEVICE,identify,Exam application,,,,high,Tagged
+EXL023-Q06,CLIP-EXL023,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL023-Q07,CLIP-EXL023,Instrumentation,INS.INDIVIDUAL,Individual instrument,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL023-Q08,CLIP-EXL023,Meter and rhythm,RHY.DEVICE,Rhythmic device,RHY.METRE,identify,Exam application,,,,high,Tagged
+EXL023-Q09,CLIP-EXL023,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Exam application,,,,high,Tagged
+EXL023-Q10,CLIP-EXL023,Context and genre,CTX.GENRE,Genre and style,MEL.ORNAMENT,identify,Exam application,,,,high,Tagged
+EXL023-Q11,CLIP-EXL023,Context and genre,CTX.GENRE,Genre and style,,identify,Exam application,,,,high,Tagged
+EXL010-Q01,CLIP-EXL010,Instrumentation,INS.TECHNIQUE,Playing technique,ART.TYPE,identify,Exam application,,,,high,Tagged
+EXL010-Q02,CLIP-EXL010,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.ROLE,identify,Exam application,,,,high,Tagged
+EXL010-Q03,CLIP-EXL010,Instrumentation,INS.INDIVIDUAL,Individual instrument,NOT.SCORE_READING,identify,Exam application,,,,high,Tagged
+EXL010-Q04,CLIP-EXL010,Harmony and tonality,HAR.TONALITY,Tonality and key,NOT.SCORE_READING,identify,Exam application,,,,high,Tagged
+EXL010-Q05,CLIP-EXL010,Notation and exam application,EXM.WRITTEN,Written musical explanation,RHY.DEVICE | DYN.LEVEL,apply,Exam application,,,,high,Tagged
+EXL010-Q06,CLIP-EXL010,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam application,,,,high,Tagged
+EXL010-Q07,CLIP-EXL010,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Exam application,,,,high,Tagged
+EXL010-Q08,CLIP-EXL010,Context and genre,CTX.PERIOD,Historical period,,identify,Exam application,,,,high,Tagged
+EXL010-Q09,CLIP-EXL010,Context and genre,CTX.PERIOD,Historical period,CTX.GENRE,identify,Exam application,,,,high,Tagged

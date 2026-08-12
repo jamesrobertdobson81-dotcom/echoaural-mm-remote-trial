@@ -4313,6 +4313,167 @@ window.textureQuestions.push(...TT_IMPORTED_TEXTURE_ROWS.map(createImportedTextu
 window.textureQuestions.push(...TT_LEVELLED_TEXTURE_ROWS.map(createImportedTextureQuestion));
 window.textureQuestions.push(...TT_SAFE_TEXTURE_ROWS.map(createSafeTextureQuestion));
 
+// --- Desktop import: New TT questions (TT-homophonic / TT-monophonic / TT-chordal) ---
+window.textureQuestions.push(createQuestion({
+  id: "TT147",
+  title: "Homophonic Texture — Mozart (K.332)",
+  audio: "audio/TT147.mp3",
+  prompt: "Describe the texture in this extract.",
+  maxMarks: 1,
+  level: "Foundation",
+  modelAnswer: "Homophonic: melody with accompaniment (clear melody with supporting chords/backing).",
+  feedbackCorrect: "Correct. There is a clear melody supported by accompaniment.",
+  feedbackPartial: "Good. You heard the melody/accompaniment relationship.",
+  feedbackIncorrect: "Not quite. Homophonic means melody is supported by accompaniment (chords/backing), not just a single line.",
+  vocabularyTip: "Use homophonic when the melody is clearly supported by accompaniment.",
+  target: "Homophonic",
+  textureFocus: "Homophonic",
+  work: "Piano Sonata No. 12 in F major, K.332",
+  composer: "W. A. Mozart",
+  performer: "La Pianista",
+  collection: "Wikimedia Commons",
+  licence: "CC BY-SA 3.0",
+  sourceUrl: "https://commons.wikimedia.org/wiki/File:Mozart_-_Piano_Sonata_No._12_in_F_Major,_K._332_-_II._Adagio.ogg",
+  clipStart: 0,
+  audioDurationSeconds: 18,
+}, [
+  point("Texture", HOMOPHONIC_ACCEPTED, HOMOPHONIC_PARTIAL)
+]));
+
+window.textureQuestions.push(createQuestion({
+  id: "TT148",
+  title: "Homophonic Texture — Chopin (Op. 15 No. 2)",
+  audio: "audio/TT148.mp3",
+  prompt: "Describe the texture in this extract.",
+  maxMarks: 1,
+  level: "Foundation",
+  modelAnswer: "Homophonic: melody with accompaniment (singing melody with piano accompaniment/chords).",
+  feedbackCorrect: "Correct. There is a clear melody supported by accompaniment.",
+  feedbackPartial: "Good. You heard the melody/accompaniment relationship.",
+  feedbackIncorrect: "Not quite. Homophonic means one clear melody is supported by accompaniment.",
+  vocabularyTip: "Use homophonic when the melody is clearly supported by accompaniment.",
+  target: "Homophonic",
+  textureFocus: "Homophonic",
+  work: "Nocturne in F sharp major, Op. 15 No. 2",
+  composer: "Frédéric Chopin",
+  performer: "Vadim Chaimovich",
+  collection: "Wikimedia Commons",
+  licence: "CC0 1.0",
+  sourceUrl: "https://commons.wikimedia.org/wiki/File:Chopin_-_Nocturne_Op._15_no._2_in_F_sharp_major.ogg",
+  clipStart: 0,
+  audioDurationSeconds: 19,
+}, [
+  point("Texture", HOMOPHONIC_ACCEPTED, HOMOPHONIC_PARTIAL)
+]));
+
+window.textureQuestions.push(createQuestion({
+  id: "TT149",
+  title: "Chordal / Homorhythmic Texture — hymn block chords",
+  audio: "audio/TT149.mp3",
+  prompt: "Describe the texture in this extract.",
+  maxMarks: 1,
+  level: "Foundation",
+  modelAnswer: "Homophonic/chordal (homorhythmic): parts move together in a mainly chordal rhythm.",
+  feedbackCorrect: "Correct. The parts move together in a mainly chordal rhythm.",
+  feedbackPartial: "Good. You noticed the chords and the parts moving together rhythmically.",
+  feedbackIncorrect: "Not quite. Chordal/homorhythmic means the parts move together in block chords (same rhythm).",
+  vocabularyTip: "Use chordal or homorhythmic when parts move together rhythmically.",
+  target: "Homophonic",
+  textureFocus: "Homophonic",
+  work: "Battle Hymn of the Republic",
+  composer: "William Steffe (tune) / Julia Ward Howe (words)",
+  performer: "Welsh male choir, \"Gorau Corau Meibion Cymru / The Great Welsh Male Choirs\" (Sain Records, 1989)",
+  collection: "Wikimedia Commons",
+  licence: "CC BY-SA 3.0",
+  sourceUrl: "https://commons.wikimedia.org/wiki/File:Battle_Hymn_of_the_Republic_-_Choir.ogg",
+  clipStart: 0,
+  audioDurationSeconds: 18,
+}, [
+  point("Texture", CHORDAL_ACCEPTED, CHORDAL_PARTIAL)
+]));
+
+window.textureQuestions.push(createQuestion({
+  id: "TT150",
+  title: "Monophonic → Unison — texture change",
+  audio: "audio/TT150.mp3",
+  prompt: "How does the texture change in this extract?",
+  maxMarks: 2,
+  level: "Securing",
+  responseType: "short-text",
+  questionType: "written-response",
+  modelAnswer: "(a) The opening is monophonic (a single unaccompanied melodic line). (1)\n(b) Later it becomes unison / octaves (a single coordinated line). (1)",
+  feedbackCorrect: "Correct. You described the monophonic opening and the later unison/octaves texture.",
+  feedbackPartial: "Good. You described one part of the texture change. Add both the opening and the later change for full marks.",
+  feedbackIncorrect: "Not quite. Listen for the opening monophonic line, then the later unison/octaves texture.",
+  vocabularyTip: "Describe both the starting texture and what changes later.",
+  target: "Monophonic → Unison",
+  textureFocus: "Monophonic → Unison",
+  work: "Pater Noster (Vespers in honour of St Vincent Pallotti)",
+  composer: "Traditional (Gregorian chant)",
+  performer: "Schola Gregoriana, Pallottine Seminary, Ołtarzew, Poland (dir. Fr. Dario Smolarek)",
+  collection: "Wikimedia Commons",
+  licence: "CC BY-SA 3.0",
+  sourceUrl: "https://commons.wikimedia.org/wiki/File:Schola_Gregoriana-Pater_Noster.ogg",
+  clipStart: 0,
+  audioDurationSeconds: 18,
+}, [
+  point("Starting texture", MONOPHONIC_ACCEPTED, MONOPHONIC_PARTIAL),
+  point("Texture change", UNISON_ACCEPTED, UNISON_PARTIAL),
+]));
+
+window.textureQuestions.push(createQuestion({
+  id: "TT151",
+  title: "Monophonic Texture — developing solo line",
+  audio: "audio/TT151.mp3",
+  prompt: "Describe the texture in this extract.",
+  maxMarks: 1,
+  level: "Developing",
+  responseType: "multiple-choice",
+  modelAnswer: "Monophonic: a single unaccompanied melodic line.",
+  feedbackCorrect: "Correct. This is monophonic: one melodic line with no accompaniment.",
+  feedbackPartial: "Good. You noticed there is only one unaccompanied melodic line.",
+  feedbackIncorrect: "Not quite. Monophonic means a single unaccompanied melodic line (no accompaniment).",
+  vocabularyTip: "Use monophonic when you hear one unaccompanied melodic line.",
+  target: "Monophonic",
+  textureFocus: "Monophonic",
+  work: "Sonata No. 1 in G minor for solo violin, BWV 1001 (I. Adagio)",
+  composer: "J. S. Bach",
+  performer: "Unattributed performer (uploader-credited recording)",
+  collection: "Wikimedia Commons",
+  licence: "CC0 1.0",
+  sourceUrl: "https://commons.wikimedia.org/wiki/File:J._S._Bach_%E2%80%93_Violin_Sonata_No._1_in_G_minor,_BWV_1001,_I._Adagio.ogg",
+  clipStart: 0,
+  audioDurationSeconds: 19,
+}, [
+  point("Texture", MONOPHONIC_ACCEPTED, MONOPHONIC_PARTIAL)
+]));
+
+window.textureQuestions.push(createQuestion({
+  id: "TT152",
+  title: "Monophonic Texture — Telemann (solo flute)",
+  audio: "audio/TT152.mp3",
+  prompt: "Describe the texture in this extract.",
+  maxMarks: 1,
+  level: "Foundation",
+  modelAnswer: "Monophonic: a single unaccompanied melodic line.",
+  feedbackCorrect: "Correct. This is monophonic: one melodic line with no accompaniment.",
+  feedbackPartial: "Good. You noticed there is only one unaccompanied melodic line.",
+  feedbackIncorrect: "Not quite. Monophonic means a single unaccompanied melodic line (no accompaniment).",
+  vocabularyTip: "Use monophonic when you hear one unaccompanied melodic line.",
+  target: "Monophonic",
+  textureFocus: "Monophonic",
+  work: "Fantasia No. 8 for solo flute (TWV 40:2-13)",
+  composer: "Georg Philipp Telemann",
+  performer: "David Hernando Vitores",
+  collection: "Wikimedia Commons",
+  licence: "CC BY-SA 4.0",
+  sourceUrl: "https://commons.wikimedia.org/wiki/File:Georg_Philipp_Telemann_-_Fantasia_No_8_-_David_Hernando_Vitores.ogg",
+  clipStart: 0,
+  audioDurationSeconds: 19,
+}, [
+  point("Texture", MONOPHONIC_ACCEPTED, MONOPHONIC_PARTIAL)
+]));
+
 const TT_REVIEW_APPROVED_IDS = new Set([
   "TT001",
   "TT007",
@@ -4427,7 +4588,13 @@ const TT_REVIEW_APPROVED_IDS = new Set([
   "TT135",
   "TT136",
   "TT139",
-  "TT140"
+  "TT140",
+  "TT147",
+  "TT148",
+  "TT149",
+  "TT150",
+  "TT151",
+  "TT152"
 ]);
 
 const TT_REVIEW_DROPPED_IDS = new Set([

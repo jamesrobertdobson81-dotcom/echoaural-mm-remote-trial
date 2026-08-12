@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(node --test modules/exam-lab/tests/*.test.js era-explorer/tests/*.test.js modules/ensemble-recognition/tests/*.test.js modules/harmony-explorer/key-signature-sprint/tests/*.test.js shared/tests/*.test.js)",
+      "Bash(node --check modules/progress-mode/script.js)",
+      "Bash(node --check modules/meter-master/script.js)",
+      "Bash(node --check modules/melodic-intervals/script.js)",
+      "Bash(node --check accounts/account-server.js)",
+      "Bash(node --check modules/progress-mode/store.js)",
+      "Bash(node tools/check-skill-metadata.js)",
+      "Bash(node tools/check-exam-lab-integration.js)",
+      "Bash(node -e ' *)",
+      "Bash(mkdir -p /private/tmp/claude-502/-Users-james-Desktop-echoaural-3/1544e5d4-1e98-4687-8f3d-d34cab461b16/scratchpad/jsdom-test)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(sed 's/:\\\\/\\\\/[^@]*@/:\\\\/\\\\/***@/')",
+      "Bash(node db/check-connection.js)",
+      "Bash(node tools/list-accounts.js)",
+      "Bash(node repro.js)",
+      "Bash(node repro2.js)",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(node repro3.js)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(node --check modules/melody-master/script.js)",
+      "Bash(node --test modules/progress-mode/tests/store.test.js)",
+      "Bash(node debug2.js)"
+    ]
+  }
+}

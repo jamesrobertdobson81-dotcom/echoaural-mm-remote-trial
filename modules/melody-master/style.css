@@ -16,17 +16,20 @@
   --muted: rgba(255, 255, 255, .68);
   --muted-strong: rgba(255, 255, 255, .80);
   --faint: rgba(255, 255, 255, .50);
-  --border: rgba(255, 255, 255, .13);
-  --border-soft: rgba(255, 255, 255, .08);
-  --border-bright: rgba(56, 189, 248, .48);
-  --glass: rgba(255, 255, 255, .055);
-  --glass-strong: rgba(255, 255, 255, .085);
+  --border: rgba(130, 160, 255, .14);
+  --border-soft: rgba(130, 160, 255, .08);
+  --border-bright: rgba(160, 195, 255, .32);
+  --glass: rgba(18, 28, 52, .50);
+  --glass-strong: rgba(14, 24, 48, .65);
+  --glass-border: rgba(130, 160, 255, .15);
+  --glass-highlight: rgba(180, 200, 255, .12);
+  --glass-blur: blur(18px) saturate(160%);
   --ea-gradient: linear-gradient(135deg, #38bdf8 0%, #6366f1 34%, #a855f7 70%, #fb7185 100%);
   --blue-gradient: linear-gradient(135deg, rgba(56, 189, 248, .98), rgba(74, 144, 226, .82));
   --panel-gradient:
-    radial-gradient(circle at 82% 10%, rgba(56, 189, 248, .145), transparent 34%),
-    radial-gradient(circle at 8% 90%, rgba(251, 113, 133, .105), transparent 36%),
-    linear-gradient(180deg, rgba(255, 255, 255, .092), rgba(255, 255, 255, .045));
+    radial-gradient(circle at 82% 10%, rgba(100, 150, 255, .10), transparent 34%),
+    radial-gradient(circle at 8% 90%, rgba(80, 120, 220, .08), transparent 36%),
+    linear-gradient(180deg, rgba(18, 28, 52, .62), rgba(12, 20, 42, .55));
   --shadow-soft: 0 28px 70px rgba(0, 0, 0, .26);
   --shadow-tight: 0 14px 34px rgba(0, 0, 0, .24);
   --shadow-glow: 0 0 36px rgba(56, 189, 248, .12);
@@ -55,7 +58,7 @@ body {
     radial-gradient(circle at 82% 14%, rgba(56, 189, 248, .22), transparent 31%),
     radial-gradient(circle at 18% 72%, rgba(251, 113, 133, .16), transparent 34%),
     radial-gradient(circle at 62% 42%, rgba(74, 144, 226, .10), transparent 38%),
-    linear-gradient(135deg, #050b16, #07111f 48%, #101f3d);
+    linear-gradient(135deg, #05070a, #060a12 48%, #0a1020);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
@@ -255,6 +258,19 @@ label:has(input:focus-visible) {
   animation: iiTextGlow 6.4s ease-in-out infinite;
 }
 
+/* When the console title shows a chosen skill's short name instead of the
+   suite wordmark, show it as a plain flat brand colour, not the decorative
+   two-tone wordmark gradient. */
+#consoleTitleGradient.is-skill-active {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
 .wordmark-aural,
 .mini-wordmark-aural {
   background: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
@@ -383,6 +399,38 @@ label:has(input:focus-visible) {
   font-weight: 820;
 }
 
+.topbar-app-link {
+  font-weight: 500;
+}
+
+.topbar-app-link-ii {
+  --module-accent: var(--ea-blue);
+}
+
+.topbar-app-link-tt {
+  --module-accent: var(--ea-teal);
+}
+
+.topbar-app-link-meter {
+  --module-accent: var(--ea-amber);
+}
+
+.topbar-app-link-he {
+  --module-accent: var(--ea-purple, #A66BFF);
+}
+
+.topbar-app-link-cc {
+  --module-accent: var(--ea-rose);
+}
+
+.topbar-app-link .module-title-text {
+  font-size: inherit;
+}
+
+.topbar-app-link .module-title-gradient {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--module-accent) 32%, transparent);
+}
+
 .back-label {
   color: rgba(255, 255, 255, .60);
   letter-spacing: .03em;
@@ -408,19 +456,25 @@ label:has(input:focus-visible) {
   border-top: 0;
   border-radius: 0 0 26px 26px;
   background:
-    radial-gradient(circle at 52% 0%, rgba(56, 189, 248, .06), transparent 42%),
-    rgba(7, 17, 31, .48);
-  backdrop-filter: blur(18px);
+    radial-gradient(circle at 52% 0%, rgba(100, 150, 255, .05), transparent 42%),
+    rgba(5, 8, 16, .78);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
 }
 
 .panel {
   position: relative;
   min-height: 0;
   overflow: visible;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   background: var(--panel-gradient);
-  box-shadow: var(--shadow-soft);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow:
+    var(--shadow-soft),
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px rgba(255, 255, 255, .03);
 }
 
 .panel::before {
@@ -429,7 +483,7 @@ label:has(input:focus-visible) {
   inset: 1px;
   z-index: -1;
   border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .065), rgba(255, 255, 255, 0));
+  background: linear-gradient(180deg, rgba(180, 200, 255, .06), rgba(180, 200, 255, 0));
   pointer-events: none;
 }
 
@@ -448,7 +502,8 @@ label:has(input:focus-visible) {
 
 .setup-panel {
   z-index: 5;
-  gap: 16px;
+  gap: 8px;
+  padding: 38px 22px;
 }
 
 .quiz-panel {
@@ -459,9 +514,9 @@ label:has(input:focus-visible) {
   min-width: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, .18), transparent 28%),
-    radial-gradient(circle at 50% 46%, rgba(251, 113, 133, .095), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, .105), rgba(255, 255, 255, .050));
+    radial-gradient(circle at 50% 0%, rgba(100, 150, 255, .10), transparent 28%),
+    radial-gradient(circle at 50% 46%, rgba(251, 113, 133, .06), transparent 38%),
+    linear-gradient(180deg, rgba(18, 28, 52, .62), rgba(12, 20, 42, .55));
 }
 
 .info-panel {
@@ -479,12 +534,19 @@ label:has(input:focus-visible) {
   color: rgba(255, 255, 255, .82);
 }
 
+.setup-panel > .panel-section-heading {
+  margin-bottom: 32px;
+}
+
 .panel-section-heading-centre {
   justify-content: center;
   margin-bottom: 2px;
 }
 
 .panel-section-heading h2 {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
   margin: 0;
   font-size: clamp(1.02rem, 1.18vw, 1.28rem);
   line-height: 1;
@@ -493,19 +555,39 @@ label:has(input:focus-visible) {
   text-transform: uppercase;
 }
 
-.panel-section-heading h2 span {
+.panel-section-heading h2 span:not(.panel-heading-accent) {
   background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(125,211,252,.78));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
+.panel-heading-accent {
+  display: block;
+  width: 100%;
+  height: 2px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: #FF5DBA;
+  box-shadow: 0 0 6px rgba(255, 93, 186, .45);
+  animation: panel-heading-accent-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes panel-heading-accent-breathe {
+  0%, 100% {
+    opacity: .75;
+    box-shadow: 0 0 5px rgba(255, 93, 186, .35);
+    transform: scaleX(1) scaleY(1);
+  }
+  50% {
+    opacity: .92;
+    box-shadow: 0 0 10px rgba(255, 93, 186, .52), 0 0 3px rgba(255, 93, 186, .35);
+    transform: scaleX(1.03) scaleY(1.08);
+  }
+}
+
 .panel-heading-wave {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  width: 26px;
-  height: 26px;
+  display: none;
 }
 
 .panel-heading-wave span {
@@ -541,15 +623,39 @@ label:has(input:focus-visible) {
   border-bottom: 1px solid var(--border-soft);
 }
 
+.setup-panel .panel-hero {
+  padding-bottom: 0;
+  border-bottom: none;
+  margin-bottom: 40px;
+}
+
 .mm-panel-hero {
-  margin-bottom: 2px;
+  margin-bottom: 0;
   text-align: center;
 }
 
 .mm-hero-lockup {
   display: grid;
   justify-items: center;
-  gap: 11px;
+  gap: 18px;
+}
+
+.mm-panel-hero .mm-brand-eyebrow {
+  margin: 8px 0 0;
+}
+
+.mm-panel-hero .mm-panel-intro {
+  margin-top: 10px;
+}
+
+.setup-panel > h2.melody-skill-heading {
+  margin-top: 0;
+  margin-bottom: 7px;
+}
+
+.setup-panel > .melody-skill-grid + h2 {
+  margin-top: 36px;
+  margin-bottom: 7px;
 }
 
 .mm-hero-icon {
@@ -597,10 +703,7 @@ label:has(input:focus-visible) {
 }
 
 .mm-title-wave {
-  height: 23px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
+  display: none;
 }
 
 .mm-title-wave span { width: 3px; }
@@ -659,26 +762,30 @@ label:has(input:focus-visible) {
   position: relative;
   min-height: 80px;
   padding: 13px 13px;
-  border: 1px solid rgba(255, 255, 255, .105);
+  border: 1px solid rgba(130, 160, 255, .12);
   border-radius: 22px;
   display: grid;
   grid-template-columns: 54px 1fr;
   align-items: center;
   gap: 12px;
   background:
-    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, .10), transparent 38%),
-    rgba(255, 255, 255, .045);
-  box-shadow: 0 13px 32px rgba(0, 0, 0, .16);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .10), transparent 38%),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 13px 32px rgba(0, 0, 0, .20),
+    inset 0 1px 0 rgba(180, 200, 255, .08);
   cursor: pointer;
   transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
 }
 
 .quizCard:hover {
   transform: translateY(-2px);
-  border-color: rgba(56, 189, 248, .36);
+  border-color: rgba(130, 160, 255, .28);
   background:
-    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, .16), transparent 38%),
-    rgba(255, 255, 255, .066);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .14), transparent 38%),
+    var(--glass-strong);
 }
 
 .quizCard input,
@@ -757,28 +864,34 @@ label:has(input:focus-visible) {
 
 .level-button {
   position: relative;
-  min-height: 76px;
-  padding: 13px 15px;
-  border: 1px solid rgba(255, 255, 255, .105);
-  border-radius: 22px;
+  min-height: 62px;
+  padding: 10px 36px 10px 12px;
+  border: 1px solid rgba(130, 160, 255, .12);
+  border-radius: 19px;
   display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
   align-content: center;
-  gap: 4px;
+  column-gap: 11px;
   color: var(--text);
   background:
-    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, .10), transparent 38%),
-    rgba(255, 255, 255, .045);
-  box-shadow: 0 13px 32px rgba(0, 0, 0, .16);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .10), transparent 38%),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 13px 32px rgba(0, 0, 0, .20),
+    inset 0 1px 0 rgba(180, 200, 255, .08);
   cursor: pointer;
   transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
 }
 
 .level-button:hover {
   transform: translateY(-2px);
-  border-color: rgba(56, 189, 248, .36);
+  border-color: rgba(130, 160, 255, .28);
   background:
-    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, .16), transparent 38%),
-    rgba(255, 255, 255, .066);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .14), transparent 38%),
+    var(--glass-strong);
 }
 
 .level-button input {
@@ -788,30 +901,55 @@ label:has(input:focus-visible) {
 }
 
 .level-button:has(input:checked) {
-  border-color: rgba(56, 189, 248, .60);
+  border-color: rgba(255, 93, 186, .58);
   background:
-    radial-gradient(circle at 85% 10%, rgba(56, 189, 248, .20), transparent 38%),
-    linear-gradient(135deg, rgba(56, 189, 248, .16), rgba(139, 92, 246, .12));
-  box-shadow: 0 18px 42px rgba(56, 189, 248, .10);
+    radial-gradient(circle at 85% 10%, rgba(255, 93, 186, .18), transparent 38%),
+    linear-gradient(135deg, rgba(168, 85, 247, .14), rgba(255, 93, 186, .10));
+  box-shadow:
+    0 18px 42px rgba(255, 93, 186, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+.level-button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid rgba(255, 255, 255, .36);
+  border-bottom: 1.5px solid rgba(255, 255, 255, .36);
+  transform: translateY(-50%) rotate(-45deg);
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .level-button:has(input:checked)::after {
-  content: "";
-  position: absolute;
-  top: 13px;
-  right: 13px;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--blue);
-  box-shadow: 0 0 16px rgba(56, 189, 248, .70);
+  border-color: rgba(255, 255, 255, .72);
 }
 
 .level-button strong {
+  grid-column: 2;
+  grid-row: 1;
   color: rgba(255, 255, 255, .94);
   font-size: .98rem;
-  font-weight: 880;
+  font-weight: 500;
   letter-spacing: -.015em;
+}
+
+.level-icon {
+  grid-column: 1;
+  grid-row: 1;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 0;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  box-shadow: none;
+  filter: none;
 }
 
 .level-button span {
@@ -1053,17 +1191,22 @@ label:has(input:focus-visible) {
 .progressOuter {
   height: 9px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, .09);
+  border: 1px solid rgba(130, 160, 255, .12);
   border-radius: 999px;
-  background: rgba(255, 255, 255, .055);
+  background: var(--glass);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  container-type: inline-size;
 }
 
 #progressInner {
   width: 0%;
   height: 100%;
   border-radius: inherit;
-  background: var(--ea-gradient);
-  box-shadow: 0 0 16px rgba(56, 189, 248, .38);
+  background: linear-gradient(90deg, #3FA6FF 0%, #FF5DBA 100%);
+  background-size: 100cqw 100%;
+  background-repeat: no-repeat;
+  box-shadow: 0 0 16px rgba(63, 166, 255, .38);
   transition: width .35s ease;
 }
 
@@ -1077,15 +1220,147 @@ label:has(input:focus-visible) {
   min-height: 38px;
   margin: 0;
   padding: 0 10px;
-  border: 1px solid rgba(255, 255, 255, .085);
+  border: 1px solid rgba(130, 160, 255, .12);
   border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: rgba(255, 255, 255, .80);
-  background: rgba(255, 255, 255, .044);
+  background: var(--glass);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(180, 200, 255, .08);
   font-size: .82rem;
   font-weight: 840;
+}
+
+/* =========================
+   MM dictation centre-panel score tile
+   Single blue-glass tile matching Melodic Intervals .mi-score-tile.
+========================= */
+
+.quiz-panel.is-active .statsRow.mm-stats-row,
+.quiz-panel.is-complete .statsRow.mm-stats-row {
+  display: flex;
+  justify-content: center;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-bottom: clamp(6px, .8vh, 10px);
+}
+
+.quiz-panel.is-active .statsRow.mm-stats-row #streakText,
+.quiz-panel.is-active .statsRow.mm-stats-row #xpText,
+.quiz-panel.is-complete .statsRow.mm-stats-row #streakText,
+.quiz-panel.is-complete .statsRow.mm-stats-row #xpText {
+  display: none !important;
+}
+
+.quiz-panel.is-active .statsRow.mm-stats-row .mm-score-tile,
+.quiz-panel.is-complete .statsRow.mm-stats-row .mm-score-tile {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(100%, 280px);
+  min-height: clamp(40px, 5vh, 48px);
+  margin: 0;
+  padding: 0 clamp(16px, 2vw, 22px);
+  border: 1px solid rgba(255, 93, 186, .22);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, .94);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .10), transparent 38%),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, .20),
+    inset 0 1px 0 rgba(255, 93, 186, .08);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(.84rem, 1vw, .92rem);
+  font-weight: 500;
+  letter-spacing: -.015em;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================
+   MM dictation centre-console gameplay action buttons
+   Blue glass level-button language; pink glow on hover only.
+   Scope: Play Audio / Submit / Reveal Answer (dictation only).
+========================= */
+
+.quiz-panel.is-active .dictation-toolbar #playButton,
+.quiz-panel.is-complete .dictation-toolbar #playButton,
+.quiz-panel.is-active .dictation-toolbar #checkAnswerButton,
+.quiz-panel.is-complete .dictation-toolbar #checkAnswerButton,
+.quiz-panel.is-active.is-answer-submitted .dictation-toolbar #showAnswerButton,
+.quiz-panel.is-complete.is-answer-submitted .dictation-toolbar #showAnswerButton {
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 93, 186, .34) !important;
+  border-radius: 14px !important;
+  min-width: clamp(150px, 14vw, 188px);
+  min-height: clamp(44px, 5vh, 54px);
+  padding: 0 clamp(20px, 2.2vw, 28px);
+  font-size: clamp(.88rem, 1vw, .98rem);
+  font-weight: 500 !important;
+  letter-spacing: -.015em;
+  gap: clamp(8px, 1vw, 12px);
+  color: rgba(255, 255, 255, .94) !important;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 93, 186, .11), transparent 38%),
+    linear-gradient(135deg, rgba(168, 85, 247, .085), rgba(255, 93, 186, .055)),
+    var(--glass) !important;
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 12px 30px rgba(255, 93, 186, .075),
+    0 10px 26px rgba(0, 0, 0, .20),
+    inset 0 1px 0 rgba(255, 255, 255, .055) !important;
+  filter: none !important;
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease, opacity .22s ease;
+}
+
+/* Next / Replay (and playButton mode swaps) stay a fixed display size. */
+.quiz-panel.is-active .dictation-toolbar #playButton,
+.quiz-panel.is-complete .dictation-toolbar #playButton {
+  width: 188px !important;
+  min-width: 188px !important;
+  max-width: 188px !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  max-height: 54px !important;
+  flex: 0 0 188px !important;
+  padding: 0 28px !important;
+  font-size: .98rem !important;
+}
+
+.quiz-panel.is-active .dictation-toolbar #playButton:hover,
+.quiz-panel.is-complete .dictation-toolbar #playButton:hover,
+.quiz-panel.is-active .dictation-toolbar #checkAnswerButton:hover,
+.quiz-panel.is-complete .dictation-toolbar #checkAnswerButton:hover,
+.quiz-panel.is-active.is-answer-submitted .dictation-toolbar #showAnswerButton:hover,
+.quiz-panel.is-complete.is-answer-submitted .dictation-toolbar #showAnswerButton:hover,
+.quiz-panel.is-active .dictation-toolbar #restartButton:hover,
+.quiz-panel.is-complete .dictation-toolbar #restartButton:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 93, 186, .58) !important;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 93, 186, .18), transparent 38%),
+    linear-gradient(135deg, rgba(168, 85, 247, .14), rgba(255, 93, 186, .10)) !important;
+  box-shadow:
+    0 18px 42px rgba(255, 93, 186, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .06) !important;
+  filter: none !important;
+}
+
+/* Dictation/Devices centre actions always look enabled (Intervals parity); disabled attr kept for no-op clicks. */
+.quiz-panel.is-active .dictation-toolbar button:disabled,
+.quiz-panel.is-complete .dictation-toolbar button:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  cursor: pointer;
 }
 
 .listening-console {
@@ -1093,7 +1368,7 @@ label:has(input:focus-visible) {
   min-height: 0;
   height: 100%;
   padding: clamp(18px, 2.35vw, 32px);
-  border: 1px solid rgba(255, 255, 255, .12);
+  border: 1px solid rgba(130, 160, 255, .10);
   border-radius: 34px;
   overflow: hidden;
   display: grid;
@@ -1104,12 +1379,15 @@ label:has(input:focus-visible) {
   gap: clamp(7px, .95vh, 13px);
   text-align: center;
   background:
-    radial-gradient(circle at 50% 24%, rgba(56, 189, 248, .15), transparent 30%),
-    radial-gradient(circle at 50% 56%, rgba(139, 92, 246, .12), transparent 40%),
-    linear-gradient(180deg, rgba(2, 7, 19, .36), rgba(2, 7, 19, .28));
+    radial-gradient(circle at 50% 24%, rgba(100, 150, 255, .08), transparent 30%),
+    radial-gradient(circle at 50% 56%, rgba(80, 120, 220, .06), transparent 40%),
+    rgba(6, 10, 22, .42);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   box-shadow:
+    inset 0 1px 0 rgba(180, 200, 255, .08),
     inset 0 0 0 1px rgba(255, 255, 255, .025),
-    0 22px 60px rgba(0, 0, 0, .22);
+    0 22px 60px rgba(0, 0, 0, .28);
 }
 
 .listening-console::before {
@@ -1128,16 +1406,16 @@ label:has(input:focus-visible) {
   width: 620px;
   height: 620px;
   left: 50%;
-  top: 52%;
+  top: 50%;
   z-index: 0;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 1px solid rgba(56, 189, 248, .06);
+  border: 1px solid rgba(255, 93, 186, .07);
   box-shadow:
-    0 0 0 60px rgba(56, 189, 248, .018),
-    0 0 0 120px rgba(139, 92, 246, .013),
-    0 0 56px rgba(56, 189, 248, .045);
-  opacity: .76;
+    0 0 0 68px rgba(255, 93, 186, .038),
+    0 0 0 136px rgba(255, 93, 186, .022),
+    0 0 48px rgba(255, 93, 186, .035);
+  opacity: .62;
   pointer-events: none;
 }
 
@@ -1151,15 +1429,16 @@ label:has(input:focus-visible) {
   width: 340px;
   height: 340px;
   left: 50%;
-  top: 46%;
+  top: 50%;
   z-index: 0;
   transform: translate(-50%, -50%);
-  border: 1px solid rgba(255, 255, 255, .045);
+  border: 1px solid rgba(255, 93, 186, .10);
   border-radius: 50%;
   box-shadow:
-    0 0 0 44px rgba(56, 189, 248, .015),
-    0 0 0 88px rgba(139, 92, 246, .012);
-  opacity: .85;
+    0 0 0 52px rgba(255, 93, 186, .048),
+    0 0 0 104px rgba(255, 93, 186, .030);
+  opacity: .68;
+  pointer-events: none;
 }
 
 .console-ready-brand {
@@ -1270,47 +1549,76 @@ label:has(input:focus-visible) {
 }
 
 .listening-visual {
-  width: min(560px, 86%);
-  height: clamp(66px, 9vh, 102px);
-  padding: 0 18px;
+  width: min(720px, 94%);
+  height: clamp(72px, 10vh, 112px);
+  padding: 0 clamp(20px, 3vw, 32px);
   border: 1px solid rgba(255, 255, 255, .085);
   border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(6px, 1vw, 12px);
   background:
-    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, .10), transparent 50%),
-    rgba(255, 255, 255, .035);
+    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, .08), transparent 50%),
+    var(--glass);
   box-shadow: inset 0 0 28px rgba(56, 189, 248, .025);
 }
 
-.listening-visual span {
-  width: clamp(4px, .55vw, 7px);
-  border-radius: 999px;
-  background: var(--ea-gradient);
-  box-shadow:
-    0 0 12px rgba(56, 189, 248, .26),
-    0 0 26px rgba(139, 92, 246, .14);
-  animation: consoleBars 1.28s ease-in-out infinite;
+.mm-console-wave-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
 }
 
-.listening-visual span:nth-child(1) { height: 26%; animation-delay: .00s; }
-.listening-visual span:nth-child(2) { height: 48%; animation-delay: .06s; }
-.listening-visual span:nth-child(3) { height: 78%; animation-delay: .12s; }
-.listening-visual span:nth-child(4) { height: 58%; animation-delay: .18s; }
-.listening-visual span:nth-child(5) { height: 92%; animation-delay: .24s; }
-.listening-visual span:nth-child(6) { height: 64%; animation-delay: .30s; }
-.listening-visual span:nth-child(7) { height: 86%; animation-delay: .36s; }
-.listening-visual span:nth-child(8) { height: 50%; animation-delay: .42s; }
-.listening-visual span:nth-child(9) { height: 72%; animation-delay: .48s; }
-.listening-visual span:nth-child(10) { height: 44%; animation-delay: .54s; }
-.listening-visual span:nth-child(11) { height: 28%; animation-delay: .60s; }
+.mm-console-wave-lines {
+  transform-origin: center;
+}
 
-.quiz-panel.is-ready .listening-visual span,
-.quiz-panel.is-complete .listening-visual span {
-  animation-duration: 2.6s;
-  opacity: .78;
+.mm-wave-segment {
+  transform-origin: center;
+}
+
+.mm-wave-segment .mm-wave-line {
+  stroke: url(#mmConsoleWaveGrad);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-duration: calc(var(--wave-seg-duration, 1.35s) * var(--wave-seg-ready-scale, 1));
+  animation-delay: calc(var(--wave-seg-phase, 0s) + var(--wave-bar-stagger, 0s));
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.mm-wave-segment .mm-wave-line.mm-wave-edge {
+  animation-name: mmWaveLinePulseEdge;
+}
+
+.mm-wave-segment .mm-wave-line.mm-wave-mid {
+  animation-name: mmWaveLinePulseMid;
+}
+
+.mm-wave-segment .mm-wave-line.mm-wave-core {
+  animation-name: mmWaveLinePulseCore;
+}
+
+.mm-wave-seg-5 .mm-wave-line {
+  animation-timing-function: cubic-bezier(.45, 0, .55, 1);
+}
+
+.mm-wave-seg-7 .mm-wave-line {
+  animation-timing-function: cubic-bezier(.42, 0, .58, 1);
+}
+
+.quiz-panel.is-ready .mm-wave-segment,
+.quiz-panel.is-complete .mm-wave-segment {
+  --wave-seg-ready-scale: 1.55;
+}
+
+.quiz-panel.is-ready .mm-wave-segment .mm-wave-line,
+.quiz-panel.is-complete .mm-wave-segment .mm-wave-line {
+  opacity: .88;
 }
 
 .listening-cues {
@@ -1332,7 +1640,7 @@ label:has(input:focus-visible) {
   display: inline-flex;
   align-items: center;
   color: rgba(255, 255, 255, .68);
-  background: rgba(255, 255, 255, .04);
+  background: var(--glass);
   font-size: .73rem;
   font-weight: 850;
   letter-spacing: .08em;
@@ -1511,19 +1819,98 @@ label:has(input:focus-visible) {
 .summary {
   min-height: 100%;
   padding: 22px;
-  border: 1px solid rgba(255, 255, 255, .10);
+  border: 1px solid rgba(130, 160, 255, .12);
   border-radius: 26px;
   background:
-    radial-gradient(circle at 74% 12%, rgba(56, 189, 248, .12), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, .060), rgba(255, 255, 255, .036));
+    radial-gradient(circle at 74% 12%, rgba(100, 150, 255, .08), transparent 38%),
+    linear-gradient(180deg, rgba(18, 28, 52, .58), rgba(12, 20, 42, .52));
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(180, 200, 255, .08),
+    0 16px 40px rgba(0, 0, 0, .22);
 }
 
 .answerCard-empty {
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 11px;
+  gap: clamp(18px, 2.4vh, 28px);
   text-align: center;
+}
+
+.answer-empty-stage {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: clamp(8px, 1.5vh, 18px) 0 clamp(2px, .6vh, 8px);
+}
+
+.answer-empty-orbit {
+  position: relative;
+  width: clamp(148px, 13vw, 196px);
+  height: clamp(148px, 13vw, 196px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent calc(84% - .35px), rgba(56, 189, 248, .11) calc(84% - .35px), rgba(56, 189, 248, .11) calc(84% + .35px), transparent calc(84% + .35px)),
+    radial-gradient(circle, transparent calc(72% - .35px), rgba(56, 189, 248, .13) calc(72% - .35px), rgba(56, 189, 248, .13) calc(72% + .35px), transparent calc(72% + .35px)),
+    radial-gradient(circle, transparent calc(60% - .35px), rgba(56, 189, 248, .15) calc(60% - .35px), rgba(56, 189, 248, .15) calc(60% + .35px), transparent calc(60% + .35px)),
+    radial-gradient(circle, transparent calc(48% - .35px), rgba(56, 189, 248, .17) calc(48% - .35px), rgba(56, 189, 248, .17) calc(48% + .35px), transparent calc(48% + .35px)),
+    radial-gradient(circle, transparent calc(36% - .35px), rgba(56, 189, 248, .20) calc(36% - .35px), rgba(56, 189, 248, .20) calc(36% + .35px), transparent calc(36% + .35px));
+  box-shadow:
+    0 0 28px rgba(56, 189, 248, .08),
+    0 0 56px rgba(168, 85, 247, .05);
+}
+
+.answer-empty-orbit .answer-empty-icon {
+  position: relative;
+  z-index: 1;
+  width: clamp(54px, 5.4vw, 72px);
+  height: clamp(54px, 5.4vw, 72px);
+  padding: clamp(10px, 1.1vw, 14px);
+  border-radius: clamp(15px, 1.5vw, 20px);
+  margin: 0;
+}
+
+.answer-empty-sparkle {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: #a855f7;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  opacity: .62;
+  filter: drop-shadow(0 0 5px rgba(168, 85, 247, .55));
+  pointer-events: none;
+}
+
+.answer-empty-sparkle-1 { top: 8%; left: 18%; }
+.answer-empty-sparkle-2 { top: 14%; right: 12%; }
+.answer-empty-sparkle-3 { bottom: 16%; left: 10%; }
+.answer-empty-sparkle-4 { bottom: 10%; right: 18%; }
+
+.answer-empty-copy {
+  display: grid;
+  gap: clamp(8px, 1vh, 12px);
+  justify-items: center;
+  max-width: 30ch;
+  padding: 0 clamp(8px, 1.2vw, 16px);
+}
+
+.answer-empty-copy h2 {
+  font-size: clamp(1.02rem, 1.28vw, 1.22rem);
+  font-weight: 780;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+}
+
+.answer-empty-copy p {
+  margin: 0;
+  color: rgba(255, 255, 255, .52);
+  font-size: clamp(.8rem, .92vw, .9rem);
+  line-height: 1.58;
+  font-weight: 520;
 }
 
 
@@ -1695,13 +2082,16 @@ label:has(input:focus-visible) {
 .meta-row {
   min-height: 43px;
   padding: 9px 11px;
-  border: 1px solid rgba(255, 255, 255, .08);
+  border: 1px solid rgba(130, 160, 255, .10);
   border-radius: 15px;
   display: grid;
   grid-template-columns: 82px 1fr;
   gap: 8px;
   align-items: center;
-  background: rgba(255, 255, 255, .035);
+  background: var(--glass);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+}
   text-align: left;
 }
 
@@ -1750,12 +2140,15 @@ label:has(input:focus-visible) {
 .summary-stats div {
   min-height: 70px;
   padding: 11px 7px;
-  border: 1px solid rgba(255, 255, 255, .09);
+  border: 1px solid rgba(130, 160, 255, .10);
   border-radius: 17px;
   display: grid;
   place-items: center;
   gap: 2px;
-  background: rgba(255, 255, 255, .04);
+  background: var(--glass);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(180, 200, 255, .06);
 }
 
 .summary-stats strong {
@@ -1782,12 +2175,15 @@ label:has(input:focus-visible) {
 .summaryWrong {
   min-height: 70px;
   padding: 7px 5px;
-  border: 1px solid rgba(255, 255, 255, .09);
+  border: 1px solid rgba(130, 160, 255, .10);
   border-radius: 16px;
   display: grid;
   justify-items: center;
   gap: 3px;
-  background: rgba(255, 255, 255, .035);
+  background: var(--glass);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(180, 200, 255, .06);
 }
 
 .summaryCorrect {
@@ -1868,6 +2264,21 @@ label:has(input:focus-visible) {
   45% { transform: scaleY(1); opacity: 1; }
 }
 
+@keyframes mmWaveLinePulseEdge {
+  0%, 100% { transform: scaleY(.88); opacity: .62; }
+  45% { transform: scaleY(1); opacity: .78; }
+}
+
+@keyframes mmWaveLinePulseMid {
+  0%, 100% { transform: scaleY(.68); opacity: .76; }
+  45% { transform: scaleY(1.04); opacity: .94; }
+}
+
+@keyframes mmWaveLinePulseCore {
+  0%, 100% { transform: scaleY(.52); opacity: .82; }
+  45% { transform: scaleY(1.1); opacity: 1; }
+}
+
 @keyframes popoverIn {
   from { transform: translateY(8px) scale(.985); opacity: 0; }
   to { transform: translateY(0) scale(1); opacity: 1; }
@@ -1909,7 +2320,8 @@ label:has(input:focus-visible) {
   }
 
   .setup-panel {
-    gap: 11px;
+    gap: 8px;
+    padding: 28px 16px;
   }
 
   .quiz-panel {
@@ -1921,6 +2333,10 @@ label:has(input:focus-visible) {
     margin-bottom: 8px;
   }
 
+  .setup-panel > .panel-section-heading {
+    margin-bottom: 24px;
+  }
+
   .panel-section-heading h2 {
     font-size: clamp(1.08rem, 1.08vw, 1.22rem);
   }
@@ -1929,7 +2345,24 @@ label:has(input:focus-visible) {
     padding-bottom: 12px;
   }
 
+  .setup-panel .panel-hero {
+    margin-bottom: 30px;
+  }
+
   .mm-hero-lockup {
+    gap: 14px;
+  }
+
+  .setup-panel > h2.melody-skill-heading {
+    margin-bottom: 5px;
+  }
+
+  .setup-panel > .melody-skill-grid + h2 {
+    margin-top: 28px;
+    margin-bottom: 5px;
+  }
+
+  .setup-panel .level-grid {
     gap: 8px;
   }
 
@@ -2077,6 +2510,26 @@ label:has(input:focus-visible) {
   .answer-reveal,
   .summary {
     padding: 16px;
+  }
+
+  .answer-empty-orbit {
+    width: 128px;
+    height: 128px;
+  }
+
+  .answer-empty-orbit .answer-empty-icon {
+    width: 48px;
+    height: 48px;
+    padding: 9px;
+    border-radius: 14px;
+  }
+
+  .answer-empty-copy h2 {
+    font-size: 1rem;
+  }
+
+  .answer-empty-copy p {
+    font-size: .78rem;
   }
 
   .answer-empty-icon {
@@ -2283,13 +2736,9 @@ label:has(input:focus-visible) {
 }
 
 .quiz-panel.is-ready .listening-visual {
-  width: min(640px, 90%);
+  width: min(720px, 94%);
   height: clamp(86px, 11vh, 128px);
   margin-top: clamp(10px, 1.3vh, 18px);
-}
-
-.quiz-panel.is-ready .listening-visual span {
-  width: clamp(5px, .68vw, 8px);
 }
 
 .quiz-panel.is-active .console-actions-replay {
@@ -2304,7 +2753,7 @@ label:has(input:focus-visible) {
 ========================= */
 
 .quiz-panel.is-ready .console-mm-lockup {
-  margin-top: clamp(-22px, -1.8vw, -14px);
+  margin-top: 0;
 }
 
 .quiz-panel.is-ready .console-actions-start {
@@ -2368,23 +2817,23 @@ label:has(input:focus-visible) {
   --melody-pink: #fb7185;
   --melody-gold: #fbbf24;
   --melody-cyan: #38bdf8;
-  --melody-panel-border: rgba(251, 113, 133, .18);
-  --melody-panel-border-bright: rgba(251, 113, 133, .46);
-  --melody-glow: rgba(251, 113, 133, .14);
+  --melody-panel-border: rgba(130, 160, 255, .14);
+  --melody-panel-border-bright: rgba(160, 195, 255, .32);
+  --melody-glow: rgba(100, 150, 255, .12);
   --ea-gradient: linear-gradient(135deg, #38bdf8 0%, #6366f1 32%, #a855f7 66%, #fb7185 100%);
   --panel-gradient:
-    radial-gradient(circle at 82% 10%, rgba(56, 189, 248, .145), transparent 34%),
-    radial-gradient(circle at 8% 90%, rgba(139, 92, 246, .105), transparent 36%),
-    linear-gradient(180deg, rgba(255, 255, 255, .092), rgba(255, 255, 255, .045));
+    radial-gradient(circle at 82% 10%, rgba(100, 150, 255, .10), transparent 34%),
+    radial-gradient(circle at 8% 90%, rgba(80, 120, 220, .08), transparent 36%),
+    linear-gradient(180deg, rgba(18, 28, 52, .62), rgba(12, 20, 42, .55));
 }
 
 body {
   background:
-    radial-gradient(circle at 50% 4%, rgba(56, 189, 248, .15), transparent 28%),
-    radial-gradient(circle at 82% 14%, rgba(56, 189, 248, .22), transparent 31%),
-    radial-gradient(circle at 18% 72%, rgba(139, 92, 246, .20), transparent 34%),
-    radial-gradient(circle at 62% 42%, rgba(74, 144, 226, .10), transparent 38%),
-    linear-gradient(135deg, #050b16, #07111f 48%, #101f3d);
+    radial-gradient(circle at 50% 4%, rgba(100, 150, 255, .12), transparent 28%),
+    radial-gradient(circle at 82% 14%, rgba(100, 150, 255, .16), transparent 31%),
+    radial-gradient(circle at 18% 72%, rgba(139, 92, 246, .16), transparent 34%),
+    radial-gradient(circle at 62% 42%, rgba(74, 144, 226, .08), transparent 38%),
+    linear-gradient(135deg, #05070a, #060a12 48%, #0a1020);
 }
 
 body::before {
@@ -2417,14 +2866,20 @@ body::after {
 }
 
 .three-panel-layout {
-  border-color: var(--border);
+  border-color: var(--glass-border);
   background:
-    radial-gradient(circle at 52% 0%, rgba(56, 189, 248, .06), transparent 42%),
-    rgba(7, 17, 31, .48);
+    radial-gradient(circle at 52% 0%, rgba(100, 150, 255, .05), transparent 42%),
+    rgba(5, 8, 16, .78);
 }
 
 .panel {
-  border-color: var(--border);
+  border-color: var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow:
+    var(--shadow-soft),
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 0 0 1px rgba(255, 255, 255, .03);
 }
 
 .setup-panel {
@@ -2432,16 +2887,16 @@ body::after {
 }
 
 .quiz-panel {
-  border-color: rgba(251, 113, 133, .20);
+  border-color: rgba(130, 160, 255, .16);
   background:
-    radial-gradient(circle at 50% 0%, rgba(251, 113, 133, .17), transparent 28%),
-    radial-gradient(circle at 50% 46%, rgba(168, 85, 247, .13), transparent 38%),
-    radial-gradient(circle at 12% 100%, rgba(251, 191, 36, .045), transparent 36%),
-    linear-gradient(180deg, rgba(255, 255, 255, .104), rgba(255, 255, 255, .050));
+    radial-gradient(circle at 50% 0%, rgba(100, 150, 255, .10), transparent 28%),
+    radial-gradient(circle at 50% 46%, rgba(168, 85, 247, .08), transparent 38%),
+    radial-gradient(circle at 12% 100%, rgba(251, 191, 36, .03), transparent 36%),
+    linear-gradient(180deg, rgba(18, 28, 52, .62), rgba(12, 20, 42, .55));
 }
 
 .info-panel {
-  border-color: var(--border);
+  border-color: var(--glass-border);
   background: var(--panel-gradient);
 }
 
@@ -2450,19 +2905,24 @@ body::after {
 .panel-heading-wave span:nth-child(3) { background: var(--melody-pink); }
 
 .quizCard {
-  border-color: rgba(255, 255, 255, .11);
+  border-color: rgba(130, 160, 255, .12);
   background:
-    radial-gradient(circle at 86% 12%, rgba(168, 85, 247, .13), transparent 38%),
-    radial-gradient(circle at 10% 92%, rgba(251, 113, 133, .055), transparent 38%),
-    rgba(255, 255, 255, .045);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .10), transparent 38%),
+    radial-gradient(circle at 10% 92%, rgba(80, 120, 220, .06), transparent 38%),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 13px 32px rgba(0, 0, 0, .20),
+    inset 0 1px 0 rgba(180, 200, 255, .08);
 }
 
 .quizCard:hover {
-  border-color: rgba(251, 113, 133, .38);
+  border-color: rgba(130, 160, 255, .26);
   background:
-    radial-gradient(circle at 86% 12%, rgba(168, 85, 247, .18), transparent 38%),
-    radial-gradient(circle at 10% 92%, rgba(251, 113, 133, .085), transparent 38%),
-    rgba(255, 255, 255, .066);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .14), transparent 38%),
+    radial-gradient(circle at 10% 92%, rgba(80, 120, 220, .08), transparent 38%),
+    var(--glass-strong);
 }
 
 .quizCard:has(input:checked) {
@@ -2485,30 +2945,36 @@ body::after {
 }
 
 .level-button {
-  border-color: rgba(255, 255, 255, .11);
+  border-color: rgba(130, 160, 255, .12);
   background:
-    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, .10), transparent 38%),
-    rgba(255, 255, 255, .045);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .10), transparent 38%),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 13px 32px rgba(0, 0, 0, .20),
+    inset 0 1px 0 rgba(180, 200, 255, .08);
 }
 
 .level-button:hover {
-  border-color: rgba(56, 189, 248, .36);
+  border-color: rgba(130, 160, 255, .26);
   background:
-    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, .16), transparent 38%),
-    rgba(255, 255, 255, .066);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .14), transparent 38%),
+    var(--glass-strong);
 }
 
 .level-button:has(input:checked) {
-  border-color: rgba(56, 189, 248, .60);
+  border-color: rgba(255, 93, 186, .58);
   background:
-    radial-gradient(circle at 85% 10%, rgba(56, 189, 248, .20), transparent 38%),
-    linear-gradient(135deg, rgba(56, 189, 248, .16), rgba(139, 92, 246, .12));
-  box-shadow: 0 18px 42px rgba(56, 189, 248, .10);
+    radial-gradient(circle at 85% 10%, rgba(255, 93, 186, .18), transparent 38%),
+    linear-gradient(135deg, rgba(168, 85, 247, .14), rgba(255, 93, 186, .10));
+  box-shadow:
+    0 18px 42px rgba(255, 93, 186, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 
 .level-button:has(input:checked)::after {
-  background: var(--blue);
-  box-shadow: 0 0 16px rgba(56, 189, 248, .70);
+  border-color: rgba(255, 255, 255, .72);
 }
 
 .settings-popover {
@@ -2551,24 +3017,30 @@ body::after {
 }
 
 .listening-console {
-  border-color: rgba(251, 113, 133, .14);
+  border-color: rgba(130, 160, 255, .10);
   background:
-    radial-gradient(circle at 50% 24%, rgba(251, 113, 133, .14), transparent 30%),
-    radial-gradient(circle at 50% 56%, rgba(168, 85, 247, .14), transparent 40%),
-    radial-gradient(circle at 50% 92%, rgba(251, 191, 36, .040), transparent 38%),
-    linear-gradient(180deg, rgba(2, 7, 19, .36), rgba(2, 7, 19, .28));
+    radial-gradient(circle at 50% 24%, rgba(100, 150, 255, .08), transparent 30%),
+    radial-gradient(circle at 50% 56%, rgba(80, 120, 220, .06), transparent 40%),
+    radial-gradient(circle at 50% 92%, rgba(251, 191, 36, .02), transparent 38%),
+    rgba(6, 10, 22, .42);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(180, 200, 255, .08),
+    inset 0 0 0 1px rgba(255, 255, 255, .025),
+    0 22px 60px rgba(0, 0, 0, .28);
 }
 
 .listening-console::before {
-  border-color: rgba(251, 113, 133, .08);
+  border-color: rgba(130, 160, 255, .08);
 }
 
 .listening-console::after {
-  border-color: rgba(251, 113, 133, .06);
+  border-color: rgba(255, 93, 186, .07);
   box-shadow:
-    0 0 0 60px rgba(251, 113, 133, .016),
-    0 0 0 120px rgba(168, 85, 247, .014),
-    0 0 56px rgba(251, 113, 133, .044);
+    0 0 0 68px rgba(255, 93, 186, .038),
+    0 0 0 136px rgba(255, 93, 186, .022),
+    0 0 48px rgba(255, 93, 186, .035);
 }
 
 .console-mm-icon,
@@ -2581,25 +3053,27 @@ body::after {
 
 .listening-visual {
   background:
-    radial-gradient(circle at 50% 0%, rgba(251, 113, 133, .10), transparent 50%),
-    rgba(255, 255, 255, .045);
+    radial-gradient(circle at 50% 0%, rgba(100, 150, 255, .08), transparent 50%),
+    var(--glass);
 }
 
 .answer-option {
-  border-color: rgba(255, 255, 255, .12);
+  border-color: rgba(130, 160, 255, .12);
   background:
-    radial-gradient(circle at 84% 16%, rgba(168, 85, 247, .13), transparent 38%),
-    radial-gradient(circle at 14% 90%, rgba(251, 113, 133, .055), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, .070), rgba(255, 255, 255, .042));
+    radial-gradient(circle at 84% 16%, rgba(100, 150, 255, .10), transparent 38%),
+    radial-gradient(circle at 14% 90%, rgba(80, 120, 220, .06), transparent 38%),
+    linear-gradient(180deg, rgba(18, 28, 52, .58), rgba(12, 20, 42, .52));
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
 }
 
 .answer-option:hover:not(:disabled) {
-  border-color: rgba(251, 113, 133, .46);
+  border-color: rgba(130, 160, 255, .28);
   background:
-    radial-gradient(circle at 84% 16%, rgba(168, 85, 247, .18), transparent 38%),
-    radial-gradient(circle at 14% 90%, rgba(251, 113, 133, .090), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, .090), rgba(255, 255, 255, .054));
-  box-shadow: 0 20px 44px rgba(251, 113, 133, .10);
+    radial-gradient(circle at 84% 16%, rgba(100, 150, 255, .14), transparent 38%),
+    radial-gradient(circle at 14% 90%, rgba(80, 120, 220, .08), transparent 38%),
+    linear-gradient(180deg, rgba(20, 32, 58, .64), rgba(14, 24, 48, .58));
+  box-shadow: 0 20px 44px rgba(100, 150, 255, .08);
 }
 
 .instrument-icon-shell {
@@ -2611,20 +3085,27 @@ body::after {
 .answerCard-empty,
 .answer-reveal,
 .summary {
-  border-color: rgba(255, 255, 255, .105);
+  border-color: rgba(130, 160, 255, .12);
   background:
-    radial-gradient(circle at 74% 12%, rgba(168, 85, 247, .13), transparent 38%),
-    radial-gradient(circle at 12% 92%, rgba(251, 113, 133, .060), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, .060), rgba(255, 255, 255, .036));
+    radial-gradient(circle at 74% 12%, rgba(100, 150, 255, .08), transparent 38%),
+    radial-gradient(circle at 12% 92%, rgba(80, 120, 220, .06), transparent 38%),
+    linear-gradient(180deg, rgba(18, 28, 52, .58), rgba(12, 20, 42, .52));
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(180, 200, 255, .08),
+    0 16px 40px rgba(0, 0, 0, .22);
 }
 
 .answer-meta-card,
 .summary-item,
 .answer-title-card {
-  border-color: rgba(255, 255, 255, .095);
+  border-color: rgba(130, 160, 255, .10);
   background:
-    radial-gradient(circle at 88% 12%, rgba(251, 113, 133, .055), transparent 36%),
-    rgba(255, 255, 255, .035);
+    radial-gradient(circle at 88% 12%, rgba(100, 150, 255, .06), transparent 36%),
+    var(--glass);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
 }
 
 
@@ -2684,12 +3165,15 @@ body::after {
 .dictation-instructions span {
   min-height: 28px;
   padding: 0 11px;
-  border: 1px solid rgba(255, 255, 255, .105);
+  border: 1px solid rgba(130, 160, 255, .12);
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   color: rgba(255, 255, 255, .70);
-  background: rgba(255, 255, 255, .04);
+  background: var(--glass);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(180, 200, 255, .06);
   font-size: .70rem;
   font-weight: 850;
   letter-spacing: .055em;
@@ -3098,6 +3582,15 @@ body::after {
   .dictation-toolbar .play-button,
   .dictation-toolbar .secondary-button {
     width: 100%;
+  }
+
+  /* Keep Next/Replay playButton at the fixed gameplay size. */
+  .quiz-panel.is-active .dictation-toolbar #playButton,
+  .quiz-panel.is-complete .dictation-toolbar #playButton {
+    width: 188px !important;
+    min-width: 188px !important;
+    max-width: 188px !important;
+    flex: 0 0 188px !important;
   }
 
   .score-shell,
@@ -3662,6 +4155,7 @@ body::after {
   padding-bottom: clamp(16px, 1.8vw, 26px);
 }
 
+.quiz-panel.is-ready .statsRow,
 .quiz-panel.is-ready .console-question-kicker,
 .quiz-panel.is-ready .dictation-heading,
 .quiz-panel.is-ready .dictation-instructions,
@@ -4008,14 +4502,10 @@ body::after {
 
 .quiz-panel.is-ready .mm-ready-wave {
   order: 2;
-  width: min(640px, 90%);
+  width: min(720px, 94%);
   height: clamp(86px, 11vh, 126px);
   margin: clamp(2px, .5vh, 8px) 0 0;
   display: flex !important;
-}
-
-.quiz-panel.is-ready .mm-ready-wave span {
-  width: clamp(5px, .68vw, 8px);
 }
 
 .quiz-panel.is-ready .mm-ready-cues {
@@ -4050,6 +4540,7 @@ body::after {
 }
 
 /* Ready page only: keep the question/feedback/instruction text hidden, as in the II start console. */
+.quiz-panel.is-ready .statsRow,
 .quiz-panel.is-ready .console-question-kicker,
 .quiz-panel.is-ready .dictation-heading,
 .quiz-panel.is-ready .dictation-instructions,
@@ -4388,7 +4879,7 @@ body::after {
   --mm-wide-score-width: var(--mm-score-expanded-width, min(calc(100vw - 42px), 1480px));
   --mm-wide-score-height: clamp(320px, 42vh, 490px);
   position: fixed !important;
-  left: var(--mm-score-expanded-left, 50vw) !important;
+  left: 50vw !important;
   right: auto !important;
   top: auto !important;
   bottom: var(--mm-score-expanded-bottom, 14px) !important;
@@ -4398,7 +4889,8 @@ body::after {
   height: var(--mm-wide-score-height) !important;
   min-height: var(--mm-wide-score-height) !important;
   margin: 0 !important;
-  transform: translateX(-50%) !important;
+  --mm-score-expanded-translate-x: calc(-50% - 33.333% + 20px);
+  transform: translateX(var(--mm-score-expanded-translate-x)) !important;
   z-index: 180 !important;
   pointer-events: auto;
   transition:
@@ -4644,7 +5136,7 @@ body::after {
 .quiz-panel.is-score-pre-expanding .dictation-workspace.no-drag-workspace,
 .quiz-panel.is-score-pre-expanding .no-drag-workspace {
   position: fixed !important;
-  left: var(--mm-score-expand-centre-x, 50vw) !important;
+  left: 50vw !important;
   right: auto !important;
   top: var(--mm-score-expand-top, 50vh) !important;
   width: var(--mm-score-expand-start-width, 720px) !important;
@@ -4653,7 +5145,8 @@ body::after {
   height: var(--mm-score-expand-start-height, 320px) !important;
   min-height: var(--mm-score-expand-start-height, 320px) !important;
   margin: 0 !important;
-  transform: translateX(-50%) !important;
+  --mm-score-expanded-translate-x: calc(-50% - 33.333% + 20px);
+  transform: translateX(var(--mm-score-expanded-translate-x)) !important;
   transform-origin: center center !important;
   z-index: 60 !important;
   pointer-events: auto;
@@ -4664,10 +5157,11 @@ body::after {
 .quiz-panel.is-active.is-score-expanded .no-drag-workspace,
 .quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
   position: fixed !important;
-  left: var(--mm-score-expand-centre-x, 50vw) !important;
+  left: 50vw !important;
   right: auto !important;
   top: var(--mm-score-expand-top, 50vh) !important;
-  transform: translateX(-50%) !important;
+  --mm-score-expanded-translate-x: calc(-50% - 33.333% + 20px);
+  transform: translateX(var(--mm-score-expanded-translate-x)) !important;
   transform-origin: center center !important;
 }
 
@@ -4703,7 +5197,8 @@ body::after {
 .quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
   left: 50vw !important;
   right: auto !important;
-  transform: translateX(-50%) !important;
+  --mm-score-expanded-translate-x: calc(-50% - 33.333% + 20px);
+  transform: translateX(var(--mm-score-expanded-translate-x)) !important;
   transform-origin: center center !important;
   transition:
     left .5s cubic-bezier(.22, 1, .36, 1),
@@ -4740,11 +5235,12 @@ body::after {
 .quiz-panel.is-active.is-score-expanded .no-drag-workspace,
 .quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
   position: fixed !important;
-  left: var(--mm-score-expanded-left, 50vw) !important;
+  left: 50vw !important;
   right: auto !important;
   top: auto !important;
   bottom: var(--mm-score-expanded-bottom, 14px) !important;
-  transform: translateX(-50%) !important;
+  --mm-score-expanded-translate-x: calc(-50% - 33.333% + 20px);
+  transform: translateX(var(--mm-score-expanded-translate-x)) !important;
   transform-origin: center bottom !important;
 }
 
@@ -4775,12 +5271,13 @@ body::after {
 .quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
   --mm-wide-score-width: var(--mm-score-expanded-width, min(calc(100vw - 42px), 1480px)) !important;
   position: fixed !important;
-  left: var(--mm-score-expanded-left, 50vw) !important;
+  left: 50vw !important;
   right: auto !important;
   width: var(--mm-wide-score-width) !important;
   min-width: var(--mm-wide-score-width) !important;
   max-width: var(--mm-wide-score-width) !important;
-  transform: translateX(-50%) !important;
+  --mm-score-expanded-translate-x: calc(-50% - 33.333% + 20px);
+  transform: translateX(var(--mm-score-expanded-translate-x)) !important;
 }
 
 
@@ -4796,9 +5293,10 @@ body::after {
 
 .quiz-panel.is-score-pre-expanding .dictation-workspace.no-drag-workspace,
 .quiz-panel.is-score-pre-expanding .no-drag-workspace {
-  left: var(--mm-score-expand-centre-x, 50vw) !important;
+  left: 50vw !important;
   right: auto !important;
-  transform: translateX(-50%) !important;
+  --mm-score-expanded-translate-x: calc(-50% - 33.333% + 20px);
+  transform: translateX(var(--mm-score-expanded-translate-x)) !important;
   transform-origin: center center !important;
 }
 
@@ -4808,12 +5306,13 @@ body::after {
 .quiz-panel.is-complete.is-score-expanded .no-drag-workspace {
   --mm-wide-score-width: var(--mm-score-expanded-width, min(calc(100vw - 28px), 1480px)) !important;
   position: fixed !important;
-  left: var(--mm-score-expanded-left, 50vw) !important;
+  left: 50vw !important;
   right: auto !important;
   width: var(--mm-wide-score-width) !important;
   min-width: var(--mm-wide-score-width) !important;
   max-width: var(--mm-wide-score-width) !important;
-  transform: translateX(-50%) !important;
+  --mm-score-expanded-translate-x: calc(-50% - 33.333% + 20px);
+  transform: translateX(var(--mm-score-expanded-translate-x)) !important;
   transform-origin: center bottom !important;
 }
 
@@ -4833,10 +5332,10 @@ body::after {
 
 
 /* =========================
-   Melody Master X visibility + left-shift refinement
+   Melody Master X visibility refinement
    Requested change only:
    - Keep the expanded score close button fully visible.
-   - The expanded score tile is shifted left by script.js as one whole unit,
+   - The expanded score tile is centred on the viewport as one whole unit,
      so the PNG, notes, hotspots, and zoom remain locked together.
 ========================= */
 
@@ -4887,11 +5386,14 @@ body::after {
   min-height: 0;
   margin: clamp(1px, .35vh, 5px) auto 0;
   padding: clamp(5px, .55vh, 8px) clamp(10px, 1vw, 16px);
-  border: 1px solid rgba(255, 255, 255, .075);
+  border: 1px solid rgba(130, 160, 255, .12);
   border-radius: 18px;
   background:
-    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .075), transparent 38%),
-    rgba(255, 255, 255, .028);
+    radial-gradient(circle at 82% 18%, rgba(100, 150, 255, .10), transparent 38%),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(180, 200, 255, .08);
 }
 
 .quiz-panel.is-active:not(.is-score-expanded) .dictation-heading #questionText,
@@ -4961,11 +5463,14 @@ body::after {
   min-height: 0 !important;
   margin: clamp(1px, .35vh, 5px) auto 0 !important;
   padding: clamp(5px, .55vh, 8px) clamp(10px, 1vw, 16px) !important;
-  border: 1px solid rgba(255, 255, 255, .075) !important;
+  border: 1px solid rgba(130, 160, 255, .12) !important;
   border-radius: 18px !important;
   background:
-    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .075), transparent 38%),
-    rgba(255, 255, 255, .028) !important;
+    radial-gradient(circle at 82% 18%, rgba(100, 150, 255, .10), transparent 38%),
+    var(--glass) !important;
+  backdrop-filter: blur(14px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+  box-shadow: inset 0 1px 0 rgba(180, 200, 255, .08) !important;
   position: relative !important;
   z-index: 95 !important;
 }
@@ -5021,13 +5526,17 @@ body::after {
   gap: clamp(10px, .82vw, 14px) !important;
 }
 
-.quiz-panel.is-active .dictation-toolbar .play-button,
-.quiz-panel.is-active .dictation-toolbar .primary-button,
-.quiz-panel.is-complete .dictation-toolbar .play-button,
-.quiz-panel.is-complete .dictation-toolbar .primary-button {
-  min-width: clamp(150px, 12vw, 188px) !important;
-  min-height: 43px !important;
-  padding: 0 20px !important;
+.quiz-panel.is-devices-question.is-active .dictation-toolbar .play-button,
+.quiz-panel.is-devices-question.is-complete .dictation-toolbar .play-button {
+  width: 188px !important;
+  min-width: 188px !important;
+  max-width: 188px !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  max-height: 54px !important;
+  flex: 0 0 188px !important;
+  padding: 0 28px !important;
+  font-size: .98rem !important;
 }
 
 .quiz-panel.is-active .dictation-heading,
@@ -5067,11 +5576,13 @@ body::after {
 .quiz-panel.is-complete .dictation-instructions span {
   min-height: 26px !important;
   padding: 0 11px !important;
-  border: 1px solid rgba(255, 255, 255, .10) !important;
+  border: 1px solid rgba(130, 160, 255, .12) !important;
   border-radius: 999px !important;
   color: rgba(255, 255, 255, .66) !important;
-  background: rgba(255, 255, 255, .035) !important;
-  box-shadow: none !important;
+  background: var(--glass) !important;
+  backdrop-filter: blur(12px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+  box-shadow: inset 0 1px 0 rgba(180, 200, 255, .06) !important;
   font-size: .66rem !important;
   font-weight: 850 !important;
   letter-spacing: .13em !important;
@@ -5134,7 +5645,7 @@ body::after {
 ========================= */
 
 .quiz-panel.is-ready .mm-console-start-brand .console-title-text {
-  transform: translateY(-14px) !important;
+  transform: translateY(clamp(-8px, -0.7vh, -12px)) !important;
 }
 
 .quiz-panel.is-ready #checkAnswerButton,
@@ -5305,7 +5816,7 @@ body::after {
 
 .score-overlay.dictation-note-overlay .dictation-ledger-line {
   position: absolute;
-  z-index: 3;
+  z-index: 11;
   display: block;
   width: clamp(24px, 1.75vw, 30px);
   height: 2px;
@@ -5327,6 +5838,20 @@ body::after {
 }
 
 .quiz-panel:not(.is-score-expanded) .score-overlay.dictation-note-overlay .dictation-ledger-line,
+.score-overlay.dictation-note-overlay.is-notes-hidden-before-play .dictation-ledger-line,
+.score-overlay.dictation-note-overlay.is-answer-visible .dictation-ledger-line {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Keep the active note's required ledger lines visible even if score expansion
+   state is still settling during pointer capture (notably on newly added scores). */
+.quiz-panel:not(.is-score-expanded) .score-overlay.dictation-note-overlay.is-dragging .dictation-ledger-line.is-visible,
+.score-overlay.dictation-note-overlay.is-dragging .dictation-ledger-line.is-visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
 .score-overlay.dictation-note-overlay.is-notes-hidden-before-play .dictation-ledger-line,
 .score-overlay.dictation-note-overlay.is-answer-visible .dictation-ledger-line {
   opacity: 0 !important;
@@ -6287,12 +6812,6 @@ body::after {
   display: inline-flex !important;
 }
 
-.quiz-panel.is-active.is-answer-submitted .dictation-toolbar .secondary-button,
-.quiz-panel.is-complete.is-answer-submitted .dictation-toolbar .secondary-button {
-  min-width: clamp(138px, 10.5vw, 168px) !important;
-  min-height: 43px !important;
-  padding: 0 18px !important;
-}
 
 /* =========================
    Melody Master final round feedback window
@@ -6452,7 +6971,7 @@ body.mm-round-review-open::before {
   z-index: 300 !important;
   opacity: .62;
   pointer-events: none;
-  transform: translate(-50%, 63%) scale(.92) !important;
+  transform: translate(calc(-50% - 33.333% + 20px), 63%) scale(.92) !important;
   filter: saturate(.78) brightness(.82);
 }
 
@@ -6694,9 +7213,10 @@ body.mm-round-review-open .console-orbit {
     border-radius: 15px;
   }
 
+  /* Match Devices: keep single-line ellipsis (stable tile height). */
   .score-track-info strong,
   .score-track-info small {
-    white-space: normal;
+    white-space: nowrap;
   }
 }
 
@@ -6790,11 +7310,11 @@ body.mm-round-review-open .console-orbit {
 .quiz-panel.is-ready .mm-console-start-brand .console-mm-combined-lockup {
   display: grid;
   justify-items: center;
-  gap: clamp(8px, 1vh, 11px);
+  gap: clamp(28px, 2.15vh, 38px);
 }
 
 .quiz-panel.is-ready .mm-console-start-brand .console-mm-lockup {
-  margin-top: clamp(-22px, -1.8vw, -14px);
+  margin-top: 0;
 }
 
 .quiz-panel.is-ready .mm-console-start-brand .console-mm-icon {
@@ -6826,7 +7346,7 @@ body.mm-round-review-open .console-orbit {
 }
 
 .quiz-panel.is-ready .mm-console-start-brand .console-title-text {
-  transform: none !important;
+  transform: translateY(clamp(-8px, -0.7vh, -12px)) !important;
 }
 
 .quiz-panel.is-ready .mm-console-start-brand .console-title-main,
@@ -6836,15 +7356,11 @@ body.mm-round-review-open .console-orbit {
 
 .quiz-panel.is-ready .mm-ready-wave {
   order: 2;
-  width: min(640px, 90%);
+  width: min(720px, 94%);
   height: clamp(86px, 11vh, 128px);
   margin-top: clamp(34px, 4vh, 52px);
   transform: translateY(clamp(0px, .2vh, 8px));
   display: flex !important;
-}
-
-.quiz-panel.is-ready .mm-ready-wave span {
-  width: clamp(5px, .68vw, 8px);
 }
 
 .quiz-panel.is-ready .console-actions-start {
@@ -6859,7 +7375,7 @@ body.mm-round-review-open .console-orbit {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: clamp(14px, 1.8vh, 18px);
   margin: clamp(28px, 3.8vh, 52px) auto 0;
   padding: 0;
   transform: translateY(clamp(-22px, -1.5vh, -14px));
@@ -6867,38 +7383,68 @@ body.mm-round-review-open .console-orbit {
 }
 
 .quiz-panel.is-ready .console-actions-start .settings-popover-wrap {
-  width: min(310px, 100%) !important;
+  width: auto !important;
   flex: 0 0 auto !important;
-  margin-top: 2px;
+  margin-top: 0;
   padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.quiz-panel.is-ready #startButton {
-  min-width: clamp(218px, 18vw, 270px);
-  min-height: clamp(56px, 6.2vh, 66px);
-  padding: 0 clamp(34px, 3.2vw, 46px);
-  font-size: clamp(1.02rem, 1.2vw, 1.16rem);
+.quiz-panel.is-ready #startButton.centre-start,
+.quiz-panel.is-ready .dictation-toolbar #startButton.centre-start {
+  min-width: clamp(280px, 44vw, 400px);
+  min-height: clamp(58px, 6.2vh, 68px);
+  padding: 0 clamp(32px, 3.6vw, 46px);
+  font-size: clamp(1.02rem, 1.16vw, 1.14rem);
+  font-weight: 780;
+  letter-spacing: .02em;
+  gap: clamp(10px, 1.2vw, 14px);
   box-sizing: border-box;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ff7ec8 0%, #FF5DBA 48%, #e843a8 100%);
+  box-shadow:
+    0 0 28px rgba(255, 93, 186, .38),
+    0 8px 22px rgba(0, 0, 0, .18),
+    inset 0 1px 0 rgba(255, 255, 255, .22);
 }
 
-.quiz-panel.is-ready .advanced-settings-button {
-  width: min(310px, 100%) !important;
-  min-width: 0;
-  min-height: 48px;
-  padding: 0 20px;
+.quiz-panel.is-ready #startButton.centre-start:hover,
+.quiz-panel.is-ready .dictation-toolbar #startButton.centre-start:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 0 36px rgba(255, 93, 186, .46),
+    0 12px 28px rgba(0, 0, 0, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .26);
+}
+
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button {
+  width: auto !important;
+  min-width: clamp(188px, 24vw, 252px);
+  min-height: 46px;
+  padding: 0 clamp(22px, 2.4vw, 30px);
   box-sizing: border-box;
   flex: 0 0 auto !important;
-  border: 1px solid rgba(56, 189, 248, .32);
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, .14), transparent 34%),
-    linear-gradient(135deg, rgba(168, 85, 247, .20), rgba(74, 144, 226, .12));
+  gap: 8px;
+  font-size: clamp(.86rem, 1vw, .96rem);
+  font-weight: 620;
+  letter-spacing: .01em;
+  color: rgba(255, 255, 255, .92);
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .04);
+  box-shadow: none;
 }
 
-.quiz-panel.is-ready .advanced-settings-button:hover:not(:disabled) {
-  box-shadow:
-    0 22px 44px rgba(56, 189, 248, .22),
-    0 0 0 1px rgba(255, 255, 255, .18) inset;
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: none;
+  border-color: rgba(255, 255, 255, .42);
+  background: rgba(255, 255, 255, .07);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .14);
 }
 
 .quiz-panel.is-ready .console-question-kicker,
@@ -6930,24 +7476,26 @@ body.mm-round-review-open .console-orbit {
   width: 620px;
   height: 620px;
   left: 50%;
-  top: 52%;
+  top: 50%;
   z-index: 0;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 1px solid rgba(56, 189, 248, .06);
+  border: 1px solid rgba(255, 93, 186, .07);
   box-shadow:
-    0 0 0 60px rgba(56, 189, 248, .018),
-    0 0 0 120px rgba(139, 92, 246, .013),
-    0 0 56px rgba(56, 189, 248, .045);
-  opacity: .76;
+    0 0 0 68px rgba(255, 93, 186, .038),
+    0 0 0 136px rgba(255, 93, 186, .022),
+    0 0 48px rgba(255, 93, 186, .035);
+  opacity: .62;
   pointer-events: none;
 }
 
 .console-orbit {
-  width: min(94%, 820px);
-  height: min(78%, 500px);
+  width: clamp(260px, 38vw, 380px);
+  height: clamp(260px, 38vw, 380px);
+  left: 50%;
   top: 50%;
-  opacity: .92;
+  transform: translate(-50%, -50%);
+  opacity: .64;
 }
 
 .console-orbit::before {
@@ -6989,23 +7537,6 @@ body.mm-round-review-open .console-orbit {
   text-shadow: 0 0 12px rgba(255, 93, 186, .35);
 }
 
-.listening-visual span {
-  background: linear-gradient(180deg, #ede9fe, #d8b4fe 42%, #a78bfa 72%, #6d5dfc) !important;
-  background-size: 180% 180%;
-  box-shadow:
-    0 0 14px rgba(167, 139, 250, .26),
-    0 0 30px rgba(139, 92, 246, .15) !important;
-  animation-name: consoleBars, melodyWaveColourShift;
-  animation-duration: 1.28s, 6.4s;
-  animation-timing-function: ease-in-out, ease-in-out;
-  animation-iteration-count: infinite, infinite;
-}
-
-.quiz-panel.is-ready .listening-visual span,
-.quiz-panel.is-complete .listening-visual span {
-  animation-duration: 2.6s, 6.4s;
-}
-
 .console-orbit::before {
   background-color: rgba(139, 92, 246, .74);
   background-blend-mode: color;
@@ -7038,7 +7569,7 @@ body.mm-round-review-open .console-orbit {
   position: relative;
   min-height: 72px;
   padding: 9px 7px 8px;
-  border: 1px solid rgba(255, 255, 255, .11);
+  border: 1px solid rgba(130, 160, 255, .12);
   border-radius: 19px;
   display: grid;
   justify-items: center;
@@ -7047,19 +7578,23 @@ body.mm-round-review-open .console-orbit {
   text-align: center;
   color: rgba(255, 255, 255, .94);
   background:
-    radial-gradient(circle at 84% 10%, rgba(56, 189, 248, .10), transparent 38%),
-    rgba(255, 255, 255, .045);
-  box-shadow: 0 13px 32px rgba(0, 0, 0, .16);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .10), transparent 38%),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 13px 32px rgba(0, 0, 0, .20),
+    inset 0 1px 0 rgba(180, 200, 255, .08);
   cursor: pointer;
   transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
 }
 
 .melody-skill-button:hover {
   transform: translateY(-2px);
-  border-color: rgba(56, 189, 248, .36);
+  border-color: rgba(130, 160, 255, .28);
   background:
-    radial-gradient(circle at 84% 10%, rgba(56, 189, 248, .16), transparent 38%),
-    rgba(255, 255, 255, .066);
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .14), transparent 38%),
+    var(--glass-strong);
 }
 
 .melody-skill-button input {
@@ -7069,28 +7604,18 @@ body.mm-round-review-open .console-orbit {
 }
 
 .melody-skill-button:has(input:checked) {
-  border-color: rgba(56, 189, 248, .60);
+  border-color: rgba(255, 93, 186, .58);
   background:
-    radial-gradient(circle at 85% 10%, rgba(56, 189, 248, .20), transparent 38%),
-    linear-gradient(135deg, rgba(56, 189, 248, .16), rgba(139, 92, 246, .12));
-  box-shadow: 0 18px 42px rgba(56, 189, 248, .10);
-}
-
-.melody-skill-button:has(input:checked)::after {
-  content: "";
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--blue);
-  box-shadow: 0 0 16px rgba(56, 189, 248, .70);
+    radial-gradient(circle at 85% 10%, rgba(255, 93, 186, .18), transparent 38%),
+    linear-gradient(135deg, rgba(168, 85, 247, .14), rgba(255, 93, 186, .10));
+  box-shadow:
+    0 18px 42px rgba(255, 93, 186, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 
 .melody-skill-icon {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border: 0;
   border-radius: 12px;
   display: grid;
@@ -7111,12 +7636,10 @@ body.mm-round-review-open .console-orbit {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   border-radius: 0;
   filter: none;
-  transform: scale(1.08);
-  transform-origin: center center;
 }
 
 .melody-skill-button strong {
@@ -7159,13 +7682,24 @@ body.mm-round-review-open .console-orbit {
 }
 
 .setup-panel .level-grid {
-  gap: 8px;
+  gap: 10px;
 }
 
 .setup-panel .level-button {
   min-height: 62px;
   padding: 10px 14px;
   border-radius: 19px;
+}
+
+.setup-panel .melody-skill-icon {
+  width: 52px;
+  height: 52px;
+  margin: -7px 0;
+}
+
+.setup-panel .melody-skill-icon .mode-icon-svg {
+  width: 30px;
+  height: 30px;
 }
 
 /* =========================
@@ -7183,99 +7717,223 @@ body.mm-round-review-open .console-orbit {
   display: none !important;
 }
 
+/* Peer Gynt (MDV003) template: fixed centre-panel box so long metadata/choices cannot reflow geometry. */
 .melodic-devices-centre-panel {
   order: 5 !important;
-  width: min(860px, 100%);
-  min-height: clamp(226px, 28vh, 334px);
-  margin: clamp(3px, .65vh, 8px) auto 0;
+  width: min(640px, 100%);
+  height: clamp(148px, 18vh, 220px);
+  min-height: clamp(148px, 18vh, 220px);
+  max-height: clamp(148px, 18vh, 220px);
+  margin: clamp(14px, 1.9vh, 26px) auto 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: clamp(12px, 1.4vh, 18px);
   align-content: center;
+  gap: clamp(12px, 1.6vh, 18px);
   position: relative;
   z-index: 92;
+  overflow: visible;
+}
+
+.melodic-devices-centre-panel.has-score {
+  width: min(760px, 100%);
+  height: clamp(250px, 31vh, 340px);
+  min-height: clamp(250px, 31vh, 340px);
+  max-height: clamp(250px, 31vh, 340px);
+}
+
+.melodic-devices-score {
+  width: 100%;
+  margin: 0;
+  padding: clamp(8px, 1vh, 12px);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  overflow: hidden;
+}
+
+.melodic-devices-score img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: clamp(104px, 15vh, 150px);
+  object-fit: contain;
+  user-select: none;
+}
+
+/* Devices excerpt tile: lock to Dictation’s manual score-track-info offsets (out of flow so other centre elements do not shift). */
+.melodic-devices-centre-panel .devices-track-info.score-track-info {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + clamp(108px, 9.8vw, 154px));
+  z-index: 260;
+  width: min(640px, calc(100% - 48px));
+  max-width: min(640px, calc(100% - 48px));
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Keep Peer-Gynt-stable tile height: never wrap long composer/work/rights lines. */
+.melodic-devices-centre-panel .devices-track-info .score-track-info-kicker,
+.melodic-devices-centre-panel .devices-track-info strong,
+.melodic-devices-centre-panel .devices-track-info small {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quiz-panel.is-round-feedback-open .melodic-devices-centre-panel .devices-track-info {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+@media (max-width: 760px) {
+  .melodic-devices-centre-panel .devices-track-info.score-track-info {
+    top: calc(50% + 92px);
+    width: min(520px, calc(100% - 28px));
+    max-width: min(520px, calc(100% - 28px));
+  }
+
+  .melodic-devices-centre-panel .devices-track-info strong,
+  .melodic-devices-centre-panel .devices-track-info small {
+    white-space: nowrap;
+  }
 }
 
 .quiz-panel.is-devices-question .dictation-console {
-  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
   align-content: start;
+  gap: clamp(8px, 1vh, 14px);
 }
 
-.melodic-devices-prompt-card {
-  padding: clamp(14px, 1.5vw, 20px);
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 24px;
-  text-align: center;
-  background:
-    radial-gradient(circle at 20% 16%, rgba(251, 113, 133, .13), transparent 38%),
-    radial-gradient(circle at 84% 10%, rgba(168, 85, 247, .14), transparent 38%),
-    rgba(255, 255, 255, .048);
-  box-shadow: 0 16px 38px rgba(0, 0, 0, .16);
+.quiz-panel.is-devices-question .console-question-kicker {
+  display: none !important;
 }
 
-.melodic-devices-prompt-card .eyebrow {
-  margin: 0 0 7px;
+/* Devices gameplay: reuse homescreen wave between replay/next and question text. */
+.quiz-panel.is-devices-question.is-active .mm-ready-wave,
+.quiz-panel.is-devices-question.is-complete .mm-ready-wave {
+  display: flex !important;
+  order: 3 !important;
+  width: min(620px, 90%);
+  height: clamp(58px, 7.8vh, 84px);
+  margin: clamp(8px, 1.1vh, 14px) auto 0;
+  padding: 0 clamp(18px, 2.4vw, 28px);
+  position: relative;
+  z-index: 3;
 }
 
-.melodic-devices-prompt-card strong {
-  display: block;
-  margin: 0 auto;
-  max-width: 34ch;
-  color: rgba(248, 250, 252, .96);
-  font-size: clamp(1.02rem, 1.35vw, 1.34rem);
-  line-height: 1.18;
-  letter-spacing: -.035em;
+.quiz-panel.is-devices-question.is-active .dictation-heading,
+.quiz-panel.is-devices-question.is-complete .dictation-heading {
+  order: 4 !important;
+  margin: clamp(16px, 2.2vh, 28px) auto 0 !important;
 }
 
-.melodic-devices-prompt-card small {
-  display: block;
-  margin-top: 8px;
-  color: rgba(203, 213, 225, .72);
-  font-size: .72rem;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+.quiz-panel.is-devices-question.is-active .mm-wave-segment,
+.quiz-panel.is-devices-question.is-complete .mm-wave-segment {
+  --wave-seg-ready-scale: 1.55;
+}
+
+.quiz-panel.is-devices-question.is-active .mm-wave-segment .mm-wave-line,
+.quiz-panel.is-devices-question.is-complete .mm-wave-segment .mm-wave-line {
+  opacity: .88;
 }
 
 .melodic-devices-options {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(10px, 1.05vw, 14px);
+  gap: clamp(8px, .9vw, 12px);
+  margin-inline: auto;
+  align-content: center;
 }
 
+.melodic-devices-options[data-answer-count="4"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.melodic-devices-written-label,
+.melodic-devices-written-input,
+.melodic-devices-written-submit {
+  grid-column: 1 / -1;
+}
+
+.melodic-devices-written-label {
+  font-weight: 800;
+}
+
+.melodic-devices-written-input {
+  width: 100%;
+  resize: vertical;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 16px;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.12);
+  font: inherit;
+}
+
+.melodic-devices-written-submit {
+  min-height: 46px;
+  border: 0;
+  border-radius: 14px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.melodic-devices-written-submit:disabled {
+  cursor: default;
+  opacity: .45;
+}
+
+/* Peer Gynt MC tile size: fixed so long labels cannot grow the centre panel. */
 .melodic-devices-option {
-  min-height: clamp(64px, 8vh, 86px);
-  padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 22px;
+  height: 58px;
+  min-height: 58px;
+  max-height: 58px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
   display: grid;
   place-items: center;
-  color: rgba(255, 255, 255, .94);
+  color: inherit;
   text-align: center;
-  background:
-    radial-gradient(circle at 84% 16%, rgba(168, 85, 247, .13), transparent 38%),
-    radial-gradient(circle at 14% 90%, rgba(251, 113, 133, .055), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, .070), rgba(255, 255, 255, .042));
-  box-shadow: 0 14px 34px rgba(0, 0, 0, .17);
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow: none;
   cursor: pointer;
-  transition: transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease, opacity .2s ease;
+  overflow: hidden;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
 }
 
-.melodic-devices-option:hover:not(:disabled) {
+.melodic-devices-option:hover:not(:disabled),
+.melodic-devices-option:focus-visible:not(:disabled) {
   transform: translateY(-2px);
-  border-color: rgba(251, 113, 133, .46);
-  background:
-    radial-gradient(circle at 84% 16%, rgba(168, 85, 247, .18), transparent 38%),
-    radial-gradient(circle at 14% 90%, rgba(251, 113, 133, .090), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, .090), rgba(255, 255, 255, .054));
-  box-shadow: 0 20px 44px rgba(251, 113, 133, .10);
+  background: rgba(90, 200, 250, 0.22);
+  border-color: rgba(90, 200, 250, 0.72);
 }
 
 .melodic-devices-option span {
-  font-size: clamp(.92rem, 1.08vw, 1.12rem);
-  font-weight: 900;
-  line-height: 1.12;
-  letter-spacing: -.02em;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(.78rem, .95vw, .92rem);
+  font-weight: 850;
+  line-height: 1.15;
+  letter-spacing: -.015em;
 }
 
 .melodic-devices-option:disabled {
@@ -7284,17 +7942,13 @@ body.mm-round-review-open .console-orbit {
 }
 
 .melodic-devices-option.correct {
-  border-color: rgba(110, 231, 183, .64);
-  background:
-    radial-gradient(circle at 84% 16%, rgba(110, 231, 183, .22), transparent 38%),
-    rgba(110, 231, 183, .085);
+  background: rgba(46, 204, 113, 0.24);
+  border-color: rgba(46, 204, 113, 0.72);
 }
 
 .melodic-devices-option.wrong {
-  border-color: rgba(251, 113, 133, .64);
-  background:
-    radial-gradient(circle at 84% 16%, rgba(251, 113, 133, .24), transparent 38%),
-    rgba(251, 113, 133, .09);
+  background: rgba(255, 104, 104, 0.23);
+  border-color: rgba(255, 104, 104, 0.72);
 }
 
 .quiz-panel.is-devices-question #checkAnswerButton,
@@ -7308,6 +7962,7 @@ body.mm-round-review-open .console-orbit {
 
 @media (max-width: 980px) {
   .melodic-devices-options,
+  .melodic-devices-options[data-answer-count="4"],
   .melodic-devices-feedback-panel .melodic-devices-mark-metrics {
     grid-template-columns: 1fr;
   }
@@ -7345,6 +8000,13 @@ body.mm-round-review-open .console-orbit {
   object-fit: cover;
 }
 
+/* Centre-console skill icon: when it's a transparent white-line skill glyph
+   (not the suite's own opaque badge PNG), show it on Melody Master's own
+   gradient — the opaque badge case simply covers this background completely. */
+.console-mm-icon {
+  background: linear-gradient(135deg, #FFB3E0, #FF5DBA 55%, #CC3690) !important;
+}
+
 .teacher-mode-topbar-link.nav-explore-button.nav-action-button img[src*=".png"],
 .teacher-mode-topbar-link.nav-explore-button.nav-action-button:hover img[src*=".png"] {
   object-fit: cover;
@@ -7352,29 +8014,360 @@ body.mm-round-review-open .console-orbit {
 }
 
 .setup-panel .progression-level-grid .level-button {
-  grid-template-columns: 42px minmax(0, 1fr);
+  grid-template-columns: 46px minmax(0, 1fr);
   align-items: center;
   align-content: center;
   column-gap: 11px;
-  padding: 8px 36px 8px 9px;
+  padding: 8px 36px 8px 11px;
 }
 
 .setup-panel .progression-level-grid .level-icon {
   grid-column: 1;
   grid-row: 1;
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   border: 0;
-  border-radius: 13px;
+  border-radius: 0;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, .22);
-  /* Homepage Melody Master accent #FF5DBA */
-  filter: hue-rotate(99deg) saturate(.85) brightness(1.22);
+  box-shadow: none;
+  filter: none;
 }
 
 .setup-panel .progression-level-grid .level-button strong {
   grid-column: 2;
   grid-row: 1;
+  font-weight: 500;
+}
+
+/* =========================
+   MM centre-tile background refinement
+   Thin hairline orbit rings + soft MM-pink radial glow — desktop concept reference.
+   Scope: centre panel interior backgrounds only.
+========================= */
+
+.quiz-panel {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(100, 150, 255, .10), transparent 28%),
+    radial-gradient(circle at 50% 46%, rgba(168, 85, 247, .08), transparent 38%),
+    radial-gradient(circle at 12% 100%, rgba(251, 191, 36, .03), transparent 36%),
+    linear-gradient(180deg, rgba(18, 28, 52, .62), rgba(12, 20, 42, .55));
+}
+
+.listening-console {
+  background:
+    radial-gradient(circle at 50% 24%, rgba(100, 150, 255, .08), transparent 30%),
+    radial-gradient(circle at 50% 56%, rgba(80, 120, 220, .06), transparent 40%),
+    radial-gradient(circle at 50% 92%, rgba(251, 191, 36, .02), transparent 38%),
+    rgba(6, 10, 22, .42);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(180, 200, 255, .08),
+    inset 0 0 0 1px rgba(255, 255, 255, .025),
+    0 22px 60px rgba(0, 0, 0, .28);
+}
+
+.listening-console::before {
+  border-color: rgba(130, 160, 255, .08);
+}
+
+.listening-console::after {
+  width: clamp(220px, 32vw, 320px);
+  height: clamp(220px, 32vw, 320px);
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  border: none;
+  border-radius: 50%;
+  box-shadow:
+    0 0 36px rgba(255, 93, 186, .14),
+    0 0 72px rgba(255, 93, 186, .07);
+  opacity: .72;
+  background:
+    radial-gradient(circle,
+      rgba(255, 93, 186, .22) 0%,
+      rgba(255, 93, 186, .12) 30%,
+      rgba(255, 93, 186, .05) 52%,
+      rgba(255, 93, 186, .015) 68%,
+      transparent 84%);
+}
+
+.console-orbit {
+  width: clamp(300px, 48vw, 480px);
+  height: clamp(300px, 48vw, 480px);
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  border: none;
+  border-radius: 50%;
+  box-shadow: none;
+  opacity: .78;
+  background:
+    radial-gradient(circle, transparent calc(76% - .4px), rgba(255, 93, 186, .045) calc(76% - .4px), rgba(255, 93, 186, .045) calc(76% + .4px), transparent calc(76% + .4px)),
+    radial-gradient(circle, transparent calc(66% - .4px), rgba(255, 93, 186, .055) calc(66% - .4px), rgba(255, 93, 186, .055) calc(66% + .4px), transparent calc(66% + .4px)),
+    radial-gradient(circle, transparent calc(56% - .4px), rgba(255, 93, 186, .065) calc(56% - .4px), rgba(255, 93, 186, .065) calc(56% + .4px), transparent calc(56% + .4px)),
+    radial-gradient(circle, transparent calc(46% - .4px), rgba(255, 93, 186, .075) calc(46% - .4px), rgba(255, 93, 186, .075) calc(46% + .4px), transparent calc(46% + .4px)),
+    radial-gradient(circle, transparent calc(36% - .4px), rgba(255, 93, 186, .09) calc(36% - .4px), rgba(255, 93, 186, .09) calc(36% + .4px), transparent calc(36% + .4px)),
+    radial-gradient(circle, transparent calc(26% - .4px), rgba(255, 93, 186, .11) calc(26% - .4px), rgba(255, 93, 186, .11) calc(26% + .4px), transparent calc(26% + .4px));
+}
+
+.console-orbit::before {
+  display: none;
+}
+
+/* =========================
+   MM centre-console icon/text logo spacing
+   Match desktop concept reference (~22% of icon tile height).
+========================= */
+
+.quiz-panel.is-ready .mm-console-start-brand .console-mm-combined-lockup {
+  gap: clamp(28px, 2.15vh, 38px);
+}
+
+.quiz-panel.is-ready .mm-console-start-brand .console-mm-lockup,
+.quiz-panel.is-ready .console-mm-lockup {
+  margin-top: 0;
+}
+
+/* =========================
+   MM centre-console Start Quiz / Advanced Settings
+   Match desktop concept reference — visual only.
+========================= */
+
+.quiz-panel.is-ready #startButton.centre-start::after,
+.quiz-panel.is-ready .dictation-toolbar #startButton.centre-start::after {
+  content: "";
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='12' fill='none' stroke='white' stroke-width='1.5' opacity='0.92'/%3E%3Cpath d='M12 9.5v9l7-4.5z' fill='white'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: .88;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none'%3E%3Cline x1='3' y1='5.5' x2='15' y2='5.5' stroke='white' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='7' cy='5.5' r='2' fill='white'/%3E%3Cline x1='3' y1='12.5' x2='15' y2='12.5' stroke='white' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='11.5' cy='12.5' r='2' fill='white'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* =========================
+   MM RHS answers panel empty state
+   Concentric orbit rings, centre MM icon, sparkle accents, placeholder copy — desktop concept reference.
+   Scope: home/ready empty state only; active answer reveal panels unchanged.
+========================= */
+
+.info-panel .answerCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.info-panel .answerCard-empty.mm-source-panel:not(.mm-source-panel-active):not(.mm-diagnostic-panel):not(.classroom-status-panel) {
+  flex: 1;
+  min-height: clamp(280px, 42vh, 520px);
+  padding: clamp(24px, 3vh, 36px) clamp(18px, 2vw, 28px);
+  background:
+    radial-gradient(circle at 50% 28%, rgba(56, 189, 248, .06), transparent 42%),
+    radial-gradient(circle at 74% 12%, rgba(100, 150, 255, .08), transparent 38%),
+    radial-gradient(circle at 12% 92%, rgba(80, 120, 220, .05), transparent 38%),
+    linear-gradient(180deg, rgba(14, 22, 44, .62), rgba(10, 16, 34, .56));
+  box-shadow:
+    inset 0 1px 0 rgba(180, 200, 255, .07),
+    inset 0 0 0 1px rgba(255, 255, 255, .025),
+    0 16px 40px rgba(0, 0, 0, .22);
+}
+
+.answer-empty-stage::before {
+  content: "";
+  position: absolute;
+  width: clamp(120px, 11vw, 168px);
+  height: clamp(120px, 11vw, 168px);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle,
+      rgba(56, 189, 248, .14) 0%,
+      rgba(56, 189, 248, .07) 34%,
+      rgba(168, 85, 247, .04) 56%,
+      transparent 78%);
+  pointer-events: none;
+}
+
+.answer-empty-stage {
+  position: relative;
+}
+
+.answer-empty-orbit::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgba(56, 189, 248, .12);
+  pointer-events: none;
+}
+
+@media (max-width: 1180px) {
+  .info-panel .answerCard-empty.mm-source-panel:not(.mm-source-panel-active):not(.mm-diagnostic-panel):not(.classroom-status-panel) {
+    min-height: clamp(240px, 36vh, 420px);
+    padding: 20px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answer-empty-sparkle {
+    opacity: .48;
+    filter: none;
+  }
+}
+
+/* Empty-state copy uses panel/body typography — not answer-reveal display headings. */
+.answerCard-empty.mm-source-panel:not(.mm-source-panel-active):not(.mm-diagnostic-panel):not(.classroom-status-panel) .answer-empty-copy h2 {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(1.02rem, 1.28vw, 1.22rem);
+  font-weight: 780;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+  text-transform: none;
+  color: rgba(255, 255, 255, .96);
+}
+
+.answerCard-empty.mm-source-panel:not(.mm-source-panel-active):not(.mm-diagnostic-panel):not(.classroom-status-panel) .answer-empty-copy p {
+  margin: 0;
+  color: rgba(255, 255, 255, .52);
+  font-size: clamp(.8rem, .92vw, .9rem);
+  line-height: 1.58;
+  font-weight: 520;
+}
+
+/* Homework-derived answers icon — white line art only, no CSS tile/plate behind it. */
+.answerCard-empty.mm-source-panel:not(.mm-source-panel-active):not(.mm-diagnostic-panel):not(.classroom-status-panel) .answer-empty-orbit .answer-empty-icon {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  width: clamp(62px, 6vw, 82px) !important;
+  height: clamp(62px, 6vw, 82px) !important;
+  overflow: visible;
+}
+
+.answerCard-empty.mm-source-panel:not(.mm-source-panel-active):not(.mm-diagnostic-panel):not(.classroom-status-panel) .answer-empty-orbit .answer-empty-icon img[src*="answers-transparent"] {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain !important;
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, .16)) drop-shadow(0 0 10px rgba(255, 93, 186, .10));
+}
+
+@media (max-width: 1180px) {
+  .answerCard-empty.mm-source-panel:not(.mm-source-panel-active):not(.mm-diagnostic-panel):not(.classroom-status-panel) .answer-empty-copy h2 {
+    font-size: 1rem;
+  }
+
+  .answerCard-empty.mm-source-panel:not(.mm-source-panel-active):not(.mm-diagnostic-panel):not(.classroom-status-panel) .answer-empty-copy p {
+    font-size: .78rem;
+  }
+}
+
+/* =========================
+   Melody Master gameplay visual continuity
+   - Pink heading accents and blue glass shell persist after Start Quiz
+   - Scope: three-panel shell only; gameplay logic unchanged
+========================= */
+
+.setup-panel .panel-section-heading .panel-heading-accent,
+.quiz-panel .panel-section-heading .panel-heading-accent,
+.info-panel .panel-section-heading .panel-heading-accent {
+  display: block;
+  animation: panel-heading-accent-breathe 2.8s ease-in-out infinite;
+}
+
+.quiz-panel.is-active .panel-section-heading,
+.quiz-panel.is-complete .panel-section-heading {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.three-panel-layout:has(.quiz-panel.is-active),
+.three-panel-layout:has(.quiz-panel.is-complete) {
+  background:
+    radial-gradient(circle at 52% 0%, rgba(100, 150, 255, .05), transparent 42%),
+    rgba(5, 8, 16, .78);
+}
+
+.three-panel-layout:has(.quiz-panel.is-active) .setup-panel,
+.three-panel-layout:has(.quiz-panel.is-complete) .setup-panel,
+.three-panel-layout:has(.quiz-panel.is-active) .info-panel,
+.three-panel-layout:has(.quiz-panel.is-complete) .info-panel {
+  background: var(--panel-gradient);
+  border-color: var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.three-panel-layout:has(.quiz-panel.is-active) .quiz-panel,
+.three-panel-layout:has(.quiz-panel.is-complete) .quiz-panel {
+  border-color: rgba(130, 160, 255, .16);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(100, 150, 255, .10), transparent 28%),
+    radial-gradient(circle at 50% 46%, rgba(168, 85, 247, .08), transparent 38%),
+    radial-gradient(circle at 12% 100%, rgba(251, 191, 36, .03), transparent 36%),
+    linear-gradient(180deg, rgba(18, 28, 52, .62), rgba(12, 20, 42, .55));
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* =========================
+   MM dictation/devices question prompt — match Melodic Intervals EA style
+========================= */
+
+.quiz-panel.is-active .dictation-instructions,
+.quiz-panel.is-complete .dictation-instructions {
+  display: none !important;
+}
+
+.quiz-panel.is-active .dictation-heading #questionText,
+.quiz-panel.is-complete .dictation-heading #questionText {
+  display: block;
+  max-width: 62ch;
+  margin-inline: auto;
+  text-align: center;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 500 !important;
+  letter-spacing: -.028em !important;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Devices: longer prompts need Intervals-width centre text (override earlier 34ch hero sizing). */
+.quiz-panel.is-devices-question.is-active .dictation-heading #questionText,
+.quiz-panel.is-devices-question.is-complete .dictation-heading #questionText {
+  max-width: 62ch !important;
+  font-size: clamp(1.02rem, 1.35vw, 1.28rem) !important;
+  line-height: 1.2 !important;
+  letter-spacing: -.028em !important;
+  text-shadow: none !important;
+}
+
+.dictation-heading .mm-question-prompt,
+.dictation-heading .mm-question-marks {
+  display: inline;
+}
+
+.dictation-heading .mm-question-marks {
+  white-space: nowrap;
+}
+
+.dictation-heading .mm-question-marks[hidden] {
+  display: none;
 }

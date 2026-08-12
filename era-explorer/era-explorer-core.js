@@ -82,36 +82,61 @@
     ["gabriel faure", "Gabriel Fauré"],
     ["gabriel fauré", "Gabriel Fauré"],
     ["faure", "Gabriel Fauré"],
-    ["fauré", "Gabriel Fauré"]
+    ["fauré", "Gabriel Fauré"],
+    ["alexander borodin", "Alexander Borodin"],
+    ["borodin", "Alexander Borodin"],
+    ["franz schubert", "Franz Schubert"],
+    ["schubert", "Franz Schubert"],
+    ["josef suk", "Josef Suk"],
+    ["suk", "Josef Suk"],
+    ["mouret", "Mouret"],
+    ["nikolai rimsky korsakov", "Nikolai Rimsky-Korsakov"],
+    ["rimsky korsakov", "Nikolai Rimsky-Korsakov"],
+    ["bottesini", "Bottesini"],
+    ["dushkin", "Dushkin"],
+    ["glazunov", "Glazunov"],
+    ["kuhlau", "Kuhlau"],
+    ["von weber", "von Weber"],
+    ["weber", "von Weber"]
   ]);
 
   const PERIOD_ORDER = CAMBRIDGE_PERIODS.slice();
 
   /** Composers with verified portrait tiles in assets/icons/composers. */
   const COMPOSERS_WITH_ICONS = new Set([
+    "alexander borodin",
     "antonio vivaldi",
     "antonin dvorak",
+    "bottesini",
     "carl philipp emanuel bach",
     "claude debussy",
+    "dushkin",
     "edvard grieg",
     "edward elgar",
     "felix mendelssohn",
+    "franz schubert",
     "frederic chopin",
     "gabriel faure",
     "georg philipp telemann",
     "george frideric handel",
+    "glazunov",
     "igor stravinsky",
     "johann sebastian bach",
     "johann strauss ii",
     "johannes brahms",
+    "josef suk",
     "joseph haydn",
+    "kuhlau",
     "ludwig van beethoven",
     "modest mussorgsky",
+    "mouret",
     "muzio clementi",
+    "nikolai rimsky korsakov",
     "pyotr ilyich tchaikovsky",
     "robert schumann",
     "sergei rachmaninoff",
     "tomaso albinoni",
+    "von weber",
     "wolfgang amadeus mozart"
   ]);
 
@@ -188,12 +213,25 @@
     return /^monophonic\b/i.test(clipType);
   }
 
-  function auditEraExplorerClips(catalogue) {
+  function excludedClipIdSet(curation) {
+    const list = curation && curation.excludedClipIds;
+    if (list instanceof Set) return list;
+    if (Array.isArray(list)) return new Set(list);
+    return null;
+  }
+
+  // curation (optional) is the Content Review team's per-clip overlay — see
+  // era-explorer/data/context-coach-curation.json. It never touches the
+  // shared catalogue (reused by other apps); it only excludes/levels/re-picks
+  // distractors for Context Coach's own question generation. Omitting it
+  // entirely reproduces the pre-review, fully-algorithmic behaviour exactly.
+  function auditEraExplorerClips(catalogue, curation) {
     const records = Array.isArray(catalogue) ? catalogue : catalogue?.clips;
     if (!Array.isArray(records)) {
       return { valid: [], invalid: [{ id: "", reason: "Catalogue does not contain a clips array." }] };
     }
 
+    const excludedIds = excludedClipIdSet(curation);
     const valid = [];
     const invalid = [];
     const monophonicCandidates = [];
@@ -211,6 +249,7 @@
       else if (!audioPath) reason = "Missing or unsupported local audio path.";
       else if (!composer || !validComposer(composer)) reason = "Missing or non-person composer metadata.";
       else if (!period) reason = "Missing or unsupported Cambridge period metadata.";
+      else if (excludedIds && excludedIds.has(id)) reason = "Excluded by Context Coach content review.";
 
       if (reason) {
         invalid.push({ id: id || `row-${index + 1}`, reason });
@@ -372,38 +411,74 @@
     return uniqueValues(diverse).slice(0, 3);
   }
 
-  function buildPeriodQuestion(clip, pool, random = Math.random) {
+  function curationTypeExcluded(curation, clipId, type) {
+    const excl = curation && curation.typeExclusions && curation.typeExclusions[clipId];
+    return Array.isArray(excl) && excl.includes(type);
+  }
+
+  function curationLevel(curation, clipId, type) {
+    const entry = curation && curation.levels && curation.levels[clipId];
+    return (entry && entry[type]) || null;
+  }
+
+  function curationOptionOverride(curation, clipId, type) {
+    const entry = curation && curation.optionOverrides && curation.optionOverrides[clipId];
+    const options = entry && entry[type];
+    return Array.isArray(options) && options.length ? options : null;
+  }
+
+  function buildPeriodQuestion(clip, pool, random = Math.random, curation = null) {
+    if (curationTypeExcluded(curation, clip?.id, "period")) return null;
     const correctAnswer = normalisePeriod(clip?.period);
     if (!isCambridgePeriod(correctAnswer)) return null;
 
-    const distractors = shuffle(
-      CAMBRIDGE_PERIODS.filter((period) => normaliseKey(period) !== normaliseKey(correctAnswer)),
-      random
-    ).slice(0, 3);
-    if (distractors.length < 3) return null;
+    const override = curationOptionOverride(curation, clip?.id, "period");
+    let options;
+    if (override) {
+      options = shuffle(override, random);
+    } else {
+      const distractors = shuffle(
+        CAMBRIDGE_PERIODS.filter((period) => normaliseKey(period) !== normaliseKey(correctAnswer)),
+        random
+      ).slice(0, 3);
+      if (distractors.length < 3) return null;
+      options = shuffle([correctAnswer, ...distractors], random);
+    }
 
     return {
       id: `${clip.id}-period`,
       type: "period",
       prompt: "Which musical period is this extract from?",
       correctAnswer,
-      options: shuffle([correctAnswer, ...distractors], random),
+      options,
+      level: curationLevel(curation, clip?.id, "period"),
       clip
     };
   }
 
-  function buildComposerQuestion(clip, pool, random = Math.random) {
+  function buildComposerQuestion(clip, pool, random = Math.random, curation = null) {
+    if (curationTypeExcluded(curation, clip?.id, "composer")) return null;
     const correctAnswer = normaliseComposer(clip?.composer);
-    const distractors = getComposerDistractors(clip, pool, random);
-    if (!correctAnswer || distractors.length < 3) return null;
-    if (uniqueValues([correctAnswer, ...distractors]).length !== 4) return null;
+    if (!correctAnswer) return null;
+
+    const override = curationOptionOverride(curation, clip?.id, "composer");
+    let options;
+    if (override) {
+      options = shuffle(override, random);
+    } else {
+      const distractors = getComposerDistractors(clip, pool, random);
+      if (distractors.length < 3) return null;
+      if (uniqueValues([correctAnswer, ...distractors]).length !== 4) return null;
+      options = shuffle([correctAnswer, ...distractors], random);
+    }
 
     return {
       id: `${clip.id}-composer`,
       type: "composer",
       prompt: "Who composed this extract?",
       correctAnswer,
-      options: shuffle([correctAnswer, ...distractors], random),
+      options,
+      level: curationLevel(curation, clip?.id, "composer"),
       clip
     };
   }
@@ -420,8 +495,11 @@
     return question.options.some((option) => normaliseKey(option) === normaliseKey(question.correctAnswer));
   }
 
-  function balancedQuestionTypes(count, random = Math.random) {
+  function balancedQuestionTypes(count, random = Math.random, forcedType = null) {
     const safeCount = Math.max(2, Math.floor(Number(count) || 0));
+    if (forcedType === "period" || forcedType === "composer") {
+      return Array(safeCount).fill(forcedType);
+    }
     const extraType = random() < 0.5 ? "period" : "composer";
     const periodCount = Math.floor(safeCount / 2) + (safeCount % 2 && extraType === "period" ? 1 : 0);
     const composerCount = safeCount - periodCount;
@@ -431,23 +509,53 @@
     ], random);
   }
 
-  function buildRoundQuestions(pool, count, random = Math.random) {
-    const clips = Array.isArray(pool) ? pool.filter(Boolean) : [];
+  /**
+   * options.questionType — "period" or "composer" to build a single-skill round
+   * (ContextCoach's Eras & Periods / Composers sub-apps); omitted for a mixed round.
+   * options.seenClipIds — Set of clip ids already shown in the current spaced-repetition
+   * cycle; when supplied, unseen clips are strongly preferred over seen ones so a round
+   * only repeats a clip once every clip in the pool has appeared.
+   * options.curation — the Context Coach content-review overlay (see
+   * era-explorer/data/context-coach-curation.json); passed straight through
+   * to buildPeriodQuestion/buildComposerQuestion for exclusions, level
+   * tagging and option overrides.
+   * options.level — when set alongside a single-skill questionType, restricts
+   * the pool to clips curated at that level for that skill before drawing a
+   * round. Ignored for mixed (no questionType) rounds, since level is
+   * curated per (clip, type), not per clip.
+   */
+  function buildRoundQuestions(pool, count, random = Math.random, options = {}) {
+    const forcedType = options.questionType === "period" || options.questionType === "composer"
+      ? options.questionType
+      : null;
+    const seenClipIds = options.seenClipIds instanceof Set ? options.seenClipIds : null;
+    const curation = options.curation || null;
+    let clips = Array.isArray(pool) ? pool.filter(Boolean) : [];
+    if (forcedType && options.level) {
+      clips = clips.filter((clip) => curationLevel(curation, clip.id, forcedType) === options.level);
+    }
     const requestedCount = Math.max(2, Math.floor(Number(count) || 0));
     if (clips.length < requestedCount) {
       throw new Error("Not enough valid Era Explorer clips for this round.");
     }
-    if (uniqueValues(clips.map((clip) => clip.period)).length < 3) {
+    if (forcedType !== "composer" && uniqueValues(clips.map((clip) => clip.period)).length < 3) {
       throw new Error("Era Explorer needs at least three Cambridge musical periods.");
     }
-    if (uniqueValues(clips.map((clip) => clip.composer)).length < 4) {
+    if (forcedType !== "period" && uniqueValues(clips.map((clip) => clip.composer)).length < 4) {
       throw new Error("Era Explorer needs at least four composers.");
     }
 
-    const types = balancedQuestionTypes(requestedCount, random);
+    const types = balancedQuestionTypes(requestedCount, random, forcedType);
     const remaining = shuffle(clips, random);
     const questions = [];
     let previousClip = null;
+    // Keeps the same period/composer answer from appearing twice in one
+    // round (namespaced by type, so a period repeat and a composer repeat
+    // are tracked separately). Soft-scored like the other penalties below
+    // rather than hard-excluded, so a round that genuinely can't avoid a
+    // repeat (more questions of a type than distinct answers exist) still
+    // completes instead of throwing.
+    const usedAnswers = new Set();
 
     for (const type of types) {
       const candidates = remaining
@@ -459,18 +567,26 @@
               Number(normaliseKey(clip.period) === normaliseKey(previousClip.period))
             : 0
         }))
-        .map((candidate) => ({
-          ...candidate,
-          penalty: candidate.penalty +
-            (type === "composer" && !composerHasIcon(candidate.clip.composer) ? 4 : 0)
-        }))
+        .map((candidate) => {
+          const prospectiveAnswer = type === "period"
+            ? normalisePeriod(candidate.clip.period)
+            : normaliseComposer(candidate.clip.composer);
+          const repeatsAnswer = usedAnswers.has(`${type}|${normaliseKey(prospectiveAnswer)}`);
+          return {
+            ...candidate,
+            penalty: candidate.penalty +
+              (type === "composer" && !composerHasIcon(candidate.clip.composer) ? 4 : 0) +
+              (seenClipIds && seenClipIds.has(candidate.clip.id) ? 8 : 0) +
+              (repeatsAnswer ? 3 : 0)
+          };
+        })
         .sort((left, right) => left.penalty - right.penalty);
 
       let selected = null;
       for (const candidate of candidates) {
         const question = type === "period"
-          ? buildPeriodQuestion(candidate.clip, clips, random)
-          : buildComposerQuestion(candidate.clip, clips, random);
+          ? buildPeriodQuestion(candidate.clip, clips, random, curation)
+          : buildComposerQuestion(candidate.clip, clips, random, curation);
         if (!validateEraQuestion(question)) continue;
         selected = { ...candidate, question };
         break;
@@ -480,6 +596,7 @@
       remaining.splice(selected.index, 1);
       questions.push(selected.question);
       previousClip = selected.clip;
+      usedAnswers.add(`${type}|${normaliseKey(selected.question.correctAnswer)}`);
     }
 
     return questions;

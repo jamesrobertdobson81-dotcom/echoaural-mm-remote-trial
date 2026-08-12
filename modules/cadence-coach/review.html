@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadence Audio Trim Review | EchoAural</title>
+  <link rel="stylesheet" href="review.css" />
+</head>
+<body>
+  <header class="review-header">
+    <div>
+      <p class="eyebrow">HARMONY EXPLORER · REVIEW TOOL</p>
+      <h1>Cadence audio trims</h1>
+      <p>Review each shortened score against its full, untrimmed recording.</p>
+    </div>
+    <div class="header-actions">
+      <button id="downloadButton" type="button">Download trim JSON</button>
+      <a href="index.html">Back to Cadences</a>
+    </div>
+  </header>
+
+  <main id="reviewList" class="review-list" aria-live="polite"></main>
+
+  <template id="reviewCardTemplate">
+    <article class="review-card">
+      <div class="card-heading">
+        <div><p class="question-id"></p><h2></h2></div>
+        <p class="configured-trim"></p>
+      </div>
+      <div class="score-frame"></div>
+      <div class="audio-section">
+        <audio class="audio-player" controls preload="metadata"></audio>
+        <div class="time-readout"><span>Playhead</span><strong class="playhead">0.00s</strong><span class="duration">Duration —</span></div>
+        <div class="trim-controls">
+          <button class="marker-button set-start" type="button">Set Start</button>
+          <label>Start (seconds)<input class="start-input" type="number" min="0" step="0.1" /></label>
+          <button class="marker-button set-stop" type="button">Set Stop</button>
+          <label>Stop (seconds)<input class="stop-input" type="number" min="0" step="0.1" placeholder="End" /></label>
+          <button class="preview-button" type="button">Preview Selection</button>
+          <button class="save-button" type="button">Save Trim</button>
+          <button class="reset-button" type="button">Reset</button>
+        </div>
+        <p class="save-status" role="status">Not reviewed</p>
+      </div>
+    </article>
+  </template>
+
+  <script src="data.js"></script>
+  <script src="review-candidates.js"></script>
+  <script src="review.js"></script>
+</body>
+</html>

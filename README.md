@@ -1,20 +1,6 @@
-# EchoAural — Current Stable Baseline
+# EchoAural
 
-Stable baseline commit: `fe32c27` — `Stable EchoAural baseline before cleanup audit`
-
-EchoAural is a GCSE Music listening platform with student accounts, teacher accounts, classroom live sessions, practice mode, progress mode, homework foundations, and levelled listening activities.
-
-## Current Application Areas
-
-- Public landing page and Founding Partners page
-- Teacher signup, login and onboarding
-- Student login and dashboard
-- Teacher dashboard with class, student and progress views
-- Shared live-session Teacher Mode and student join flow
-- Instrument Identifier
-- Melody Master Dictation
-- Melodic Intervals
-- Texture Trainer
+EchoAural is a GCSE/iGCSE Music listening platform with student accounts, teacher accounts, classroom live sessions, practice mode, progress mode, and a full set of levelled listening activities covering the Cambridge syllabus areas (AoS4–7).
 
 ## Local Development
 
@@ -47,7 +33,23 @@ Run this before and after application changes:
 npm run check
 ```
 
-The check validates required files, JavaScript syntax, Texture Trainer starter data, and the four Melodic Intervals progression levels.
+This runs `tools/check-project.js`, `tools/check-skill-metadata.js`, the full Node test suite (Exam Lab, Context Coach, Ensemble Recognition, Harmony Explorer's key-signature sprint, Progress Mode, and shared spaced-repetition logic), and `tools/check-exam-lab-integration.js`. All of it should stay green — a failing check almost always means either a real regression or a stale fixture that needs updating alongside the change that caused it, not something to skip.
+
+## Listening & Learning Modules
+
+All live in `modules/`, except Context Coach which lives at the project root in `era-explorer/` (its in-app brand name is "ContextCoach"):
+
+- **Instrument Identifier** — timbre/sound-source recognition, plus country-of-origin ensemble questions
+- **Ensemble Recognition** — identify the performing ensemble from an extract
+- **Melody Master** — melodic dictation (drag notes onto a stave) and melodic-devices multiple choice
+- **Melodic Intervals** — interval ear-training, reached via Melody Master's own navigation
+- **Texture Trainer** — texture type, density and change
+- **Meter Master** — simple/compound and duple/triple metre recognition
+- **Harmony Explorer** — tonality, harmonic rhythm, and a Key Signature Sprint sub-app
+- **Context Coach** (`era-explorer/`) — composer and musical-period recognition, generated from a shared clip catalogue with a content-review curation layer (see `era-explorer/data/context-coach-curation.json`)
+- **Chord Identifier**, **Transposition Dictation**, **Cadence Coach**, **Musical Language** (public brand name "ScoreDecoder") — reached via Progress Mode and other apps' own navigation, not always linked directly from the homepage
+- **Exam Lab** — full past-paper-style listening extracts (EXL001–EXL023+), with typed/MC/rhythm-choice questions and Cambridge skill-map CSVs per extract
+- **Progress Mode** (`modules/progress-mode/`) — composes a mixed round across whichever of the above apps are wired into its driver registry (`app-drivers.js`), embedding each app's own UI in an iframe rather than reimplementing it
 
 ## Core Files
 
@@ -59,6 +61,7 @@ classroom/
 teacher/
 student/
 modules/
+era-explorer/
 shared/
 tools/
 db/
@@ -73,17 +76,11 @@ Student dashboard app launches are split into:
 - `Progress Mode` — students work through Foundation, Developing, Securing and Mastering; results are recorded for student and teacher dashboards.
 - `Join live session` — students enter a live-session room code and use the shared classroom flow.
 
-Currently levelled:
-
-- Instrument Identifier
-- Melody Master Dictation
-- Melodic Intervals
-
-Texture Trainer remains present in the app set, with future level progression still to be developed.
+Foundation/Developing/Securing/Mastering is the shared level vocabulary across the platform, but how far each app's own content is actually leveled (vs. mixed-difficulty) varies by app and is still growing — check an app's own data file or driver entry in `modules/progress-mode/app-drivers.js` for its current state before assuming full level coverage.
 
 ## Teacher Dashboard
 
-The teacher dashboard is now the launch hub for:
+The teacher dashboard is the launch hub for:
 
 - live sessions
 - homework setup foundations
@@ -92,6 +89,10 @@ The teacher dashboard is now the launch hub for:
 - student account/class management
 
 The internal `/teacher/` route remains the stable live-session runtime for room codes, live leaderboard, audio controls and submissions.
+
+## Content Review Pipeline
+
+New candidate content (new questions, new clips) gets reviewed before going live via `review-staging/` — a set of generic review tools (`review-staging/shared/review-engine.js` + `review-shell.js`, driven by per-app `data/*-draft.js` files) at `http://localhost:3000/review-staging/`. This is draft/scratch tooling, not part of any live app. A reviewed export gets folded into the relevant app's live data by hand, following the drop/keep/edit decisions and notes in the export.
 
 ## Resource Generation
 
@@ -145,4 +146,4 @@ Historical development notes have been condensed into:
 documentation/archive/INDEX.md
 ```
 
-Detailed historical content is also recoverable through Git history before and at the stable baseline commit.
+Detailed historical content is also recoverable through Git history.

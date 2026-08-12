@@ -1,0 +1,56 @@
+@import url("../texture-trainer/review.css");
+
+:root {
+  --blue: #2563eb;
+  --cyan: #60a5fa;
+  --violet: #7c3aed;
+}
+
+.cambridge-note {
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid rgba(96, 165, 250, .24);
+  border-radius: 16px;
+  color: var(--muted);
+  background: rgba(37, 99, 235, .08);
+  font-size: .72rem;
+  line-height: 1.4;
+}
+
+.comparison-grid {
+  width: min(680px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.comparison-card {
+  padding: 9px 11px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 18px;
+  text-align: left;
+  background: rgba(2, 7, 19, .22);
+}
+
+.comparison-card span {
+  color: var(--cyan);
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.comparison-card p {
+  margin: 4px 0 0 !important;
+  color: var(--text) !important;
+  font-size: .8rem;
+}
+
+.candidate-origin {
+  color: var(--gold) !important;
+}
+
+@media (max-width: 760px) {
+  .comparison-grid { grid-template-columns: 1fr; }
+}

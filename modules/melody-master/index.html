@@ -7,6 +7,7 @@
   <title>Melody Master | EchoAural</title>
 
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../../shared/css/track-information.css" />
   <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
 </head>
 
@@ -44,16 +45,38 @@
           <span class="sr-only">Melody Master</span>
         </a>
 
-        <a class="topbar-link" href="../instrument-identifier/index.html" aria-label="Open Instrument Identifier">
-          <span>Instrument Identifier</span>
+        <a class="topbar-link topbar-app-link topbar-app-link-ii" href="../instrument-identifier/index.html" aria-label="Open Instrument Identifier">
+          <span class="module-title-text">
+            <span class="module-title-main">Instrument</span><span class="module-title-gradient">Identifier</span>
+          </span>
         </a>
 
-        <a class="topbar-link" href="../texture-trainer/index.html" aria-label="Open Texture Trainer">
-          <span>Texture Trainer</span>
+        <a class="topbar-link topbar-app-link topbar-app-link-tt" href="../texture-trainer/index.html" aria-label="Open Texture Trainer">
+          <span class="module-title-text">
+            <span class="module-title-main">Texture</span><span class="module-title-gradient">Trainer</span>
+          </span>
         </a>
 
-        <a class="topbar-link" href="../meter-master/index.html" aria-label="Open Meter Master">
-          <span>Meter Master</span>
+        <a class="topbar-link topbar-app-link topbar-app-link-meter" href="../meter-master/index.html" aria-label="Open Meter Master">
+          <span class="module-title-text">
+            <span class="module-title-main">Meter</span><span class="module-title-gradient">Master</span>
+          </span>
+        </a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-he" href="../harmony-explorer/index.html" aria-label="Open Harmony Explorer">
+          <span class="module-title-text">
+            <span class="module-title-main">Harmony</span><span class="module-title-gradient">Explorer</span>
+          </span>
+        </a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-cc" href="../../era-explorer/index.html" aria-label="Open ContextCoach">
+          <span class="module-title-text">
+            <span class="module-title-main">Context</span><span class="module-title-gradient">Coach</span>
+          </span>
+        </a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-sd" href="../musical-language/index.html" aria-label="Open ScoreDecoder">
+          <span class="module-title-text"><span class="module-title-main">Score</span><span class="module-title-gradient">Decoder</span></span>
         </a>
 
         <a class="topbar-link topbar-home-link" href="../../index.html" aria-label="Back to EchoAural home">
@@ -70,12 +93,10 @@
       <section class="panel setup-panel" id="homeScreen">
         <div class="panel-section-heading">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Settings</span></h2>
+          <h2><span>Settings</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
         </div>
 
         <div class="panel-hero mm-panel-hero">
-          <p class="eyebrow">GCSE MUSIC LISTENING SKILLS</p>
-
           <div class="mm-hero-lockup">
             <span class="mm-hero-icon" aria-hidden="true">
               <img
@@ -103,15 +124,16 @@
             <h1 class="sr-only">Melody Master</h1>
           </div>
 
+          <p class="eyebrow mm-brand-eyebrow">GCSE MUSIC LISTENING SKILLS</p>
         </div>
 
         <h2 class="melody-skill-heading">Skill</h2>
 
         <div class="melody-skill-grid" aria-label="Choose Melody Master skill">
           <label class="melody-skill-button">
-            <input type="radio" name="quizMode" value="dictation" checked />
+            <input type="radio" name="quizMode" value="dictation" />
             <span class="melody-skill-icon" aria-hidden="true">
-              <img class="melody-skill-icon-img" src="../../assets/icons/modules/melodic-dictation.png?v=1" alt="" />
+              <img class="melody-skill-icon-img" src="../../assets/icons/modules/mm-transparent/melodic-dictation-transparent.png" alt="" />
             </span>
             <strong>Dictation</strong>
           </label>
@@ -119,7 +141,7 @@
           <label class="melody-skill-button">
             <input type="radio" name="quizMode" value="intervals" />
             <span class="melody-skill-icon" aria-hidden="true">
-              <img class="melody-skill-icon-img" src="../../assets/icons/modules/melodic-intervals.png?v=2" alt="" />
+              <img class="melody-skill-icon-img" src="../../assets/icons/modules/mm-transparent/melodic-intervals-transparent.png" alt="" />
             </span>
             <strong>Intervals</strong>
           </label>
@@ -127,7 +149,7 @@
           <label class="melody-skill-button">
             <input type="radio" name="quizMode" value="devices" />
             <span class="melody-skill-icon" aria-hidden="true">
-              <img class="melody-skill-icon-img" src="../../assets/icons/modules/melodic-devices.png?v=1" alt="" />
+              <img class="melody-skill-icon-img" src="../../assets/icons/modules/mm-transparent/melodic-devices-transparent.png" alt="" />
             </span>
             <strong>Devices</strong>
           </label>
@@ -137,26 +159,26 @@
 
         <div class="level-grid melody-mode-grid progression-level-grid" aria-label="Choose Melody Master level">
           <label class="level-button">
-            <input type="radio" name="mmLevel" value="Foundation" checked />
-            <img class="level-icon" src="../../assets/icons/levels/foundation.png" alt="" aria-hidden="true" />
+            <input type="radio" name="mmLevel" value="Foundation" />
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/foundation-transparent.png" alt="" aria-hidden="true" />
             <strong>Foundation</strong>
           </label>
 
           <label class="level-button">
             <input type="radio" name="mmLevel" value="Developing" />
-            <img class="level-icon" src="../../assets/icons/levels/developing.png" alt="" aria-hidden="true" />
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/developing-transparent.png" alt="" aria-hidden="true" />
             <strong>Developing</strong>
           </label>
 
           <label class="level-button">
             <input type="radio" name="mmLevel" value="Securing" />
-            <img class="level-icon" src="../../assets/icons/levels/securing.png" alt="" aria-hidden="true" />
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/securing-transparent.png" alt="" aria-hidden="true" />
             <strong>Securing</strong>
           </label>
 
           <label class="level-button">
             <input type="radio" name="mmLevel" value="Mastering" />
-            <img class="level-icon" src="../../assets/icons/levels/mastering.png" alt="" aria-hidden="true" />
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/mastering-transparent.png" alt="" aria-hidden="true" />
             <strong>Mastering</strong>
           </label>
         </div>
@@ -167,7 +189,7 @@
       <section class="panel quiz-panel is-ready" id="gameScreen">
         <div class="panel-section-heading panel-section-heading-centre">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Dictation</span></h2>
+          <h2><span id="centreHeadingLabel">Learning</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
         </div>
 
         <div class="quiz-header">
@@ -175,10 +197,10 @@
           <div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div>
         </div>
 
-        <div class="statsRow" aria-label="Question statistics">
-          <p id="scoreText">Score: 0 / 6</p>
-          <p id="streakText">Pitch snap</p>
-          <p id="xpText">6 semiquavers</p>
+        <div class="statsRow mm-stats-row" aria-label="Question statistics">
+          <p id="scoreText" class="mm-score-tile">Mark: 0 / 0</p>
+          <p id="streakText" class="mm-stat-chip">Pitch snap</p>
+          <p id="xpText" class="mm-stat-chip">6 semiquavers</p>
         </div>
 
         <div class="listening-console dictation-console">
@@ -188,6 +210,7 @@
             <div class="console-mm-combined-lockup">
               <span class="console-mm-icon">
                 <img
+                  id="consoleSkillIcon"
                   src="../../assets/icons/modules/melody-master.png"
                   alt=""
                   onerror="this.style.display='none'; this.parentElement.classList.add('missing-console-icon');"
@@ -196,25 +219,116 @@
 
               <div class="console-mm-lockup">
                 <span class="console-title-text">
-                  <span class="console-title-main">Melody</span>
-                  <span class="console-title-gradient">Master</span>
+                  <span class="console-title-main" id="consoleTitleMain">Melody</span>
+                  <span class="console-title-gradient" id="consoleTitleGradient">Master</span>
                 </span>
               </div>
             </div>
           </div>
 
           <div class="listening-visual mm-ready-wave" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
+            <svg class="mm-console-wave-svg" viewBox="0 0 480 52" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="presentation">
+              <defs>
+                <linearGradient id="mmConsoleWaveGrad" x1="0" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#FF5DBA"/>
+                  <stop offset="18%" stop-color="#FF5DBA"/>
+                  <stop offset="36%" stop-color="#FF8FD0"/>
+                  <stop offset="46%" stop-color="#6BB8FF"/>
+                  <stop offset="50%" stop-color="#3FA6FF"/>
+                  <stop offset="54%" stop-color="#6BB8FF"/>
+                  <stop offset="64%" stop-color="#FF8FD0"/>
+                  <stop offset="82%" stop-color="#FF5DBA"/>
+                  <stop offset="100%" stop-color="#FF5DBA"/>
+                </linearGradient>
+                <filter id="mmWaveGlow" x="-25%" y="-40%" width="150%" height="180%">
+                  <feGaussianBlur stdDeviation="1.6" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <g class="mm-console-wave-lines" filter="url(#mmWaveGlow)">
+                <g class="mm-wave-segment mm-wave-seg-5 mm-wave-seg-0" style="--wave-seg-duration:3.4s;--wave-seg-phase:-0.1s">
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.0s" x1="8" y1="23.4" x2="8" y2="28.6"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.038s" x1="17.1" y1="23.4" x2="17.1" y2="28.6"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.076s" x1="26.2" y1="23.2" x2="26.2" y2="28.8"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.114s" x1="35.3" y1="23.1" x2="35.3" y2="28.9"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.152s" x1="44.4" y1="22.8" x2="44.4" y2="29.2"/>
+              </g>
+
+              <g class="mm-wave-segment mm-wave-seg-7 mm-wave-seg-1" style="--wave-seg-duration:2.85s;--wave-seg-phase:-0.35s">
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.0s" x1="53.5" y1="22.4" x2="53.5" y2="29.6"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.038s" x1="62.6" y1="21.9" x2="62.6" y2="30.1"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.076s" x1="71.7" y1="21.9" x2="71.7" y2="30.1"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.114s" x1="80.8" y1="20.8" x2="80.8" y2="31.2"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.152s" x1="89.9" y1="20.2" x2="89.9" y2="31.8"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.19s" x1="99" y1="20.1" x2="99" y2="31.9"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.228s" x1="108.1" y1="18.9" x2="108.1" y2="33.1"/>
+              </g>
+
+              <g class="mm-wave-segment mm-wave-seg-5 mm-wave-seg-2" style="--wave-seg-duration:2.45s;--wave-seg-phase:-0.2s">
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.0s" x1="117.2" y1="17.5" x2="117.2" y2="34.5"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.038s" x1="126.3" y1="17.3" x2="126.3" y2="34.7"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.076s" x1="135.4" y1="16.5" x2="135.4" y2="35.5"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.114s" x1="144.5" y1="14.1" x2="144.5" y2="37.9"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.152s" x1="153.6" y1="15.2" x2="153.6" y2="36.8"/>
+              </g>
+
+              <g class="mm-wave-segment mm-wave-seg-7 mm-wave-seg-3" style="--wave-seg-duration:2.05s;--wave-seg-phase:-0.45s">
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.0s" x1="162.7" y1="12.5" x2="162.7" y2="39.5"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.038s" x1="171.8" y1="11.3" x2="171.8" y2="40.7"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.076s" x1="180.9" y1="10.6" x2="180.9" y2="41.4"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.114s" x1="190" y1="12.7" x2="190" y2="39.3"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.152s" x1="199.1" y1="5.8" x2="199.1" y2="46.2"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.19s" x1="208.2" y1="7.5" x2="208.2" y2="44.5"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.228s" x1="217.3" y1="10.7" x2="217.3" y2="41.3"/>
+              </g>
+
+              <g class="mm-wave-segment mm-wave-seg-5 mm-wave-seg-4" style="--wave-seg-duration:1.55s;--wave-seg-phase:-0.25s">
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.0s" x1="226.4" y1="5.9" x2="226.4" y2="46.1"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.038s" x1="235.5" y1="5.2" x2="235.5" y2="46.8"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.076s" x1="244.5" y1="7.9" x2="244.5" y2="44.1"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.114s" x1="253.6" y1="7.5" x2="253.6" y2="44.5"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.152s" x1="262.7" y1="5.8" x2="262.7" y2="46.2"/>
+              </g>
+
+              <g class="mm-wave-segment mm-wave-seg-7 mm-wave-seg-5" style="--wave-seg-duration:1.25s;--wave-seg-phase:-0.55s">
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.0s" x1="271.8" y1="10.5" x2="271.8" y2="41.5"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.038s" x1="280.9" y1="7.4" x2="280.9" y2="44.6"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.076s" x1="290" y1="10.1" x2="290" y2="41.9"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.114s" x1="299.1" y1="11.1" x2="299.1" y2="40.9"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.152s" x1="308.2" y1="13.1" x2="308.2" y2="38.9"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.19s" x1="317.3" y1="11.1" x2="317.3" y2="40.9"/>
+                <line class="mm-wave-line mm-wave-core" style="--wave-bar-stagger:0.228s" x1="326.4" y1="14.2" x2="326.4" y2="37.8"/>
+              </g>
+
+              <g class="mm-wave-segment mm-wave-seg-5 mm-wave-seg-6" style="--wave-seg-duration:1.55s;--wave-seg-phase:-0.4s">
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.0s" x1="335.5" y1="16.1" x2="335.5" y2="35.9"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.038s" x1="344.6" y1="15.7" x2="344.6" y2="36.3"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.076s" x1="353.7" y1="16.8" x2="353.7" y2="35.2"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.114s" x1="362.8" y1="18.2" x2="362.8" y2="33.8"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.152s" x1="371.9" y1="19.1" x2="371.9" y2="32.9"/>
+              </g>
+
+              <g class="mm-wave-segment mm-wave-seg-7 mm-wave-seg-7" style="--wave-seg-duration:2.05s;--wave-seg-phase:-0.15s">
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.0s" x1="381" y1="19.5" x2="381" y2="32.5"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.038s" x1="390.1" y1="20.6" x2="390.1" y2="31.4"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.076s" x1="399.2" y1="20.9" x2="399.2" y2="31.1"/>
+                <line class="mm-wave-line mm-wave-mid" style="--wave-bar-stagger:0.114s" x1="408.3" y1="21.7" x2="408.3" y2="30.3"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.152s" x1="417.4" y1="22" x2="417.4" y2="30"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.19s" x1="426.5" y1="22.5" x2="426.5" y2="29.5"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.228s" x1="435.6" y1="22.7" x2="435.6" y2="29.3"/>
+              </g>
+
+              <g class="mm-wave-segment mm-wave-seg-5 mm-wave-seg-8" style="--wave-seg-duration:3.4s;--wave-seg-phase:-0.3s">
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.0s" x1="444.7" y1="23" x2="444.7" y2="29"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.038s" x1="453.8" y1="23.3" x2="453.8" y2="28.7"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.076s" x1="462.9" y1="23.4" x2="462.9" y2="28.6"/>
+                <line class="mm-wave-line mm-wave-edge" style="--wave-bar-stagger:0.114s" x1="472" y1="23.3" x2="472" y2="28.7"/>
+              </g>
+              </g>
+            </svg>
           </div>
 
           <div class="listening-cues mm-ready-cues" aria-label="Melody Master focus areas">
@@ -229,11 +343,11 @@
 
           <div class="console-heading dictation-heading">
             <h1 class="sr-only">Complete the missing melody</h1>
-            <p id="questionText">Complete the melody.</p>
+            <p id="questionText"><span class="mm-question-prompt">Complete the melody.</span><span class="mm-question-marks" id="questionMarks" hidden aria-hidden="true"></span></p>
           </div>
 
           <div class="console-actions console-actions-start">
-            <button id="startButton" class="primary-button centre-start" type="button">Start Quiz</button>
+            <button id="startButton" class="primary-button centre-start" type="button">Start Learning</button>
             <div class="settings-popover-wrap">
               <div
                 id="advancedSettings"
@@ -251,6 +365,14 @@
                   <label class="pill"><input type="radio" name="questionCount" value="3" />3</label>
                   <label class="pill"><input type="radio" name="questionCount" value="5" checked />5</label>
                   <label class="pill"><input type="radio" name="questionCount" value="10" />10</label>
+                </div>
+
+                <h3>Plays per question</h3>
+                <div class="pillRow" aria-label="Permitted number of plays per question">
+                  <label class="pill"><input type="radio" name="playLimit" value="1" />1</label>
+                  <label class="pill"><input type="radio" name="playLimit" value="2" />2</label>
+                  <label class="pill"><input type="radio" name="playLimit" value="3" checked />3</label>
+                  <label class="pill"><input type="radio" name="playLimit" value="4" />4</label>
                 </div>
 
                 <h3>Difficulty</h3>
@@ -301,22 +423,29 @@
       <aside class="panel info-panel">
         <div class="panel-section-heading">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Answers</span></h2>
+          <h2><span>Answers</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
         </div>
 
         <div id="answerCard" class="answerCard" aria-live="polite">
           <div class="answerCard-empty mm-source-panel">
-            <div class="answer-empty-brand" aria-hidden="true">
-              <span class="answer-empty-icon">
-                <img
-                  src="../../assets/icons/modules/melody-master.png"
-                  alt=""
-                  onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
-                />
-              </span>
-              <span class="answer-empty-wave">
-                <span></span><span></span><span></span><span></span><span></span>
-              </span>
+            <div class="answer-empty-stage" aria-hidden="true">
+              <div class="answer-empty-orbit">
+                <span class="answer-empty-sparkle answer-empty-sparkle-1" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-2" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-3" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-4" aria-hidden="true"></span>
+                <span class="answer-empty-icon">
+                  <img
+                    src="../../assets/icons/modes/mm-transparent/answers-transparent.png?v=3"
+                    alt=""
+                    onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
+                  />
+                </span>
+              </div>
+            </div>
+            <div class="answer-empty-copy">
+              <h2>Your answers will appear here</h2>
+              <p>Complete a quiz to see your responses and performance feedback.</p>
             </div>
           </div>
         </div>
@@ -325,6 +454,8 @@
   </div>
 
   <script src="clips.js"></script>
+  <script src="../../shared/js/question-prompt-marks.js"></script>
+  <script src="../../shared/js/spaced-repetition.js"></script>
   <script src="/account/tracking.js"></script>
   <script src="script.js"></script>
   <script src="../../shared/js/progression-store.js"></script>

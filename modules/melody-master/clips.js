@@ -5461,6 +5461,116 @@ const melodyClips = [
       "devNotes": "Question/answer PNG canvases normalised; visual notehead anchors now use global note-art defaults so solo and classroom views share one pitch grid.",
       "answerMetadataStatus": "Recovered from existing clips.js because tracker answer metadata was blank"
     }
+  },
+  {
+    "id": "MM016",
+    "file": "questions/mm016/MM016-audio.mp3",
+    "questionImage": "questions/mm016/mm016-question.png",
+    "answerImage": "questions/mm016/mm016-answer-restored.png",
+    "mode": "dictation",
+    "difficulty": "medium",
+    "skill": "Melodic Dictation",
+    "question": "Complete the melody.",
+    "answerPitches": [
+      "B5",
+      "A5",
+      "G5",
+      "F5",
+      "G5",
+      "D5"
+    ],
+    "noteImage": "assets/icons/notes/dottedcrotchet-sibelius.png",
+    "noteImageFallback": "assets/icons/notes/dottedcrotchet-sibelius.png",
+    "dictationLayout": {
+      "topLinePitch": "F5",
+      "staffTopY": 46.1187,
+      "staffStepY": 4.7945,
+      "homeY": 2,
+      "snapToleranceY": 10,
+      "noteWidthPercent": 3.95,
+      "noteHeightPercent": 47,
+      "noteStretchX": 1.95,
+      "noteCountLabel": "2 dotted crotchets, 2 crotchets, 2 quavers",
+      "staffPitches": [
+        "G5", "F5", "E5", "D5", "C5", "B4", "A4", "G4", "F4", "E4", "D4", "C4"
+      ],
+      "slots": [
+        {
+          "x": 47.14,
+          "pitch": "B5",
+          "icon": "assets/icons/notes/dottedcrotchet-sibelius.png",
+          "rhythm": "dotted crotchet"
+        },
+        {
+          "x": 50.94,
+          "pitch": "A5",
+          "icon": "assets/icons/notes/crotchet-sibelius.png",
+          "rhythm": "crotchet"
+        },
+        {
+          "x": 53.78,
+          "pitch": "G5",
+          "icon": "assets/icons/notes/quaver-sibelius.png",
+          "rhythm": "quaver"
+        },
+        {
+          "x": 57.36,
+          "pitch": "F5",
+          "icon": "assets/icons/notes/dottedcrotchet-sibelius.png",
+          "rhythm": "dotted crotchet"
+        },
+        {
+          "x": 61.03,
+          "pitch": "G5",
+          "icon": "assets/icons/notes/crotchet-sibelius.png",
+          "rhythm": "crotchet"
+        },
+        {
+          "x": 63.74,
+          "pitch": "D5",
+          "icon": "assets/icons/notes/quaver-sibelius.png",
+          "rhythm": "quaver"
+        }
+      ]
+    },
+    "notes": "Question 16 uses six draggable notes. Pitch sequence: B5, A5, G5, F5, G5, D5. Rhythms are dotted crotchet, crotchet, quaver, dotted crotchet, crotchet, quaver. The printed preceding G5 and following E5 are score context only. The score also contains a turn ornament.",
+    "composer": "Frédéric Chopin",
+    "work": "Nocturne in E-flat major, Op. 9 No. 2",
+    "movement": "Andante",
+    "source": "Local MM Audio Library",
+    "rights": "Public Domain / local MM library",
+    "audioDurationSeconds": 35.7,
+    "hiddenMetadata": {
+      "schemaVersion": "MM-diagnostic-metadata-v1",
+      "answerSummary": {
+        "noteCount": 6,
+        "pitchSequence": ["B5", "A5", "G5", "F5", "G5", "D5"],
+        "rhythmSequence": ["dotted crotchet", "crotchet", "quaver", "dotted crotchet", "crotchet", "quaver"],
+        "xPositions": [47.14, 50.94, 53.78, 57.36, 61.03, 63.74],
+        "range": "D5-B5"
+      },
+      "contextDiagnostics": {
+        "status": "mapped from supplied score context",
+        "preContextNotes": [{ "pitch": "G5", "relationToFirstAnswer": "up third to B5" }],
+        "postContextNotes": [{ "pitch": "E5", "relationToLastAnswer": "up step from D5" }]
+      },
+      "diagnosticTags": [
+        "descending scale", "turn", "rhythm:dotted-crotchet", "rhythm:crotchet", "rhythm:quaver",
+        "context:preceding-note", "context:following-note"
+      ]
+    },
+    "guidedPlayback": {
+      "scoreCoverage": "full-audio",
+      "useFullAudioDuration": true,
+      "visualStartSeconds": 0,
+      "visualEndSeconds": null,
+      "visibleScoreRatio": 1,
+      "leadInSeconds": 2,
+      "notes": "The supplied score excerpt covers the full 35.7-second audio clip."
+    },
+    "title": "Chopin – Nocturne in E-flat major, Op. 9 No. 2",
+    "displayTitle": "Chopin – Nocturne in E-flat major, Op. 9 No. 2",
+    "instrumentation": "Piano"
   }
 ];
 
@@ -10698,6 +10808,169 @@ const melodyMasterLevelledClips = [
       "maxMissingInterval": "third",
       "generationNote": "Existing full-question Mastering artwork reused."
     }
+  },
+  {
+    "id": "MM016-F",
+    "sourceQuestionId": "MM016",
+    "manualLevelVariant": true,
+    "level": "Foundation",
+    "file": "questions/mm016/MM016-audio.mp3",
+    "questionImage": "questions/mm016/mm016-foundation-question.png",
+    "answerImage": "questions/mm016/mm016-answer-restored.png",
+    "mode": "dictation",
+    "difficulty": "easy",
+    "skill": "Melodic Dictation",
+    "question": "Complete the 2 missing notes.",
+    "answerPitches": ["A5", "G5"],
+    "noteImage": "assets/icons/notes/crotchet-sibelius.png",
+    "noteImageFallback": "assets/icons/notes/crotchet-sibelius.png",
+    "dictationLayout": {
+      "topLinePitch": "F5",
+      "staffTopY": 46.1187,
+      "staffStepY": 4.7945,
+      "homeY": 2,
+      "snapToleranceY": 10,
+      "noteWidthPercent": 3.95,
+      "noteHeightPercent": 47,
+      "noteStretchX": 1.95,
+      "noteCountLabel": "1 crotchet, 1 quaver",
+      "staffPitches": ["C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5", "B4", "A4", "G4", "F4", "E4", "D4", "C4"],
+      "slots": [
+        { "x": 50.94, "pitch": "A5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet", "sourceSlot": 2 },
+        { "x": 53.78, "pitch": "G5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 3 }
+      ]
+    },
+    "markScheme": { "pitchMarks": 2, "shapeMarks": 1 },
+    "notes": "Manually authored Foundation variant supplied by the user. Missing source slots 2–3 only.",
+    "composer": "Frédéric Chopin",
+    "work": "Nocturne in E-flat major, Op. 9 No. 2",
+    "movement": "Andante",
+    "source": "Local MM Audio Library",
+    "rights": "Public Domain / local MM library"
+  },
+  {
+    "id": "MM016-S",
+    "sourceQuestionId": "MM016",
+    "manualLevelVariant": true,
+    "level": "Securing",
+    "file": "questions/mm016/MM016-audio.mp3",
+    "questionImage": "questions/mm016/mm016-securing-question.png",
+    "answerImage": "questions/mm016/mm016-answer-restored.png",
+    "mode": "dictation",
+    "difficulty": "medium",
+    "skill": "Melodic Dictation",
+    "question": "Complete the 4 missing notes.",
+    "answerPitches": ["A5", "G5", "F5", "G5"],
+    "noteImage": "assets/icons/notes/crotchet-sibelius.png",
+    "noteImageFallback": "assets/icons/notes/crotchet-sibelius.png",
+    "dictationLayout": {
+      "topLinePitch": "F5",
+      "staffTopY": 46.1187,
+      "staffStepY": 4.7945,
+      "homeY": 2,
+      "snapToleranceY": 10,
+      "noteWidthPercent": 3.95,
+      "noteHeightPercent": 47,
+      "noteStretchX": 1.95,
+      "noteCountLabel": "2 crotchets, 1 quaver, 1 dotted crotchet",
+      "staffPitches": ["C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5", "B4", "A4", "G4", "F4", "E4", "D4", "C4"],
+      "slots": [
+        { "x": 50.94, "pitch": "A5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet", "sourceSlot": 2 },
+        { "x": 53.78, "pitch": "G5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 3 },
+        { "x": 57.36, "pitch": "F5", "icon": "assets/icons/notes/dottedcrotchet-sibelius.png", "rhythm": "dotted crotchet", "sourceSlot": 4 },
+        { "x": 61.03, "pitch": "G5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet", "sourceSlot": 5 }
+      ]
+    },
+    "markScheme": { "pitchMarks": 4, "shapeMarks": 1 },
+    "notes": "Manually authored Securing variant supplied by the user. Missing source slots 2–5 only.",
+    "composer": "Frédéric Chopin",
+    "work": "Nocturne in E-flat major, Op. 9 No. 2",
+    "movement": "Andante",
+    "source": "Local MM Audio Library",
+    "rights": "Public Domain / local MM library"
+  },
+  {
+    "id": "MM027-D",
+    "sourceQuestionId": "MM027",
+    "manualLevelVariant": true,
+    "level": "Developing",
+    "file": "questions/mm027/MMD027-audio.mp3",
+    "questionImage": "questions/mm027/mm027-developing-question.png",
+    "answerImage": "questions/mm027/mm027-answer.png",
+    "mode": "dictation",
+    "difficulty": "medium",
+    "skill": "Melodic Dictation",
+    "question": "Complete the 3 missing notes.",
+    "answerPitches": ["E5", "F5", "E5"],
+    "noteImage": "assets/icons/notes/quaver-sibelius.png",
+    "noteImageFallback": "assets/icons/notes/quaver-sibelius.png",
+    "dictationLayout": {
+      "topLinePitch": "F5",
+      "staffTopY": 30.41,
+      "staffStepY": 6.14,
+      "homeY": 2,
+      "snapToleranceY": 10,
+      "noteWidthPercent": 3.95,
+      "noteHeightPercent": 47,
+      "noteStretchX": 1.95,
+      "noteCountLabel": "1 quaver, 2 semiquavers",
+      "staffPitches": ["C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5", "B4", "A4", "G4", "F4", "E4"],
+      "slots": [
+        { "x": 75.74, "pitch": "E5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 22 },
+        { "x": 78.76, "pitch": "F5", "icon": "assets/icons/notes/semiquaver-sibelius.png", "rhythm": "semiquaver", "sourceSlot": 23 },
+        { "x": 81.03, "pitch": "E5", "icon": "assets/icons/notes/semiquaver-sibelius.png", "rhythm": "semiquaver", "sourceSlot": 24 }
+      ]
+    },
+    "markScheme": { "pitchMarks": 3, "shapeMarks": 1 },
+    "notes": "Manually authored Developing variant supplied by the user (folder: Desktop/new dictations). Missing notes 22-24 of the full 29-note melody (bar 6, second half). Pitch/rhythm/staff calibration measured programmatically from the supplied PNGs — composer/work/movement metadata was not supplied and needs confirming.",
+    "composer": "Unknown (source not supplied)",
+    "work": "MM027 dictation exercise",
+    "movement": "",
+    "source": "Local MM Audio Library",
+    "rights": "Unknown — confirm before publishing"
+  },
+  {
+    "id": "MM027-M",
+    "sourceQuestionId": "MM027",
+    "manualLevelVariant": true,
+    "level": "Mastering",
+    "file": "questions/mm027/MMD027-audio.mp3",
+    "questionImage": "questions/mm027/mm027-mastering-question.png",
+    "answerImage": "questions/mm027/mm027-answer.png",
+    "mode": "dictation",
+    "difficulty": "hard",
+    "skill": "Melodic Dictation",
+    "question": "Complete the 6 missing notes.",
+    "answerPitches": ["C5", "D5", "E5", "E5", "F5", "E5"],
+    "noteImage": "assets/icons/notes/quaver-sibelius.png",
+    "noteImageFallback": "assets/icons/notes/quaver-sibelius.png",
+    "dictationLayout": {
+      "topLinePitch": "F5",
+      "staffTopY": 30.41,
+      "staffStepY": 6.14,
+      "homeY": 2,
+      "snapToleranceY": 10,
+      "noteWidthPercent": 3.95,
+      "noteHeightPercent": 47,
+      "noteStretchX": 1.95,
+      "noteCountLabel": "4 quavers, 2 semiquavers",
+      "staffPitches": ["C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5", "B4", "A4", "G4", "F4", "E4"],
+      "slots": [
+        { "x": 65.38, "pitch": "C5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 19 },
+        { "x": 68.36, "pitch": "D5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 20 },
+        { "x": 72.77, "pitch": "E5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 21 },
+        { "x": 75.74, "pitch": "E5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 22 },
+        { "x": 78.76, "pitch": "F5", "icon": "assets/icons/notes/semiquaver-sibelius.png", "rhythm": "semiquaver", "sourceSlot": 23 },
+        { "x": 81.03, "pitch": "E5", "icon": "assets/icons/notes/semiquaver-sibelius.png", "rhythm": "semiquaver", "sourceSlot": 24 }
+      ]
+    },
+    "markScheme": { "pitchMarks": 6, "shapeMarks": 1 },
+    "notes": "Manually authored Mastering variant supplied by the user (folder: Desktop/new dictations). Missing notes 19-24 of the full 29-note melody (end of bar 5 through bar 6, second half). Pitch/rhythm/staff calibration measured programmatically from the supplied PNGs — composer/work/movement metadata was not supplied and needs confirming.",
+    "composer": "Unknown (source not supplied)",
+    "work": "MM027 dictation exercise",
+    "movement": "",
+    "source": "Local MM Audio Library",
+    "rights": "Unknown — confirm before publishing"
   }
 ];
 

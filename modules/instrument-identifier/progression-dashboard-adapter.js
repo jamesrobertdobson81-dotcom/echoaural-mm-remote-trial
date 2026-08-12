@@ -9,44 +9,10 @@
   document.querySelectorAll(
     ".topbar-home-link, .brand[href], a[aria-label*='EchoAural home']"
   ).forEach(link => {
-    if (learningMode === "practice" || learningMode === "progression") {
+    if (learningMode === "progression") {
       link.href = dashboardPath;
     }
   });
-
-  function initialisePracticeTimeTracking() {
-    if (!window.EchoAuralTracking?.savePracticeTime) return;
-
-    const startedAt = new Date();
-    const startedMs = Date.now();
-    const clientSessionId = window.EchoAuralTracking.createClientRoundId("instrument-identifier-practice");
-    let saved = false;
-
-    function savePracticeTime() {
-      if (saved) return;
-
-      const durationSeconds = Math.round((Date.now() - startedMs) / 1000);
-      if (durationSeconds < 5) return;
-
-      saved = true;
-      void window.EchoAuralTracking.savePracticeTime({
-        moduleId: "instrument-identifier",
-        clientSessionId,
-        durationSeconds,
-        startedAt: startedAt.toISOString()
-      }, { keepalive: true });
-    }
-
-    window.addEventListener("pagehide", savePracticeTime);
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") savePracticeTime();
-    });
-  }
-
-  if (learningMode === "practice") {
-    initialisePracticeTimeTracking();
-    return;
-  }
 
   if (learningMode !== "progression") return;
 

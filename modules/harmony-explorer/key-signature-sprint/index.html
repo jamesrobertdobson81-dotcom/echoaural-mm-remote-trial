@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Key Signature Sprint | Harmony Explorer | EchoAural</title>
+  <link rel="stylesheet" href="../../../shared/css/ea-brand-logos.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="side-panels.css">
+  <link rel="stylesheet" href="centre-panel.css">
+</head>
+<body>
+  <div class="app-shell" data-brand-app="harmony-explorer">
+    <header class="topbar">
+      <a class="brand refined-logo" href="../../../index.html" aria-label="EchoAural home"><span class="brand-wave refined-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span><strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong></a>
+      <nav aria-label="Key Signature Sprint navigation"><a href="../index.html">Harmony Explorer</a><a href="../../../index.html">EchoAural home</a></nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel" aria-labelledby="settingsTitle">
+        <div class="panel-section-heading"><span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2 id="settingsTitle"><span>Settings</span><span class="panel-heading-accent" aria-hidden="true"></span></h2></div>
+        <div class="panel-hero ii-panel-hero">
+          <div class="ii-hero-lockup">
+            <span class="ii-hero-icon" aria-hidden="true"><img src="../../../assets/icons/modules/harmony-explorer.png" alt=""></span>
+            <div class="ii-title-lockup" aria-hidden="true"><span class="ii-title-wave"><span></span><span></span><span></span><span></span><span></span></span><span class="ii-title-text"><span class="ii-title-main">Harmony</span><span class="ii-title-gradient">Explorer</span></span></div>
+            <h1 class="sr-only">Harmony Explorer</h1>
+          </div>
+          <p class="eyebrow ii-brand-eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+        </div>
+        <h2 class="melody-skill-heading">Skill</h2>
+        <div class="melody-skill-grid" aria-label="Choose Harmony Explorer skill">
+          <label class="melody-skill-button"><input type="radio" name="skill" value="key-signatures" checked><span class="melody-skill-icon" aria-hidden="true"><img class="melody-skill-icon-img" src="../../../assets/icons/modules/he-transparent/key-signatures-transparent.png" alt=""></span><strong>Keys</strong></label>
+          <label class="melody-skill-button"><input type="radio" name="skill" value="chord-identifier"><span class="melody-skill-icon" aria-hidden="true"><img class="melody-skill-icon-img" src="../../../assets/icons/modules/he-transparent/chord-identifier-transparent.png" alt=""></span><strong>Chords</strong></label>
+        </div>
+        <h2>Level</h2>
+        <div class="level-grid progression-level-grid" aria-label="Selected Harmony Explorer level">
+          <label class="level-button"><input type="radio" name="difficulty" value="foundation" checked><img class="level-icon" src="../../../assets/icons/levels/mm-transparent/foundation-transparent.png" alt=""><strong>Foundation</strong></label>
+          <label class="level-button"><input type="radio" name="difficulty" value="developing"><img class="level-icon" src="../../../assets/icons/levels/mm-transparent/developing-transparent.png" alt=""><strong>Developing</strong></label>
+          <label class="level-button"><input type="radio" name="difficulty" value="secure"><img class="level-icon" src="../../../assets/icons/levels/mm-transparent/securing-transparent.png" alt=""><strong>Securing</strong></label>
+          <label class="level-button"><input type="radio" name="difficulty" value="exam"><img class="level-icon" src="../../../assets/icons/levels/mm-transparent/mastering-transparent.png" alt=""><strong>Mastering</strong></label>
+        </div>
+      </section>
+
+      <section class="panel quiz-panel question-panel is-ready" id="questionPanel" aria-labelledby="questionText">
+        <div class="panel-section-heading panel-section-heading-centre"><span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2><span>Key Signatures</span><span class="panel-heading-accent" aria-hidden="true"></span></h2></div>
+        <div class="quiz-header"><p id="roundText">Ready</p><div class="progressOuter" aria-hidden="true"><div id="progressBar"></div></div></div>
+        <div class="statsRow mi-stats-row" aria-label="Question statistics"><p id="scoreText" class="mi-score-tile">Mark: 0 / 0</p><span id="streakText" hidden>0</span><span id="xpText" hidden>0</span></div>
+        <div class="listening-console dictation-console he-key-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+          <div id="readyState" class="he-key-ready">
+            <div class="console-ready-brand" aria-hidden="true"><div class="he-ready-lockup"><img src="../../../assets/icons/modules/harmony-explorer.png" alt=""><span>Harmony <strong>Explorer</strong></span></div></div>
+            <div class="he-ready-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="listening-cues"><span>Key</span><span>Signature</span><span>Tonality</span></div>
+            <div class="console-actions console-actions-start"><button id="startButton" class="primary-button centre-start" type="button">Start Learning</button><div class="settings-wrap"><div id="advancedSettings" class="advanced settings-popover" hidden><p class="eyebrow">CUSTOMISE ROUND</p><h3>Advanced Settings</h3><fieldset><legend>Questions per round</legend><div class="segmented compact"><label><input type="radio" name="questionCount" value="5" checked><span>5</span></label><label><input type="radio" name="questionCount" value="10"><span>10</span></label><label><input type="radio" name="questionCount" value="15"><span>15</span></label></div></fieldset><label>Clef<select id="clefSetting"><option value="auto">Mixed where supported</option><option value="treble">Treble</option><option value="bass">Bass</option></select></label><label>Key focus<select id="keyFocus"><option value="mixed">Major and minor</option><option value="major">Major keys</option><option value="minor">Minor keys</option></select></label><label>Answer style<select id="answerMode"><option value="adaptive">Adaptive</option><option value="choice">Multiple choice</option><option value="typed">Typed answers</option></select></label><label>Accidentals<select id="accidentalRange"><option value="all">Sharps and flats</option><option value="sharp">Sharps</option><option value="flat">Flats</option></select></label></div><button id="advancedToggle" class="secondary-button advanced-settings-button" type="button" aria-expanded="false" aria-controls="advancedSettings">Advanced Settings</button></div></div>
+          </div>
+          <div id="playState" class="he-key-play" hidden>
+            <div class="console-actions console-actions-replay"><button id="nextButton" class="primary-button he-gameplay-action" type="button" disabled>Next Question</button></div>
+            <div class="console-heading mi-question-heading"><h1 class="sr-only">Identify the key signature</h1><p id="questionText"><span class="mi-question-prompt">What is this major key signature?</span><span class="mi-question-marks" id="questionMarks" hidden aria-hidden="true"></span></p></div>
+            <div class="mi-stave-card" aria-label="Key-signature stave"><div id="notation" class="mi-stave-stage" role="img" aria-label="Key signature"></div></div>
+            <div id="answers" class="answer-grid mi-answer-grid answers"></div>
+            <form id="typedForm" class="mi-written-answer typed-answer" hidden><label for="typedInput">Type your answer</label><div><input id="typedInput" autocomplete="off" spellcheck="false" maxlength="40" placeholder="e.g. D major"></div></form>
+            <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+          </div>
+          <div id="resultsState" class="results" hidden></div>
+        </div>
+      </section>
+
+      <aside class="panel info-panel insight-panel" aria-labelledby="insightTitle">
+        <div class="panel-section-heading"><span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2 id="insightTitle"><span>Answers</span><span class="panel-heading-accent" aria-hidden="true"></span></h2></div>
+        <div id="insightContent" class="answerCard" aria-live="polite"><div class="answerCard-empty he-source-panel"><div class="answer-empty-stage" aria-hidden="true"><div class="answer-empty-orbit"><span class="answer-empty-sparkle answer-empty-sparkle-1"></span><span class="answer-empty-sparkle answer-empty-sparkle-2"></span><span class="answer-empty-sparkle answer-empty-sparkle-3"></span><span class="answer-empty-sparkle answer-empty-sparkle-4"></span><span class="answer-empty-icon"><img src="../../../assets/icons/modes/mm-transparent/answers-transparent.png?v=3" alt=""></span></div></div><div class="answer-empty-copy"><h2>Your answers will appear here</h2><p>Complete a quiz to see your responses and performance feedback.</p></div></div></div>
+      </aside>
+    </main>
+  </div>
+  <script src="key-signature-data.js"></script><script src="../../../shared/js/spaced-repetition.js"></script><script src="script.js"></script>
+</body>
+</html>

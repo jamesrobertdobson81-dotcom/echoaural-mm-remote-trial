@@ -14,9 +14,20 @@ const DATA_FILES = [
   'exl006.js',
   'exl007.js',
   'exl008.js',
+  'exl010.js',
   'exl011.js',
   'exl012.js',
-  'exl013.js'
+  'exl013.js',
+  'exl014.js',
+  'exl015.js',
+  'exl016.js',
+  'exl017.js',
+  'exl018.js',
+  'exl019.js',
+  'exl020.js',
+  'exl021.js',
+  'exl022.js',
+  'exl023.js'
 ];
 let cachedRegistry = null;
 

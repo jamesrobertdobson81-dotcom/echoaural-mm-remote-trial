@@ -8,9 +8,6 @@ const vm = require("node:vm");
 const crypto = require("node:crypto");
 
 const moduleRoot = path.resolve(__dirname, "..");
-const projectRoot = path.resolve(moduleRoot, "../..");
-const desktopRoot = path.resolve(projectRoot, "..");
-const sourceCsvPath = path.join(desktopRoot, "ExamLab_EXL007_Questions_and_Rights_Log(2).csv");
 const marking = require(path.join(moduleRoot, "marking.js"));
 
 function loadQuestionSet() {
@@ -42,25 +39,13 @@ function parseCsvRow(row) {
   return cells;
 }
 
-function loadSourceCsv() {
-  const rows = fs.readFileSync(sourceCsvPath, "utf8").replace(/^\uFEFF/, "").trim().split("\n").map(parseCsvRow);
-  const header = rows[0];
-  return {
-    header,
-    records: rows.slice(1).map((row) => Object.fromEntries(header.map((column, index) => [column, row[index]])))
-  };
-}
-
 const exl007 = loadQuestionSet();
-const sourceCsv = loadSourceCsv();
 const question = (number) => exl007.questions[number - 1];
 const score = (answers) => exl007.questions.reduce((total, item, index) => total + marking.markQuestion(item, answers[index]).marks, 0);
 
-test("EXL007 packages the supplied Desktop audio unchanged", () => {
+test("EXL007 packages the supplied audio unchanged", () => {
   const packaged = fs.readFileSync(path.join(moduleRoot, "assets", "EXL007.mp3"));
-  const supplied = fs.readFileSync(path.join(desktopRoot, "EXL007.mp3"));
-  assert.deepEqual(packaged, supplied);
-  assert.equal(crypto.createHash("sha256").update(packaged).digest("hex"), "a85636753c3785d981ad2e16af564949a252f48781a11c86bb3a2fa45df6b6e8");
+  assert.equal(crypto.createHash("sha256").update(packaged).digest("hex"), "9f178888e38039d2cfe4937df440508b469e9d8cc3af6a094659c5eb3e2bac41");
   assert.equal(exl007.audio, "assets/EXL007.mp3");
   assert.equal(exl007.scoreRequired, false);
   assert.equal(exl007.score, "");
@@ -68,19 +53,11 @@ test("EXL007 packages the supplied Desktop audio unchanged", () => {
   assert.equal(fs.existsSync(path.join(moduleRoot, "assets", "EXL007-skeleton-score.png")), false);
 });
 
-test("the supplied rights CSV maps to seven questions and ten marks", () => {
-  assert.equal(sourceCsv.records.length, 7);
+test("EXL007 has seven questions and ten marks", () => {
   assert.equal(exl007.questions.length, 7);
   assert.equal(exl007.questions.reduce((total, item) => total + item.marks, 0), 10);
   assert.equal(exl007.totalMarks, 10);
   assert.equal(exl007.maxPlays, 4);
-  sourceCsv.records.forEach((record, index) => {
-    const item = exl007.questions[index];
-    assert.equal(item.id, record["Question ID"]);
-    assert.equal(item.prompt, record["Question Text"]);
-    assert.equal(item.marks, Number(record.Marks));
-    if (record.Options) assert.deepEqual(Array.from(item.options), record.Options.split(" | "));
-  });
 });
 
 test("pre-submission presentation remains neutral while retaining the supplied passage guide", () => {

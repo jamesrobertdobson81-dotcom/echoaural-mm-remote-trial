@@ -164,7 +164,7 @@ function getMp3DurationSeconds(filePath) {
 }
 
 function createAdapters(projectRoot) {
-  const context = { path, fs, vm, projectRoot, getAudioDurationSeconds: getMp3DurationSeconds, useLevelledQuestions: true };
+  const context = { path, fs, vm, projectRoot, getAudioDurationSeconds: getMp3DurationSeconds, useLevelledQuestions: false };
   const melodyAdapter = require(path.join(projectRoot, 'modules', 'melody-master', 'teacher-adapter.js'))(context);
   const instrumentAdapter = require(path.join(projectRoot, 'modules', 'instrument-identifier', 'teacher-adapter.js'))(context);
   const textureAdapter = require(path.join(projectRoot, 'modules', 'texture-trainer', 'teacher-adapter.js'))(context);

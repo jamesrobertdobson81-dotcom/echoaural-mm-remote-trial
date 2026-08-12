@@ -20,7 +20,12 @@ const state = {
   progressStudent: null,
   studentProgressRefreshTimer: null,
   studentProgressRefreshInFlight: false,
-  expandedClassIds: new Set()
+  expandedClassIds: new Set(),
+  // Real modules/progress-mode/ data, keyed by studentId — see
+  // accounts/account-server.js's /api/teacher/progress-mode-summary route.
+  // Separate from classProgress/categories.progress, which used to be an
+  // unrelated, differently-labelled legacy system (now retired).
+  progressModeSummaries: new Map()
 };
 
 const PROGRESSION_LEVEL_LABELS = ["Foundation", "Developing", "Securing", "Mastering"];
@@ -589,7 +594,7 @@ function progressPill(progress, fallback = "No results") {
 
 function studentRowMarkup(student) {
   const overall = overallStudent(student.id);
-  const progress = categoryStudent("progress", student.id);
+  const progressModeRow = progressModeStudentSummary(student.id);
   const quizzes = categoryStudent("quizzes", student.id);
 
   return `
@@ -600,7 +605,7 @@ function studentRowMarkup(student) {
       </button>
       <div class="student-category-results-v2">
         <div><span>Overall</span>${progressPill(overall)}</div>
-        <div><span>Progress Mode</span>${progressPill(progress, "No progress")}</div>
+        <div><span>Progress Mode</span>${progressModePill(progressModeRow)}</div>
         <div><span>Live Sessions</span>${progressPill(quizzes, "No sessions")}</div>
       </div>
       <div class="student-status">${student.active ? "Active seat" : "Inactive"}</div>
@@ -766,6 +771,93 @@ function classCategorySummaryMarkup(categoryKey, category) {
   `;
 }
 
+// Real modules/progress-mode/ class-wide aggregate, computed client-side
+// from state.progressModeSummaries (one row per student who has ever
+// finished a round there — see loadProgressModeSummaries).
+function progressModeClassAggregate() {
+  const rows = Array.from(state.progressModeSummaries.values());
+  const totalStudents = state.students.filter((student) => student.active).length;
+  const participating = rows.filter((row) => row.totalQuestions > 0).length;
+  let totalCorrect = 0;
+  let totalQuestions = 0;
+  let levelSum = 0;
+  rows.forEach((row) => {
+    totalCorrect += Number(row.totalCorrect || 0);
+    totalQuestions += Number(row.totalQuestions || 0);
+    const levelIndex = PROGRESSION_LEVEL_LABELS.indexOf(row.overallLevelLabel);
+    levelSum += levelIndex >= 0 ? levelIndex : 0;
+  });
+  const percentage = totalQuestions ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+  const averageLevelLabel = rows.length
+    ? PROGRESSION_LEVEL_LABELS[Math.round(Math.min(3, levelSum / rows.length))]
+    : "Foundation";
+  return { rows, totalStudents, participating, totalCorrect, totalQuestions, percentage, averageLevelLabel };
+}
+
+function progressModeClassSummaryMarkup() {
+  const config = CLASS_CATEGORY_CONFIG.progress;
+  const data = progressModeClassAggregate();
+  const hasEvidence = data.totalQuestions > 0;
+  const feedback = hasEvidence
+    ? `Class average level: ${data.averageLevelLabel}. ${data.participating} / ${data.totalStudents} students have played a round.`
+    : config.emptyFeedback;
+
+  return `
+    <div class="learning-summary-heading-v5">
+      <div class="learning-summary-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" style="--ea-icon:url('${config.icon}')"></span></div>
+      <div class="learning-summary-title-v5">
+        <p>${escapeHtml(config.eyebrow)}</p>
+        <h3 id="${escapeHtml(config.headingId)}">${escapeHtml(config.title)}</h3>
+      </div>
+      <strong class="learning-summary-percentage-v5 ${scoreClass(data.percentage, data.totalQuestions)}">${hasEvidence ? `${data.percentage}%` : "—"}</strong>
+    </div>
+
+    <div class="learning-summary-feedback-v5">
+      <span>Compiled class feedback</span>
+      <p>${escapeHtml(feedback)}</p>
+    </div>
+
+    <div class="learning-summary-footer-v5">
+      <span>${data.totalQuestions} questions · ${data.participating} / ${data.totalStudents} students</span>
+      <button class="secondary-button learning-detail-button-v5" type="button" data-category-detail="progress">Detailed feedback</button>
+    </div>
+  `;
+}
+
+// Class-wide Progress Mode detail dialog — a per-student roster breakdown,
+// since (unlike quizzes/homework) there's no single shared "modules" list
+// to show here; each student's own level/marks is the meaningful unit.
+function progressModeClassDetailMarkup() {
+  const data = progressModeClassAggregate();
+  if (!data.rows.length) {
+    return '<div class="progress-empty-state">Progress Mode feedback will appear after students complete levelled rounds.</div>';
+  }
+
+  const rows = data.rows
+    .slice()
+    .sort((a, b) => progressModePercentage(b) - progressModePercentage(a))
+    .map((row) => {
+      const student = state.students.find((candidate) => String(candidate.id) === String(row.studentId));
+      const name = student ? student.displayName : (row.displayName || row.username || "Student");
+      const percentage = progressModePercentage(row);
+      return `
+        <div class="category-history-row-v2">
+          <div><strong>${escapeHtml(name)}</strong><small>${row.roundsCompleted} round${row.roundsCompleted === 1 ? "" : "s"} · ${row.totalQuestions} questions</small></div>
+          <span class="round-score-badge ${scoreClass(percentage, row.totalQuestions)}">${escapeHtml(row.overallLevelLabel)} · ${percentage}%</span>
+        </div>
+      `;
+    }).join("");
+
+  return `
+    <div class="individual-score-v2 ${scoreClass(data.percentage, data.totalQuestions)}">
+      <strong>${data.totalQuestions ? `${data.percentage}%` : "—"}</strong>
+      <span>${data.totalQuestions} questions · ${data.participating} / ${data.totalStudents} students</span>
+    </div>
+    <div class="category-feedback-v2"><span>Compiled feedback</span><p>${escapeHtml(`Class average level: ${data.averageLevelLabel}.`)}</p></div>
+    <details class="category-details-v2" open><summary>By student</summary><div class="category-history-list-v2">${rows}</div></details>
+  `;
+}
+
 function renderClassCategory(targetId, categoryKey, category) {
   const target = document.getElementById(targetId);
   if (!target) return;
@@ -901,6 +993,7 @@ function openCategoryDetail(categoryKey) {
   const config = CLASS_CATEGORY_CONFIG[categoryKey];
   if (!config || !els.categoryDetailDialog) return;
 
+  const isProgressDetail = categoryKey === "progress";
   const categories = state.classProgress?.categories || {};
   const category = categoryKey === "homework"
     ? (categories.homework || { overall: {} })
@@ -910,7 +1003,9 @@ function openCategoryDetail(categoryKey) {
   els.categoryDetailTitle.textContent = config.title;
   els.categoryDetailSubtitle.textContent = config.detailSubtitle;
   els.categoryDetailIcon?.style.setProperty("--ea-icon", `url('${config.icon}')`);
-  els.categoryDetailContent.innerHTML = detailedCategoryMarkup(categoryKey, category);
+  els.categoryDetailContent.innerHTML = isProgressDetail
+    ? progressModeClassDetailMarkup()
+    : detailedCategoryMarkup(categoryKey, category);
   els.categoryDetailDialog.showModal();
 }
 
@@ -927,16 +1022,51 @@ function renderClassProgress() {
   els.classParticipation.textContent = `${overall.participation}%`;
   els.classFeedback.textContent = overall.compiledFeedback;
 
-  const categories = progress.categories || { progress, quizzes: { overall: {}, modules: [] } };
-  renderClassCategory("teacherPracticeContent", "progress", categories.progress);
+  const categories = progress.categories || { quizzes: { overall: {}, modules: [] } };
+  const progressModeTarget = document.getElementById("teacherPracticeContent");
+  if (progressModeTarget) progressModeTarget.innerHTML = progressModeClassSummaryMarkup();
   renderClassCategory("teacherQuizContent", "quizzes", categories.quizzes);
   renderClassCategory("teacherHomeworkContent", "homework", categories.homework || { overall: {} });
   renderStudents();
 }
 
+// Real modules/progress-mode/ data for this teacher's whole roster — a
+// best-effort mirror the module itself POSTs after each round (see
+// modules/progress-mode/script.js's postProgressSummaryBestEffort), so a
+// student who has never played it simply has no row here, not an error.
+async function loadProgressModeSummaries() {
+  try {
+    const result = await api("/api/teacher/progress-mode-summary");
+    const map = new Map();
+    (result?.students || []).forEach((row) => map.set(String(row.studentId), row));
+    state.progressModeSummaries = map;
+  } catch (error) {
+    state.progressModeSummaries = new Map();
+  }
+}
+
+function progressModeStudentSummary(studentId) {
+  return state.progressModeSummaries.get(String(studentId)) || null;
+}
+
+function progressModePercentage(row) {
+  return row && row.totalQuestions ? Math.round((row.totalCorrect / row.totalQuestions) * 100) : 0;
+}
+
+function progressModePill(row) {
+  const questions = Number(row?.totalQuestions || 0);
+  const percentage = progressModePercentage(row);
+  const label = questions ? `${row.overallLevelLabel} · ${percentage}%` : "No progress";
+  return `<span class="student-progress-summary ${scoreClass(percentage, questions)}">${escapeHtml(label)}</span>`;
+}
+
 async function loadClassProgress(showStatus = false) {
   if (showStatus) els.classProgressStatus.textContent = "Refreshing class results…";
-  state.classProgress = await api("/api/teacher/progress/class");
+  const [classProgress] = await Promise.all([
+    api("/api/teacher/progress/class"),
+    loadProgressModeSummaries()
+  ]);
+  state.classProgress = classProgress;
   renderClassProgress();
   els.classProgressStatus.textContent = showStatus ? "Class results refreshed." : "";
 }
@@ -1026,9 +1156,47 @@ function individualCategory(title, subtitle, category, featured = false, icon = 
   `;
 }
 
+// Individual student's real modules/progress-mode/ panel, using that
+// student's own `areas` breakdown from state.progressModeSummaries (richer
+// than the class-wide roster view, which only has each student's totals).
+function individualProgressModeCategory(studentId) {
+  const row = progressModeStudentSummary(studentId);
+  const hasEvidence = !!row && row.totalQuestions > 0;
+  const percentage = progressModePercentage(row);
+  const areas = hasEvidence && Array.isArray(row.areas) ? row.areas : [];
+
+  return `
+    <section class="individual-category-panel-v2">
+      <div class="ea-panel-heading-v2">
+        <div class="ea-panel-heading-wave dashboard-panel-icon-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" style="--ea-icon:url('/assets/icons/dashboard/progress-mode.png')"></span></div>
+        <div><p>Levelled learning</p><h3>Progress Mode</h3></div>
+      </div>
+      <div class="individual-score-v2 ${scoreClass(percentage, hasEvidence ? row.totalQuestions : 0)}">
+        <strong>${hasEvidence ? `${percentage}%` : "—"}</strong>
+        <span>${hasEvidence ? `${row.totalQuestions} questions · ${row.roundsCompleted} rounds` : "No evidence yet"}</span>
+      </div>
+      <div class="category-feedback-v2"><span>Overall level</span><p>${escapeHtml(hasEvidence ? row.overallLevelLabel : "Not started")}</p></div>
+      ${areas.length ? `<div class="individual-module-list-v2">${areas.map((area) => {
+        const areaPercentage = area.questions ? Math.round((area.correct / area.questions) * 100) : 0;
+        return `
+        <div class="individual-module-row-v2 ${scoreClass(areaPercentage, area.questions)}">
+          <img src="/assets/icons/dashboard/progress-mode.png" alt="" />
+          <div>
+            <strong>${escapeHtml(area.label)}</strong>
+            <small>${area.questions ? `${area.correct}/${area.questions} marks` : "No evidence yet"}</small>
+            <em class="individual-module-level-v2">${escapeHtml(area.levelLabel)}</em>
+          </div>
+          <span>${area.questions ? `${areaPercentage}%` : "—"}</span>
+        </div>
+      `;
+      }).join("")}</div>` : ""}
+    </section>
+  `;
+}
+
 function renderStudentProgress(progress) {
   const overall = progress.overall;
-  const categories = progress.categories || { progress, quizzes: { overall: {}, modules: [], recentRounds: [], recentQuestions: [] }, homework: { overall: {} } };
+  const categories = progress.categories || { quizzes: { overall: {}, modules: [], recentRounds: [], recentQuestions: [] }, homework: { overall: {} } };
   els.studentProgressContent.innerHTML = `
     <div class="individual-overall-strip-v2">
       <div class="individual-overall-score-v2 ${scoreClass(overall.percentage, overall.questions)}">
@@ -1042,7 +1210,7 @@ function renderStudentProgress(progress) {
       <p>${escapeHtml(overall.compiledFeedback)}</p>
     </div>
     <div class="individual-category-grid-v2">
-      ${individualCategory("Progress Mode", "Levelled learning", categories.progress, false, "/assets/icons/dashboard/progress-mode.png", "progress")}
+      ${individualProgressModeCategory(state.progressStudent?.id)}
       ${individualCategory("Live Sessions", "Teacher-led learning", categories.quizzes, true, "/assets/icons/dashboard/join-live-session.png", "quizzes")}
       ${individualCategory("Homework", "Assigned learning", categories.homework, false, "/assets/icons/dashboard/homework.png", "homework")}
     </div>

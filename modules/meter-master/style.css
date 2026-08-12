@@ -353,6 +353,18 @@ button:disabled { cursor: not-allowed; opacity: 0.62; }
   color: transparent;
 }
 
+/* When the console title shows a chosen skill's short name instead of the
+   suite wordmark, show it as a plain flat brand colour, not the decorative
+   two-tone wordmark gradient. */
+#consoleTitleGradient.is-skill-active {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: none !important;
+}
+
 .meter-panel-intro,
 .muted {
   color: var(--muted);
@@ -797,6 +809,14 @@ button:disabled { cursor: not-allowed; opacity: 0.62; }
     brightness(0) invert(1)
     drop-shadow(0 0 7px rgba(255, 255, 255, .16))
     drop-shadow(0 0 18px rgba(56, 189, 248, .20));
+}
+
+/* When showing a skill's own transparent white-line icon (not the suite's
+   opaque badge), swap to Meter Master's amber gradient behind it. */
+.console-meter-icon.is-skill-icon {
+  background: linear-gradient(135deg, #FFD48F, #FFAA2B 55%, #CC7A00) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 .console-title-text {
@@ -2289,6 +2309,25 @@ svg {
   transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
 }
 
+.level-button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid rgba(255, 255, 255, .36);
+  border-bottom: 1.5px solid rgba(255, 255, 255, .36);
+  transform: translateY(-50%) rotate(-45deg);
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.level-button.is-selected::before {
+  border-color: rgba(255, 255, 255, .72);
+}
+
 .level-button:hover {
   transform: translateY(-2px);
   border-color: rgba(56, 189, 248, .36);
@@ -2669,6 +2708,14 @@ svg {
     brightness(0) invert(1)
     drop-shadow(0 0 7px rgba(255, 255, 255, .16))
     drop-shadow(0 0 18px rgba(56, 189, 248, .20));
+}
+
+/* When showing a skill's own transparent white-line icon (not the suite's
+   opaque badge), swap to Meter Master's amber gradient behind it. */
+.console-meter-icon.is-skill-icon {
+  background: linear-gradient(135deg, #FFD48F, #FFAA2B 55%, #CC7A00) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 .console-title-text {
@@ -3548,4 +3595,1132 @@ svg {
 .progression-level-grid .level-button strong {
   grid-column: 2;
   grid-row: 1;
+}
+
+/* =========================
+   Meter Master homescreen — match Melody Master / TT layout
+   Brand accent: #FFAA2B (ea-amber). Skills absent → blank Level offset.
+========================= */
+
+.topbar-app-link {
+  font-weight: 500;
+}
+
+.topbar-app-link-mm {
+  --module-accent: var(--ea-rose, #FF5DBA);
+}
+
+.topbar-app-link-ii {
+  --module-accent: #3FA6FF;
+}
+
+.topbar-app-link-tt {
+  --module-accent: var(--ea-teal, #27E1C1);
+}
+
+.topbar-app-link-he {
+  --module-accent: var(--ea-purple, #A66BFF);
+}
+
+.topbar-app-link-cc {
+  --module-accent: var(--ea-rose, #FF5DBA);
+}
+
+.topbar-app-link .module-title-text {
+  font-size: inherit;
+}
+
+.topbar-app-link .module-title-gradient {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--module-accent) 32%, transparent);
+}
+
+.setup-panel {
+  gap: 8px;
+  padding: 38px 22px;
+}
+
+.setup-panel > .panel-section-heading {
+  margin-bottom: 32px;
+}
+
+.panel-section-heading h2 {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.panel-section-heading h2 span:not(.panel-heading-accent) {
+  background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(125,211,252,.78));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.panel-section-heading h2 .panel-heading-accent {
+  display: block;
+  width: 100%;
+  height: 2px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: #FFAA2B;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  box-shadow: 0 0 6px rgba(255, 170, 43, .45);
+  animation: panel-heading-accent-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes panel-heading-accent-breathe {
+  0%, 100% {
+    opacity: .75;
+    box-shadow: 0 0 5px rgba(255, 170, 43, .35);
+    transform: scaleX(1) scaleY(1);
+  }
+  50% {
+    opacity: .92;
+    box-shadow: 0 0 10px rgba(255, 170, 43, .52), 0 0 3px rgba(255, 170, 43, .35);
+    transform: scaleX(1.03) scaleY(1.08);
+  }
+}
+
+.panel-heading-wave {
+  display: none;
+}
+
+.setup-panel .panel-hero {
+  padding-bottom: 0;
+  border-bottom: none;
+  margin-bottom: 40px;
+}
+
+.meter-panel-hero {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.meter-hero-lockup {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  margin: 0;
+}
+
+/* Match MM: title-wave hidden so hero height stays in MM’s brand slot */
+.meter-title-wave {
+  display: none;
+}
+
+.meter-panel-hero .meter-brand-eyebrow {
+  margin: 8px 0 0;
+}
+
+.setup-panel > h2.meter-level-heading {
+  margin-top: 36px;
+  margin-bottom: 7px;
+  text-align: center;
+  color: rgba(255, 255, 255, .82);
+  font-size: .74rem;
+  font-weight: 900;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+
+/* Skill tile row — exact MM/II skill-tile chrome (icon/tile height and size),
+   Meter amber selected-state accent matching the existing level-button accent. */
+.setup-panel > h2.melody-skill-heading {
+  margin-top: 0;
+  margin-bottom: 7px;
+  text-align: center;
+  color: rgba(255, 255, 255, .82);
+  font-size: .74rem;
+  font-weight: 900;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+
+.melody-skill-grid {
+  display: grid;
+  grid-template-columns: minmax(0, calc((100% - 16px) / 3));
+  gap: 8px;
+  justify-content: center;
+}
+
+.melody-skill-button {
+  position: relative;
+  min-height: 72px;
+  padding: 9px 7px 8px;
+  border: 1px solid rgba(130, 160, 255, .12);
+  border-radius: 19px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+  text-align: center;
+  color: rgba(255, 255, 255, .94);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(56, 189, 248, .10), transparent 38%),
+    rgba(255, 255, 255, .045);
+  box-shadow: 0 13px 32px rgba(0, 0, 0, .16);
+  cursor: pointer;
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+}
+
+.melody-skill-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 170, 43, .28);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(255, 170, 43, .14), transparent 38%),
+    rgba(255, 255, 255, .066);
+}
+
+.melody-skill-button input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.melody-skill-button:has(input:checked) {
+  border-color: rgba(255, 170, 43, .58);
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 170, 43, .18), transparent 38%),
+    linear-gradient(135deg, rgba(255, 170, 43, .14), rgba(251, 191, 36, .10));
+  box-shadow:
+    0 18px 42px rgba(255, 170, 43, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+.melody-skill-icon {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, .92);
+  overflow: hidden;
+  background: transparent;
+  box-shadow: none;
+}
+
+.melody-skill-icon-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 0;
+  filter: none;
+}
+
+.setup-panel .melody-skill-icon {
+  width: 52px;
+  height: 52px;
+  margin: -7px 0;
+}
+
+.melody-skill-button strong {
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: -.015em;
+  line-height: 1;
+}
+
+.setup-panel .progression-level-grid .level-button {
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: center;
+  align-content: center;
+  column-gap: 11px;
+  min-height: 62px;
+  padding: 8px 36px 8px 11px;
+  border-radius: 19px;
+}
+
+.setup-panel .progression-level-grid .level-icon {
+  grid-column: 1;
+  grid-row: 1;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 0;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  box-shadow: none;
+  filter: none !important;
+}
+
+.setup-panel .progression-level-grid .level-button strong {
+  grid-column: 2;
+  grid-row: 1;
+  font-weight: 500;
+}
+
+.setup-panel .progression-level-grid .level-button.is-selected {
+  border-color: rgba(255, 170, 43, .58);
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 170, 43, .18), transparent 38%),
+    linear-gradient(135deg, rgba(255, 170, 43, .14), rgba(251, 191, 36, .10));
+  box-shadow:
+    0 18px 42px rgba(255, 170, 43, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+/* Subtle concentric circles — Meter Master amber */
+body::before {
+  border: 1px solid rgba(255, 170, 43, .08);
+  box-shadow:
+    0 0 0 58px rgba(255, 170, 43, .018),
+    0 0 0 116px rgba(255, 170, 43, .012);
+}
+
+body::after {
+  border: 1px solid rgba(255, 170, 43, .12);
+  box-shadow:
+    0 0 0 82px rgba(255, 170, 43, .04),
+    0 0 0 164px rgba(255, 170, 43, .028),
+    0 0 0 246px rgba(255, 255, 255, .012),
+    0 0 70px rgba(255, 170, 43, .07);
+}
+
+.app-shell::before {
+  border: 1px solid rgba(255, 170, 43, .08);
+  box-shadow:
+    0 0 0 50px rgba(255, 170, 43, .018),
+    0 0 0 100px rgba(255, 255, 255, .01);
+}
+
+.app-shell::after {
+  border: 1px solid rgba(255, 170, 43, .09);
+  box-shadow:
+    0 0 0 42px rgba(255, 170, 43, .018),
+    0 0 0 84px rgba(255, 170, 43, .012);
+}
+
+/* Ready centre console — MM/TT placement
+   Horizontal padding matches MM .dictation-console (clamp 14px / 1.45vw / 22px).
+   Clear legacy margin: 12px 18px 0 that shrank/shifted the console. */
+.quiz-panel.is-ready .listening-console {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: center;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(14px, 1.8vh, 24px);
+  margin: 0;
+  padding: clamp(22px, 2.5vw, 38px) clamp(14px, 1.45vw, 22px);
+  min-height: 0;
+  height: 100%;
+  border-radius: 34px;
+  box-sizing: border-box;
+}
+
+.quiz-panel.is-ready .statsRow,
+.quiz-panel.is-ready .console-question-kicker,
+.quiz-panel.is-ready .console-heading,
+.quiz-panel.is-ready .listening-cues,
+.quiz-panel.is-ready .response-area,
+.quiz-panel.is-ready .score-context-card,
+.quiz-panel.is-ready #feedback,
+.quiz-panel.is-ready #restartButton,
+.quiz-panel.is-ready .console-actions-replay {
+  display: none !important;
+}
+
+.quiz-panel.is-ready .meter-console-start-brand,
+.quiz-panel.is-ready .console-ready-brand.meter-console-start-brand {
+  order: 1;
+  width: min(560px, 100%);
+  min-height: 0 !important;
+  height: auto;
+  display: grid !important;
+  place-items: center;
+  margin: 0 auto;
+  gap: 0;
+  opacity: 1 !important;
+  visibility: visible !important;
+  top: auto;
+  transform: translateY(clamp(0px, .2vh, 8px)) !important;
+}
+
+.quiz-panel.is-ready .meter-console-start-brand .console-meter-combined-lockup,
+.quiz-panel.is-ready .console-meter-combined-lockup {
+  display: grid;
+  justify-items: center;
+  gap: clamp(28px, 2.15vh, 38px);
+  text-align: center;
+}
+
+.quiz-panel.is-ready .meter-console-start-brand .console-meter-lockup,
+.quiz-panel.is-ready .console-meter-lockup {
+  margin-top: 0 !important;
+}
+
+.quiz-panel.is-ready .meter-console-start-brand .console-meter-icon,
+.quiz-panel.is-ready .console-meter-icon {
+  width: clamp(132px, 12.8vw, 178px);
+  height: clamp(132px, 12.8vw, 178px);
+  padding: clamp(19px, 2.05vw, 27px);
+  border-radius: clamp(32px, 3.1vw, 44px);
+}
+
+.quiz-panel.is-ready .meter-console-start-brand .console-title-main,
+.quiz-panel.is-ready .meter-console-start-brand .console-title-gradient,
+.quiz-panel.is-ready .console-title-main,
+.quiz-panel.is-ready .console-title-gradient {
+  font-size: clamp(1.82rem, 4.2vw, 3.35rem);
+}
+
+.quiz-panel.is-ready .meter-console-start-brand .console-title-text,
+.quiz-panel.is-ready .console-meter-lockup .console-title-text {
+  transform: translateY(clamp(-8px, -0.7vh, -12px)) !important;
+}
+
+.quiz-panel.is-ready .meter-ready-wave {
+  order: 2;
+  width: min(720px, 94%);
+  height: clamp(86px, 11vh, 128px);
+  margin-top: clamp(34px, 4vh, 52px);
+  padding: 0 clamp(20px, 3vw, 32px);
+  gap: normal;
+  transform: translateY(clamp(0px, .2vh, 8px)) !important;
+  display: flex !important;
+  top: auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.meter-console-wave-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.meter-console-wave-lines {
+  transform-origin: center;
+}
+
+.meter-wave-segment {
+  transform-origin: center;
+}
+
+.meter-wave-segment .meter-wave-line {
+  stroke: url(#meterConsoleWaveGrad);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-duration: calc(var(--wave-seg-duration, 1.35s) * var(--wave-seg-ready-scale, 1));
+  animation-delay: calc(var(--wave-seg-phase, 0s) + var(--wave-bar-stagger, 0s));
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.meter-wave-segment .meter-wave-line.meter-wave-edge {
+  animation-name: meterWaveLinePulseEdge;
+}
+
+.meter-wave-segment .meter-wave-line.meter-wave-mid {
+  animation-name: meterWaveLinePulseMid;
+}
+
+.meter-wave-segment .meter-wave-line.meter-wave-core {
+  animation-name: meterWaveLinePulseCore;
+}
+
+.meter-wave-seg-5 .meter-wave-line {
+  animation-timing-function: cubic-bezier(.45, 0, .55, 1);
+}
+
+.meter-wave-seg-7 .meter-wave-line {
+  animation-timing-function: cubic-bezier(.42, 0, .58, 1);
+}
+
+.quiz-panel.is-ready .meter-wave-segment,
+.quiz-panel.is-complete .meter-wave-segment {
+  --wave-seg-ready-scale: 1.55;
+}
+
+.quiz-panel.is-ready .meter-wave-segment .meter-wave-line,
+.quiz-panel.is-complete .meter-wave-segment .meter-wave-line {
+  opacity: .88;
+}
+
+@keyframes meterWaveLinePulseEdge {
+  0%, 100% { transform: scaleY(.72); opacity: .55; }
+  50% { transform: scaleY(1.15); opacity: .92; }
+}
+
+@keyframes meterWaveLinePulseMid {
+  0%, 100% { transform: scaleY(.55); opacity: .62; }
+  50% { transform: scaleY(1.35); opacity: .96; }
+}
+
+@keyframes meterWaveLinePulseCore {
+  0%, 100% { transform: scaleY(.42); opacity: .7; }
+  50% { transform: scaleY(1.55); opacity: 1; }
+}
+
+.quiz-panel.is-ready .console-actions-start {
+  order: 3;
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  width: auto !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(14px, 1.8vh, 18px);
+  margin: clamp(28px, 3.8vh, 52px) auto 0;
+  padding: 0;
+  transform: translateY(clamp(-22px, -1.5vh, -14px));
+  z-index: 5;
+}
+
+.quiz-panel.is-ready .console-actions-start .settings-popover-wrap {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin-top: 0;
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quiz-panel.is-ready #startButton.centre-start {
+  min-width: clamp(280px, 44vw, 400px);
+  min-height: clamp(58px, 6.2vh, 68px);
+  padding: 0 clamp(32px, 3.6vw, 46px);
+  font-size: clamp(1.02rem, 1.16vw, 1.14rem);
+  font-weight: 780;
+  letter-spacing: .02em;
+  gap: clamp(10px, 1.2vw, 14px);
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffc46a 0%, #FFAA2B 48%, #e89412 100%);
+  box-shadow:
+    0 0 28px rgba(255, 170, 43, .32),
+    0 8px 22px rgba(0, 0, 0, .18),
+    inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+
+.quiz-panel.is-ready #startButton.centre-start:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 0 36px rgba(255, 170, 43, .40),
+    0 12px 28px rgba(0, 0, 0, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .26);
+}
+
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button {
+  width: auto !important;
+  min-width: clamp(188px, 24vw, 252px);
+  min-height: 46px;
+  margin: 0;
+  padding: 0 clamp(22px, 2.4vw, 30px);
+  box-sizing: border-box;
+  flex: 0 0 auto !important;
+  gap: 8px;
+  font-size: clamp(.86rem, 1vw, .96rem);
+  font-weight: 620;
+  letter-spacing: .01em;
+  color: rgba(255, 255, 255, .92);
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .04);
+  box-shadow: none;
+}
+
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: none;
+  border-color: rgba(255, 255, 255, .42);
+  background: rgba(255, 255, 255, .07);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .14);
+}
+
+.quiz-panel.is-ready #startButton.centre-start::after {
+  content: "";
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='12' fill='none' stroke='white' stroke-width='1.5' opacity='0.92'/%3E%3Cpath d='M12 9.5v9l7-4.5z' fill='white'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: .88;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none'%3E%3Cline x1='3' y1='5.5' x2='15' y2='5.5' stroke='white' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='7' cy='5.5' r='2' fill='white'/%3E%3Cline x1='3' y1='12.5' x2='15' y2='12.5' stroke='white' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='11.5' cy='12.5' r='2' fill='white'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+.quiz-panel.is-ready .listening-console::after {
+  width: clamp(220px, 32vw, 320px) !important;
+  height: clamp(220px, 32vw, 320px) !important;
+  left: 50% !important;
+  top: 40% !important;
+  border: none !important;
+  box-shadow:
+    0 0 36px rgba(255, 170, 43, .14),
+    0 0 72px rgba(255, 170, 43, .07) !important;
+  opacity: .72 !important;
+  background:
+    radial-gradient(circle,
+      rgba(255, 170, 43, .22) 0%,
+      rgba(255, 170, 43, .12) 30%,
+      rgba(255, 170, 43, .05) 52%,
+      rgba(255, 170, 43, .015) 68%,
+      transparent 84%) !important;
+}
+
+.quiz-panel.is-ready .console-orbit {
+  position: absolute !important;
+  width: clamp(300px, 48vw, 480px) !important;
+  height: clamp(300px, 48vw, 480px) !important;
+  inset: auto !important;
+  left: 50% !important;
+  top: 40% !important;
+  right: auto !important;
+  bottom: auto !important;
+  overflow: visible !important;
+  border: none !important;
+  border-radius: 50% !important;
+  box-shadow: none !important;
+  opacity: .78 !important;
+  aspect-ratio: auto !important;
+  transform: translate(-50%, -50%) !important;
+  background:
+    radial-gradient(circle, transparent calc(76% - .4px), rgba(255, 170, 43, .045) calc(76% - .4px), rgba(255, 170, 43, .045) calc(76% + .4px), transparent calc(76% + .4px)),
+    radial-gradient(circle, transparent calc(66% - .4px), rgba(255, 170, 43, .055) calc(66% - .4px), rgba(255, 170, 43, .055) calc(66% + .4px), transparent calc(66% + .4px)),
+    radial-gradient(circle, transparent calc(56% - .4px), rgba(255, 170, 43, .065) calc(56% - .4px), rgba(255, 170, 43, .065) calc(56% + .4px), transparent calc(56% + .4px)),
+    radial-gradient(circle, transparent calc(46% - .4px), rgba(255, 170, 43, .075) calc(46% - .4px), rgba(255, 170, 43, .075) calc(46% + .4px), transparent calc(46% + .4px)),
+    radial-gradient(circle, transparent calc(36% - .4px), rgba(255, 170, 43, .09) calc(36% - .4px), rgba(255, 170, 43, .09) calc(36% + .4px), transparent calc(36% + .4px)),
+    radial-gradient(circle, transparent calc(26% - .4px), rgba(255, 170, 43, .11) calc(26% - .4px), rgba(255, 170, 43, .11) calc(26% + .4px), transparent calc(26% + .4px)) !important;
+}
+
+.quiz-panel.is-ready .console-orbit::before {
+  display: none !important;
+}
+
+/* RHS Answers empty state — MM sizing, Meter amber tint */
+.info-panel .answerCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.answerCard-empty {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(18px, 2.4vh, 28px);
+  text-align: center;
+}
+
+.answer-empty-stage {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: clamp(8px, 1.5vh, 18px) 0 clamp(2px, .6vh, 8px);
+}
+
+.answer-empty-orbit {
+  position: relative;
+  width: clamp(148px, 13vw, 196px);
+  height: clamp(148px, 13vw, 196px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent calc(84% - .35px), rgba(255, 170, 43, .11) calc(84% - .35px), rgba(255, 170, 43, .11) calc(84% + .35px), transparent calc(84% + .35px)),
+    radial-gradient(circle, transparent calc(72% - .35px), rgba(255, 170, 43, .13) calc(72% - .35px), rgba(255, 170, 43, .13) calc(72% + .35px), transparent calc(72% + .35px)),
+    radial-gradient(circle, transparent calc(60% - .35px), rgba(255, 170, 43, .15) calc(60% - .35px), rgba(255, 170, 43, .15) calc(60% + .35px), transparent calc(60% + .35px)),
+    radial-gradient(circle, transparent calc(48% - .35px), rgba(255, 170, 43, .17) calc(48% - .35px), rgba(255, 170, 43, .17) calc(48% + .35px), transparent calc(48% + .35px)),
+    radial-gradient(circle, transparent calc(36% - .35px), rgba(255, 170, 43, .20) calc(36% - .35px), rgba(255, 170, 43, .20) calc(36% + .35px), transparent calc(36% + .35px));
+  box-shadow:
+    0 0 28px rgba(255, 170, 43, .08),
+    0 0 56px rgba(255, 170, 43, .05);
+}
+
+.answerCard-empty.meter-source-panel:not(.classroom-status-panel) .answer-empty-orbit .answer-empty-icon {
+  position: relative;
+  z-index: 1;
+  width: clamp(62px, 6vw, 82px) !important;
+  height: clamp(62px, 6vw, 82px) !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  margin: 0;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+.answer-empty-sparkle {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: #FFAA2B;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  opacity: .62;
+  filter: drop-shadow(0 0 5px rgba(255, 170, 43, .55));
+  pointer-events: none;
+}
+
+.answer-empty-sparkle-1 { top: 8%; left: 18%; }
+.answer-empty-sparkle-2 { top: 14%; right: 12%; }
+.answer-empty-sparkle-3 { bottom: 16%; left: 10%; }
+.answer-empty-sparkle-4 { bottom: 10%; right: 18%; }
+
+.answer-empty-copy {
+  display: grid;
+  gap: clamp(8px, 1vh, 12px);
+  justify-items: center;
+  max-width: 30ch;
+  padding: 0 clamp(8px, 1.2vw, 16px);
+}
+
+.answer-empty-copy h2 {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(1.02rem, 1.28vw, 1.22rem);
+  font-weight: 780;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+  text-transform: none;
+  color: rgba(255, 255, 255, .96);
+}
+
+.answer-empty-copy p {
+  margin: 0;
+  color: rgba(255, 255, 255, .52);
+  font-size: clamp(.8rem, .92vw, .9rem);
+  line-height: 1.58;
+  font-weight: 520;
+}
+
+.info-panel .answerCard-empty.meter-source-panel:not(.classroom-status-panel) {
+  flex: 1;
+  min-height: clamp(280px, 42vh, 520px);
+  padding: clamp(24px, 3vh, 36px) clamp(18px, 2vw, 28px);
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255, 170, 43, .08), transparent 42%),
+    radial-gradient(circle at 74% 12%, rgba(255, 170, 43, .10), transparent 38%),
+    radial-gradient(circle at 12% 92%, rgba(255, 170, 43, .06), transparent 38%),
+    linear-gradient(180deg, rgba(14, 22, 44, .62), rgba(10, 16, 34, .56));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 180, .08),
+    inset 0 0 0 1px rgba(255, 255, 255, .025),
+    0 16px 40px rgba(0, 0, 0, .22);
+}
+
+.answerCard-empty.meter-source-panel:not(.classroom-status-panel) .answer-empty-orbit .answer-empty-icon img[src*="answers-transparent"] {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain !important;
+  filter: drop-shadow(0 0 12px rgba(255, 170, 43, .18)) drop-shadow(0 0 10px rgba(255, 170, 43, .10));
+}
+
+@media (max-width: 760px) {
+  .quiz-panel.is-ready .meter-console-start-brand .console-meter-icon {
+    width: 98px;
+    height: 98px;
+    border-radius: 28px;
+  }
+
+  .quiz-panel.is-ready .meter-console-start-brand .console-title-main,
+  .quiz-panel.is-ready .meter-console-start-brand .console-title-gradient {
+    font-size: 2rem;
+  }
+
+  .quiz-panel.is-ready .meter-ready-wave {
+    height: 82px;
+  }
+}
+
+@media (min-width: 981px) and (max-height: 880px) {
+  .setup-panel {
+    gap: 8px;
+    padding: 28px 16px;
+  }
+
+  .setup-panel > .panel-section-heading {
+    margin-bottom: 24px;
+  }
+
+  .setup-panel .panel-hero {
+    margin-bottom: 30px;
+  }
+
+  .meter-hero-lockup {
+    gap: 14px;
+  }
+
+  .setup-panel > h2.melody-skill-heading {
+    margin-bottom: 5px;
+  }
+
+  .setup-panel > h2.meter-level-heading {
+    margin-top: 28px;
+    margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .info-panel .answerCard-empty.meter-source-panel:not(.classroom-status-panel) {
+    min-height: clamp(240px, 36vh, 420px);
+    padding: 20px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meter-wave-segment .meter-wave-line,
+  .panel-heading-accent,
+  .answer-empty-sparkle {
+    animation: none !important;
+  }
+}
+
+/* =========================
+   Meter Master gameplay centre — Devices MC layout
+   Order: toolbar → wave → question+marks → score extract (if any) → MC tiles
+   Accents: Meter amber #FFAA2B (not MM pink)
+========================= */
+
+:root {
+  --meter-console-amber: #FFAA2B;
+  --meter-console-amber-soft: rgba(255, 170, 43, 0.22);
+  --meter-console-amber-border: rgba(255, 170, 43, 0.72);
+}
+
+.quiz-panel.is-active .statsRow.meter-stats-row,
+.quiz-panel.is-complete .statsRow.meter-stats-row {
+  display: flex;
+  justify-content: center;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-bottom: clamp(6px, 0.8vh, 10px);
+}
+
+.quiz-panel.is-active .statsRow.meter-stats-row #streakText,
+.quiz-panel.is-active .statsRow.meter-stats-row #xpText,
+.quiz-panel.is-complete .statsRow.meter-stats-row #streakText,
+.quiz-panel.is-complete .statsRow.meter-stats-row #xpText {
+  display: none !important;
+}
+
+.quiz-panel.is-active .statsRow.meter-stats-row .meter-mark-tile,
+.quiz-panel.is-complete .statsRow.meter-stats-row .meter-mark-tile {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(100%, 280px);
+  min-height: clamp(40px, 5vh, 48px);
+  margin: 0;
+  padding: 0 clamp(16px, 2vw, 22px);
+  border: 1px solid rgba(255, 170, 43, 0.28);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.94);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(255, 170, 43, 0.12), transparent 38%),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 rgba(255, 170, 43, 0.10);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(0.84rem, 1vw, 0.92rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+.quiz-panel.is-active .listening-console,
+.quiz-panel.is-complete:not(.is-round-feedback-open) .listening-console {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
+  align-content: start;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(8px, 1vh, 14px);
+}
+
+.quiz-panel.is-active .console-ready-brand,
+.quiz-panel.is-active .console-actions-start,
+.quiz-panel.is-active .console-question-kicker,
+.quiz-panel.is-active .listening-cues {
+  display: none !important;
+}
+
+.quiz-panel.is-active .meter-toolbar,
+.quiz-panel.is-complete:not(.is-round-feedback-open) .meter-toolbar {
+  display: flex !important;
+  order: 2 !important;
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: min(820px, 100%) !important;
+  margin: clamp(2px, 0.35vh, 5px) auto 0 !important;
+  padding: 0 !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: clamp(10px, 0.82vw, 14px);
+  transform: none !important;
+  z-index: 5 !important;
+}
+
+.quiz-panel.is-active .meter-toolbar .play-button,
+.quiz-panel.is-complete:not(.is-round-feedback-open) .meter-toolbar .play-button {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  width: 188px !important;
+  min-width: 188px !important;
+  max-width: 188px !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  max-height: 54px !important;
+  flex: 0 0 188px !important;
+  padding: 0 28px !important;
+  border: 1px solid rgba(130, 160, 255, 0.12) !important;
+  border-radius: 14px !important;
+  place-items: center;
+  justify-content: center;
+  font-size: 0.98rem !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.015em;
+  color: rgba(255, 255, 255, 0.94) !important;
+  background:
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, 0.10), transparent 38%),
+    var(--glass) !important;
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 rgba(180, 200, 255, 0.08) !important;
+  filter: none !important;
+  transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+}
+
+.quiz-panel.is-active .meter-toolbar .play-button:hover,
+.quiz-panel.is-complete:not(.is-round-feedback-open) .meter-toolbar .play-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 170, 43, 0.58) !important;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 170, 43, 0.18), transparent 38%),
+    linear-gradient(135deg, rgba(255, 170, 43, 0.14), rgba(255, 196, 106, 0.10)) !important;
+  box-shadow:
+    0 18px 42px rgba(255, 170, 43, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  filter: none !important;
+}
+
+.quiz-panel.is-active .meter-toolbar .play-button:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  cursor: pointer;
+}
+
+.quiz-panel.is-active .meter-toolbar #nextButton[hidden] {
+  display: none !important;
+}
+
+.quiz-panel.is-active .meter-ready-wave,
+.quiz-panel.is-complete:not(.is-round-feedback-open) .meter-ready-wave {
+  display: flex !important;
+  order: 3 !important;
+  width: min(620px, 90%);
+  height: clamp(58px, 7.8vh, 84px);
+  margin: clamp(8px, 1.1vh, 14px) auto 0;
+  padding: 0 clamp(18px, 2.4vw, 28px);
+  position: relative;
+  z-index: 3;
+  align-items: center;
+  justify-content: center;
+  transform: none !important;
+}
+
+.quiz-panel.is-active .meter-question-heading,
+.quiz-panel.is-complete:not(.is-round-feedback-open) .meter-question-heading {
+  order: 4 !important;
+  width: min(780px, 100%);
+  min-height: 0;
+  margin: clamp(16px, 2.2vh, 28px) auto 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  text-align: center;
+}
+
+.quiz-panel.is-active .meter-question-heading .meter-question-line,
+.quiz-panel.is-complete:not(.is-round-feedback-open) .meter-question-heading .meter-question-line {
+  display: block;
+  max-width: 62ch;
+  margin-inline: auto;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.96);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(1.02rem, 1.35vw, 1.28rem);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.028em;
+  text-shadow: none;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+.meter-question-heading .meter-question-prompt,
+.meter-question-heading .meter-question-marks {
+  display: inline;
+}
+
+.meter-question-heading .meter-question-marks {
+  white-space: nowrap;
+}
+
+.meter-question-heading .meter-question-marks[hidden] {
+  display: none;
+}
+
+.quiz-panel.is-active .score-context-card:not([hidden]),
+.quiz-panel.is-complete:not(.is-round-feedback-open) .score-context-card:not([hidden]) {
+  order: 5 !important;
+  width: min(640px, 100%);
+  margin: clamp(8px, 1vh, 14px) auto 0;
+}
+
+.meter-centre-panel {
+  order: 6 !important;
+  width: min(640px, 100%);
+  height: clamp(148px, 18vh, 220px);
+  min-height: clamp(148px, 18vh, 220px);
+  max-height: clamp(148px, 18vh, 220px);
+  margin: clamp(14px, 1.9vh, 26px) auto 0;
+  display: grid;
+  align-content: center;
+  gap: clamp(12px, 1.6vh, 18px);
+  position: relative;
+  z-index: 92;
+  overflow: visible;
+}
+
+.listening-console:not(.has-score-extract) .meter-centre-panel {
+  order: 5 !important;
+}
+
+.meter-centre-panel[hidden] {
+  display: none !important;
+}
+
+.meter-options {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 0.9vw, 12px);
+  margin-inline: auto;
+  align-content: center;
+}
+
+.meter-options[data-answer-count="4"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.meter-option {
+  height: 58px;
+  min-height: 58px;
+  max-height: 58px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: inherit;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+}
+
+.meter-option:hover:not(:disabled),
+.meter-option:focus-visible:not(:disabled),
+.meter-option.is-selected:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--meter-console-amber-soft);
+  border-color: var(--meter-console-amber-border);
+}
+
+.meter-option span {
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(0.78rem, 0.95vw, 0.92rem);
+  font-weight: 850;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+.meter-option:disabled {
+  cursor: default;
+  opacity: 0.78;
+}
+
+.meter-option.is-correct,
+.meter-option.correct {
+  background: rgba(46, 204, 113, 0.24);
+  border-color: rgba(46, 204, 113, 0.72);
+}
+
+.meter-option.is-wrong,
+.meter-option.wrong {
+  background: rgba(255, 104, 104, 0.23);
+  border-color: rgba(255, 104, 104, 0.72);
+}
+
+.quiz-panel.is-active #feedback,
+.quiz-panel.is-complete #feedback {
+  display: none !important;
+}
+
+.quiz-panel.is-active #restartButton,
+.quiz-panel.is-complete #restartButton {
+  order: 7;
+  margin-top: clamp(72px, 10vh, 120px);
+}
+
+@media (max-width: 980px) {
+  .meter-options,
+  .meter-options[data-answer-count="4"] {
+    grid-template-columns: 1fr;
+  }
 }

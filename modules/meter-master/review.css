@@ -1,0 +1,53 @@
+@import url("../texture-trainer/review.css");
+
+:root {
+  --blue: #4a90e2;
+  --cyan: #38bdf8;
+  --violet: #8b5cf6;
+}
+
+/* Score extract display — sizing/layout copied exactly from modules/meter-master/style.css
+   (.score-context-card / .score-extract-frame / .score-extract-image / .score-extract-caption)
+   so a scored question reviews at the same size it appears in the live app. */
+.score-context-card {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: 8px;
+  border-radius: 18px;
+  color: var(--soft);
+  background: rgba(15, 23, 42, .68);
+  border: 1px solid rgba(125, 211, 252, .18);
+  font-size: .82rem;
+  line-height: 1.35;
+}
+
+.score-extract-frame {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid rgba(226, 232, 240, .24);
+}
+
+.score-extract-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: clamp(118px, 17vh, 168px);
+  object-fit: contain;
+}
+
+.score-extract-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 0 2px;
+  color: rgba(226, 232, 240, .78);
+  font-size: .76rem;
+}
+
+.score-context-card strong {
+  color: var(--text);
+  margin-bottom: 0;
+}

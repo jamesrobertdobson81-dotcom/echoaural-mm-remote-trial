@@ -1,0 +1,11 @@
+# Binary assets — no value to AI indexing, just bloats retrieval/watcher memory
+assets/
+modules/*/audio/
+exports/
+
+# Old full-project backup — not the working tree, shouldn't be indexed at all
+_backup_echoaural_5/
+
+# Standard
+node_modules/
+.git/
