@@ -1,10 +1,12 @@
 # Binary assets — no value to AI indexing, just bloats retrieval/watcher memory
 assets/
 modules/*/audio/
+era-explorer/audio/
+review-staging/audio/
 exports/
 
-# Old full-project backup — not the working tree, shouldn't be indexed at all
-_backup_echoaural_5/
+# Leftover debug/package artifacts — safe to re-exclude if they ever reappear
+.tmp-screenshots/
 
 # Standard
 node_modules/
