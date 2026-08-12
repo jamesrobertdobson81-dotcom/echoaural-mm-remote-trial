@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Transposition Dictation | Harmony Explorer | EchoAural</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="ea-brand-logos.css">
+</head>
+<body>
+  <div class="app-shell" data-brand-app="harmony-explorer">
+    <header class="topbar">
+      <a class="brand refined-logo" href="../../index.html" aria-label="EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+        <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+      </a>
+
+      <nav class="topbar-actions" aria-label="Transposition Dictation navigation">
+        <a class="topbar-module-chip" href="#" aria-label="Transposition Dictation module">
+          <span class="topbar-module-icon" aria-hidden="true"><img src="assets/ui/harmony-explorer.png" alt=""></span>
+          <span class="topbar-ii-mark" aria-hidden="true"><span class="topbar-ii-main">T</span><span class="topbar-ii-gradient">D</span></span>
+          <span class="sr-only">Transposition Dictation</span>
+        </a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-mm" href="../melody-master/index.html" aria-label="Open Melody Master"><span class="module-title-text"><span class="module-title-main">Melody</span><span class="module-title-gradient">Master</span></span></a>
+        <a class="topbar-link topbar-app-link topbar-app-link-ii" href="../instrument-identifier/index.html" aria-label="Open Instrument Identifier"><span class="module-title-text"><span class="module-title-main">Instrument</span><span class="module-title-gradient">Identifier</span></span></a>
+        <a class="topbar-link topbar-app-link topbar-app-link-tt" href="../texture-trainer/index.html" aria-label="Open Texture Trainer"><span class="module-title-text"><span class="module-title-main">Texture</span><span class="module-title-gradient">Trainer</span></span></a>
+        <a class="topbar-link topbar-app-link topbar-app-link-meter" href="../meter-master/index.html" aria-label="Open Meter Master"><span class="module-title-text"><span class="module-title-main">Meter</span><span class="module-title-gradient">Master</span></span></a>
+        <a class="topbar-link topbar-app-link topbar-app-link-cc" href="../../era-explorer/index.html" aria-label="Open ContextCoach"><span class="module-title-text"><span class="module-title-main">Context</span><span class="module-title-gradient">Coach</span></span></a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-sd" href="../musical-language/index.html" aria-label="Open ScoreDecoder">
+          <span class="module-title-text"><span class="module-title-main">Score</span><span class="module-title-gradient">Decoder</span></span>
+        </a>
+
+        <a class="topbar-link topbar-home-link" href="../../index.html" aria-label="Back to EchoAural home">
+          <span class="back-label">Back to</span>
+          <span class="mini-wordmark" aria-hidden="true"><span class="mini-wordmark-echo">Echo</span><span class="mini-wordmark-aural">Aural</span></span>
+          <span class="sr-only">EchoAural home</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel" aria-labelledby="settingsTitle">
+        <div class="panel-section-heading"><h2 id="settingsTitle"><span>Settings</span><span class="panel-heading-accent" aria-hidden="true"></span></h2></div>
+
+        <div class="panel-hero mm-panel-hero">
+          <div class="mm-hero-lockup">
+            <span class="mm-hero-icon" aria-hidden="true"><img src="assets/ui/harmony-explorer.png" alt=""></span>
+            <div class="mm-title-lockup">
+              <span class="mm-title-text"><span class="mm-title-main">Transposition</span><span class="mm-title-gradient">Dictation</span></span>
+            </div>
+            <h1 class="sr-only">Transposition Dictation</h1>
+          </div>
+          <p class="eyebrow mm-brand-eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+        </div>
+
+        <h2 class="melody-skill-heading">Skill</h2>
+        <div class="melody-skill-grid" aria-label="Choose Harmony Explorer skill">
+          <label class="melody-skill-button is-coming-soon"><input type="radio" name="skill" value="key-signatures" disabled><span class="melody-skill-icon" aria-hidden="true"><img class="melody-skill-icon-img" src="assets/ui/key-signatures-transparent.png" alt=""></span><strong>Keys</strong><span class="skill-status">Coming Soon</span></label>
+          <label class="melody-skill-button"><input type="radio" name="skill" value="chord-identifier"><span class="melody-skill-icon" aria-hidden="true"><img class="melody-skill-icon-img" src="assets/ui/chord-identifier-skill-transparent.png" alt=""></span><strong>Chords</strong></label>
+          <label class="melody-skill-button"><input type="radio" name="skill" value="transposition" checked><span class="melody-skill-icon" aria-hidden="true"><img class="melody-skill-icon-img" src="assets/ui/transposition-skill-transparent.png" alt=""></span><strong>Transposition</strong></label>
+        </div>
+
+        <p class="td-setup-copy">Listen to a real recording, read the printed excerpt in its original clef, then pick the correct transcription in the target clef. 10 fixed questions — treble &harr; bass clef, plus alto clef (viola).</p>
+      </section>
+
+      <section class="panel quiz-panel question-panel is-ready" id="questionPanel" aria-labelledby="questionText">
+        <div class="panel-section-heading panel-section-heading-centre"><h2><span>Transposition Dictation</span><span class="panel-heading-accent" aria-hidden="true"></span></h2></div>
+        <div class="quiz-header"><p id="roundText">Ready</p><div class="progressOuter" aria-hidden="true"><div id="progressBar"></div></div></div>
+        <div class="statsRow" aria-label="Question statistics"><p id="scoreText" class="score-tile">Mark: 0 / 0</p></div>
+
+        <div class="listening-console ci-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+          <div id="readyState" class="ci-ready">
+            <div class="console-ready-brand ii-console-start-brand" aria-hidden="true">
+              <div class="console-ii-combined-lockup">
+                <span class="console-ii-icon"><img id="consoleSkillIcon" src="assets/ui/harmony-explorer.png" alt=""></span>
+                <div class="console-ii-lockup">
+                  <span class="console-title-text"><span class="console-title-main">Transposition</span><span class="console-title-gradient">Dictation</span></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="console-actions console-actions-start">
+              <button id="startButton" class="primary-button centre-start" type="button">Start Learning</button>
+            </div>
+          </div>
+
+          <div id="playState" class="ci-play" hidden>
+            <div class="console-actions console-actions-replay"><button id="nextButton" class="primary-button ci-gameplay-action" type="button" disabled>Next Question</button></div>
+            <div class="console-heading ci-question-heading">
+              <h1 class="sr-only">Transcribe the excerpt</h1>
+              <p id="questionText"><span class="question-prompt">Which option is the correct transcription?</span></p>
+            </div>
+
+            <p class="td-source-caption" id="sourceCaption"></p>
+
+            <div class="score-stage-card" aria-label="Original excerpt">
+              <div class="score-stage td-stave-stage">
+                <div id="sourceNotation" class="td-stave-inner" role="img" aria-label="Original excerpt notation"></div>
+              </div>
+            </div>
+
+            <div class="audio-controls">
+              <button id="playClipButton" class="secondary-button audio-button" type="button">&#9654; Play Recording</button>
+            </div>
+
+            <div id="answers" class="td-answer-grid" role="group" aria-label="Answer options"></div>
+          </div>
+
+          <div id="resultsState" class="results" hidden></div>
+        </div>
+      </section>
+
+      <aside class="panel info-panel insight-panel" aria-labelledby="insightTitle">
+        <div class="panel-section-heading"><h2 id="insightTitle"><span>Answers</span><span class="panel-heading-accent" aria-hidden="true"></span></h2></div>
+        <div id="insightContent" class="answerCard" aria-live="polite">
+          <div class="answerCard-empty">
+            <div class="answer-empty-stage" aria-hidden="true">
+              <div class="answer-empty-orbit">
+                <span class="answer-empty-sparkle answer-empty-sparkle-1" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-2" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-3" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-4" aria-hidden="true"></span>
+                <span class="answer-empty-icon"><img src="assets/ui/harmony-explorer.png" alt=""></span>
+              </div>
+            </div>
+            <div class="answer-empty-copy">
+              <h2>Your answers will appear here</h2>
+              <p>Complete a round to see your responses and feedback.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="js/pitch-utils.js"></script>
+  <script src="data/keys.js"></script>
+  <script src="js/stave-engine.js"></script>
+  <script src="data/questions.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

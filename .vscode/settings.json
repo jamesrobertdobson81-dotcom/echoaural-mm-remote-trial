@@ -1,0 +1,17 @@
+{
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/_backup_echoaural_5/**": true,
+    "**/.tmp-screenshots/**": true,
+    "**/review-staging/**": true,
+    "**/echoaural-5-pre-rebrand.tar.gz": true
+  },
+  "search.exclude": {
+    "**/_backup_echoaural_5": true,
+    "**/.tmp-screenshots": true,
+    "**/review-staging": true,
+    "**/echoaural-5-pre-rebrand.tar.gz": true
+  }
+}

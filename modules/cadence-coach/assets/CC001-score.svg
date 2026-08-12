@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1230 750" role="img" aria-labelledby="title desc">
+  <title id="title">Final three bars of a perfect cadence in F major</title>
+  <desc id="desc">Four-part score with clefs, one-flat key signature and four-four time signature.</desc>
+  <defs>
+    <clipPath id="opening-information"><rect x="0" y="0" width="220" height="750" /></clipPath>
+    <clipPath id="final-bars"><rect x="220" y="0" width="1010" height="750" /></clipPath>
+  </defs>
+  <rect width="1230" height="750" fill="#fff" />
+  <image href="CC001-source.png" width="2048" height="750" clip-path="url(#opening-information)" />
+  <image href="CC001-source.png" x="-818" width="2048" height="750" clip-path="url(#final-bars)" />
+</svg>

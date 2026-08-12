@@ -26,6 +26,7 @@
   --module-meter: #FFAA2B;
   --module-harmony: #A66BFF;
   --module-context: #FF7AC8;
+  --module-score-decoder: #B7F34A;
   --shadow: 0 24px 60px rgba(16, 24, 40, .12);
 }
 
@@ -167,7 +168,7 @@ p {
   gap: 9px;
   font-size: .88rem;
   font-weight: 900;
-  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease, filter .22s ease, color .22s ease;
 }
 
 .nav-explore-button:hover {
@@ -179,10 +180,94 @@ p {
   box-shadow: 0 18px 42px rgba(56, 189, 248, .18);
 }
 
-.nav-explore-button img {
-  width: 16px;
-  height: 16px;
-  filter: brightness(0) invert(1);
+/* Homepage top-bar CTAs — II/MM/TT button language (glass + primary blue, not pills) */
+.hero .product-nav .nav-explore-button {
+  min-height: 46px;
+  padding: 0 22px;
+  gap: 8px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, .92);
+  background: rgba(255, 255, 255, .04);
+  box-shadow: none;
+  font-size: .86rem;
+  font-weight: 620;
+  letter-spacing: .01em;
+}
+
+.hero .product-nav .nav-explore-button:hover {
+  transform: translateY(-1px);
+  filter: none;
+  border-color: rgba(255, 255, 255, .42);
+  color: rgba(255, 255, 255, .96);
+  background: rgba(255, 255, 255, .07);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .14);
+}
+
+/* Teacher/Student login — same glass secondary as Founding Partners */
+.hero .product-nav .nav-action-button {
+  min-height: 46px;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, .92);
+  background: rgba(255, 255, 255, .04);
+  box-shadow: none;
+  font-size: .86rem;
+  font-weight: 620;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.hero .product-nav .nav-action-button:hover {
+  transform: translateY(-1px);
+  filter: none;
+  border-color: rgba(255, 255, 255, .42);
+  color: rgba(255, 255, 255, .96);
+  background: rgba(255, 255, 255, .07);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .14);
+}
+
+/* White line-art top-bar icons — max fill inside fixed 46px tiles (Founding + Login) */
+.hero .product-nav .nav-explore-button img,
+.hero .product-nav .nav-explore-button img[src$=".png"],
+.hero .product-nav .nav-action-button img,
+.hero .product-nav .nav-action-button img[src$=".png"] {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 0;
+  object-fit: contain;
+  opacity: .98;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, .16));
+  transform-origin: center;
+  transition: transform .24s ease, filter .24s ease, opacity .24s ease;
+}
+
+.hero .product-nav .nav-explore-button:hover img,
+.hero .product-nav .nav-explore-button:hover img[src$=".png"],
+.hero .product-nav .nav-action-button:hover img,
+.hero .product-nav .nav-action-button:hover img[src$=".png"] {
+  opacity: 1;
+  transform: scale(1.04);
+  filter: drop-shadow(0 0 7px rgba(255, 255, 255, .22));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero .product-nav .nav-explore-button img,
+  .hero .product-nav .nav-explore-button img[src$=".png"],
+  .hero .product-nav .nav-action-button img,
+  .hero .product-nav .nav-action-button img[src$=".png"] {
+    transition: none;
+  }
+
+  .hero .product-nav .nav-explore-button:hover img,
+  .hero .product-nav .nav-explore-button:hover img[src$=".png"],
+  .hero .product-nav .nav-action-button:hover img,
+  .hero .product-nav .nav-action-button:hover img[src$=".png"] {
+    transform: none;
+  }
 }
 
 .nav-explore-button img[src$=".png"] {
@@ -591,7 +676,7 @@ p {
 }
 
 .module-grid-main {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .module-grid-secondary {
@@ -665,8 +750,8 @@ p {
   max-height: 112px;
   border-radius: 999px;
   flex: 1 1 0;
-  background: var(--waveform-gradient);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--module-accent, var(--wave-cyan)) 35%, transparent);
+  background: color-mix(in srgb, var(--module-accent, var(--wave-cyan)) 72%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--module-accent, var(--wave-cyan)) 28%, transparent);
   transform-origin: 50% 50%;
   animation: eaWaveIdlePulseResolve 2.75s ease-in-out infinite;
   animation-delay: var(--delay);
@@ -717,16 +802,40 @@ p {
   height: 88px;
   margin: 0 auto;
   padding: 2px;
-  border: 1px solid rgba(255, 255, 255, .16);
+  border: 1px solid rgba(143, 203, 255, .42);
   border-radius: 18px;
   display: grid;
   place-items: center;
+  /* App tiles share the light-blue mode-icon plate */
   background:
-    radial-gradient(circle at 68% 22%, rgba(56, 189, 248, .24), transparent 38%),
-    radial-gradient(circle at 22% 88%, rgba(168, 85, 247, .2), transparent 42%),
-    linear-gradient(145deg, rgba(7, 17, 31, .98), rgba(13, 30, 60, .94));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .035), 0 14px 30px rgba(0, 0, 0, .22);
+    radial-gradient(circle at 68% 22%, rgba(143, 203, 255, .38), transparent 40%),
+    linear-gradient(135deg, #8FCBFF 0%, #3FA6FF 55%, #1B6FCC 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .10),
+    0 14px 30px rgba(27, 111, 204, .22);
   transition: transform .28s cubic-bezier(.2, .8, .2, 1), box-shadow .28s ease, border-color .28s ease;
+}
+
+/* Mode tiles: same light-blue plate as app icons */
+.module-card-mode .module-icon {
+  border-color: rgba(143, 203, 255, .42);
+  background:
+    radial-gradient(circle at 68% 22%, rgba(143, 203, 255, .38), transparent 40%),
+    linear-gradient(135deg, #8FCBFF 0%, #3FA6FF 55%, #1B6FCC 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .10),
+    0 14px 30px rgba(27, 111, 204, .22);
+}
+
+/* Instrument Identifier only: darker royal blue */
+.module-grid-main .module-card:nth-child(1) .module-icon {
+  border-color: rgba(70, 102, 212, .45);
+  background:
+    radial-gradient(circle at 68% 22%, rgba(70, 102, 212, .35), transparent 40%),
+    linear-gradient(135deg, #4666D4 0%, #2346BD 55%, #00175E 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .08),
+    0 14px 30px rgba(0, 23, 94, .28);
 }
 
 .module-icon img {
@@ -856,6 +965,7 @@ p {
 .module-grid-main .module-card:nth-child(4) { --module-accent: var(--module-meter); }
 .module-grid-main .module-card:nth-child(5) { --module-accent: var(--module-harmony); }
 .module-grid-main .module-card:nth-child(6) { --module-accent: var(--module-context); }
+.module-grid-main .module-card:nth-child(7) { --module-accent: var(--module-score-decoder); }
 
 .module-grid-main .module-card .module-title-gradient {
   text-shadow:

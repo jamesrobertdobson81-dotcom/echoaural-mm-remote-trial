@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Melody Master Devices Review | EchoAural</title>
+  <link rel="stylesheet" href="review.css" />
+  <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
+</head>
+<body data-brand-app="melody-master">
+  <div class="review-shell">
+    <header class="review-topbar">
+      <a class="brand refined-logo" href="../../index.html" aria-label="Back to EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+        <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+      </a>
+      <div class="review-title">
+        <p class="eyebrow">Cambridge 0410 audit tool</p>
+        <h1>MM Devices Question Review</h1>
+      </div>
+      <a class="topbar-link" href="index.html">Back to Melody Master</a>
+    </header>
+
+    <main class="review-layout">
+      <aside class="panel question-list-panel">
+        <div class="panel-heading"><span class="heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2>Candidates</h2></div>
+        <div class="summary-grid" aria-label="Review summary">
+          <div><strong id="totalCount">0</strong><span>Total</span></div>
+          <div><strong id="reviewedCount">0</strong><span>Reviewed</span></div>
+          <div><strong id="dropCount">0</strong><span>Drop</span></div>
+        </div>
+        <p id="originCountSummary" class="question-list-note">Loading Cambridge-compatible candidates…</p>
+        <p class="cambridge-note">Seed excludes seven “Repeated notes” questions and two generic “Ornamentation” questions. No production questions are changed here.</p>
+        <label class="search-field"><span>Search</span><input id="searchInput" type="search" placeholder="ID, answer, composer…" autocomplete="off" /></label>
+        <div class="filter-row" aria-label="Source filters">
+          <button class="filter-button is-active" type="button" data-origin-filter="all">All sources</button>
+          <button class="filter-button" type="button" data-origin-filter="MM Devices">MM Devices</button>
+          <button class="filter-button" type="button" data-origin-filter="II tag">II tags</button>
+        </div>
+        <div class="filter-row" aria-label="Decision filters">
+          <button class="filter-button is-active" type="button" data-filter="all">All</button>
+          <button class="filter-button" type="button" data-filter="unreviewed">Unreviewed</button>
+          <button class="filter-button" type="button" data-filter="drop">Drop</button>
+        </div>
+        <div id="questionList" class="question-list" aria-label="Melodic-device candidates"></div>
+      </aside>
+
+      <section class="panel audition-panel">
+        <div class="panel-heading panel-heading-centre"><span class="heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2>Audition</h2></div>
+        <div class="question-meta-row"><span id="questionPosition">Candidate 0 / 0</span><span id="questionLevelBadge">Loading</span></div>
+        <article class="audition-card">
+          <p class="eyebrow" id="questionId">MDV000</p>
+          <h3 id="questionTitle">Loading…</h3>
+          <div class="question-card"><span>Current question</span><p id="questionPrompt">Choose a candidate to begin.</p><small id="questionDetails"></small></div>
+          <div class="comparison-grid">
+            <div class="comparison-card"><span>Original answer</span><p id="originalAnswer">—</p></div>
+            <div class="comparison-card"><span>Proposed Cambridge answer</span><p id="proposedAnswer">—</p></div>
+          </div>
+          <div id="answerChoicePreview" class="answer-choice-preview"></div>
+          <button id="playClipButton" class="primary-button play-clip-button" type="button">Play Clip</button>
+          <p id="audioStatus" class="audio-status">Ready to play.</p>
+          <audio id="audioPlayer" class="review-audio" controls preload="metadata"></audio>
+          <div class="nav-row">
+            <button id="prevButton" class="secondary-button" type="button">Previous</button>
+            <button id="revealButton" class="secondary-button" type="button">Hide evidence</button>
+            <button id="nextButton" class="primary-button" type="button">Next candidate</button>
+          </div>
+        </article>
+      </section>
+
+      <aside class="panel review-panel">
+        <div class="panel-heading"><span class="heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2>Review</h2></div>
+        <form id="reviewForm" class="review-form">
+          <fieldset><legend>Decision</legend>
+            <label><input type="radio" name="decision" value="keep" /> Keep</label>
+            <label><input type="radio" name="decision" value="edit" /> Edit</label>
+            <label><input type="radio" name="decision" value="drop" /> Drop</label>
+          </fieldset>
+          <fieldset><legend>Difficulty</legend>
+            <label><input type="radio" name="difficulty" value="Foundation" /> Foundation</label>
+            <label><input type="radio" name="difficulty" value="Developing" /> Developing</label>
+            <label><input type="radio" name="difficulty" value="Securing" /> Securing</label>
+            <label><input type="radio" name="difficulty" value="Mastering" /> Mastering</label>
+          </fieldset>
+          <fieldset><legend>Issues</legend>
+            <label><input type="checkbox" name="issue" value="unclear-device" /> Device is not clear</label>
+            <label><input type="checkbox" name="issue" value="wrong-direction" /> Sequence direction uncertain</label>
+            <label><input type="checkbox" name="issue" value="vocabulary" /> Vocabulary needs editing</label>
+            <label><input type="checkbox" name="issue" value="distractors" /> Distractors need editing</label>
+            <label><input type="checkbox" name="issue" value="audio" /> Audio cut needs editing</label>
+            <label><input type="checkbox" name="issue" value="rights" /> Source/rights check</label>
+          </fieldset>
+          <label class="notes-field"><span>Notes for Codex</span><textarea id="reviewNotes" rows="6" placeholder="e.g. Keep, but label this descending sequence; melody is too buried; replace distractors…"></textarea></label>
+        </form>
+        <section class="markscheme" id="markscheme"><h3>Cambridge alignment and evidence</h3><div id="markschemeContent"></div></section>
+        <section class="source-summary"><h3>Source record</h3><div id="sourceSummaryContent"></div></section>
+        <div class="export-row">
+          <button id="downloadJsonButton" class="primary-button" type="button">Download JSON</button>
+          <button id="downloadCsvButton" class="secondary-button" type="button">Download CSV</button>
+          <button id="clearReviewButton" class="ghost-button" type="button">Clear local review</button>
+        </div>
+        <p id="saveStatus" class="save-status" role="status" aria-live="polite">Autosave ready.</p>
+      </aside>
+    </main>
+  </div>
+  <script src="review.js"></script>
+</body>
+</html>

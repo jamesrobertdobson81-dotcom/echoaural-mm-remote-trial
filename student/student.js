@@ -215,7 +215,7 @@
         title: 'Instrument Identifier',
         main: 'Instrument',
         gradient: 'Identifier',
-        icon: '/assets/icons/modules/instrument-identifier.png',
+        icon: '/assets/icons/modules/instrument-identifier.png?v=8',
         hint: 'Choose the instrument you can hear, then submit your answer.'
       };
     }

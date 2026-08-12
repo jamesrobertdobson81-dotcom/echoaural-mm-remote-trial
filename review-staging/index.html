@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>New Content Review Hub | EchoAural (draft)</title>
+<link rel="stylesheet" href="../modules/texture-trainer/review.css">
+<link rel="stylesheet" href="shared/review-extra.css">
+</head>
+<body>
+<div class="review-shell">
+  <header class="review-topbar">
+    <div class="review-title">
+      <p class="eyebrow">DRAFT — nothing here is part of any live app yet</p>
+      <h1>New Content Review Hub</h1>
+    </div>
+  </header>
+  <main style="padding: 24px; overflow: auto;">
+    <p style="color: var(--muted); max-width: 640px; margin: 0 auto 24px;">
+      Draft questions generated from <code>EA_Project_Audio_Tracker (1).xlsx</code> (AoS4-7, 43 tracks,
+      348 candidate questions across 4 apps). Levels and clip start/end points are best-effort drafts —
+      review, adjust, and mark decisions (keep/edit/drop) per question. Nothing is written back to any
+      live app file from here; export JSON/CSV per app when you're happy with a batch.
+    </p>
+    <div class="review-hub-list">
+      <a class="review-hub-card" href="instrument-identifier.html">
+        <h3>Instrument Identifier</h3>
+        <p>87 draft questions — sound source / timbre identification</p>
+      </a>
+      <a class="review-hub-card" href="texture-trainer.html">
+        <h3>Texture Trainer</h3>
+        <p>87 draft questions — texture type / density / change</p>
+      </a>
+      <a class="review-hub-card" href="melody-master.html">
+        <h3>Melody Master · Melodic Devices</h3>
+        <p>87 draft questions — melodic construction / shape / device</p>
+      </a>
+      <a class="review-hub-card" href="harmony-explorer.html">
+        <h3>Harmony Explorer</h3>
+        <p>87 draft questions — tonality / harmonic rhythm</p>
+      </a>
+      <a class="review-hub-card" href="instrument-identifier-live.html">
+        <h3>Instrument Identifier + Ensembles — Level Review</h3>
+        <p>380 currently-live questions (324 Instrument Identifier + 56 Ensemble Recognition) — grouped by app, then by level starting at Foundation</p>
+      </a>
+      <a class="review-hub-card" href="ensembles.html">
+        <h3>Ensemble Instrumentation (II / Ensembles)</h3>
+        <p>20 draft questions — Salsa, Tango, Arab takht, Hindustani classical, Jazz ensembles. TANGO-EI-01 held back pending new audio. 2 unconfirmed audio matches — see notes per question.</p>
+      </a>
+      <a class="review-hub-card" href="context-coach.html">
+        <h3>Context Coach — Eras & Composers</h3>
+        <p>458 currently-possible questions (229 clips × Composer + Period questions, generated live from shared/data/clip-catalogue.json). No level system exists yet in Context Coach — every row starts level-unset for you to assign. 589 catalogue rows are excluded (missing/invalid composer or period metadata) and aren't included here.</p>
+      </a>
+    </div>
+    <p style="color: var(--soft); max-width: 640px; margin: 24px auto 0; font-size: .8rem;">
+      2 tracker rows are flagged MISSING (not in the download) and are excluded from all 4 reviewers —
+      see the tracker's own Audio Tracker sheet, rows 45-46.
+    </p>
+  </main>
+</div>
+</body>
+</html>

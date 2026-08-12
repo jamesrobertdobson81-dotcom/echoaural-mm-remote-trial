@@ -549,28 +549,6 @@ function progressSource(round) {
   return 'practice';
 }
 
-function practiceDurationSeconds(round) {
-  const metadata = round?.metadata || {};
-  const source = String(metadata.source || '').trim().toLowerCase();
-  if (source !== 'practice_time') return 0;
-
-  const seconds = Number(metadata.durationSeconds ?? metadata.practiceSeconds ?? 0);
-  if (!Number.isFinite(seconds) || seconds <= 0) return 0;
-  return Math.max(0, Math.min(12 * 60 * 60, Math.round(seconds)));
-}
-
-function isPracticeTimeRound(round) {
-  return (
-    practiceDurationSeconds(round) > 0 &&
-    Number(round?.question_count || 0) === 0 &&
-    progressNumber(round?.maximum_score) === 0
-  );
-}
-
-function isPracticeScoreRound(round) {
-  return progressSource(round) === 'practice' && !isPracticeTimeRound(round);
-}
-
 function filterProgressBySource(allRounds, allAttempts, source) {
   const rounds = allRounds.filter((round) => progressSource(round) === source);
   const roundIds = new Set(rounds.map((round) => String(round.id)));
@@ -578,25 +556,29 @@ function filterProgressBySource(allRounds, allAttempts, source) {
   return { rounds, attempts };
 }
 
+// No longer exposes a `progress` key: that used to aggregate every app's own
+// standalone "Progression" launch mode into one dashboard tile confusingly
+// labelled "Progress Mode" — a different, older system to the real
+// modules/progress-mode/ (which is localStorage-only and never reaches this
+// server at all, except via the deliberate, separate progress-mode-summary
+// routes below). Retired in favour of that. `progressSource`/
+// `filterProgressBySource`/`buildProgressSummary` themselves are untouched
+// and still back `quizzes`/`homework` here, plus each module's own
+// `progressionStage` badge (progressionStageForModule), which stays live
+// regardless of which category it's computed inside.
 function buildProgressCategories(allRounds, allAttempts) {
-  const progress = filterProgressBySource(allRounds, allAttempts, 'progress');
-  const practiceRounds = allRounds.filter(isPracticeTimeRound);
   const quizzes = filterProgressBySource(allRounds, allAttempts, 'quizzes');
   const homework = filterProgressBySource(allRounds, allAttempts, 'homework');
   return {
-    progress: buildProgressSummary(progress.rounds, progress.attempts),
-    practice: buildProgressSummary(practiceRounds, []),
     quizzes: buildProgressSummary(quizzes.rounds, quizzes.attempts),
     homework: buildProgressSummary(homework.rounds, homework.attempts)
   };
 }
 
 function buildProgressSummary(allRounds, allAttempts) {
-  const scoredRounds = allRounds.filter((round) => !isPracticeTimeRound(round) && !isPracticeScoreRound(round));
+  const scoredRounds = allRounds;
   const scoredRoundIds = new Set(scoredRounds.map((round) => String(round.id)));
   const scoredAttempts = allAttempts.filter((attempt) => scoredRoundIds.has(String(attempt.round_id)));
-  const practiceTimeRounds = allRounds.filter(isPracticeTimeRound);
-  const totalPracticeSeconds = practiceTimeRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
 
   const moduleSummaries = PROGRESS_MODULE_ORDER.map((moduleId) => {
     const definition = PROGRESS_MODULE_DEFINITIONS[moduleId];
@@ -607,8 +589,6 @@ function buildProgressSummary(allRounds, allAttempts) {
     const score = rounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
     const maximumScore = rounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
     const questionCount = rounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
-    const practiceSeconds = moduleRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
-    const practiceSessions = moduleRounds.filter(isPracticeTimeRound).length;
     const accuracy = progressPercentage(score, maximumScore);
     const skills = buildCanonicalSkillEvidence(
       scoredAttempts.filter((attempt) => attempt.module_id === moduleId)
@@ -712,8 +692,6 @@ function buildProgressSummary(allRounds, allAttempts) {
       percentage: accuracy,
       rounds: rounds.length,
       questions: questionCount,
-      practiceSeconds,
-      practiceSessions,
       level: progressLevel(accuracy, questionCount),
       strength,
       nextStep,
@@ -722,8 +700,7 @@ function buildProgressSummary(allRounds, allAttempts) {
       skills,
       strongestSkill: skillPriorities.strongest,
       focusSkill: skillPriorities.focus,
-      lastCompletedAt: rounds[0]?.completed_at || null,
-      lastPracticeAt: moduleRounds.find(isPracticeTimeRound)?.completed_at || null
+      lastCompletedAt: rounds[0]?.completed_at || null
     };
   });
 
@@ -766,8 +743,6 @@ function buildProgressSummary(allRounds, allAttempts) {
       percentage: overallPercentage,
       rounds: scoredRounds.length,
       questions: totalQuestions,
-      practiceSeconds: totalPracticeSeconds,
-      practiceSessions: practiceTimeRounds.length,
       modulesStarted: startedModules.length,
       level: progressLevel(overallPercentage, totalQuestions),
       compiledFeedback,
@@ -775,8 +750,7 @@ function buildProgressSummary(allRounds, allAttempts) {
       focusModule: focusModule?.title || null,
       strongestSkill: skillPriorities.strongest,
       focusSkill: skillPriorities.focus,
-      lastCompletedAt: scoredRounds[0]?.completed_at || null,
-      lastPracticeAt: practiceTimeRounds[0]?.completed_at || null
+      lastCompletedAt: scoredRounds[0]?.completed_at || null
     },
     modules: moduleSummaries,
     skills,
@@ -922,7 +896,6 @@ async function loadStudentProgressionState(studentId, moduleId) {
 }
 
 function buildClassModuleFeedback(moduleSummary) {
-  if (!moduleSummary.questions && moduleSummary.practiceSeconds) return `${moduleSummary.title} practice time has been logged, but no progress-mode results have been saved yet.`;
   if (!moduleSummary.questions) return 'No class evidence yet. Students need to complete a round in this activity.';
   if (moduleSummary.percentage >= 85) return `${moduleSummary.title} is secure across the work completed by the class.`;
   if (moduleSummary.percentage >= 70) return `${moduleSummary.title} is a current class strength, with some individual gaps still worth checking.`;
@@ -931,14 +904,11 @@ function buildClassModuleFeedback(moduleSummary) {
 }
 
 function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
-  const scoredRounds = allRounds.filter((round) => !isPracticeTimeRound(round) && !isPracticeScoreRound(round));
+  const scoredRounds = allRounds;
   const scoredRoundIds = new Set(scoredRounds.map((round) => String(round.id)));
   const scoredAttempts = allAttempts.filter((attempt) => scoredRoundIds.has(String(attempt.round_id)));
-  const practiceTimeRounds = allRounds.filter(isPracticeTimeRound);
-  const totalPracticeSeconds = practiceTimeRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
   const activeStudents = allStudents.filter((student) => student.active);
   const participatingIds = new Set(scoredRounds.map((round) => String(round.student_id)));
-  const practiceStudentIds = new Set(practiceTimeRounds.map((round) => String(round.student_id)));
 
   const students = allStudents.map((student) => {
     const progress = buildProgressSummary(
@@ -964,14 +934,7 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
     const score = rounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
     const maximumScore = rounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
     const questions = rounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
-    const practiceSeconds = moduleRounds.reduce((sum, round) => sum + practiceDurationSeconds(round), 0);
-    const practiceSessions = moduleRounds.filter(isPracticeTimeRound).length;
     const studentCount = new Set(rounds.map((round) => String(round.student_id))).size;
-    const practiceStudentCount = new Set(
-      moduleRounds
-        .filter(isPracticeTimeRound)
-        .map((round) => String(round.student_id))
-    ).size;
     const value = progressPercentage(score, maximumScore);
     const skills = buildCanonicalSkillEvidence(attempts);
     const skillPriorities = canonicalSkillPriorities(skills);
@@ -986,15 +949,11 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
       questions,
       rounds: rounds.length,
       students: studentCount,
-      practiceSeconds,
-      practiceSessions,
-      practiceStudents: practiceStudentCount,
       level: progressLevel(value, questions),
       skills,
       strongestSkill: skillPriorities.strongest,
       focusSkill: skillPriorities.focus,
-      lastCompletedAt: rounds[0]?.completed_at || null,
-      lastPracticeAt: moduleRounds.find(isPracticeTimeRound)?.completed_at || null
+      lastCompletedAt: rounds[0]?.completed_at || null
     };
     return { ...summary, feedback: buildClassModuleFeedback(summary) };
   });
@@ -1041,9 +1000,6 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
       percentage: overallPercentage,
       questions: totalQuestions,
       rounds: scoredRounds.length,
-      practiceSeconds: totalPracticeSeconds,
-      practiceSessions: practiceTimeRounds.length,
-      practiceStudents: practiceStudentIds.size,
       activeStudents: activeStudents.length,
       participatingStudents: participatingActiveStudents,
       participation,
@@ -1053,8 +1009,7 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
       focusModule: focusModule?.title || null,
       strongestSkill: skillPriorities.strongest,
       focusSkill: skillPriorities.focus,
-      lastCompletedAt: scoredRounds[0]?.completed_at || null,
-      lastPracticeAt: practiceTimeRounds[0]?.completed_at || null
+      lastCompletedAt: scoredRounds[0]?.completed_at || null
     },
     modules,
     skills,
@@ -1062,14 +1017,11 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
   };
 }
 
+// See buildProgressCategories above — same retirement of the `progress` key.
 function buildClassProgressCategories(allStudents, allRounds, allAttempts) {
-  const progress = filterProgressBySource(allRounds, allAttempts, 'progress');
-  const practiceRounds = allRounds.filter(isPracticeTimeRound);
   const quizzes = filterProgressBySource(allRounds, allAttempts, 'quizzes');
   const homework = filterProgressBySource(allRounds, allAttempts, 'homework');
   return {
-    progress: buildClassProgressSummary(allStudents, progress.rounds, progress.attempts),
-    practice: buildClassProgressSummary(allStudents, practiceRounds, []),
     quizzes: buildClassProgressSummary(allStudents, quizzes.rounds, quizzes.attempts),
     homework: buildClassProgressSummary(allStudents, homework.rounds, homework.attempts)
   };
@@ -1472,73 +1424,6 @@ async function handleAccountApi(req, res, parsedUrl) {
       return sendJson(res, 401, { ok: false, error: 'Not logged in.' });
     }
 
-    if (req.method === 'POST' && pathname === '/api/student/practice-time') {
-      const student = await requireStudent(req, res);
-      if (!student) return true;
-
-      const body = await readJsonBody(req, 16_000);
-      const moduleDefinitions = {
-        'instrument-identifier': 'Instrument Identifier',
-        'meter-master': 'Meter Master'
-      };
-      const moduleId = String(body.moduleId || '').trim().toLowerCase();
-      const moduleTitle = moduleDefinitions[moduleId];
-      const durationSeconds = Math.max(0, Math.min(12 * 60 * 60, Math.round(Number(body.durationSeconds) || 0)));
-      const clientRoundId = String(body.clientSessionId || body.clientRoundId || '').trim().slice(0, 120);
-
-      if (!moduleTitle) return sendJson(res, 400, { ok: false, error: 'Unknown EchoAural practice module.' });
-      if (!clientRoundId) return sendJson(res, 400, { ok: false, error: 'Practice session identifier is required.' });
-      if (durationSeconds < 5) return sendJson(res, 200, { ok: true, ignored: true });
-
-      const metadata = {
-        source: 'practice_time',
-        mode: 'practice',
-        durationSeconds,
-        startedAt: String(body.startedAt || '').slice(0, 40) || null,
-        endedAt: new Date().toISOString()
-      };
-
-      try {
-        const result = await getPool().query(`
-          INSERT INTO rounds (
-            teacher_id,
-            student_id,
-            module_id,
-            module_title,
-            score,
-            maximum_score,
-            question_count,
-            round_feedback,
-            metadata,
-            client_round_id
-          )
-          VALUES ($1,$2,$3,$4,0,0,0,NULL,$5,$6)
-          RETURNING id, completed_at
-        `, [
-          student.teacher_id,
-          student.id,
-          moduleId,
-          moduleTitle,
-          metadata,
-          clientRoundId
-        ]);
-
-        return sendJson(res, 201, {
-          ok: true,
-          practiceSessionId: result.rows[0].id,
-          completedAt: result.rows[0].completed_at
-        });
-      } catch (error) {
-        if (error.code === '23505') {
-          const duplicate = await getPool().query(`
-            SELECT id FROM rounds WHERE student_id = $1 AND client_round_id = $2 LIMIT 1
-          `, [student.id, clientRoundId]);
-          return sendJson(res, 200, { ok: true, duplicate: true, practiceSessionId: duplicate.rows[0]?.id || null });
-        }
-        throw error;
-      }
-    }
-
     if (req.method === 'POST' && pathname === '/api/student/rounds') {
       const student = await requireStudent(req, res);
       if (!student) return true;
@@ -1698,6 +1583,59 @@ async function handleAccountApi(req, res, parsedUrl) {
       }
     }
 
+    // Best-effort, additive mirror of modules/progress-mode/'s own
+    // localStorage data — Progress Mode's real source of truth stays
+    // client-side; this just lets a teacher see a summary (see the
+    // /api/teacher/progress-mode-summary route below). Deliberately its own
+    // route/table, not reusing /api/student/rounds' shape or the
+    // progressSource()/'progress' bucket machinery above, which is a
+    // different, older system. Identity comes entirely from the session
+    // (requireStudent), never trusted from the request body.
+    if (req.method === 'POST' && pathname === '/api/student/progress-mode-summary') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const body = await readJsonBody(req, 16_000);
+      const cleanShortText = (value, maximum) => String(value || '').trim().slice(0, maximum);
+      const cleanNonNegativeInt = (value) => {
+        const number = Math.round(Number(value));
+        return Number.isFinite(number) && number >= 0 ? number : 0;
+      };
+      const areas = (Array.isArray(body.areas) ? body.areas : []).slice(0, 20).map((area) => ({
+        areaKey: cleanShortText(area?.areaKey, 40),
+        label: cleanShortText(area?.label, 60),
+        level: cleanNonNegativeInt(area?.level),
+        levelLabel: cleanShortText(area?.levelLabel, 40),
+        correct: cleanNonNegativeInt(area?.correct),
+        questions: cleanNonNegativeInt(area?.questions)
+      }));
+
+      await getPool().query(`
+        INSERT INTO progress_mode_summaries (
+          student_id, teacher_id, overall_level_label, rounds_completed,
+          total_correct, total_questions, areas, updated_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, NOW())
+        ON CONFLICT (student_id) DO UPDATE SET
+          overall_level_label = EXCLUDED.overall_level_label,
+          rounds_completed = EXCLUDED.rounds_completed,
+          total_correct = EXCLUDED.total_correct,
+          total_questions = EXCLUDED.total_questions,
+          areas = EXCLUDED.areas,
+          updated_at = NOW()
+      `, [
+        student.id,
+        student.teacher_id,
+        cleanShortText(body.overallLevelLabel, 40) || 'Foundation',
+        cleanNonNegativeInt(body.roundsCompleted),
+        cleanNonNegativeInt(body.totalCorrect),
+        cleanNonNegativeInt(body.totalQuestions),
+        JSON.stringify(areas)
+      ]);
+
+      return sendJson(res, 200, { ok: true });
+    }
+
     if (req.method === 'GET' && pathname === '/api/student/progress') {
       const student = await requireStudent(req, res);
       if (!student) return true;
@@ -1769,6 +1707,47 @@ async function handleAccountApi(req, res, parsedUrl) {
         ...combined,
         categories: buildClassProgressCategories(allStudents, allRounds, allAttempts),
         examLabSessions: buildExamLabSessions(allStudents, allRounds, allAttempts)
+      });
+    }
+
+    // Real teacher visibility into modules/progress-mode/'s own data — see
+    // the POST route above for how it gets here. One row per student who
+    // has ever finished a Progress Mode round; students with no row yet
+    // simply haven't played it.
+    if (req.method === 'GET' && pathname === '/api/teacher/progress-mode-summary') {
+      const teacher = await requireTeacher(req, res);
+      if (!teacher) return true;
+
+      const result = await getPool().query(`
+        SELECT
+          s.id AS student_id,
+          s.username,
+          s.display_name,
+          pms.overall_level_label,
+          pms.rounds_completed,
+          pms.total_correct,
+          pms.total_questions,
+          pms.areas,
+          pms.updated_at
+        FROM students s
+        JOIN progress_mode_summaries pms ON pms.student_id = s.id
+        WHERE s.teacher_id = $1
+        ORDER BY LOWER(s.display_name), LOWER(s.username)
+      `, [teacher.id]);
+
+      return sendJson(res, 200, {
+        ok: true,
+        students: result.rows.map((row) => ({
+          studentId: row.student_id,
+          username: row.username,
+          displayName: row.display_name,
+          overallLevelLabel: row.overall_level_label,
+          roundsCompleted: row.rounds_completed,
+          totalCorrect: row.total_correct,
+          totalQuestions: row.total_questions,
+          areas: row.areas,
+          updatedAt: row.updated_at
+        }))
       });
     }
 

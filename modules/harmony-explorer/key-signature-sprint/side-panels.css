@@ -1,0 +1,11 @@
+/* Gameplay-only controls; side panels inherit the homescreen CSS unchanged. */
+.ready-actions { display: flex; justify-content: center; align-items: flex-start; gap: 10px; margin-top: 18px; }
+.settings-wrap { position: relative; order: 2; }
+.settings-wrap > .secondary { margin: 0; }
+.settings-popover { position: absolute; z-index: 20; right: 0; bottom: calc(100% + 10px); left: 0; max-height: min(66vh, 610px); overflow-y: auto; padding: 18px; box-shadow: 0 24px 55px rgba(0,0,0,.46); }
+.settings-popover > h3 { margin: 0 0 18px; }
+.settings-popover > label { display: block; margin: 11px 0; color: var(--muted); font-size: .75rem; }
+.insight-card { padding: 20px; }
+.ready-state #startButton { width: 190px; }
+.result-grid div:last-child:nth-child(odd) { grid-column: 1/-1; }
+@media (max-width: 720px) { .settings-popover { position: static; max-height: none; margin-bottom: 10px; } .ready-actions { flex-direction: column; align-items: stretch; } .ready-state #startButton { width: 100%; } }

@@ -3,37 +3,89 @@
   position: relative;
 }
 
+.mi-app .mi-melody-master-launch .mi-standalone-settings,
+.mi-app .mi-melody-master-launch .mi-panel-hero {
+  display: none;
+}
+
 .mi-app .mi-mode-grid {
   grid-template-columns: 1fr;
 }
 
+/* Centre-panel question prompt — premium EA wordmark weight during gameplay */
+.mi-app .mi-question-heading #questionText {
+  display: block;
+  max-width: 62ch;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.mi-app .quiz-panel.is-active .mi-question-heading #questionText,
+.mi-app .quiz-panel.is-complete .mi-question-heading #questionText {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(1.02rem, 1.35vw, 1.28rem);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.028em;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mi-app .mi-question-prompt,
+.mi-app .mi-question-marks {
+  display: inline;
+}
+
+.mi-app .mi-question-marks {
+  white-space: nowrap;
+}
+
+.mi-app .mi-question-marks[hidden] {
+  display: none;
+}
+
 .mi-stave-card {
   position: relative;
-  width: min(100%, 640px);
-  margin: 0 auto 1.1rem;
-  padding: 0.85rem;
-  border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 24px;
-  background: linear-gradient(145deg, rgba(255,255,255,0.94), rgba(232,244,255,0.86));
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
-  color: #162033;
+  width: min(100%, 420px);
+  margin: 0 auto;
+  padding: clamp(10px, 1.2vw, 14px);
+  border: 1px solid rgba(255, 93, 186, .34);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(100, 150, 255, .12), transparent 38%),
+    radial-gradient(circle at 10% 88%, rgba(80, 120, 220, .08), transparent 36%),
+    linear-gradient(180deg, rgba(18, 28, 52, .58), rgba(12, 20, 42, .52));
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, .24),
+    0 0 28px rgba(100, 150, 255, .12),
+    0 0 56px rgba(100, 150, 255, .06),
+    inset 0 1px 0 rgba(180, 200, 255, .08),
+    inset 0 0 0 1px rgba(255, 255, 255, .03);
+  color: rgba(255, 255, 255, .94);
 }
 
 .mi-stave-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 666 / 210;
+  aspect-ratio: 420 / 210;
   overflow: hidden;
-  border-radius: 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(130, 160, 255, .10);
   background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72);
 }
 
 .mi-score-bg {
   position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
+  left: 0;
+  top: 0;
   height: 100%;
+  width: auto;
+  min-width: 100%;
+  object-fit: cover;
+  object-position: left center;
   z-index: 1;
   user-select: none;
   pointer-events: none;
@@ -46,10 +98,11 @@
   height: 100%;
 }
 
-.mi-staff-line {
-  stroke: rgba(20, 30, 48, 0.84);
-  stroke-width: 1.7;
-  vector-effect: non-scaling-stroke;
+.mi-stave-bg {
+  position: absolute;
+  z-index: 1;
+  user-select: none;
+  pointer-events: none;
 }
 
 .mi-ledger-line {
@@ -81,13 +134,18 @@
 .mi-crotchet-note {
   position: absolute;
   z-index: 4;
-  /* Size derived from the MM notehead mask: notehead height = one stave space (21px). */
-  height: 56.25%;
+  /* Sized so the notehead reads at roughly one stave space; anchor point (50%, 83.7%)
+     is the notehead's own centre within assets/icons/notation/crotchet.png. */
+  height: 38%;
   width: auto;
-  transform: translate(-48%, -79.55%);
-  transform-origin: 48% 79.55%;
+  transform: translate(-50%, -83.7%);
+  transform-origin: 50% 83.7%;
   user-select: none;
   pointer-events: none;
+}
+
+.mi-crotchet-note.is-stem-down {
+  transform: translate(-50%, -83.7%) scale(-1, -1);
 }
 
 .mi-crotchet-note.mi-drag-note {
@@ -112,6 +170,23 @@
   pointer-events: none;
 }
 
+.mi-note-accidental {
+  position: absolute;
+  z-index: 5;
+  width: auto;
+  transform: translate(-100%, -50%);
+  user-select: none;
+  pointer-events: none;
+}
+
+.mi-note-accidental.mi-note-accidental-sharp {
+  height: 28.1%;
+}
+
+.mi-note-accidental.mi-note-accidental-flat {
+  height: 24.76%;
+}
+
 .mi-hidden-note-placeholder {
   display: none;
 }
@@ -121,16 +196,8 @@
   fill: rgba(28, 43, 67, 0.72);
 }
 
-.mi-note-hint {
-  min-height: 1.25rem;
-  margin: 0.45rem 0 0;
-  text-align: center;
-  font-size: 0.86rem;
-  color: rgba(28,43,67,0.76);
-}
-
 .mi-answer-grid {
-  grid-template-columns: repeat(5, minmax(90px, 1fr));
+  grid-template-columns: repeat(4, minmax(90px, 1fr));
   max-width: 640px;
   margin-inline: auto;
 }
@@ -162,6 +229,108 @@
 .mi-answer-button.wrong {
   background: rgba(255, 104, 104, 0.23);
   border-color: rgba(255, 104, 104, 0.72);
+}
+
+.mi-written-answer-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  width: min(100%, 540px);
+  max-width: 540px;
+  margin-inline: auto;
+  grid-template-columns: unset;
+}
+
+.mi-app .quiz-panel.is-active .mi-answer-grid.mi-written-answer-area,
+.mi-app .quiz-panel.is-complete .mi-answer-grid.mi-written-answer-area {
+  align-self: center;
+  justify-self: center;
+  min-height: clamp(128px, 15vh, 168px);
+  margin-block: auto;
+}
+
+.mi-written-answer-label {
+  width: 100%;
+  text-align: center;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.72);
+}
+
+.mi-written-answer-input {
+  width: 100%;
+  min-height: 76px;
+  padding: 1rem 1.35rem;
+  border-radius: 13px;
+  border: 1px solid rgba(255, 93, 186, .22);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .10), transparent 38%),
+    var(--glass, rgba(18, 28, 52, .50));
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 13px 32px rgba(0, 0, 0, .20),
+    0 0 24px rgba(255, 93, 186, .10),
+    0 0 48px rgba(255, 93, 186, .04),
+    inset 0 1px 0 rgba(255, 93, 186, .08);
+  color: rgba(255, 255, 255, .94);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(1.12rem, 2.4vw, 1.36rem);
+  font-weight: 500;
+  letter-spacing: -.028em;
+  line-height: 1.2;
+  text-align: center;
+  transition: border-color .22s ease, background .22s ease, box-shadow .22s ease;
+}
+
+.mi-written-answer-input::placeholder {
+  color: rgba(226, 232, 240, 0.42);
+  font-weight: 500;
+}
+
+.mi-written-answer-input:focus-visible {
+  outline: none;
+  border-color: rgba(255, 93, 186, .38);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .14), transparent 38%),
+    var(--glass-strong, rgba(14, 24, 48, .65));
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, .24),
+    0 0 0 2px rgba(255, 93, 186, .24),
+    0 0 24px rgba(255, 93, 186, .12),
+    inset 0 1px 0 rgba(255, 93, 186, .10);
+}
+
+.mi-written-answer-input:disabled {
+  opacity: 0.92;
+  cursor: default;
+}
+
+.mi-written-answer-input.is-correct {
+  border-color: rgba(52, 211, 153, 0.58);
+  background:
+    radial-gradient(circle at 50% 10%, rgba(52, 211, 153, 0.14), transparent 44%),
+    var(--glass-strong, rgba(14, 24, 48, .58));
+  box-shadow:
+    0 13px 32px rgba(0, 0, 0, .20),
+    inset 0 0 0 1px rgba(52, 211, 153, 0.22),
+    inset 0 1px 0 rgba(180, 200, 255, .08);
+}
+
+.mi-written-answer-input.is-wrong {
+  border-color: rgba(248, 113, 113, 0.58);
+  background:
+    radial-gradient(circle at 50% 10%, rgba(248, 113, 113, 0.12), transparent 44%),
+    var(--glass-strong, rgba(14, 24, 48, .58));
+  box-shadow:
+    0 13px 32px rgba(0, 0, 0, .20),
+    inset 0 0 0 1px rgba(248, 113, 113, 0.20),
+    inset 0 1px 0 rgba(180, 200, 255, .08);
 }
 
 .mi-drag-note {
@@ -305,6 +474,7 @@
 }
 
 
+.mi-answer-grid[data-answer-count="4"],
 .mi-answer-grid[data-answer-count="8"],
 .mi-answer-grid[data-answer-count="9"] {
   grid-template-columns: repeat(4, minmax(90px, 1fr));
@@ -312,7 +482,7 @@
 
 .mi-app .quiz-panel.is-active #feedback,
 .mi-app .quiz-panel.is-complete #feedback {
-  display: block !important;
+  display: none !important;
 }
 
 .mi-app .quiz-panel.is-dense-answer-set.is-active .mi-console,
@@ -336,35 +506,35 @@
   min-height: 0;
 }
 
+.mi-app .quiz-panel.is-dense-answer-set.is-active .mi-question-heading,
+.mi-app .quiz-panel.is-dense-answer-set.is-complete .mi-question-heading {
+  margin: clamp(8px, 1.1vh, 14px) auto 0 !important;
+}
+
 .mi-app .quiz-panel.is-dense-answer-set #questionText {
   max-width: 58ch;
   font-size: clamp(.78rem, .9vw, .95rem);
   line-height: 1.16;
+  font-weight: 500;
+  letter-spacing: -.024em;
 }
 
 .mi-app .quiz-panel.is-dense-answer-set .mi-stave-card {
-  width: min(100%, 540px);
-  margin: 0 auto;
+  width: min(100%, 380px);
+  margin: clamp(6px, .8vh, 12px) auto 0 !important;
   padding: clamp(5px, .65vw, 8px);
-  border-radius: 18px;
+  border-radius: 16px;
 }
 
 .mi-app .quiz-panel.is-dense-answer-set .mi-stave-stage {
-  border-radius: 13px;
-}
-
-.mi-app .quiz-panel.is-dense-answer-set .mi-note-hint {
-  min-height: 0;
-  margin-top: 2px;
-  font-size: .68rem;
-  line-height: 1.15;
+  border-radius: 12px;
 }
 
 .mi-app .quiz-panel.is-dense-answer-set .mi-answer-grid {
   width: min(640px, 100%);
   max-width: 640px;
   gap: clamp(4px, .45vw, 6px);
-  margin-block: 0;
+  margin: clamp(6px, .8vh, 10px) auto 0 !important;
 }
 
 .mi-app .quiz-panel.is-dense-answer-set .mi-answer-grid[data-answer-count="12"] {
@@ -394,8 +564,6 @@
   gap: 6px;
 }
 
-.mi-app .quiz-panel.is-dense-answer-set .console-actions-replay .primary-button,
-.mi-app .quiz-panel.is-dense-answer-set .console-actions-replay .play-button,
 .mi-app .quiz-panel.is-dense-answer-set .console-actions-replay .secondary-button {
   min-height: 36px;
   min-width: 138px;
@@ -449,4 +617,203 @@
 
 .mi-app .quiz-panel.is-ready .mm-ready-cues {
   order: 4 !important;
+}
+
+/* Gameplay: match Devices — next/replay at top of console, above the question. */
+.mi-app .quiz-panel.is-active .mi-console,
+.mi-app .quiz-panel.is-complete .mi-console {
+  align-content: start;
+  gap: clamp(8px, 1vh, 14px);
+}
+
+.mi-app .quiz-panel.is-active .console-actions-replay,
+.mi-app .quiz-panel.is-complete .console-actions-replay {
+  order: 2 !important;
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: min(820px, 100%) !important;
+  transform: none !important;
+  margin: clamp(2px, .35vh, 5px) auto 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: clamp(10px, .82vw, 14px);
+  flex-wrap: wrap;
+  z-index: 5 !important;
+  align-self: start;
+}
+
+.mi-app .quiz-panel.is-active .mi-question-heading,
+.mi-app .quiz-panel.is-complete .mi-question-heading,
+.mi-app .quiz-panel.is-active .mi-console > .console-heading,
+.mi-app .quiz-panel.is-complete .mi-console > .console-heading {
+  order: 3 !important;
+  width: min(780px, 100%);
+  min-height: 0;
+  margin: clamp(16px, 2.2vh, 28px) auto 0 !important;
+  padding: 0;
+  align-self: start;
+}
+
+.mi-app .quiz-panel.is-active .mi-stave-card,
+.mi-app .quiz-panel.is-complete .mi-stave-card {
+  order: 4 !important;
+  margin: clamp(14px, 1.9vh, 26px) auto 0 !important;
+  align-self: start;
+}
+
+.mi-app .quiz-panel.is-active .mi-answer-grid,
+.mi-app .quiz-panel.is-complete .mi-answer-grid {
+  order: 5 !important;
+  margin: clamp(8px, 1vh, 14px) auto 0 !important;
+  align-self: start;
+}
+
+.mi-app .quiz-panel.is-active .mi-console > #feedback,
+.mi-app .quiz-panel.is-complete .mi-console > #feedback {
+  order: 6 !important;
+}
+
+/* Fixed gameplay action size — never stretch/shrink with flex or dense layouts. */
+.mi-app .quiz-panel.is-active .console-actions-replay #startButton,
+.mi-app .quiz-panel.is-complete .console-actions-replay #startButton,
+.mi-app .quiz-panel.is-active .console-actions-replay #replayIntervalButton:not([hidden]),
+.mi-app .quiz-panel.is-complete .console-actions-replay #replayIntervalButton:not([hidden]) {
+  box-sizing: border-box;
+  width: 188px;
+  min-width: 188px;
+  max-width: 188px;
+  height: 54px;
+  min-height: 54px;
+  max-height: 54px;
+  flex: 0 0 188px;
+  padding: 0 28px;
+}
+
+.mi-app .quiz-panel.is-ready #replayIntervalButton {
+  display: none !important;
+}
+
+/* =========================
+   MI centre-panel score tile
+   Single blue-glass tile; level-button language, thinner EA text.
+========================= */
+
+.mi-app .mi-stats-row {
+  display: flex;
+  justify-content: center;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-bottom: clamp(6px, .8vh, 10px);
+}
+
+.mi-app .mi-stats-row .mi-score-tile {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(100%, 280px);
+  min-height: clamp(40px, 5vh, 48px);
+  margin: 0;
+  padding: 0 clamp(16px, 2vw, 22px);
+  border: 1px solid rgba(255, 93, 186, .22);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, .94);
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 93, 186, .11), transparent 38%),
+    linear-gradient(135deg, rgba(168, 85, 247, .085), rgba(255, 93, 186, .055)),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, .20),
+    inset 0 1px 0 rgba(255, 93, 186, .08);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(.84rem, 1vw, .92rem);
+  font-weight: 500;
+  letter-spacing: -.015em;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================
+   MI centre-console gameplay action buttons
+   Blue glass level-button language; pink glow on hover only.
+   Scope: Replay Interval / Next Question / Finish Quiz.
+========================= */
+
+.mi-app .quiz-panel.is-active .console-actions-replay #replayIntervalButton,
+.mi-app .quiz-panel.is-complete .console-actions-replay #replayIntervalButton,
+.mi-app .quiz-panel.is-active .console-actions-replay #startButton,
+.mi-app .quiz-panel.is-complete .console-actions-replay #startButton {
+  box-sizing: border-box;
+  border: 1px solid rgba(130, 160, 255, .12);
+  border-radius: 14px;
+  width: 188px;
+  min-width: 188px;
+  max-width: 188px;
+  height: 54px;
+  min-height: 54px;
+  max-height: 54px;
+  flex: 0 0 188px;
+  padding: 0 28px;
+  font-size: .98rem;
+  font-weight: 500;
+  letter-spacing: -.015em;
+  gap: 12px;
+  color: rgba(255, 255, 255, .94);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .10), transparent 38%),
+    var(--glass);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 12px 30px rgba(255, 93, 186, .075),
+    0 10px 26px rgba(0, 0, 0, .20),
+    inset 0 1px 0 rgba(255, 255, 255, .055);
+  filter: none;
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+}
+
+.mi-app .quiz-panel.is-active .console-actions-replay #replayIntervalButton:hover,
+.mi-app .quiz-panel.is-complete .console-actions-replay #replayIntervalButton:hover,
+.mi-app .quiz-panel.is-active .console-actions-replay #startButton:hover,
+.mi-app .quiz-panel.is-complete .console-actions-replay #startButton:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 93, 186, .58);
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 93, 186, .18), transparent 38%),
+    linear-gradient(135deg, rgba(168, 85, 247, .14), rgba(255, 93, 186, .10));
+  box-shadow:
+    0 18px 42px rgba(255, 93, 186, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+  filter: none;
+}
+
+.mi-app .quiz-panel.is-dense-answer-set.is-active .console-actions-replay #replayIntervalButton,
+.mi-app .quiz-panel.is-dense-answer-set.is-complete .console-actions-replay #replayIntervalButton,
+.mi-app .quiz-panel.is-dense-answer-set.is-active .console-actions-replay #startButton,
+.mi-app .quiz-panel.is-dense-answer-set.is-complete .console-actions-replay #startButton {
+  width: 188px;
+  min-width: 188px;
+  max-width: 188px;
+  height: 54px;
+  min-height: 54px;
+  max-height: 54px;
+  flex: 0 0 188px;
+  padding: 0 28px;
+  font-size: .98rem;
+  letter-spacing: -.015em;
+  border-radius: 14px;
+}
+
+.mi-app .quiz-panel.is-active .console-actions-replay #replayIntervalButton.is-exhausted,
+.mi-app .quiz-panel.is-complete .console-actions-replay #replayIntervalButton.is-exhausted {
+  opacity: .42;
+  pointer-events: none;
+  cursor: default;
 }

@@ -38,10 +38,4 @@ Replace the path with the note file needed.
 
 ## Rollback Scripts
 
-Older rollback scripts have been moved to:
-
-```text
-documentation/archive/rollback-scripts/
-```
-
-They are kept for historical reference only. The preferred rollback point is now the Git baseline commit `fe32c27`.
+The old per-feature rollback `.command` scripts (`ROLLBACK_II_PATH_PRACTICE`, `ROLLBACK_STUDENT_DASHBOARD_PROGRESSION`, `ROLLBACK_II_PROGRESSION`) have been removed — they pointed at dated `backups/` folders that no longer exist on disk. The rollback point is the Git baseline commit `fe32c27`, or any later commit via normal Git history.

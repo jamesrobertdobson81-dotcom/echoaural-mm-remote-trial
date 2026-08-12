@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meter Master Review | EchoAural</title>
+  <link rel="stylesheet" href="review.css" />
+  <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
+</head>
+<body data-brand-app="meter-master">
+  <div class="review-shell">
+    <header class="review-topbar">
+      <a class="brand refined-logo" href="../../index.html" aria-label="Back to EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <strong class="wordmark">
+          <span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span>
+        </strong>
+      </a>
+      <div class="review-title">
+        <p class="eyebrow">Meter Master audit tool</p>
+        <h1>Question Review</h1>
+      </div>
+      <a class="topbar-link" href="index.html">Back to Meter Master</a>
+    </header>
+
+    <main class="review-layout">
+      <aside class="panel question-list-panel">
+        <div class="panel-heading">
+          <span class="heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2>Questions</h2>
+        </div>
+
+        <div class="summary-grid" aria-label="Review summary">
+          <div><strong id="totalCount">0</strong><span>Total</span></div>
+          <div><strong id="reviewedCount">0</strong><span>Reviewed</span></div>
+          <div><strong id="dropCount">0</strong><span>Drop</span></div>
+        </div>
+        <p id="levelCountSummary" class="question-list-note">Loading current Meter Master bank…</p>
+
+        <label class="search-field">
+          <span>Search</span>
+          <input id="searchInput" type="search" placeholder="ID, prompt, mode…" autocomplete="off" />
+        </label>
+
+        <div class="filter-row level-filter-row" aria-label="Current level filters">
+          <button class="filter-button is-active" type="button" data-level-filter="all">All levels</button>
+          <button class="filter-button" type="button" data-level-filter="Foundation">Foundation</button>
+          <button class="filter-button" type="button" data-level-filter="Developing">Developing</button>
+          <button class="filter-button" type="button" data-level-filter="Securing">Securing</button>
+          <button class="filter-button" type="button" data-level-filter="Mastering">Mastering</button>
+        </div>
+
+        <div class="filter-row" aria-label="Question filters">
+          <button class="filter-button is-active" type="button" data-filter="all">All</button>
+          <button class="filter-button" type="button" data-filter="unreviewed">Unreviewed</button>
+          <button class="filter-button" type="button" data-filter="score">Has score</button>
+          <button class="filter-button" type="button" data-filter="drop">Drop</button>
+        </div>
+
+        <div id="questionList" class="question-list" aria-label="Meter Master questions"></div>
+      </aside>
+
+      <section class="panel audition-panel">
+        <div class="panel-heading panel-heading-centre">
+          <span class="heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2>Audition</h2>
+        </div>
+
+        <div class="question-meta-row">
+          <span id="questionPosition">Question 0 / 0</span>
+          <span id="questionLevelBadge">Difficulty unset</span>
+        </div>
+
+        <article class="audition-card">
+          <p class="eyebrow" id="questionId">MMX000</p>
+          <h3 id="questionTitle">Loading…</h3>
+
+          <div class="question-card">
+            <span>Question</span>
+            <p id="questionPrompt">Choose a question to begin.</p>
+            <small id="questionDetails">0 marks</small>
+          </div>
+
+          <div id="scoreContextCard" class="score-context-card" hidden>
+            <div class="score-extract-frame">
+              <img id="scoreExtractImage" class="score-extract-image" alt="" />
+            </div>
+            <div class="score-extract-caption">
+              <strong>Score extract</strong>
+              <span id="scoreExtractMeta"></span>
+            </div>
+          </div>
+
+          <div id="answerChoicePreview" class="answer-choice-preview" aria-label="Current answer setup"></div>
+
+          <div class="wave-tile" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+
+          <button id="playClipButton" class="primary-button play-clip-button" type="button">Play Clip</button>
+          <p id="audioStatus" class="audio-status">Ready to play.</p>
+          <audio id="audioPlayer" class="review-audio" controls preload="metadata"></audio>
+
+          <div class="nav-row">
+            <button id="prevButton" class="secondary-button" type="button">Previous</button>
+            <button id="revealButton" class="secondary-button" type="button">Reveal mark scheme</button>
+            <button id="nextButton" class="primary-button" type="button">Next question</button>
+          </div>
+        </article>
+      </section>
+
+      <aside class="panel review-panel">
+        <div class="panel-heading">
+          <span class="heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2>Review</h2>
+        </div>
+
+        <form id="reviewForm" class="review-form">
+          <fieldset>
+            <legend>Decision</legend>
+            <label><input type="radio" name="decision" value="keep" /> Keep</label>
+            <label><input type="radio" name="decision" value="edit" /> Edit</label>
+            <label><input type="radio" name="decision" value="drop" /> Drop</label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Difficulty</legend>
+            <label><input type="radio" name="difficulty" value="Foundation" /> Foundation</label>
+            <label><input type="radio" name="difficulty" value="Developing" /> Developing</label>
+            <label><input type="radio" name="difficulty" value="Securing" /> Securing</label>
+            <label><input type="radio" name="difficulty" value="Mastering" /> Mastering</label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Issues</legend>
+            <label><input type="checkbox" name="issue" value="answer" /> Answer/mark scheme needs editing</label>
+            <label><input type="checkbox" name="issue" value="audio" /> Audio unclear</label>
+            <label><input type="checkbox" name="issue" value="score" /> Score extract needs editing</label>
+            <label><input type="checkbox" name="issue" value="difficulty" /> Difficulty uncertain</label>
+            <label><input type="checkbox" name="issue" value="source" /> Source/rights check</label>
+          </fieldset>
+
+          <label class="notes-field">
+            <span>Notes for Codex</span>
+            <textarea id="reviewNotes" rows="6" placeholder="e.g. Move to Mastering, score extract is too small, distractors need editing…"></textarea>
+          </label>
+        </form>
+
+        <section class="markscheme" id="markscheme" hidden>
+          <h3>Current mark scheme</h3>
+          <div id="markschemeContent"></div>
+        </section>
+
+        <section class="source-summary">
+          <h3>Current record</h3>
+          <div id="sourceSummaryContent"></div>
+        </section>
+
+        <div class="export-row">
+          <button id="downloadJsonButton" class="primary-button" type="button">Download JSON</button>
+          <button id="downloadCsvButton" class="secondary-button" type="button">Download CSV</button>
+          <button id="clearReviewButton" class="ghost-button" type="button">Clear local review</button>
+        </div>
+
+        <p id="saveStatus" class="save-status" role="status" aria-live="polite">Autosave ready.</p>
+      </aside>
+    </main>
+  </div>
+
+  <script src="review.js"></script>
+</body>
+</html>

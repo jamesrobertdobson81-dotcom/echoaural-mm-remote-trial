@@ -104,9 +104,9 @@ function createStartedRoom(manager, options = {}) {
 createExamLabAdapter.resetRecentHistory();
 const extracts = loadRegistry({ moduleDir, reload: true });
 
-equal(extracts.length, 11, 'Eleven production Exam Lab extracts should load.');
-assert.deepEqual(extracts.map((extract) => extract.questions.length), [7, 8, 8, 7, 8, 8, 7, 12, 11, 11, 11]); checks += 1;
-assert.deepEqual(extracts.map((extract) => extract.totalMarks), [9, 9, 10, 10, 10, 10, 10, 12, 11, 11, 11]); checks += 1;
+equal(extracts.length, 22, 'Twenty-two production Exam Lab extracts should load.');
+assert.deepEqual(extracts.map((extract) => extract.questions.length), [7, 8, 8, 7, 8, 8, 7, 12, 9, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]); checks += 1;
+assert.deepEqual(extracts.map((extract) => extract.totalMarks), [9, 9, 10, 10, 10, 10, 10, 12, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]); checks += 1;
 check(extracts.every((extract) => extract.questions.reduce((sum, question) => sum + question.marks, 0) === extract.totalMarks), 'Every extract total must equal its question marks.');
 check(extracts.every((extract) => fs.existsSync(path.join(moduleDir, extract.audio))), 'Every extract needs local audio.');
 check(extracts.every((extract) => !extract.score || fs.existsSync(path.join(moduleDir, extract.score))), 'Every score reference must resolve.');
@@ -338,7 +338,7 @@ equal(genericManager.createRoomState(genericRoom).students[0].score, 1, 'Existin
 equal(genericManager.createRoomState(genericRoom).leaderboard.length, 1, 'Existing non-Exam-Lab leaderboard behaviour should remain intact.');
 equal(startPlayback(genericRoom, { leadInSeconds: 0 }).audio, 'fake.mp3', 'Existing non-Exam-Lab playback should remain available.');
 
-const adapterContext = { path, fs, vm, projectRoot: root, getAudioDurationSeconds: () => 10, useLevelledQuestions: true };
+const adapterContext = { path, fs, vm, projectRoot: root, getAudioDurationSeconds: () => 10, useLevelledQuestions: false };
 const melodyAdapter = require(path.join(root, 'modules', 'melody-master', 'teacher-adapter.js'))(adapterContext);
 const melodyManager = new RoomManager({ adapters: [melodyAdapter], defaultModuleId: 'melody-master' });
 const melodyRoom = melodyManager.createRoom({ moduleId: 'melody-master', baseUrl: 'http://localhost:3000' });
@@ -378,7 +378,7 @@ check(/id="teacherLaunchApp"/.test(dashboardHtml) && /Instrument Identifier/.tes
 check(/showsStandardChoices\s*=\s*selectedSource\s*===\s*"app"\s*\|\|\s*selectedSource\s*===\s*"mixed"/.test(dashboardJs), 'Questions, plays and level choices should appear only for App or Mixed Apps.');
 check(!/EXL00[123]/.test(`${teacherJs}\n${dashboardHtml}\n${dashboardJs}\n${studentHtml}`), 'Classroom and dashboard UI source must not name internal extract IDs.');
 check(/No work is assigned automatically/.test(dashboardJs), 'Dashboard recommendations must require teacher review.');
-check(/href="modules\/exam-lab\/index\.html"/.test(home) && /assets\/icons\/modules\/exam-lab\.png/.test(home), 'The homepage should link to Exam Lab.');
+check(/href="modules\/exam-lab\/index\.html"/.test(home) && /assets\/icons\/dashboard\/exam-lab\.png/.test(home), 'The homepage should link to Exam Lab.');
 check(extracts.every((extract) => read(`modules/exam-lab/ExamLab_${extract.id}_Cambridge_Skill_Map.csv`).includes(extract.questions[0].id)), 'Each migrated CSV should match its extract data.');
 
 console.log(`Exam Lab integration check passed: ${checks} focused assertions.`);

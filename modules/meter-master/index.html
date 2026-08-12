@@ -27,9 +27,40 @@
           <span class="sr-only">Meter Master</span>
         </a>
 
-        <a class="topbar-link" href="../texture-trainer/index.html" aria-label="Open Texture Trainer"><span>Texture Trainer</span></a>
-        <a class="topbar-link" href="../instrument-identifier/index.html" aria-label="Open Instrument Identifier"><span>Instrument Identifier</span></a>
-        <a class="topbar-link" href="../melody-master/index.html" aria-label="Open Melody Master"><span>Melody Master</span></a>
+        <a class="topbar-link topbar-app-link topbar-app-link-mm" href="../melody-master/index.html" aria-label="Open Melody Master">
+          <span class="module-title-text">
+            <span class="module-title-main">Melody</span><span class="module-title-gradient">Master</span>
+          </span>
+        </a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-ii" href="../instrument-identifier/index.html" aria-label="Open Instrument Identifier">
+          <span class="module-title-text">
+            <span class="module-title-main">Instrument</span><span class="module-title-gradient">Identifier</span>
+          </span>
+        </a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-tt" href="../texture-trainer/index.html" aria-label="Open Texture Trainer">
+          <span class="module-title-text">
+            <span class="module-title-main">Texture</span><span class="module-title-gradient">Trainer</span>
+          </span>
+        </a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-he" href="../harmony-explorer/index.html" aria-label="Open Harmony Explorer">
+          <span class="module-title-text">
+            <span class="module-title-main">Harmony</span><span class="module-title-gradient">Explorer</span>
+          </span>
+        </a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-cc" href="../../era-explorer/index.html" aria-label="Open ContextCoach">
+          <span class="module-title-text">
+            <span class="module-title-main">Context</span><span class="module-title-gradient">Coach</span>
+          </span>
+        </a>
+
+        <a class="topbar-link topbar-app-link topbar-app-link-sd" href="../musical-language/index.html" aria-label="Open ScoreDecoder">
+          <span class="module-title-text"><span class="module-title-main">Score</span><span class="module-title-gradient">Decoder</span></span>
+        </a>
+
         <a class="topbar-link topbar-home-link" href="../../index.html" aria-label="Back to EchoAural home">
           <span class="back-label">Back to</span>
           <span class="mini-wordmark" aria-hidden="true"><span class="mini-wordmark-echo">Echo</span><span class="mini-wordmark-aural">Aural</span></span>
@@ -42,11 +73,10 @@
       <section class="panel setup-panel" id="homeScreen">
         <div class="panel-section-heading">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Settings</span></h2>
+          <h2><span>Settings</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
         </div>
 
         <div class="panel-hero meter-panel-hero">
-          <p class="eyebrow">GCSE MUSIC LISTENING SKILLS</p>
           <div class="meter-hero-lockup">
             <span class="meter-hero-icon" aria-hidden="true">
               <img src="../../assets/icons/modules/meter-master.png" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-meter-icon');" />
@@ -57,36 +87,47 @@
             </div>
             <h1 class="sr-only">Meter Master</h1>
           </div>
-          <p class="meter-panel-intro">Choose your settings, then start the quiz from the centre panel.</p>
+          <p class="eyebrow meter-brand-eyebrow">GCSE MUSIC LISTENING SKILLS</p>
         </div>
 
-        <div class="settings-card" aria-label="Meter Master settings">
-          <h2>Level</h2>
-          <div id="levelButtons" class="level-grid progression-level-grid" role="group" aria-label="Choose Meter Master level">
-            <button class="level-button is-selected" type="button" data-level="Foundation">
-              <img class="level-icon" src="../../assets/icons/levels/foundation.png" alt="" aria-hidden="true" />
-              <strong>Foundation</strong>
-            </button>
-            <button class="level-button" type="button" data-level="Developing">
-              <img class="level-icon" src="../../assets/icons/levels/developing.png" alt="" aria-hidden="true" />
-              <strong>Developing</strong>
-            </button>
-            <button class="level-button" type="button" data-level="Securing">
-              <img class="level-icon" src="../../assets/icons/levels/securing.png" alt="" aria-hidden="true" />
-              <strong>Securing</strong>
-            </button>
-            <button class="level-button" type="button" data-level="Mastering">
-              <img class="level-icon" src="../../assets/icons/levels/mastering.png" alt="" aria-hidden="true" />
-              <strong>Mastering</strong>
-            </button>
-          </div>
+        <h2 class="melody-skill-heading">Skill</h2>
+
+        <div class="melody-skill-grid" aria-label="Choose Meter Master skill">
+          <label class="melody-skill-button">
+            <input type="radio" name="meterSkill" value="rhythmic-devices" />
+            <span class="melody-skill-icon" aria-hidden="true">
+              <img class="melody-skill-icon-img" src="../../assets/icons/modules/meter-transparent/rhythmic-devices-transparent.png" alt="" />
+            </span>
+            <strong>Devices</strong>
+          </label>
+        </div>
+
+        <h2 class="meter-level-heading">Level</h2>
+
+        <div id="levelButtons" class="level-grid progression-level-grid" role="group" aria-label="Choose Meter Master level">
+          <button class="level-button" type="button" data-level="Foundation">
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/foundation-transparent.png" alt="" aria-hidden="true" />
+            <strong>Foundation</strong>
+          </button>
+          <button class="level-button" type="button" data-level="Developing">
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/developing-transparent.png" alt="" aria-hidden="true" />
+            <strong>Developing</strong>
+          </button>
+          <button class="level-button" type="button" data-level="Securing">
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/securing-transparent.png" alt="" aria-hidden="true" />
+            <strong>Securing</strong>
+          </button>
+          <button class="level-button" type="button" data-level="Mastering">
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/mastering-transparent.png" alt="" aria-hidden="true" />
+            <strong>Mastering</strong>
+          </button>
         </div>
       </section>
 
       <section class="panel quiz-panel is-ready" id="gameScreen">
         <div class="panel-section-heading panel-section-heading-centre">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Quiz</span></h2>
+          <h2><span id="centreHeadingLabel">Learning</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
         </div>
 
         <div class="quiz-header">
@@ -94,8 +135,8 @@
           <div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div>
         </div>
 
-        <div class="statsRow" aria-label="Round statistics">
-          <p id="scoreText">Score: 0 / 0</p>
+        <div class="statsRow meter-stats-row" aria-label="Round statistics">
+          <p id="scoreText" class="meter-mark-tile">Mark: 0 / 0</p>
           <p id="streakText">Streak: 0</p>
           <p id="xpText">XP: 0</p>
         </div>
@@ -103,30 +144,136 @@
         <div class="listening-console">
           <div class="console-orbit" aria-hidden="true"></div>
 
-          <div class="console-ready-brand" aria-hidden="true">
+          <div class="console-ready-brand meter-console-start-brand" aria-hidden="true">
             <div class="console-meter-combined-lockup">
-              <span class="console-meter-icon"><img src="../../assets/icons/modules/meter-master.png" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-console-icon');" /></span>
-              <div class="console-meter-lockup"><span class="console-title-text"><span class="console-title-main">Meter</span><span class="console-title-gradient">Master</span></span></div>
+              <span class="console-meter-icon"><img id="consoleSkillIcon" src="../../assets/icons/modules/meter-master.png" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-console-icon');" /></span>
+              <div class="console-meter-lockup"><span class="console-title-text"><span class="console-title-main" id="consoleTitleMain">Meter</span><span class="console-title-gradient" id="consoleTitleGradient">Master</span></span></div>
             </div>
+          </div>
+
+          <div class="console-actions console-actions-replay meter-toolbar">
+            <button id="playButton" class="play-button" type="button">Replay Clip</button>
+            <button id="nextButton" class="play-button" type="button" hidden>Next Question</button>
+          </div>
+
+          <div class="listening-visual meter-ready-wave" aria-hidden="true">
+            <svg class="meter-console-wave-svg" viewBox="0 0 480 52" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="presentation">
+              <defs>
+                <linearGradient id="meterConsoleWaveGrad" x1="0" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#FFAA2B"/>
+                  <stop offset="18%" stop-color="#FFAA2B"/>
+                  <stop offset="36%" stop-color="#FFC46A"/>
+                  <stop offset="46%" stop-color="#6BB8FF"/>
+                  <stop offset="50%" stop-color="#3FA6FF"/>
+                  <stop offset="54%" stop-color="#6BB8FF"/>
+                  <stop offset="64%" stop-color="#FFC46A"/>
+                  <stop offset="82%" stop-color="#FFAA2B"/>
+                  <stop offset="100%" stop-color="#FFAA2B"/>
+                </linearGradient>
+                <filter id="meterWaveGlow" x="-25%" y="-40%" width="150%" height="180%">
+                  <feGaussianBlur stdDeviation="1.6" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <g class="meter-console-wave-lines" filter="url(#meterWaveGlow)">
+                <g class="meter-wave-segment meter-wave-seg-5 meter-wave-seg-0" style="--wave-seg-duration:3.4s;--wave-seg-phase:-0.1s">
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.0s" x1="8" y1="23.4" x2="8" y2="28.6"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.038s" x1="17.1" y1="23.4" x2="17.1" y2="28.6"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.076s" x1="26.2" y1="23.2" x2="26.2" y2="28.8"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.114s" x1="35.3" y1="23.1" x2="35.3" y2="28.9"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.152s" x1="44.4" y1="22.8" x2="44.4" y2="29.2"/>
+              </g>
+
+              <g class="meter-wave-segment meter-wave-seg-7 meter-wave-seg-1" style="--wave-seg-duration:2.85s;--wave-seg-phase:-0.35s">
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.0s" x1="53.5" y1="22.4" x2="53.5" y2="29.6"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.038s" x1="62.6" y1="21.9" x2="62.6" y2="30.1"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.076s" x1="71.7" y1="21.9" x2="71.7" y2="30.1"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.114s" x1="80.8" y1="20.8" x2="80.8" y2="31.2"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.152s" x1="89.9" y1="20.2" x2="89.9" y2="31.8"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.19s" x1="99" y1="20.1" x2="99" y2="31.9"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.228s" x1="108.1" y1="18.9" x2="108.1" y2="33.1"/>
+              </g>
+
+              <g class="meter-wave-segment meter-wave-seg-5 meter-wave-seg-2" style="--wave-seg-duration:2.45s;--wave-seg-phase:-0.2s">
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.0s" x1="117.2" y1="17.5" x2="117.2" y2="34.5"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.038s" x1="126.3" y1="17.3" x2="126.3" y2="34.7"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.076s" x1="135.4" y1="16.5" x2="135.4" y2="35.5"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.114s" x1="144.5" y1="14.1" x2="144.5" y2="37.9"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.152s" x1="153.6" y1="15.2" x2="153.6" y2="36.8"/>
+              </g>
+
+              <g class="meter-wave-segment meter-wave-seg-7 meter-wave-seg-3" style="--wave-seg-duration:2.05s;--wave-seg-phase:-0.45s">
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.0s" x1="162.7" y1="12.5" x2="162.7" y2="39.5"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.038s" x1="171.8" y1="11.3" x2="171.8" y2="40.7"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.076s" x1="180.9" y1="10.6" x2="180.9" y2="41.4"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.114s" x1="190" y1="12.7" x2="190" y2="39.3"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.152s" x1="199.1" y1="5.8" x2="199.1" y2="46.2"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.19s" x1="208.2" y1="7.5" x2="208.2" y2="44.5"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.228s" x1="217.3" y1="10.7" x2="217.3" y2="41.3"/>
+              </g>
+
+              <g class="meter-wave-segment meter-wave-seg-5 meter-wave-seg-4" style="--wave-seg-duration:1.55s;--wave-seg-phase:-0.25s">
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.0s" x1="226.4" y1="5.9" x2="226.4" y2="46.1"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.038s" x1="235.5" y1="5.2" x2="235.5" y2="46.8"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.076s" x1="244.5" y1="7.9" x2="244.5" y2="44.1"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.114s" x1="253.6" y1="7.5" x2="253.6" y2="44.5"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.152s" x1="262.7" y1="5.8" x2="262.7" y2="46.2"/>
+              </g>
+
+              <g class="meter-wave-segment meter-wave-seg-7 meter-wave-seg-5" style="--wave-seg-duration:1.25s;--wave-seg-phase:-0.55s">
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.0s" x1="271.8" y1="10.5" x2="271.8" y2="41.5"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.038s" x1="280.9" y1="7.4" x2="280.9" y2="44.6"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.076s" x1="290" y1="10.1" x2="290" y2="41.9"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.114s" x1="299.1" y1="11.1" x2="299.1" y2="40.9"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.152s" x1="308.2" y1="13.1" x2="308.2" y2="38.9"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.19s" x1="317.3" y1="11.1" x2="317.3" y2="40.9"/>
+                <line class="meter-wave-line meter-wave-core" style="--wave-bar-stagger:0.228s" x1="326.4" y1="14.2" x2="326.4" y2="37.8"/>
+              </g>
+
+              <g class="meter-wave-segment meter-wave-seg-5 meter-wave-seg-6" style="--wave-seg-duration:1.55s;--wave-seg-phase:-0.4s">
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.0s" x1="335.5" y1="16.1" x2="335.5" y2="35.9"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.038s" x1="344.6" y1="15.7" x2="344.6" y2="36.3"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.076s" x1="353.7" y1="16.8" x2="353.7" y2="35.2"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.114s" x1="362.8" y1="18.2" x2="362.8" y2="33.8"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.152s" x1="371.9" y1="19.1" x2="371.9" y2="32.9"/>
+              </g>
+
+              <g class="meter-wave-segment meter-wave-seg-7 meter-wave-seg-7" style="--wave-seg-duration:2.05s;--wave-seg-phase:-0.15s">
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.0s" x1="381" y1="19.5" x2="381" y2="32.5"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.038s" x1="390.1" y1="20.6" x2="390.1" y2="31.4"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.076s" x1="399.2" y1="20.9" x2="399.2" y2="31.1"/>
+                <line class="meter-wave-line meter-wave-mid" style="--wave-bar-stagger:0.114s" x1="408.3" y1="21.7" x2="408.3" y2="30.3"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.152s" x1="417.4" y1="22" x2="417.4" y2="30"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.19s" x1="426.5" y1="22.5" x2="426.5" y2="29.5"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.228s" x1="435.6" y1="22.7" x2="435.6" y2="29.3"/>
+              </g>
+
+              <g class="meter-wave-segment meter-wave-seg-5 meter-wave-seg-8" style="--wave-seg-duration:3.4s;--wave-seg-phase:-0.3s">
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.0s" x1="444.7" y1="23" x2="444.7" y2="29"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.038s" x1="453.8" y1="23.3" x2="453.8" y2="28.7"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.076s" x1="462.9" y1="23.4" x2="462.9" y2="28.6"/>
+                <line class="meter-wave-line meter-wave-edge" style="--wave-bar-stagger:0.114s" x1="472" y1="23.3" x2="472" y2="28.7"/>
+              </g>
+              </g>
+            </svg>
           </div>
 
           <div class="console-question-kicker"><p class="eyebrow active-only">AURAL METRE</p></div>
 
-          <div class="listening-visual meter-ready-wave" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
-
-          <div class="console-heading">
-            <p id="questionTitle" class="question-title">Meter Master</p>
-            <div class="exam-prompt-line">
-              <h1 id="questionPrompt">Choose a level, then start the metre round.</h1>
-            </div>
+          <div class="console-heading meter-question-heading">
+            <p id="questionTitle" class="question-title sr-only">Meter Master</p>
+            <p id="questionPromptLine" class="meter-question-line">
+              <span class="meter-question-prompt" id="questionPrompt">Choose a level, then start the metre round.</span><span class="meter-question-marks" id="questionMarks" hidden aria-hidden="true"></span>
+            </p>
           </div>
 
           <div class="score-context-card" id="scoreContextCard" hidden></div>
 
           <div class="console-actions console-actions-start">
-            <button id="startButton" class="primary-button centre-start" type="button">Start Quiz</button>
+            <button id="startButton" class="primary-button centre-start" type="button">Start Learning</button>
             <div class="settings-popover-wrap meter-settings-popover-wrap">
               <div
                 id="meterAdvancedSettings"
@@ -165,8 +312,8 @@
             </div>
           </div>
 
-          <div class="response-area" id="responseArea" hidden>
-            <div id="choiceGrid" class="choice-grid" role="radiogroup" aria-label="Answer choices"></div>
+          <div id="meterCentrePanel" class="meter-centre-panel" hidden>
+            <div id="choiceGrid" class="meter-options choice-grid" role="radiogroup" aria-label="Answer choices" data-answer-count="4"></div>
           </div>
 
           <div class="listening-cues" aria-label="Listening focus areas">
@@ -175,11 +322,6 @@
 
           <p id="feedback" role="status" aria-live="polite"></p>
 
-          <div class="console-actions console-actions-replay">
-            <button id="playButton" class="play-button" type="button">Replay Clip</button>
-            <button id="nextButton" class="secondary-button" type="button" hidden>Next Question</button>
-          </div>
-
           <button id="restartButton" class="secondary-button" type="button">Restart Round</button>
         </div>
       </section>
@@ -187,18 +329,30 @@
       <aside class="panel info-panel">
         <div class="panel-section-heading">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Answers</span></h2>
+          <h2><span>Answers</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
         </div>
 
         <div id="answerCard" class="answerCard" aria-live="polite">
-          <div class="answerCard-empty">
-            <div class="answer-empty-brand" aria-hidden="true">
-              <span class="answer-empty-icon"><img src="../../assets/icons/modules/meter-master.png" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');" /></span>
-              <span class="answer-empty-wave"><span></span><span></span><span></span><span></span><span></span></span>
+          <div class="answerCard-empty meter-source-panel">
+            <div class="answer-empty-stage" aria-hidden="true">
+              <div class="answer-empty-orbit">
+                <span class="answer-empty-sparkle answer-empty-sparkle-1" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-2" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-3" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-4" aria-hidden="true"></span>
+                <span class="answer-empty-icon">
+                  <img
+                    src="../../assets/icons/modes/mm-transparent/answers-transparent.png?v=3"
+                    alt=""
+                    onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
+                  />
+                </span>
+              </div>
             </div>
-            <p class="eyebrow">FEEDBACK PANEL</p>
-            <h2>Your feedback appears here.</h2>
-            <p class="muted">Choose one answer to see the correct response, mark scheme and metre focus.</p>
+            <div class="answer-empty-copy">
+              <h2>Your answers will appear here</h2>
+              <p>Complete a quiz to see your responses and performance feedback.</p>
+            </div>
           </div>
         </div>
       </aside>
@@ -206,6 +360,8 @@
   </div>
 
   <script src="/shared/js/progression-store.js"></script>
+  <script src="/shared/js/question-prompt-marks.js"></script>
+  <script src="/shared/js/spaced-repetition.js"></script>
   <script src="/account/tracking.js"></script>
   <script src="script.js"></script>
 </body>

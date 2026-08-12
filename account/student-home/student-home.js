@@ -12,11 +12,26 @@ const moduleLinks = {
 };
 
 const DASHBOARD_ICONS = {
-  practice: "/assets/icons/dashboard/practice-mode.png",
-  progress: "/assets/icons/dashboard/progress-mode.png",
-  quizzes: "/assets/icons/dashboard/join-live-session.png",
-  homework: "/assets/icons/dashboard/homework.png"
+  progress: "/assets/icons/dashboard/progress-mode.png?v=11",
+  quizzes: "/assets/icons/dashboard/join-live-session.png?v=11",
+  homework: "/assets/icons/dashboard/homework.png?v=11"
 };
+
+const LEVEL_ICONS = {
+  Foundation: "/assets/icons/levels/foundation.png",
+  Developing: "/assets/icons/levels/developing.png",
+  Securing: "/assets/icons/levels/securing.png",
+  Mastering: "/assets/icons/levels/mastering.png"
+};
+
+/* Light-blue (mode-icon) level logos — Progress Mode detailed feedback only. */
+const PM_DETAIL_LEVEL_ICONS = {
+  Foundation: "/assets/icons/levels/pm-detail/foundation.png?v=2",
+  Developing: "/assets/icons/levels/pm-detail/developing.png?v=2",
+  Securing: "/assets/icons/levels/pm-detail/securing.png?v=2",
+  Mastering: "/assets/icons/levels/pm-detail/mastering.png?v=2"
+};
+
 
 const CATEGORY_CONFIG = {
   progress: {
@@ -24,18 +39,10 @@ const CATEGORY_CONFIG = {
     icon: DASHBOARD_ICONS.progress,
     eyebrow: "Levelled learning",
     subtitle: "Foundation, Developing, Securing and Mastering progress.",
-    detailSubtitle: "Your levelled app scores, saved rounds and question feedback.",
-    emptyFeedback: "Complete a Progress Mode round to begin your levelled record."
-  },
-  practice: {
-    title: "Practice Mode",
-    icon: DASHBOARD_ICONS.practice,
-    eyebrow: "Independent learning",
-    subtitle: "Time spent practising independently.",
-    detailSubtitle: "Your logged EchoAural practice time.",
-    emptyFeedback: "Open Practice Mode while logged in to start logging time.",
-    actionLabel: "Practise II",
-    actionHref: "/modules/instrument-identifier/?eaMode=practice&eaDashboard=/account/student-home/"
+    detailSubtitle: "Your levels and personalised feedback, by musical area.",
+    emptyFeedback: "Complete a Progress Mode round to begin your levelled record.",
+    actionLabel: "Start Progress Mode",
+    actionHref: "/modules/progress-mode/index.html"
   },
   quizzes: {
     title: "Live Sessions",
@@ -98,19 +105,6 @@ function formatDateTime(value) {
   }).format(date);
 }
 
-function formatDuration(seconds) {
-  const totalSeconds = Math.max(0, Math.round(Number(seconds || 0)));
-  if (!totalSeconds) return "0 min";
-  if (totalSeconds < 60) return `${totalSeconds}s`;
-
-  const totalMinutes = Math.round(totalSeconds / 60);
-  if (totalMinutes < 60) return `${totalMinutes} min`;
-
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return minutes ? `${hours} hr ${minutes} min` : `${hours} hr`;
-}
-
 function scoreClass(percentage, questions) {
   if (!questions) return "is-empty";
   if (percentage >= 85) return "is-secure";
@@ -122,13 +116,11 @@ function scoreClass(percentage, questions) {
 function sourceLabel(source) {
   if (source === "progress") return "Progress";
   if (source === "quizzes") return "Live session";
-  if (source === "homework") return "Homework";
-  return "Practice Mode";
+  return "Homework";
 }
 
 function categoryHeadingId(categoryKey) {
   if (categoryKey === "progress") return "studentProgressModeHeading";
-  if (categoryKey === "practice") return "studentPracticeHeading";
   if (categoryKey === "quizzes") return "studentQuizHeading";
   return "studentHomeworkHeading";
 }
@@ -170,16 +162,10 @@ function renderCategoryModules(categoryKey, modules = []) {
     <div class="category-module-list-v2 student-detail-module-list-v3">
       ${modules.map((module) => {
         const href = moduleLinks[module.moduleId] || "/#apps";
-        const practiceSeconds = Number(module.practiceSeconds || 0);
         const progressionLabel = categoryKey === "progress" ? progressionLevelLabel(module) : "";
         const moduleMeta = module.questions
           ? `${module.questions} questions · ${module.rounds} rounds`
-          : practiceSeconds
-            ? `${formatDuration(practiceSeconds)} practice · no scored results`
-            : "Not started";
-        const emptyNextStep = practiceSeconds
-          ? "Practice time logged. Progress results will appear after a progress round."
-          : "Complete a first round to begin.";
+          : "Not started";
         return `
           <a class="category-module-row-v2 ${scoreClass(module.percentage, module.questions)}" href="${href}">
             <span class="category-module-icon-v2"><img src="${escapeHtml(module.icon)}" alt="" /></span>
@@ -190,7 +176,7 @@ function renderCategoryModules(categoryKey, modules = []) {
             </span>
             <strong>${module.questions ? `${module.percentage}%` : "—"}</strong>
             <span class="category-module-bar-v2" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, module.percentage || 0))}%"></i></span>
-            <p>${escapeHtml(module.questions ? module.nextStep : emptyNextStep)}</p>
+            <p>${escapeHtml(module.questions ? module.nextStep : "Complete a first round to begin.")}</p>
           </a>
         `;
       }).join("")}
@@ -235,14 +221,7 @@ function summaryMarkup(categoryKey, category) {
   const iconMarkup = `<span class="student-dashboard-line-icon-v3" style="--ea-icon:url('${config.icon}')" aria-hidden="true"></span>`;
   const overall = category?.overall || {};
   const hasEvidence = Number(overall.questions || 0) > 0;
-  const practiceSeconds = categoryKey === "practice" ? Number(overall.practiceSeconds || 0) : 0;
-  const practiceSessions = Number(overall.practiceSessions || 0);
-  const practiceTimeText = practiceSeconds ? ` · ${formatDuration(practiceSeconds)} practice` : "";
-  const feedbackText = hasEvidence
-    ? overall.compiledFeedback
-    : practiceSeconds
-      ? "Practice time has been logged. Progress results are kept in Progress Mode."
-      : config.emptyFeedback;
+  const feedbackText = hasEvidence ? overall.compiledFeedback : config.emptyFeedback;
 
   if (categoryKey === "homework") {
     return `
@@ -265,28 +244,6 @@ function summaryMarkup(categoryKey, category) {
     `;
   }
 
-  if (categoryKey === "practice") {
-    return `
-      <div class="student-learning-summary-heading-v3">
-        <div class="student-learning-icon-slot-v3" aria-hidden="true">${iconMarkup}</div>
-        <div class="student-learning-title-v3">
-          <p id="${categoryHeadingId(categoryKey)}">${escapeHtml(config.eyebrow)}</p>
-          <h3>${escapeHtml(config.title)}</h3>
-        </div>
-        <strong class="student-learning-percentage-v3 is-empty">${escapeHtml(formatDuration(practiceSeconds))}</strong>
-      </div>
-
-      <div class="student-learning-feedback-v3">
-        <span>Time spent</span>
-        <p>${escapeHtml(practiceSeconds ? "Practice Mode time is logged without saving scores to your progress record." : config.emptyFeedback)}</p>
-      </div>
-
-      <div class="student-learning-footer-v3">
-        <span>${practiceSessions} session${practiceSessions === 1 ? "" : "s"} · time only</span>
-      </div>
-    `;
-  }
-
   return `
     <div class="student-learning-summary-heading-v3">
       <div class="student-learning-icon-slot-v3" aria-hidden="true">${iconMarkup}</div>
@@ -303,7 +260,7 @@ function summaryMarkup(categoryKey, category) {
     </div>
 
     <div class="student-learning-footer-v3">
-      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds${practiceTimeText} · ${Number(overall.modulesStarted || 0)} / 6 apps</span>
+      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds · ${Number(overall.modulesStarted || 0)} / 6 apps</span>
       <button class="secondary-button student-detail-button-v3" type="button" data-category-detail="${categoryKey}">Detailed feedback</button>
     </div>
   `;
@@ -313,94 +270,107 @@ function emptyLearningCategory() {
   return { overall: {}, modules: [], recentRounds: [], recentQuestions: [] };
 }
 
-function categoryHasScoredEvidence(category) {
-  const overall = category?.overall || {};
-  return (
-    Number(overall.questions || 0) > 0 ||
-    Number(overall.maximumScore || 0) > 0 ||
-    (category?.modules || []).some((module) => Number(module.questions || 0) > 0) ||
-    (category?.recentRounds || []).some((round) => Number(round.questions || 0) > 0)
-  );
-}
-
-function practiceTimeOnlyCategory(category) {
-  const overall = category?.overall || {};
-  const practiceSeconds = Number(overall.practiceSeconds || 0);
-  const practiceSessions = Number(overall.practiceSessions || 0);
-
-  return {
-    overall: {
-      score: 0,
-      maximumScore: 0,
-      percentage: 0,
-      rounds: 0,
-      questions: 0,
-      practiceSeconds,
-      practiceSessions,
-      modulesStarted: 0,
-      level: "Not started",
-      compiledFeedback: practiceSeconds
-        ? "Practice Mode time is logged without saving scores to your progress record."
-        : CATEGORY_CONFIG.practice.emptyFeedback
-    },
-    modules: (category?.modules || []).map((module) => ({
-      ...module,
-      score: 0,
-      maximumScore: 0,
-      percentage: 0,
-      rounds: 0,
-      questions: 0,
-      level: "Not started",
-      strength: "No scored practice record",
-      nextStep: Number(module.practiceSeconds || 0)
-        ? "Practice time logged. Progress results will appear after a progress round."
-        : "Open Practice Mode while logged in to start logging time.",
-      feedback: Number(module.practiceSeconds || 0)
-        ? "Practice time logged without saved scores."
-        : CATEGORY_CONFIG.practice.emptyFeedback
-    })),
-    recentRounds: [],
-    recentQuestions: []
-  };
-}
-
 function normaliseProgressData(progress) {
   const rawCategories = progress.categories || {};
-  const hasExplicitProgressCategory = Object.prototype.hasOwnProperty.call(rawCategories, "progress");
   const categories = {
-    progress: rawCategories.progress || emptyLearningCategory(),
-    practice: rawCategories.practice || progress || emptyLearningCategory(),
     quizzes: rawCategories.quizzes || emptyLearningCategory(),
     homework: rawCategories.homework || { overall: {} }
   };
 
-  if (!hasExplicitProgressCategory && categoryHasScoredEvidence(categories.practice)) {
-    categories.progress = categories.practice;
-    categories.practice = practiceTimeOnlyCategory(categories.practice);
+  return { ...progress, categories };
+}
+
+// Progress Mode's own summary tile — reads modules/progress-mode/'s real
+// localStorage data directly (see progressModeDetailMarkup below for the
+// same pattern, in more detail) rather than the server-side `categories`
+// object, which no longer carries a "progress" entry (that used to be an
+// unrelated, differently-labelled legacy system — see account-server.js's
+// buildProgressCategories). A small amount of duplication with
+// progressModeDetailMarkup's own data gathering is deliberate: this tile
+// only needs a handful of totals, not the full per-area/per-source detail.
+function progressModeSummaryMarkup() {
+  const config = CATEGORY_CONFIG.progress;
+  const iconMarkup = `<span class="student-dashboard-line-icon-v3" style="--ea-icon:url('${config.icon}')" aria-hidden="true"></span>`;
+
+  const Store = window.EAProgressModeStore;
+  const Drivers = window.EAProgressModeDrivers;
+  const AreaOrder = window.EAProgressModeAreaOrder;
+  let hasEvidence = false;
+  let percentage = 0;
+  let questions = 0;
+  let rounds = 0;
+  let areasStarted = 0;
+  let levelLabel = "";
+
+  if (Store && Drivers && AreaOrder && state.student) {
+    const snapshot = Store.getSnapshot(state.student.id, AreaOrder);
+    if (snapshot.roundsCompleted) {
+      const cumulative = Store.getCumulativeStats(state.student.id, Object.keys(Drivers));
+      let correct = 0;
+      Object.keys(Drivers).forEach((sourceKey) => {
+        correct += cumulative[sourceKey].correct;
+        questions += cumulative[sourceKey].questions;
+      });
+      areasStarted = AreaOrder.filter((areaKey) =>
+        Object.keys(Drivers).some((sourceKey) => Drivers[sourceKey].area === areaKey && cumulative[sourceKey].questions > 0)
+      ).length;
+      rounds = snapshot.roundsCompleted;
+      hasEvidence = questions > 0;
+      percentage = hasEvidence ? Math.round((correct / questions) * 100) : 0;
+      levelLabel = snapshot.overallLevelLabel;
+    }
   }
 
-  return { ...progress, categories };
+  const feedbackText = hasEvidence
+    ? `${levelLabel} overall, ${areasStarted} / ${AreaOrder.length} musical areas started.`
+    : config.emptyFeedback;
+
+  return `
+    <div class="student-learning-summary-heading-v3">
+      <div class="student-learning-icon-slot-v3" aria-hidden="true">${iconMarkup}</div>
+      <div class="student-learning-title-v3">
+        <p id="${categoryHeadingId("progress")}">${escapeHtml(config.eyebrow)}</p>
+        <h3>${escapeHtml(config.title)}</h3>
+      </div>
+      <strong class="student-learning-percentage-v3 ${scoreClass(percentage, hasEvidence ? questions : 0)}">${hasEvidence ? `${percentage}%` : "—"}</strong>
+    </div>
+
+    <div class="student-learning-feedback-v3">
+      <span>My feedback</span>
+      <p>${escapeHtml(feedbackText)}</p>
+    </div>
+
+    <div class="student-learning-footer-v3">
+      <span>${hasEvidence ? `${questions} questions · ${rounds} rounds · ${areasStarted} / ${AreaOrder.length} areas` : "0 questions · 0 rounds · 0 areas"}</span>
+      <button class="secondary-button student-detail-button-v3" type="button" data-category-detail="progress">Detailed feedback</button>
+    </div>
+  `;
 }
 
 function renderCategorySummaries(progress) {
   const categories = progress.categories;
 
-  document.getElementById("studentProgressModeContent").innerHTML = summaryMarkup("progress", categories.progress || { overall: {} });
-  document.getElementById("studentPracticeContent").innerHTML = summaryMarkup("practice", categories.practice);
+  document.getElementById("studentProgressModeContent").innerHTML = progressModeSummaryMarkup();
   document.getElementById("studentQuizContent").innerHTML = summaryMarkup("quizzes", categories.quizzes);
   document.getElementById("studentHomeworkContent").innerHTML = summaryMarkup("homework", categories.homework || { overall: {} });
+}
+
+function categoryActionHref(categoryKey, config) {
+  if (categoryKey === "progress" && config.actionHref && state.student) {
+    const params = new URLSearchParams({
+      studentId: state.student.id,
+      studentName: state.student.displayName || state.student.username || ""
+    });
+    return `${config.actionHref}?${params.toString()}`;
+  }
+  return config.actionHref;
 }
 
 function detailedCategoryMarkup(categoryKey, category) {
   const config = CATEGORY_CONFIG[categoryKey];
   const overall = category?.overall || {};
   const hasEvidence = Number(overall.questions || 0) > 0;
-  const practiceSeconds = categoryKey === "practice" ? Number(overall.practiceSeconds || 0) : 0;
-  const feedbackText = hasEvidence
-    ? overall.compiledFeedback
-    : practiceSeconds
-      ? "Practice time has been logged. Progress results will appear after a progress round."
-      : config.emptyFeedback;
+  const feedbackText = hasEvidence ? overall.compiledFeedback : config.emptyFeedback;
 
   if (categoryKey === "homework") {
     return `
@@ -424,7 +394,7 @@ function detailedCategoryMarkup(categoryKey, category) {
         <div><span>Questions</span><strong>${Number(overall.questions || 0)}</strong></div>
         <div><span>Rounds</span><strong>${Number(overall.rounds || 0)}</strong></div>
         <div><span>Apps started</span><strong>${Number(overall.modulesStarted || 0)} / 6</strong></div>
-        <div><span>${categoryKey === "practice" ? "Practice time" : "Learning area"}</span><strong>${categoryKey === "practice" ? escapeHtml(formatDuration(overall.practiceSeconds)) : escapeHtml(config.title)}</strong></div>
+        <div><span>Learning area</span><strong>${escapeHtml(config.title)}</strong></div>
       </div>
     </div>
 
@@ -436,7 +406,7 @@ function detailedCategoryMarkup(categoryKey, category) {
     <section class="student-detail-section-v3">
       <div class="category-detail-section-heading-v5">
         <div><p class="card-eyebrow">All applications</p><h3>Scores and next steps</h3></div>
-        ${config.actionHref ? `<a class="secondary-button student-detail-action-v3" href="${config.actionHref}">${escapeHtml(config.actionLabel)}</a>` : ""}
+        ${config.actionHref ? `<a class="secondary-button student-detail-action-v3" href="${categoryActionHref(categoryKey, config)}">${escapeHtml(config.actionLabel)}</a>` : ""}
       </div>
       ${renderCategoryModules(categoryKey, category?.modules || [])}
     </section>
@@ -456,6 +426,144 @@ function detailedCategoryMarkup(categoryKey, category) {
   `;
 }
 
+// Progress Mode (modules/progress-mode/) is a self-contained, localStorage-
+// only feature — its rounds never reach the server-side progress API this
+// dialog otherwise reads from (see the script includes in index.html), so
+// its "Detailed feedback" is built here by calling directly into its own
+// store.js/app-drivers.js/feedback.js instead of using `category`.
+function progressModeDetailMarkup() {
+  const Store = window.EAProgressModeStore;
+  const Drivers = window.EAProgressModeDrivers;
+  const AreaOrder = window.EAProgressModeAreaOrder;
+  const AreaLabels = window.EAProgressModeAreaLabels;
+  const AreaIcons = window.EAProgressModeAreaIcons || {};
+  const Feedback = window.EAProgressModeFeedback;
+
+  if (!Store || !Drivers || !AreaOrder || !AreaLabels || !Feedback || !state.student) {
+    return emptyCategory(CATEGORY_CONFIG.progress.emptyFeedback);
+  }
+
+  const studentId = state.student.id;
+  const snapshot = Store.getSnapshot(studentId, AreaOrder);
+
+  if (!snapshot.roundsCompleted) {
+    return emptyCategory(CATEGORY_CONFIG.progress.emptyFeedback);
+  }
+
+  const areaToSources = {};
+  AreaOrder.forEach((areaKey) => { areaToSources[areaKey] = []; });
+  Object.keys(Drivers).forEach((sourceKey) => { areaToSources[Drivers[sourceKey].area].push(sourceKey); });
+
+  const cumulative = Store.getCumulativeStats(studentId, Object.keys(Drivers));
+  let totalCorrect = 0;
+  let totalQuestions = 0;
+
+  const tiles = AreaOrder.map((areaKey) => {
+    const sources = areaToSources[areaKey];
+    let correct = 0;
+    let questions = 0;
+    sources.forEach((sourceKey) => {
+      correct += cumulative[sourceKey].correct;
+      questions += cumulative[sourceKey].questions;
+    });
+    totalCorrect += correct;
+    totalQuestions += questions;
+
+    const areaState = snapshot.areas[areaKey];
+    const tracksConcepts = sources.some((sourceKey) => Boolean(Drivers[sourceKey].getSignature));
+    const overallProgress = Store.getAreaOverallProgressPercentage(studentId, areaKey, tracksConcepts);
+    const feedback = Feedback.buildAreaFeedback(
+      Store,
+      studentId,
+      areaKey,
+      sources,
+      AreaLabels[areaKey]
+    );
+    const detailText = typeof feedback === "string"
+      ? feedback
+      : (feedback?.detail || feedback?.text || "");
+    const iconSrc = AreaIcons[areaKey] || DASHBOARD_ICONS.progress;
+
+    const metaParts = [`${correct}/${questions} marks`];
+    if (areaState.level < Store.LEVEL_IDS.length - 1) {
+      metaParts.push(`${questions ? Math.round((correct / questions) * 100) : 0}% accuracy`);
+    }
+
+    // Per-source breakdown, not just the pooled area figure above — a
+    // pooled average can hide one genuinely weak sub-skill behind several
+    // strong ones (this is also what floor-gates level advancement now, see
+    // store.js), so showing it here lets a student see exactly which
+    // sub-skill within the area needs the work, not just that the area as a
+    // whole is "Developing".
+    const sourceRows = sources
+      .filter((sourceKey) => cumulative[sourceKey].questions > 0)
+      .map((sourceKey) => {
+        const stat = cumulative[sourceKey];
+        return `
+          <li>
+            <span>${escapeHtml(Drivers[sourceKey].label)}</span>
+            <strong>${stat.correct}/${stat.questions} · ${stat.percentage}%</strong>
+          </li>
+        `;
+      })
+      .join("");
+
+    return `
+      <article class="pm-detail-tile" data-area="${escapeHtml(areaKey)}">
+        <div class="pm-detail-tile-top">
+          <span class="pm-detail-icon" aria-hidden="true"><img src="${escapeHtml(iconSrc)}" alt="" /></span>
+          <div class="pm-detail-tile-copy">
+            <h4>${escapeHtml(AreaLabels[areaKey])}</h4>
+            <small>${escapeHtml(metaParts.join(" · "))}</small>
+          </div>
+          <span class="pm-detail-level">${escapeHtml(areaState.levelLabel)}</span>
+        </div>
+        <div class="pm-detail-bar" aria-hidden="true"><i style="width:${overallProgress}%"></i></div>
+        ${detailText ? `<p class="pm-detail-feedback-focus">${escapeHtml(detailText)}</p>` : ""}
+        ${sourceRows ? `<ul class="pm-detail-sources">${sourceRows}</ul>` : ""}
+      </article>
+    `;
+  }).join("");
+
+  const areasStarted = AreaOrder.filter((areaKey) =>
+    areaToSources[areaKey].some((sourceKey) => cumulative[sourceKey].questions > 0)
+  ).length;
+  const overallLevelIcon = PM_DETAIL_LEVEL_ICONS[snapshot.overallLevelLabel] || PM_DETAIL_LEVEL_ICONS.Foundation;
+  const progressModeIcon = DASHBOARD_ICONS.progress;
+
+  return `
+    <div class="pm-detail">
+      <header class="pm-detail-overall">
+        <div class="pm-detail-brand">
+          <span class="pm-detail-brand-icon" aria-hidden="true"><img src="${escapeHtml(progressModeIcon)}" alt="" /></span>
+          <div class="pm-detail-brand-copy">
+            <span class="pm-detail-brand-eyebrow">Levelled learning</span>
+            <strong class="pm-detail-brand-title"><span class="pm-detail-brand-main">Progress</span><span class="pm-detail-brand-mode">Mode</span></strong>
+          </div>
+        </div>
+        <div class="pm-detail-overall-status">
+          <span class="pm-detail-overall-icon" aria-hidden="true"><img src="${escapeHtml(overallLevelIcon)}" alt="" /></span>
+          <div class="pm-detail-overall-copy">
+            <strong class="pm-detail-overall-level">${escapeHtml(snapshot.overallLevelLabel)}</strong>
+            <small class="pm-detail-overall-meta">${snapshot.roundsCompleted} round${snapshot.roundsCompleted === 1 ? "" : "s"} · ${totalCorrect} / ${totalQuestions} marks · ${areasStarted} / ${AreaOrder.length} areas started</small>
+          </div>
+        </div>
+      </header>
+
+      <section class="pm-detail-areas" aria-label="Levels and feedback by musical area">
+        <div class="pm-detail-areas-heading">
+          <div>
+            <p class="pm-detail-eyebrow">By musical area</p>
+            <h3>Levels and feedback</h3>
+          </div>
+          <a class="pm-detail-action" href="${categoryActionHref("progress", CATEGORY_CONFIG.progress)}">Start Progress Mode</a>
+        </div>
+        <div class="pm-detail-grid">${tiles}</div>
+      </section>
+    </div>
+  `;
+}
+
 function openCategoryDetail(categoryKey) {
   const config = CATEGORY_CONFIG[categoryKey];
   if (!config || !state.progress) return;
@@ -465,18 +573,21 @@ function openCategoryDetail(categoryKey) {
     ? (categories.homework || { overall: {} })
     : (categories[categoryKey] || { overall: {}, modules: [], recentRounds: [], recentQuestions: [] });
 
+  const isProgressDetail = categoryKey === "progress";
+  els.categoryDialog.classList.toggle("is-pm-detail", isProgressDetail);
   els.categoryDetailEyebrow.textContent = config.eyebrow;
   els.categoryDetailTitle.textContent = config.title;
   els.categoryDetailSubtitle.textContent = config.detailSubtitle;
   els.categoryDetailIcon?.style.setProperty("--ea-icon", `url('${config.icon}')`);
-  els.categoryDetailContent.innerHTML = detailedCategoryMarkup(categoryKey, category);
+  els.categoryDetailContent.innerHTML = isProgressDetail
+    ? progressModeDetailMarkup()
+    : detailedCategoryMarkup(categoryKey, category);
   els.categoryDialog.showModal();
 }
 
 function chooseNextStep(progress) {
   const categories = progress.categories || {};
   const modules = [
-    ...(categories.progress?.modules || []),
     ...(categories.quizzes?.modules || [])
   ].filter((module) => Number(module.questions || 0) > 0);
 
@@ -490,7 +601,6 @@ function chooseNextStep(progress) {
 function renderRecentLearning(progress) {
   const categories = progress.categories || {};
   const rounds = [
-    ...(categories.progress?.recentRounds || []).map((round) => ({ ...round, source: "progress" })),
     ...(categories.quizzes?.recentRounds || []).map((round) => ({ ...round, source: "quizzes" }))
   ]
     .sort((a, b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0))
@@ -533,24 +643,6 @@ async function loadProgress(showStatus = false) {
   els.progressStatus.textContent = showStatus ? "Results refreshed." : "";
 }
 
-function closeStudentAppMenus(exceptButton = null) {
-  document.querySelectorAll("[data-student-app-menu-button]").forEach((button) => {
-    if (button === exceptButton) return;
-    button.setAttribute("aria-expanded", "false");
-    const menu = document.getElementById(button.getAttribute("aria-controls"));
-    if (menu) menu.hidden = true;
-  });
-}
-
-function toggleStudentAppMenu(button) {
-  const menu = document.getElementById(button.getAttribute("aria-controls"));
-  if (!menu) return;
-  const willOpen = button.getAttribute("aria-expanded") !== "true";
-  closeStudentAppMenus(button);
-  button.setAttribute("aria-expanded", String(willOpen));
-  menu.hidden = !willOpen;
-}
-
 (async () => {
   try {
     const current = await api("/api/auth/me?role=student");
@@ -560,6 +652,7 @@ function toggleStudentAppMenu(button) {
     document.getElementById("studentAccountName").textContent = current.student.displayName;
     document.getElementById("studentTeacherName").textContent = current.student.teacherName;
     document.getElementById("studentTeacherCode").textContent = current.student.teacherCode;
+    document.getElementById("progressModeLink").href = categoryActionHref("progress", CATEGORY_CONFIG.progress);
     await window.EAProgressionStore?.ready?.();
     await loadProgress(false);
   } catch (error) {
@@ -589,22 +682,8 @@ document.getElementById("studentLogoutButton").addEventListener("click", async (
 });
 
 document.addEventListener("click", (event) => {
-  const menuButton = event.target.closest("[data-student-app-menu-button]");
-  if (menuButton) {
-    toggleStudentAppMenu(menuButton);
-    return;
-  }
-
-  if (!event.target.closest(".student-action-wrap-v3")) {
-    closeStudentAppMenus();
-  }
-
   const detailButton = event.target.closest("[data-category-detail]");
   if (detailButton) openCategoryDetail(detailButton.dataset.categoryDetail);
-});
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeStudentAppMenus();
 });
 
 document.getElementById("closeStudentCategoryDetail").addEventListener("click", () => {

@@ -11,7 +11,7 @@ const clips = [
     "year": "",
     "key": "D Major",
     "work": "Violin Concerto Op 61",
-    "remarks": "",
+    "remarks": "Solo instrument comes in later — harder, therefore Securing.",
     "question": "Identify the solo instrument.",
     "answer": "VIOLIN",
     "mmQuestion": "",
@@ -19,7 +19,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II002",
@@ -41,7 +42,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II003",
@@ -55,7 +57,7 @@ const clips = [
     "year": "",
     "key": "D Major",
     "work": "Violin Sonata No. 9 \"Kreutzer\"",
-    "remarks": "",
+    "remarks": "Poor recording so harder — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "VIOLIN",
     "mmQuestion": "",
@@ -63,7 +65,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II004",
@@ -85,7 +88,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II005",
@@ -107,7 +111,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II006",
@@ -121,7 +126,7 @@ const clips = [
     "year": "",
     "key": "D Major",
     "work": "Violin Sonata No. 9 \"Kreutzer\"",
-    "remarks": "",
+    "remarks": "Low register.",
     "question": "Identify the solo instrument.",
     "answer": "VIOLIN",
     "mmQuestion": "",
@@ -129,7 +134,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II007",
@@ -151,7 +157,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II008",
@@ -173,7 +180,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II009",
@@ -195,7 +203,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II010",
@@ -217,7 +226,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II011",
@@ -239,7 +249,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II012",
@@ -253,7 +264,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Violin Sonata No. 5 (1)",
-    "remarks": "",
+    "remarks": "Very low register violin sounds like cello — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "VIOLIN",
     "mmQuestion": "",
@@ -261,29 +272,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II013",
-    "file": "audio/II013.mp3",
-    "instrument": "VIOLIN",
-    "family": "Strings",
-    "type": "Piano Accomp.",
-    "difficulty": "EASY",
-    "composer": "Mozart",
-    "genre": "Classical",
-    "year": "",
-    "key": "",
-    "work": "Violin Sonata No.21 K304 (1)",
-    "remarks": "",
-    "question": "Identify the solo instrument.",
-    "answer": "VIOLIN",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II014",
@@ -305,7 +295,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II015",
@@ -327,7 +318,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II016",
@@ -349,7 +341,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II017",
@@ -371,7 +364,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II018",
@@ -393,7 +387,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II019",
@@ -407,7 +402,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Violin Sonata No. 5 Spring (1)",
-    "remarks": "",
+    "remarks": "Poor recording so harder — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "VIOLIN",
     "mmQuestion": "",
@@ -415,7 +410,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II020",
@@ -429,7 +425,7 @@ const clips = [
     "year": "",
     "key": "F Major",
     "work": "Violin (Trumpet) Sonata F (2)",
-    "remarks": "",
+    "remarks": "Lots of reverb on recording — harder, Securing.",
     "question": "Identify the solo instrument.",
     "answer": "TRUMPET",
     "mmQuestion": "",
@@ -437,7 +433,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II021",
@@ -459,7 +456,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II022",
@@ -481,7 +479,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II023",
@@ -503,7 +502,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II024",
@@ -525,7 +525,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II025",
@@ -547,7 +548,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II026",
@@ -561,7 +563,7 @@ const clips = [
     "year": "",
     "key": "E flat Major",
     "work": "Sicilliene",
-    "remarks": "",
+    "remarks": "Poor recording so harder — added provisionally to Mastering.",
     "question": "Identify the solo instrument.",
     "answer": "VIOLIN",
     "mmQuestion": "",
@@ -569,7 +571,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II027",
@@ -591,7 +594,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II028",
@@ -613,7 +617,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II029",
@@ -635,7 +640,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II030",
@@ -657,7 +663,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II031",
@@ -679,7 +686,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II032",
@@ -701,7 +709,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II033",
@@ -723,7 +732,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II034",
@@ -745,7 +755,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II035",
@@ -767,7 +778,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II036",
@@ -789,7 +801,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II037",
@@ -811,7 +824,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II038",
@@ -833,7 +847,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II039",
@@ -855,7 +870,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II040",
@@ -877,7 +893,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II041",
@@ -899,7 +916,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II042",
@@ -921,7 +939,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II043",
@@ -943,7 +962,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II044",
@@ -957,7 +977,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata - 3 Finale",
-    "remarks": "",
+    "remarks": "Hard because it uses pizzicato and dissonance.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -965,7 +985,8 @@ const clips = [
     "articulation": "Pizzicato",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II045",
@@ -979,7 +1000,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata - 3 Finale",
-    "remarks": "",
+    "remarks": "Strange articulations make the question harder — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -987,7 +1008,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II046",
@@ -1009,7 +1031,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II047",
@@ -1031,7 +1054,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II048",
@@ -1053,7 +1077,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II049",
@@ -1075,7 +1100,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II050",
@@ -1089,7 +1115,7 @@ const clips = [
     "year": "",
     "key": "E Minor",
     "work": "Cello Concerto Op. 85",
-    "remarks": "",
+    "remarks": "High register cello — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1097,7 +1123,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II051",
@@ -1119,7 +1146,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II052",
@@ -1141,7 +1169,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II053",
@@ -1163,7 +1192,8 @@ const clips = [
     "articulation": "Pizzicato",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II054",
@@ -1185,7 +1215,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II055",
@@ -1199,7 +1230,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata (2) Moderramente Anime",
-    "remarks": "",
+    "remarks": "Strange harmonics — Mastering.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1207,7 +1238,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II056",
@@ -1229,7 +1261,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II057",
@@ -1251,7 +1284,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II058",
@@ -1265,7 +1299,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Concerto Op. 85 (4)",
-    "remarks": "",
+    "remarks": "Harder because has a high range for cello.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1273,7 +1307,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II059",
@@ -1287,7 +1322,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Concerto Op. 85 (4)",
-    "remarks": "",
+    "remarks": "Harder as high range.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1295,7 +1330,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II060",
@@ -1309,7 +1345,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Concerto Op. 85 (4)",
-    "remarks": "",
+    "remarks": "Harder because high range.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1317,7 +1353,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II061",
@@ -1339,7 +1376,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II062",
@@ -1353,7 +1391,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata (2) Serenade",
-    "remarks": "",
+    "remarks": "Harder as it is pizzicato cello.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1361,7 +1399,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II063",
@@ -1383,7 +1422,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II064",
@@ -1405,7 +1445,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II065",
@@ -1419,7 +1460,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata (2) Serenade",
-    "remarks": "",
+    "remarks": "Harder as range and techniques are unusual.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1427,7 +1468,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II066",
@@ -1449,7 +1491,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II067",
@@ -1471,7 +1514,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II068",
@@ -1485,7 +1529,7 @@ const clips = [
     "year": "",
     "key": "D Major",
     "work": "Cello Concerto HOB VIId (1)",
-    "remarks": "",
+    "remarks": "High cello so harder.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1493,7 +1537,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II069",
@@ -1507,7 +1552,7 @@ const clips = [
     "year": "",
     "key": "D Major",
     "work": "Cello Concerto HOB VIId (1)",
-    "remarks": "",
+    "remarks": "High range and harmonics — Mastering.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1515,7 +1560,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II070",
@@ -1537,7 +1583,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II071",
@@ -1559,7 +1606,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II072",
@@ -1581,7 +1629,8 @@ const clips = [
     "articulation": "Double Stop",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II073",
@@ -1603,7 +1652,8 @@ const clips = [
     "articulation": "Double Stop",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II074",
@@ -1625,7 +1675,8 @@ const clips = [
     "articulation": "Double Stop",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II075",
@@ -1647,7 +1698,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II076",
@@ -1661,7 +1713,7 @@ const clips = [
     "year": "",
     "key": "G minor",
     "work": "Cello Sonata Op.65 (1)",
-    "remarks": "",
+    "remarks": "Higher range so a little harder.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1669,7 +1721,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II077",
@@ -1691,7 +1744,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II078",
@@ -1713,7 +1767,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II079",
@@ -1735,7 +1790,8 @@ const clips = [
     "articulation": "Double Stop",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II080",
@@ -1757,7 +1813,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II081",
@@ -1779,7 +1836,8 @@ const clips = [
     "articulation": "Double Stop",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II082",
@@ -1801,7 +1859,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II083",
@@ -1823,7 +1882,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II084",
@@ -1845,7 +1905,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II085",
@@ -1867,7 +1928,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II086",
@@ -1881,7 +1943,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata Op.1 (2)",
-    "remarks": "",
+    "remarks": "Harder as higher range.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1889,7 +1951,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II087",
@@ -1911,7 +1974,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II088",
@@ -1925,7 +1989,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata Op.1 (2)",
-    "remarks": "",
+    "remarks": "Harder as high range.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -1933,7 +1997,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II089",
@@ -1955,7 +2020,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II090",
@@ -1977,7 +2043,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II091",
@@ -1999,7 +2066,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II092",
@@ -2013,7 +2081,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata Op. 69 (3)",
-    "remarks": "",
+    "remarks": "Harmonics, high range, and not much cello audible — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -2021,7 +2089,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II093",
@@ -2035,7 +2104,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata Op. 69 (1)",
-    "remarks": "",
+    "remarks": "Goes low so could be mistaken for double bass.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -2043,7 +2112,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II094",
@@ -2057,7 +2127,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata Op. 69 (1)",
-    "remarks": "",
+    "remarks": "Cello slightly less clear, hence Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -2065,29 +2135,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II095",
-    "file": "audio/II095.mp3",
-    "instrument": "CELLO",
-    "family": "Strings",
-    "type": "Piano Accomp.",
-    "difficulty": "EASY",
-    "composer": "Beethoven",
-    "genre": "Classical",
-    "year": "",
-    "key": "",
-    "work": "Cello Sonata Op. 69 (1)",
-    "remarks": "",
-    "question": "Identify the solo instrument.",
-    "answer": "CELLO",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II096",
@@ -2101,7 +2150,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata Op. 69 (1)",
-    "remarks": "",
+    "remarks": "Goes low so could be mistaken for double bass, hence Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -2109,7 +2158,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II097",
@@ -2131,7 +2181,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II098",
@@ -2153,7 +2204,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II099",
@@ -2175,7 +2227,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II100",
@@ -2197,7 +2250,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II101",
@@ -2219,7 +2273,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II102",
@@ -2241,7 +2296,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II103",
@@ -2263,7 +2319,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II104",
@@ -2285,7 +2342,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II105",
@@ -2307,7 +2365,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II106",
@@ -2329,7 +2388,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II107",
@@ -2351,7 +2411,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II108",
@@ -2373,7 +2434,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II109",
@@ -2395,7 +2457,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II110",
@@ -2417,7 +2480,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II111",
@@ -2439,7 +2503,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II112",
@@ -2453,7 +2518,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Suite No. 4 (4)",
-    "remarks": "",
+    "remarks": "Double stopping, so Developing not Foundation (monophonic).",
     "question": "Identify the instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -2461,7 +2526,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II113",
@@ -2483,7 +2549,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II114",
@@ -2505,7 +2572,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II115",
@@ -2519,7 +2587,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Cello Sonata Op. 69 (2)",
-    "remarks": "",
+    "remarks": "Higher range so could be mistaken for violin, hence level.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -2527,7 +2595,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II116",
@@ -2549,7 +2618,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II117",
@@ -2571,7 +2641,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II118",
@@ -2585,7 +2656,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Op. 5 No.2 (2)",
-    "remarks": "",
+    "remarks": "Higher range and cello not so clear, hence Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CELLO",
     "mmQuestion": "",
@@ -2593,7 +2664,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II119",
@@ -2615,7 +2687,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II120",
@@ -2637,7 +2710,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II121",
@@ -2659,7 +2733,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II122",
@@ -2681,7 +2756,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II123",
@@ -2703,7 +2779,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II124",
@@ -2725,7 +2802,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II125",
@@ -2747,7 +2825,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II126",
@@ -2769,7 +2848,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II127",
@@ -2791,51 +2871,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II128",
-    "file": "audio/II128.mp3",
-    "instrument": "DOUBLE BASS",
-    "family": "Strings",
-    "type": "Orchestral",
-    "difficulty": "HARD",
-    "composer": "Bottesini",
-    "genre": "Romantic",
-    "year": "",
-    "key": "B minor",
-    "work": "Double Bass Concerto No. 2 (3)",
-    "remarks": "",
-    "question": "Identify the solo instrument.",
-    "answer": "DOUBLE BASS",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II129",
-    "file": "audio/II129.mp3",
-    "instrument": "DOUBLE BASS",
-    "family": "Strings",
-    "type": "Orchestral",
-    "difficulty": "HARD",
-    "composer": "Bottesini",
-    "genre": "Romantic",
-    "year": "",
-    "key": "B minor",
-    "work": "Double Bass Concerto No. 2 (1)",
-    "remarks": "",
-    "question": "Identify the solo instrument.",
-    "answer": "DOUBLE BASS",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II130",
@@ -2857,29 +2894,8 @@ const clips = [
     "articulation": "Harmonics",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II131",
-    "file": "audio/II131.mp3",
-    "instrument": "DOUBLE BASS",
-    "family": "Strings",
-    "type": "Orchestral",
-    "difficulty": "HARD",
-    "composer": "Bottesini",
-    "genre": "Romantic",
-    "year": "",
-    "key": "B minor",
-    "work": "Double Bass Concerto No. 2 (1)",
-    "remarks": "",
-    "question": "Identify the solo instrument.",
-    "answer": "DOUBLE BASS",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II132",
@@ -2901,7 +2917,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II133",
@@ -2923,7 +2940,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II134",
@@ -2945,7 +2963,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II135",
@@ -2967,7 +2986,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II136",
@@ -2989,7 +3009,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II137",
@@ -3011,7 +3032,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II138",
@@ -3025,7 +3047,7 @@ const clips = [
     "year": "",
     "key": "E flat Major",
     "work": "Trumpet Concerto HOB VIIe (2)",
-    "remarks": "",
+    "remarks": "Sounds a little like a French horn, so Securing as a distractor risk.",
     "question": "Identify the solo instrument.",
     "answer": "TRUMPET",
     "mmQuestion": "",
@@ -3033,7 +3055,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II139",
@@ -3055,7 +3078,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II140",
@@ -3077,7 +3101,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II141",
@@ -3099,7 +3124,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II142",
@@ -3121,7 +3147,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II143",
@@ -3143,7 +3170,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II144",
@@ -3165,7 +3193,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II145",
@@ -3187,7 +3216,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II146",
@@ -3209,7 +3239,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II147",
@@ -3231,7 +3262,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II148",
@@ -3253,73 +3285,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II149",
-    "file": "audio/II149.mp3",
-    "instrument": "FRENCH HORN",
-    "family": "Brass",
-    "type": "Orchestral",
-    "difficulty": "MEDIUM",
-    "composer": "Mozart",
-    "genre": "Classical",
-    "year": "",
-    "key": "D Major",
-    "work": "Horn Concerto K142 (1)",
-    "remarks": "",
-    "question": "Identify the solo instrument.",
-    "answer": "FRENCH HORN",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II150",
-    "file": "audio/II150.mp3",
-    "instrument": "FRENCH HORN",
-    "family": "Brass",
-    "type": "Piano Accomp.",
-    "difficulty": "HARD",
-    "composer": "Glazunov",
-    "genre": "Romantic",
-    "year": "",
-    "key": "",
-    "work": "Reverie Op. 24",
-    "remarks": "Low Quality",
-    "question": "Identify the solo instrument.",
-    "answer": "FRENCH HORN",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II151",
-    "file": "audio/II151.mp3",
-    "instrument": "FRENCH HORN",
-    "family": "Brass",
-    "type": "Piano Accomp.",
-    "difficulty": "HARD",
-    "composer": "Glazunov",
-    "genre": "Romantic",
-    "year": "",
-    "key": "",
-    "work": "Reverie Op. 24",
-    "remarks": "Low Quality",
-    "question": "Identify the solo instrument.",
-    "answer": "FRENCH HORN",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II152",
@@ -3333,7 +3300,7 @@ const clips = [
     "year": "",
     "key": "F minor",
     "work": "Clarinet Concerto Op. 73 (2)",
-    "remarks": "Low Quality",
+    "remarks": "Low Quality Sounds a bit oboe-esque, so levelled as Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3341,7 +3308,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II153",
@@ -3355,7 +3323,7 @@ const clips = [
     "year": "",
     "key": "F minor",
     "work": "Clarinet Concerto Op. 73 (2)",
-    "remarks": "Low Quality",
+    "remarks": "Low Quality Hard to hear clarinet over orchestra, so harder.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3363,7 +3331,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II154",
@@ -3377,7 +3346,7 @@ const clips = [
     "year": "",
     "key": "F minor",
     "work": "Clarinet Concerto Op. 73 (2)",
-    "remarks": "Low Quality",
+    "remarks": "Low Quality Sounds a bit oboe-like so Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3385,7 +3354,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II155",
@@ -3407,7 +3377,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II156",
@@ -3429,7 +3400,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II157",
@@ -3451,7 +3423,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II158",
@@ -3473,7 +3446,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II159",
@@ -3495,7 +3469,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II160",
@@ -3509,7 +3484,7 @@ const clips = [
     "year": "",
     "key": "F minor",
     "work": "Clarinet Concerto Op. 73 (1)",
-    "remarks": "",
+    "remarks": "High range makes this Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3517,7 +3492,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II161",
@@ -3539,7 +3515,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II162",
@@ -3561,7 +3538,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II163",
@@ -3575,7 +3553,7 @@ const clips = [
     "year": "",
     "key": "F minor",
     "work": "Clarinet Concerto Op. 73 (3)",
-    "remarks": "",
+    "remarks": "Poor recording makes question harder.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3583,7 +3561,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II164",
@@ -3597,7 +3576,7 @@ const clips = [
     "year": "",
     "key": "F minor",
     "work": "Clarinet Concerto Op. 73 (3)",
-    "remarks": "",
+    "remarks": "Poor recording makes it harder.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3605,7 +3584,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II165",
@@ -3627,7 +3607,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II166",
@@ -3641,7 +3622,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Clarinet Concerto",
-    "remarks": "",
+    "remarks": "Hard to identify with organ present — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3649,7 +3630,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II167",
@@ -3671,7 +3653,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II168",
@@ -3685,7 +3668,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Clarinet Concerto",
-    "remarks": "",
+    "remarks": "Hard with organ present to recognise — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3693,7 +3676,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II169",
@@ -3715,7 +3699,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II170",
@@ -3737,7 +3722,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II171",
@@ -3751,7 +3737,7 @@ const clips = [
     "year": "",
     "key": "E flat Major",
     "work": "Clarinet Concerto Op. 26",
-    "remarks": "",
+    "remarks": "Sounds a bit like oboe, hence Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3759,7 +3745,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II172",
@@ -3781,7 +3768,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II173",
@@ -3803,7 +3791,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II174",
@@ -3817,7 +3806,7 @@ const clips = [
     "year": "",
     "key": "E flat Major",
     "work": "Clarinet Concerto Op. 26",
-    "remarks": "",
+    "remarks": "Heavy articulation makes the clip harder, hence Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3825,7 +3814,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II175",
@@ -3839,7 +3829,7 @@ const clips = [
     "year": "",
     "key": "E flat Major",
     "work": "Clarinet Concerto Op. 26",
-    "remarks": "",
+    "remarks": "Poor recording, harder.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3847,7 +3837,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II176",
@@ -3861,7 +3852,7 @@ const clips = [
     "year": "",
     "key": "A Major",
     "work": "Clarinet Concerto K662",
-    "remarks": "",
+    "remarks": "Occasional doubling of clarinet part, so harder and Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3869,7 +3860,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II177",
@@ -3891,7 +3883,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II178",
@@ -3913,7 +3906,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II179",
@@ -3927,7 +3921,7 @@ const clips = [
     "year": "",
     "key": "A Major",
     "work": "Clarinet Concerto K662",
-    "remarks": "",
+    "remarks": "Occasional doubling of melody, so a bit harder, Securing.",
     "question": "Identify the solo instrument.",
     "answer": "CLARINET",
     "mmQuestion": "",
@@ -3935,7 +3929,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II180",
@@ -3957,7 +3952,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II181",
@@ -3979,7 +3975,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II182",
@@ -4001,7 +3998,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II183",
@@ -4023,7 +4021,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II184",
@@ -4045,7 +4044,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II185",
@@ -4067,7 +4067,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II186",
@@ -4089,7 +4090,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II187",
@@ -4103,7 +4105,7 @@ const clips = [
     "year": "",
     "key": "E minor",
     "work": "Fantasia Op. 79 Allegro",
-    "remarks": "",
+    "remarks": "Strange articulation makes this harder, Securing.",
     "question": "Identify the solo instrument.",
     "answer": "FLUTE",
     "mmQuestion": "",
@@ -4111,7 +4113,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II188",
@@ -4133,7 +4136,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II189",
@@ -4147,7 +4151,7 @@ const clips = [
     "year": "",
     "key": "E minor",
     "work": "Fantasia Op. 79 Andantino",
-    "remarks": "",
+    "remarks": "Sounds a bit clarinet-like at times, Securing.",
     "question": "Identify the solo instrument.",
     "answer": "FLUTE",
     "mmQuestion": "",
@@ -4155,7 +4159,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II190",
@@ -4177,7 +4182,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II191",
@@ -4199,7 +4205,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II192",
@@ -4213,7 +4220,7 @@ const clips = [
     "year": "",
     "key": "E minor",
     "work": "Flute Sonata BWV 1034",
-    "remarks": "",
+    "remarks": "Sounds like a recorder so a little harder — Securing level for this question.",
     "question": "Identify the solo instrument.",
     "answer": "RECORDER",
     "mmQuestion": "",
@@ -4221,7 +4228,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II193",
@@ -4243,7 +4251,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II194",
@@ -4265,7 +4274,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II195",
@@ -4287,7 +4297,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II196",
@@ -4309,7 +4320,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II197",
@@ -4323,7 +4335,7 @@ const clips = [
     "year": "",
     "key": "E minor",
     "work": "Flute Sonata BWV 1034",
-    "remarks": "",
+    "remarks": "Fuller texture and sounds like recorder, so harder — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "RECORDER",
     "mmQuestion": "",
@@ -4331,7 +4343,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II198",
@@ -4353,7 +4366,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II199",
@@ -4375,7 +4389,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II200",
@@ -4397,7 +4412,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II201",
@@ -4419,7 +4435,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II202",
@@ -4441,7 +4458,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II203",
@@ -4463,29 +4481,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II204",
-    "file": "audio/II204.mp3",
-    "instrument": "FLUTE",
-    "family": "Woodwind",
-    "type": "Solo",
-    "difficulty": "",
-    "composer": "Bach",
-    "genre": "Baroque",
-    "year": "",
-    "key": "A minor",
-    "work": "Partita BWV 1013",
-    "remarks": "",
-    "question": "Identify the instrument.",
-    "answer": "FLUTE",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II205",
@@ -4507,7 +4504,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II206",
@@ -4529,29 +4527,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II207",
-    "file": "audio/II207.mp3",
-    "instrument": "FLUTE",
-    "family": "Woodwind",
-    "type": "Solo",
-    "difficulty": "",
-    "composer": "Bach",
-    "genre": "Baroque",
-    "year": "",
-    "key": "A minor",
-    "work": "Partita BWV 1013 (3)",
-    "remarks": "",
-    "question": "Identify the instrument.",
-    "answer": "FLUTE",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II208",
@@ -4565,7 +4542,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Allegro - Rondeau",
-    "remarks": "",
+    "remarks": "Harder as organ not piano and blends with trumpet sound — Securing.",
     "question": "Identify the instrument.",
     "answer": "TRUMPET",
     "mmQuestion": "",
@@ -4573,7 +4550,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II209",
@@ -4587,7 +4565,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Allegro - Rondeau",
-    "remarks": "",
+    "remarks": "Organ accompaniment so harder — Securing.",
     "question": "Identify the instrument.",
     "answer": "TRUMPET",
     "mmQuestion": "",
@@ -4595,7 +4573,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II210",
@@ -4609,7 +4588,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Allegro - Rondeau",
-    "remarks": "",
+    "remarks": "Harder as organ not piano and blends with trumpet sound.",
     "question": "Identify the instrument.",
     "answer": "TRUMPET",
     "mmQuestion": "",
@@ -4617,7 +4596,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II211",
@@ -4639,7 +4619,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II212",
@@ -4661,7 +4642,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II213",
@@ -4683,7 +4665,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II214",
@@ -4705,7 +4688,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II215",
@@ -4727,7 +4711,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II216",
@@ -4749,7 +4734,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II217",
@@ -4771,7 +4757,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II218",
@@ -4793,7 +4780,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II219",
@@ -4815,7 +4803,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II220",
@@ -4837,7 +4826,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II221",
@@ -4859,29 +4849,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II222",
-    "file": "audio/II222.mp3",
-    "instrument": "FLUTE",
-    "family": "Woodwind",
-    "type": "Solo",
-    "difficulty": "EASY",
-    "composer": "Andersen",
-    "genre": "Romantic",
-    "year": "",
-    "key": "B minor",
-    "work": "24 Etudes for Flute Op. 15 (6)",
-    "remarks": "",
-    "question": "Identify the instrument.",
-    "answer": "FLUTE",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II223",
@@ -4903,7 +4872,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II224",
@@ -4925,7 +4895,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II225",
@@ -4947,7 +4918,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II226",
@@ -4969,7 +4941,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II227",
@@ -4991,7 +4964,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Foundation"
   },
   {
     "id": "II228",
@@ -5013,7 +4987,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II229",
@@ -5035,7 +5010,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II230",
@@ -5057,7 +5033,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II231",
@@ -5079,7 +5056,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II232",
@@ -5101,7 +5079,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II233",
@@ -5123,7 +5102,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II234",
@@ -5145,7 +5125,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II235",
@@ -5167,7 +5148,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II236",
@@ -5181,7 +5163,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Concerto for Oboe and Orch.",
-    "remarks": "",
+    "remarks": "Longer notes so harder.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5189,7 +5171,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II237",
@@ -5211,7 +5194,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II238",
@@ -5225,7 +5209,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Concerto for Oboe and Orch.",
-    "remarks": "",
+    "remarks": "Sounds a little clarinet-like so harder — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5233,7 +5217,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II239",
@@ -5255,7 +5240,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II240",
@@ -5269,7 +5255,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Concerto for Oboe and Orch.",
-    "remarks": "",
+    "remarks": "Sounds a little trumpet-like — harder, Securing.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5277,7 +5263,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II241",
@@ -5299,7 +5286,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II242",
@@ -5313,7 +5301,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Oboe Concerto TWV 51",
-    "remarks": "",
+    "remarks": "Harder to tell instrument through texture — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5321,7 +5309,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II243",
@@ -5343,7 +5332,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II244",
@@ -5365,7 +5355,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II245",
@@ -5387,7 +5378,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II246",
@@ -5409,7 +5401,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II247",
@@ -5423,7 +5416,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Oboe Concerto TWV 51",
-    "remarks": "",
+    "remarks": "Fuller accompaniment, less oboe featured, so Securing level.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5431,7 +5424,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II248",
@@ -5453,7 +5447,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II249",
@@ -5475,7 +5470,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II250",
@@ -5489,7 +5485,7 @@ const clips = [
     "year": "",
     "key": "F minor",
     "work": "Oboe Concerto F minor",
-    "remarks": "",
+    "remarks": "Strange, thin oboe sound — Securing as a result.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5497,7 +5493,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II251",
@@ -5519,7 +5516,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II252",
@@ -5541,7 +5539,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II253",
@@ -5563,7 +5562,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II254",
@@ -5585,7 +5585,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II255",
@@ -5607,7 +5608,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II256",
@@ -5621,7 +5623,7 @@ const clips = [
     "year": "",
     "key": "A Major",
     "work": "Oboe Concerto BWV1055",
-    "remarks": "Oboe d'amor?",
+    "remarks": "Oboe d'amor? Sounds a little trumpet-like so Securing level.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5629,7 +5631,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II257",
@@ -5651,7 +5654,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II258",
@@ -5673,7 +5677,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II259",
@@ -5695,7 +5700,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II260",
@@ -5717,7 +5723,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II261",
@@ -5731,7 +5738,7 @@ const clips = [
     "year": "",
     "key": "A Major",
     "work": "Oboe Concerto BWV1055",
-    "remarks": "Oboe d'amor?",
+    "remarks": "Oboe d'amor? A bit trumpet-sounding so Securing level.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5739,7 +5746,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II262",
@@ -5761,7 +5769,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II263",
@@ -5783,7 +5792,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II264",
@@ -5805,7 +5815,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II265",
@@ -5827,7 +5838,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II266",
@@ -5841,7 +5853,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Chansonette",
-    "remarks": "",
+    "remarks": "Sounds a bit trumpet-like — Securing.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5849,7 +5861,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II267",
@@ -5863,7 +5876,7 @@ const clips = [
     "year": "",
     "key": "",
     "work": "Chansonette",
-    "remarks": "",
+    "remarks": "A bit clarinet-like so Securing.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -5871,7 +5884,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II268",
@@ -5893,29 +5907,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II269",
-    "file": "audio/II269.mp3",
-    "instrument": "OBOE",
-    "family": "Woodwind",
-    "type": "Harpsichord",
-    "difficulty": "",
-    "composer": "",
-    "genre": "",
-    "year": "",
-    "key": "",
-    "work": "La Gracieuse (5) Napoltano",
-    "remarks": "w/ bassoon",
-    "question": "Identify the solo instrument.",
-    "answer": "OBOE",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II270",
@@ -5937,7 +5930,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II271",
@@ -5959,7 +5953,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II272",
@@ -5981,7 +5976,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II273",
@@ -6003,7 +5999,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II274",
@@ -6025,7 +6022,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II275",
@@ -6040,14 +6038,15 @@ const clips = [
     "key": "",
     "work": "La Gracieuse (6) Minuet",
     "remarks": "",
-    "question": "Identify the solo instrument.",
+    "question": "Name the upper solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
     "mmAnswer": "",
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II276",
@@ -6069,7 +6068,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II277",
@@ -6083,7 +6083,7 @@ const clips = [
     "year": "",
     "key": "B flat Major",
     "work": "Oboe Concerto HWV 302",
-    "remarks": "",
+    "remarks": "Strange oboe sound so harder.",
     "question": "Identify the solo instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
@@ -6091,7 +6091,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II278",
@@ -6105,15 +6106,16 @@ const clips = [
     "year": "",
     "key": "B flat Major",
     "work": "Oboe Concerto HWV 302",
-    "remarks": "Oboe hidden in texture",
-    "question": "Identify the solo instrument.",
+    "remarks": "Oboe hidden in texture Oboe is hidden in the texture.",
+    "question": "Name the solo woodwind instrument.",
     "answer": "OBOE",
     "mmQuestion": "",
     "mmAnswer": "",
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Mastering"
   },
   {
     "id": "II279",
@@ -6135,7 +6137,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II280",
@@ -6157,7 +6160,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II281",
@@ -6179,7 +6183,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Developing"
   },
   {
     "id": "II282",
@@ -6201,29 +6206,8 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
-  },
-  {
-    "id": "II283",
-    "file": "audio/II283.mp3",
-    "instrument": "OBOE",
-    "family": "Woodwind",
-    "type": "Orchestral",
-    "difficulty": "HARD",
-    "composer": "",
-    "genre": "",
-    "year": "",
-    "key": "B flat Major",
-    "work": "Oboe Concerto HWV 302",
-    "remarks": "Oboe hidden in texture",
-    "question": "Identify the solo instrument.",
-    "answer": "OBOE",
-    "mmQuestion": "",
-    "mmAnswer": "",
-    "articulation": "",
-    "cadence": "",
-    "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
   },
   {
     "id": "II284",
@@ -6245,6 +6229,1987 @@ const clips = [
     "articulation": "",
     "cadence": "",
     "source": "MusOpen",
-    "rights": "PD"
+    "rights": "PD",
+    "level": "Securing"
+  },
+  {
+    "id": "II285",
+    "file": "audio/II285.mp3",
+    "sourceQuestionId": "MTR015",
+    "instrument": "TRIANGLE",
+    "family": "Percussion",
+    "type": "Orchestral",
+    "difficulty": "MEDIUM",
+    "composer": "Edvard Grieg",
+    "genre": "Romantic",
+    "year": "",
+    "key": "A minor",
+    "work": "Peer Gynt Suite No. 1, Op. 46",
+    "movement": "III. Anitra’s Dance",
+    "remarks": "Prominent triangle in the opening of Anitra’s Dance",
+    "question": "Which percussion instrument is used prominently in this extract?",
+    "answer": "TRIANGLE",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Musopen Collection hosted by Internet Archive",
+    "rights": "Public Domain Mark 1.0",
+    "level": "Securing",
+    "responseType": "mc-custom",
+    "choices": [
+      "Triangle",
+      "Cymbals",
+      "Glockenspiel",
+      "Tubular Bells"
+    ]
+  },
+  {
+    "id": "II286",
+    "file": "audio/II286.mp3",
+    "sourceQuestionId": "INS-001",
+    "instrument": "Chip synthesiser",
+    "family": "Retro Arcade Action",
+    "type": "World/Ensemble",
+    "difficulty": "easy",
+    "composer": "",
+    "genre": "Stage & Screen — Video Game Music",
+    "year": "",
+    "key": "",
+    "work": "Coin Crash Circuit",
+    "remarks": "AoS: AoS7 | Cambridge topic: Stage & Screen — Video Game Music",
+    "question": "What type of sound source produces the melody in this extract?",
+    "answer": "Chip synthesiser",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "mc-custom",
+    "level": "Developing",
+    "choices": [
+      "Acoustic orchestra",
+      "Chip synthesiser",
+      "Solo piano",
+      "Rock band"
+    ]
+  },
+  {
+    "id": "II287",
+    "file": "audio/II287.mp3",
+    "sourceQuestionId": "INS-002",
+    "instrument": "Synthesised (chip-synth timbres)",
+    "family": "Retro Arcade Action",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Stage & Screen — Video Game Music",
+    "year": "",
+    "key": "",
+    "work": "Coin Crash Circuit",
+    "remarks": "AoS: AoS7 | Cambridge topic: Stage & Screen — Video Game Music",
+    "question": "Is this extract played by acoustic instruments or synthesised sounds? Give one piece of evidence.",
+    "answer": "Synthesised (chip-synth timbres)",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 2,
+    "markPoints": [
+      {
+        "label": "Synthesised",
+        "acceptedAnswers": [
+          "synthesised",
+          "synthesized",
+          "electronic",
+          "synth"
+        ]
+      },
+      {
+        "label": "Evidence",
+        "acceptedAnswers": [
+          "square wave",
+          "triangle wave",
+          "pure tone",
+          "simple waveform",
+          "no acoustic timbre",
+          "regular rhythm",
+          "quantised rhythm",
+          "chip synth",
+          "8-bit sound",
+          "electronic timbre"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "II288",
+    "file": "audio/II288.mp3",
+    "sourceQuestionId": "INS-003",
+    "instrument": "Square wave and triangle wave",
+    "family": "Retro Arcade Action",
+    "type": "World/Ensemble",
+    "difficulty": "hard",
+    "composer": "",
+    "genre": "Stage & Screen — Video Game Music",
+    "year": "",
+    "key": "",
+    "work": "Coin Crash Circuit",
+    "remarks": "AoS: AoS7 | Cambridge topic: Stage & Screen — Video Game Music",
+    "question": "Name the two basic synth waveforms typically used to create 'chiptune' melody and bass sounds.",
+    "answer": "Square wave and triangle wave",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 2,
+    "markPoints": [
+      {
+        "label": "Square wave",
+        "acceptedAnswers": [
+          "square wave",
+          "square"
+        ]
+      },
+      {
+        "label": "Triangle wave",
+        "acceptedAnswers": [
+          "triangle wave",
+          "triangle"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "II289",
+    "file": "audio/II289.mp3",
+    "sourceQuestionId": "INS-004",
+    "instrument": "Strings/brass + electronic bass/drums",
+    "family": "Boss Battle",
+    "type": "World/Ensemble",
+    "difficulty": "hard",
+    "composer": "",
+    "genre": "Stage & Screen — Video Game Music",
+    "year": "",
+    "key": "",
+    "work": "Iron Crown Clash",
+    "remarks": "AoS: AoS7 | Cambridge topic: Stage & Screen — Video Game Music",
+    "question": "Name one acoustic/orchestral instrument family and one electronic element heard in this extract.",
+    "answer": "Strings/brass + electronic bass/drums",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 2,
+    "markPoints": [
+      {
+        "label": "Orchestral family",
+        "acceptedAnswers": [
+          "strings",
+          "brass",
+          "string family",
+          "brass family",
+          "orchestral strings",
+          "string",
+          "brass instruments",
+          "brass instrument"
+        ]
+      },
+      {
+        "label": "Electronic element",
+        "acceptedAnswers": [
+          "distorted bass",
+          "synth stabs",
+          "electronic drums",
+          "synth bass",
+          "electronic percussion",
+          "electronic beat",
+          "electronic drum",
+          "synth",
+          "electronic bass line"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "II291",
+    "file": "audio/II291.mp3",
+    "sourceQuestionId": "INS-007",
+    "instrument": "Woodwind",
+    "family": "JRPG Orchestral / Overworld Theme",
+    "type": "World/Ensemble",
+    "difficulty": "easy",
+    "composer": "",
+    "genre": "Stage & Screen — Video Game Music",
+    "year": "",
+    "key": "",
+    "work": "Skybound Compass",
+    "remarks": "AoS: AoS7 | Cambridge topic: Stage & Screen — Video Game Music",
+    "question": "What instrumental family plays the opening melody?",
+    "answer": "Woodwind",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "mc-custom",
+    "level": "Developing",
+    "choices": [
+      "Woodwind",
+      "Brass",
+      "Strings",
+      "Electronic synth"
+    ]
+  },
+  {
+    "id": "II292",
+    "file": "audio/II292.mp3",
+    "sourceQuestionId": "INS-008",
+    "instrument": "Harp",
+    "family": "JRPG Orchestral / Overworld Theme",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Stage & Screen — Video Game Music",
+    "year": "",
+    "key": "",
+    "work": "Skybound Compass",
+    "remarks": "AoS: AoS7 | Cambridge topic: Stage & Screen — Video Game Music",
+    "question": "Name one instrument used for a glissando flourish at a transition point.",
+    "answer": "Harp",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "harp"
+    ]
+  },
+  {
+    "id": "II293",
+    "file": "audio/II293.mp3",
+    "sourceQuestionId": "INS-010",
+    "instrument": "Chip synthesiser",
+    "family": "8-bit Chiptune Platformer",
+    "type": "World/Ensemble",
+    "difficulty": "easy",
+    "composer": "",
+    "genre": "Stage & Screen — Video Game Music",
+    "year": "",
+    "key": "",
+    "work": "Pixel Bounce",
+    "remarks": "AoS: AoS7 | Cambridge topic: Stage & Screen — Video Game Music",
+    "question": "What type of sound source produces the melody in this extract?",
+    "answer": "Chip synthesiser",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "mc-custom",
+    "level": "Developing",
+    "choices": [
+      "Acoustic orchestra",
+      "Chip synthesiser",
+      "Digital sampler",
+      "Rock band"
+    ]
+  },
+  {
+    "id": "II294",
+    "file": "audio/II294.mp3",
+    "sourceQuestionId": "INS-012",
+    "instrument": "Square wave",
+    "family": "8-bit Chiptune Platformer",
+    "type": "World/Ensemble",
+    "difficulty": "easy",
+    "composer": "",
+    "genre": "Stage & Screen — Video Game Music",
+    "year": "",
+    "key": "",
+    "work": "Pixel Bounce",
+    "remarks": "AoS: AoS7 | Cambridge topic: Stage & Screen — Video Game Music",
+    "question": "Name the basic waveform used to create the melody sounds in this type of music.",
+    "answer": "Square wave",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "square wave",
+      "square"
+    ]
+  },
+  {
+    "id": "II295",
+    "file": "audio/II295.mp3",
+    "sourceQuestionId": "INS-014",
+    "instrument": "Filtered sample loop (or other valid synth/production layer)",
+    "family": "Deep House",
+    "type": "World/Ensemble",
+    "difficulty": "easy",
+    "composer": "",
+    "genre": "Music for Dance — EDM",
+    "year": "",
+    "key": "",
+    "work": "Mirror Ball Loop",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — EDM",
+    "question": "Name one specific synth or production element you can hear.",
+    "answer": "Filtered sample loop (or other valid synth/production layer)",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "filtered sample loop",
+      "sample loop",
+      "riser",
+      "bass synth",
+      "drum machine",
+      "filter sweep"
+    ]
+  },
+  {
+    "id": "II296",
+    "file": "audio/II296.mp3",
+    "sourceQuestionId": "INS-017",
+    "instrument": "Analog synth lead (or other valid synth/production layer)",
+    "family": "Synthwave",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Dance — EDM",
+    "year": "",
+    "key": "",
+    "work": "Midnight Tape Run",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — EDM",
+    "question": "Name one specific synth or production element you can hear.",
+    "answer": "Analog synth lead (or other valid synth/production layer)",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "analog synth lead",
+      "synth lead",
+      "arpeggiated synth",
+      "filter effects",
+      "delay effects",
+      "syncopated bass synth",
+      "riser",
+      "bass synth",
+      "drum machine",
+      "square wave",
+      "triangle wave",
+      "arpeggiator",
+      "reverb",
+      "electronic synth bass"
+    ]
+  },
+  {
+    "id": "II297",
+    "file": "audio/II297.mp3",
+    "sourceQuestionId": "INS-020",
+    "instrument": "Wobble bass synth (or other valid synth/production layer)",
+    "family": "Dubstep",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Dance — EDM",
+    "year": "",
+    "key": "",
+    "work": "Iron Wobble",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — EDM",
+    "question": "Name one specific synth or production element you can hear.",
+    "answer": "Wobble bass synth (or other valid synth/production layer)",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "wobble bass synth",
+      "wobble bass",
+      "reverb effects",
+      "distortion",
+      "bass distortion",
+      "delay effects",
+      "riser",
+      "bass synth",
+      "drum machine",
+      "filter effects",
+      "square wave"
+    ]
+  },
+  {
+    "id": "II298",
+    "file": "audio/II298.mp3",
+    "sourceQuestionId": "INS-034",
+    "instrument": "Soprano",
+    "family": "Contemporary Art Song (solo soprano + piano)",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music and Words",
+    "year": "",
+    "key": "",
+    "work": "Thread of Glass",
+    "remarks": "AoS: AoS4 | Cambridge topic: Music and Words",
+    "question": "Which voice type sings the melody?",
+    "answer": "Soprano",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "mc-custom",
+    "level": "Securing",
+    "choices": [
+      "Soprano",
+      "Alto",
+      "Tenor",
+      "Bass"
+    ]
+  },
+  {
+    "id": "II299",
+    "file": "audio/II299.mp3",
+    "sourceQuestionId": "INS-035",
+    "instrument": "Piano",
+    "family": "Contemporary Art Song (solo soprano + piano)",
+    "type": "World/Ensemble",
+    "difficulty": "easy",
+    "composer": "",
+    "genre": "Music and Words",
+    "year": "",
+    "key": "",
+    "work": "Thread of Glass",
+    "remarks": "AoS: AoS4 | Cambridge topic: Music and Words",
+    "question": "Which instrument accompanies the voice throughout this extract?",
+    "answer": "Piano",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Developing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "piano"
+    ]
+  },
+  {
+    "id": "II300",
+    "file": "audio/II300.mp3",
+    "sourceQuestionId": "INS-037",
+    "instrument": "Violin",
+    "family": "Tango Cancion (vocal)",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Dance — Tango",
+    "year": "",
+    "key": "",
+    "work": "La Ultima Cuadra",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Tango",
+    "question": "Which instrument plays the main melody in this extract?",
+    "answer": "Violin",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "violin"
+    ]
+  },
+  {
+    "id": "II301",
+    "file": "audio/II301.mp3",
+    "sourceQuestionId": "INS-040",
+    "instrument": "Bandoneon",
+    "family": "Tango Cancion (vocal) — contrast",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Dance — Tango",
+    "year": "",
+    "key": "",
+    "work": "Ventanita de Moron",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Tango",
+    "question": "Which instrument plays the main melody at the start of this extract?",
+    "answer": "Bandoneon",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "bandoneon",
+      "bandoneón"
+    ]
+  },
+  {
+    "id": "II302",
+    "file": "audio/II302.mp3",
+    "sourceQuestionId": "INS-041",
+    "instrument": "Bellows push/pull air across reeds; buttons select pitch",
+    "family": "Tango Cancion (vocal) — contrast",
+    "type": "World/Ensemble",
+    "difficulty": "hard",
+    "composer": "",
+    "genre": "Music for Dance — Tango",
+    "year": "",
+    "key": "",
+    "work": "Ventanita de Moron",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Tango",
+    "question": "The melody in this extract is played on bandoneon. Describe how sound is produced on this instrument.",
+    "answer": "Bellows push/pull air across reeds; buttons select pitch",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 2,
+    "markPoints": [
+      {
+        "label": "Bellows",
+        "acceptedAnswers": [
+          "bellows",
+          "push and pull",
+          "forcing air",
+          "air across reeds",
+          "air across metal reeds"
+        ]
+      },
+      {
+        "label": "Buttons",
+        "acceptedAnswers": [
+          "buttons",
+          "button system",
+          "buttons operated by hand",
+          "hand-operated buttons",
+          "button accordion"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "II303",
+    "file": "audio/II303.mp3",
+    "sourceQuestionId": "INS-043",
+    "instrument": "Bandoneon",
+    "family": "Tango Nuevo",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Dance — Tango",
+    "year": "",
+    "key": "",
+    "work": "Puerta de Humo",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Tango",
+    "question": "Which instrument plays the main melody in this extract?",
+    "answer": "Bandoneon",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "bandoneon",
+      "bandoneón"
+    ]
+  },
+  {
+    "id": "II305",
+    "file": "audio/II305.mp3",
+    "sourceQuestionId": "INS-047",
+    "instrument": "Violin",
+    "family": "Tango Nuevo — contrast",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Dance — Tango",
+    "year": "",
+    "key": "",
+    "work": "Sombras de Acero",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Tango",
+    "question": "Identify the solo instrument in this clip.",
+    "answer": "Violin",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "violin"
+    ]
+  },
+  {
+    "id": "II306",
+    "file": "audio/II306.mp3",
+    "sourceQuestionId": "INS-049",
+    "instrument": "Violin",
+    "family": "Classic Orquesta Tipica (1940s golden age)",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Dance — Tango",
+    "year": "",
+    "key": "",
+    "work": "Sombras del Bandoneon",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Tango",
+    "question": "Name the solo instrument that plays the melody in the following extract.",
+    "answer": "Violin",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "violin"
+    ]
+  },
+  {
+    "id": "II309",
+    "file": "audio/II309.mp3",
+    "sourceQuestionId": "INS-064",
+    "instrument": "Tanpura",
+    "family": "Khyal, Raga Bhairavi",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Small Ensemble — Hindustani",
+    "year": "",
+    "key": "",
+    "work": "Bhor Bhai Bhairavi",
+    "remarks": "AoS: AoS6 | Cambridge topic: Music for Small Ensemble — Hindustani",
+    "question": "What is the name of the drone instrument heard throughout this extract?",
+    "answer": "Tanpura",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "tanpura",
+      "tampura"
+    ]
+  },
+  {
+    "id": "II311",
+    "file": "audio/II311.mp3",
+    "sourceQuestionId": "INS-066",
+    "instrument": "Tabla",
+    "family": "Khyal, Raga Bhairavi",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Small Ensemble — Hindustani",
+    "year": "",
+    "key": "",
+    "work": "Bhor Bhai Bhairavi",
+    "remarks": "AoS: AoS6 | Cambridge topic: Music for Small Ensemble — Hindustani",
+    "question": "What is the name of the pair of hand drums that keeps the tāla?",
+    "answer": "Tabla",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "tabla"
+    ]
+  },
+  {
+    "id": "II312",
+    "file": "audio/II312.mp3",
+    "sourceQuestionId": "INS-067",
+    "instrument": "Bansurī",
+    "family": "Instrumental, Raga Khamaj",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Small Ensemble — Hindustani",
+    "year": "",
+    "key": "",
+    "work": "Khamaj Ki Dhun",
+    "remarks": "AoS: AoS6 | Cambridge topic: Music for Small Ensemble — Hindustani",
+    "question": "Which melody instrument is heard in this extract?",
+    "answer": "Bansurī",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "mc-custom",
+    "level": "Securing",
+    "choices": [
+      "Sitār",
+      "Sarod",
+      "Bansurī",
+      "Sarangi"
+    ]
+  },
+  {
+    "id": "II313",
+    "file": "audio/II313.mp3",
+    "sourceQuestionId": "INS-070",
+    "instrument": "Dizi, erhu, pipa, guzheng, yangqin (any two)",
+    "family": "Silk & Bamboo Ensemble (lively/San Liu style)",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Small Ensemble — Chinese",
+    "year": "",
+    "key": "",
+    "work": "Spring Bamboo Market",
+    "remarks": "AoS: AoS6 | Cambridge topic: Music for Small Ensemble — Chinese",
+    "question": "Name two instruments you can hear in this extract.",
+    "answer": "Dizi, erhu, pipa, guzheng, yangqin (any two)",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 2,
+    "markPoints": [
+      {
+        "label": "Instrument",
+        "acceptedAnswers": [
+          "dizi",
+          "erhu",
+          "pipa",
+          "guzheng",
+          "yangqin"
+        ]
+      },
+      {
+        "label": "Instrument",
+        "acceptedAnswers": [
+          "dizi",
+          "erhu",
+          "pipa",
+          "guzheng",
+          "yangqin"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "II314",
+    "file": "audio/II314.mp3",
+    "sourceQuestionId": "INS-076",
+    "instrument": "Oud, qanūn, riqq, darbuka (any two)",
+    "family": "Dance-adjacent, Maqam Hijaz",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Small Ensemble — Arab Takht",
+    "year": "",
+    "key": "",
+    "work": "Hijaz Courtyard",
+    "remarks": "AoS: AoS6 | Cambridge topic: Music for Small Ensemble — Arab Takht",
+    "question": "Name two instruments used in this extract.",
+    "answer": "Oud, qanūn, riqq, darbuka (any two)",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 2,
+    "markPoints": [
+      {
+        "label": "Instrument",
+        "acceptedAnswers": [
+          "oud",
+          "qanūn",
+          "qanun",
+          "riqq",
+          "darbuka"
+        ]
+      },
+      {
+        "label": "Instrument",
+        "acceptedAnswers": [
+          "oud",
+          "qanūn",
+          "qanun",
+          "riqq",
+          "darbuka"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "II315",
+    "file": "audio/II315.mp3",
+    "sourceQuestionId": "INS-077",
+    "instrument": "Oud",
+    "family": "Dance-adjacent, Maqam Hijaz",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Small Ensemble — Arab Takht",
+    "year": "",
+    "key": "",
+    "work": "Hijaz Courtyard",
+    "remarks": "AoS: AoS6 | Cambridge topic: Music for Small Ensemble — Arab Takht",
+    "question": "Which instrument is a plucked pear-shaped lute?",
+    "answer": "Oud",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "mc-custom",
+    "level": "Securing",
+    "choices": [
+      "Oud",
+      "Qanūn",
+      "Nay",
+      "Darbuka"
+    ]
+  },
+  {
+    "id": "II316",
+    "file": "audio/II316.mp3",
+    "sourceQuestionId": "INS-078",
+    "instrument": "Riqq and darbuka",
+    "family": "Dance-adjacent, Maqam Hijaz",
+    "type": "World/Ensemble",
+    "difficulty": "hard",
+    "composer": "",
+    "genre": "Music for Small Ensemble — Arab Takht",
+    "year": "",
+    "key": "",
+    "work": "Hijaz Courtyard",
+    "remarks": "AoS: AoS6 | Cambridge topic: Music for Small Ensemble — Arab Takht",
+    "question": "Which two percussion instruments provide the rhythmic drive in this extract?",
+    "answer": "Riqq and darbuka",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 2,
+    "markPoints": [
+      {
+        "label": "Riqq",
+        "acceptedAnswers": [
+          "riqq",
+          "riq"
+        ]
+      },
+      {
+        "label": "Darbuka",
+        "acceptedAnswers": [
+          "darbuka",
+          "dirbake",
+          "derbake",
+          "doumbek"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "II317",
+    "file": "audio/II317.mp3",
+    "sourceQuestionId": "INS-082",
+    "instrument": "Oud",
+    "family": "Taqsim, Maqam Saba",
+    "type": "World/Ensemble",
+    "difficulty": "hard",
+    "composer": "",
+    "genre": "Music for Small Ensemble — Arab Takht",
+    "year": "",
+    "key": "",
+    "work": "Saba Taqsim",
+    "remarks": "AoS: AoS6 | Cambridge topic: Music for Small Ensemble — Arab Takht",
+    "question": "What is the first instrument you hear?",
+    "answer": "Oud",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Securing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "oud"
+    ]
+  },
+  {
+    "id": "II318",
+    "file": "audio/II318.mp3",
+    "sourceQuestionId": "INS-085",
+    "instrument": "Congas and timbales (accept bongos, cowbell, güiro, maracas, claves)",
+    "family": "Salsa Dura / Timba-influenced (2-3 clave)",
+    "type": "World/Ensemble",
+    "difficulty": "hard",
+    "composer": "",
+    "genre": "Music for Dance — Salsa",
+    "year": "",
+    "key": "",
+    "work": "Clave de Fuego",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Salsa",
+    "question": "Name two percussion instruments used in this extract.",
+    "answer": "Congas and timbales (accept bongos, cowbell, güiro, maracas, claves)",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 2,
+    "markPoints": [
+      {
+        "label": "Percussion instrument",
+        "acceptedAnswers": [
+          "congas",
+          "timbales",
+          "bongos",
+          "cowbell",
+          "güiro",
+          "guiro",
+          "maracas",
+          "claves"
+        ]
+      },
+      {
+        "label": "Percussion instrument",
+        "acceptedAnswers": [
+          "congas",
+          "timbales",
+          "bongos",
+          "cowbell",
+          "güiro",
+          "guiro",
+          "maracas",
+          "claves"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "II319",
+    "file": "audio/II319.mp3",
+    "sourceQuestionId": "INS-087",
+    "instrument": "Brass",
+    "family": "Salsa Dura / Timba-influenced (2-3 clave)",
+    "type": "World/Ensemble",
+    "difficulty": "easy",
+    "composer": "",
+    "genre": "Music for Dance — Salsa",
+    "year": "",
+    "key": "",
+    "work": "Clave de Fuego",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Salsa",
+    "question": "Which instrumental family provides the punctuating 'stab' chords in this extract?",
+    "answer": "Brass",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "mc-custom",
+    "level": "Developing",
+    "choices": [
+      "Brass",
+      "Strings",
+      "Woodwind",
+      "Electronic synths"
+    ]
+  },
+  {
+    "id": "II320",
+    "file": "audio/II320.mp3",
+    "sourceQuestionId": "INS-025",
+    "instrument": "Piano",
+    "family": "Musical Theatre Ballad",
+    "type": "World/Ensemble",
+    "difficulty": "easy",
+    "composer": "",
+    "genre": "Music and Words",
+    "year": "",
+    "key": "",
+    "work": "Open the Doors",
+    "remarks": "AoS: AoS4 | Cambridge topic: Music and Words",
+    "question": "What instrument accompanies the singer at the start of the extract?",
+    "answer": "Piano",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Developing",
+    "maxMarks": 1,
+    "acceptedAnswers": [
+      "piano"
+    ]
+  },
+  {
+    "id": "II322",
+    "file": "audio/II322.mp3",
+    "sourceQuestionId": "INS-061",
+    "instrument": "Congas and timbales (accept bongos, cowbell, güiro, maracas, claves)",
+    "family": "Salsa Dura (son-montuno)",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Dance — Salsa",
+    "year": "",
+    "key": "",
+    "work": "Candela en Casa",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Salsa",
+    "question": "Name two percussion instruments used in this extract.",
+    "answer": "Congas and timbales (accept bongos, cowbell, güiro, maracas, claves)",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "typed",
+    "level": "Mastering",
+    "maxMarks": 2,
+    "markPoints": [
+      {
+        "label": "Percussion instrument",
+        "acceptedAnswers": [
+          "congas",
+          "timbales",
+          "bongos",
+          "cowbell",
+          "güiro",
+          "guiro",
+          "maracas",
+          "claves"
+        ]
+      },
+      {
+        "label": "Percussion instrument",
+        "acceptedAnswers": [
+          "congas",
+          "timbales",
+          "bongos",
+          "cowbell",
+          "güiro",
+          "guiro",
+          "maracas",
+          "claves"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "II323",
+    "file": "audio/II323.mp3",
+    "sourceQuestionId": "INS-072",
+    "instrument": "Guzheng",
+    "family": "Silk & Bamboo Ensemble (lively/San Liu style)",
+    "type": "World/Ensemble",
+    "difficulty": "easy",
+    "composer": "",
+    "genre": "Music for Small Ensemble — Chinese",
+    "year": "",
+    "key": "",
+    "work": "Spring Bamboo Market",
+    "remarks": "AoS: AoS6 | Cambridge topic: Music for Small Ensemble — Chinese",
+    "question": "Which instrument is a plucked zither laid flat, played with fingerpicks?",
+    "answer": "Guzheng",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "responseType": "mc-custom",
+    "level": "Securing",
+    "choices": [
+      "Guzheng",
+      "Erhu",
+      "Dizi",
+      "Yangqin"
+    ]
+  },
+  {
+    "id": "II324",
+    "file": "audio/II324.mp3",
+    "sourceQuestionId": "TEX-043",
+    "instrument": "VIOLIN",
+    "family": "Strings",
+    "type": "World/Ensemble",
+    "difficulty": "medium",
+    "composer": "",
+    "genre": "Music for Dance — Tango",
+    "year": "",
+    "key": "",
+    "work": "Puerta de Humo",
+    "remarks": "AoS: AoS5 | Cambridge topic: Music for Dance — Tango | Routed from Texture Trainer review (TEX-043).",
+    "question": "Name the solo instrument in this extract.",
+    "answer": "VIOLIN",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+    "rights": "Original commission for EchoAural",
+    "level": "Securing"
+  },
+  {
+    "id": "II191K",
+    "file": "audio/II191.mp3",
+    "instrument": "HARPSICHORD",
+    "family": "Keyboard",
+    "type": "Harpsichord",
+    "difficulty": "",
+    "composer": "Bach",
+    "genre": "Baroque",
+    "year": "",
+    "key": "E minor",
+    "work": "Flute Sonata BWV 1034",
+    "remarks": "Reused audio from II191. Added as a second question on the same clip during the II level review (2026-08-10).",
+    "question": "Name the keyboard instrument.",
+    "answer": "HARPSICHORD",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "MusOpen",
+    "rights": "PD",
+    "level": "Developing",
+    "sourceQuestionId": "II191",
+    "responseType": "mc-custom",
+    "choices": [
+      "Harpsichord",
+      "Piano",
+      "Organ",
+      "Celesta"
+    ]
+  },
+  {
+    "id": "II192K",
+    "file": "audio/II192.mp3",
+    "instrument": "HARPSICHORD",
+    "family": "Keyboard",
+    "type": "Harpsichord",
+    "difficulty": "",
+    "composer": "Bach",
+    "genre": "Baroque",
+    "year": "",
+    "key": "E minor",
+    "work": "Flute Sonata BWV 1034",
+    "remarks": "Reused audio from II192. Added as a second question on the same clip during the II level review (2026-08-10).",
+    "question": "Name the keyboard instrument.",
+    "answer": "HARPSICHORD",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "MusOpen",
+    "rights": "PD",
+    "level": "Developing",
+    "sourceQuestionId": "II192",
+    "responseType": "mc-custom",
+    "choices": [
+      "Harpsichord",
+      "Piano",
+      "Organ",
+      "Celesta"
+    ]
+  },
+  {
+    "id": "II193K",
+    "file": "audio/II193.mp3",
+    "instrument": "HARPSICHORD",
+    "family": "Keyboard",
+    "type": "Harpsichord",
+    "difficulty": "",
+    "composer": "Bach",
+    "genre": "Baroque",
+    "year": "",
+    "key": "E minor",
+    "work": "Flute Sonata BWV 1034",
+    "remarks": "Reused audio from II193. Added as a second question on the same clip during the II level review (2026-08-10).",
+    "question": "Name the keyboard instrument.",
+    "answer": "HARPSICHORD",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "MusOpen",
+    "rights": "PD",
+    "level": "Developing",
+    "sourceQuestionId": "II193",
+    "responseType": "mc-custom",
+    "choices": [
+      "Harpsichord",
+      "Piano",
+      "Organ",
+      "Celesta"
+    ]
+  },
+  {
+    "id": "II195K",
+    "file": "audio/II195.mp3",
+    "instrument": "HARPSICHORD",
+    "family": "Keyboard",
+    "type": "Harpsichord",
+    "difficulty": "",
+    "composer": "Bach",
+    "genre": "Baroque",
+    "year": "",
+    "key": "E minor",
+    "work": "Flute Sonata BWV 1034",
+    "remarks": "Reused audio from II195. Added as a second question on the same clip during the II level review (2026-08-10).",
+    "question": "Name the keyboard instrument.",
+    "answer": "HARPSICHORD",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "MusOpen",
+    "rights": "PD",
+    "level": "Developing",
+    "sourceQuestionId": "II195",
+    "responseType": "mc-custom",
+    "choices": [
+      "Harpsichord",
+      "Piano",
+      "Organ",
+      "Celesta"
+    ]
+  },
+  {
+    "id": "II196K",
+    "file": "audio/II196.mp3",
+    "instrument": "HARPSICHORD",
+    "family": "Keyboard",
+    "type": "Harpsichord",
+    "difficulty": "",
+    "composer": "Bach",
+    "genre": "Baroque",
+    "year": "",
+    "key": "E minor",
+    "work": "Flute Sonata BWV 1034",
+    "remarks": "Reused audio from II196. Added as a second question on the same clip during the II level review (2026-08-10).",
+    "question": "Name the keyboard instrument.",
+    "answer": "HARPSICHORD",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "MusOpen",
+    "rights": "PD",
+    "level": "Developing",
+    "sourceQuestionId": "II196",
+    "responseType": "mc-custom",
+    "choices": [
+      "Harpsichord",
+      "Piano",
+      "Organ",
+      "Celesta"
+    ]
+  },
+  {
+    "id": "II198K",
+    "file": "audio/II198.mp3",
+    "instrument": "HARPSICHORD",
+    "family": "Keyboard",
+    "type": "Harpsichord",
+    "difficulty": "",
+    "composer": "Bach",
+    "genre": "Baroque",
+    "year": "",
+    "key": "E minor",
+    "work": "Flute Sonata BWV 1034",
+    "remarks": "Reused audio from II198. Added as a second question on the same clip during the II level review (2026-08-10).",
+    "question": "Name the keyboard instrument.",
+    "answer": "HARPSICHORD",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "MusOpen",
+    "rights": "PD",
+    "level": "Developing",
+    "sourceQuestionId": "II198",
+    "responseType": "mc-custom",
+    "choices": [
+      "Harpsichord",
+      "Piano",
+      "Organ",
+      "Celesta"
+    ]
+  },
+  {
+    "id": "II265K",
+    "file": "audio/II265.mp3",
+    "instrument": "PIANO",
+    "family": "Keyboard",
+    "type": "Piano Accomp.",
+    "difficulty": "",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "Chansonette",
+    "remarks": "Reused audio from II265. Added as a second question on the same clip during the II level review (2026-08-10).",
+    "question": "Name the keyboard instrument.",
+    "answer": "PIANO",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "MusOpen",
+    "rights": "PD",
+    "level": "Developing",
+    "sourceQuestionId": "II265",
+    "responseType": "mc-custom",
+    "choices": [
+      "Piano",
+      "Harpsichord",
+      "Organ",
+      "Celesta"
+    ]
+  },
+  {
+    "id": "II271K",
+    "file": "audio/II271.mp3",
+    "instrument": "PIANO",
+    "family": "Keyboard",
+    "type": "Harpsichord",
+    "difficulty": "",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "La Gracieuse (1) Prelude",
+    "remarks": "Reused audio from II271. Added as a second question on the same clip during the II level review (2026-08-10).",
+    "question": "Name the keyboard instrument.",
+    "answer": "PIANO",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "MusOpen",
+    "rights": "PD",
+    "level": "Developing",
+    "sourceQuestionId": "II271",
+    "responseType": "mc-custom",
+    "choices": [
+      "Piano",
+      "Harpsichord",
+      "Organ",
+      "Celesta"
+    ]
+  },
+  {
+    "id": "II275B",
+    "file": "audio/II275.mp3",
+    "instrument": "BASSOON",
+    "family": "Woodwind",
+    "type": "Harpsichord",
+    "difficulty": "",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "La Gracieuse (6) Minuet",
+    "remarks": "Reused audio from II275. Added as a second question on the same clip during the II level review (2026-08-10).",
+    "question": "Name the lower solo instrument.",
+    "answer": "BASSOON",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "MusOpen",
+    "rights": "PD",
+    "level": "Securing",
+    "sourceQuestionId": "II275"
+  },
+  {
+    "id": "II325",
+    "file": "audio/II325.mp3",
+    "sourceQuestionId": "ENS030",
+    "instrument": "TRIANGLE",
+    "family": "Percussion",
+    "type": "Orchestral",
+    "difficulty": "",
+    "composer": "Bedřich Smetana",
+    "genre": "Romantic",
+    "year": "",
+    "key": "",
+    "work": "Má vlast – Vltava",
+    "remarks": "Reused audio from ENS030 (Ensemble Recognition). Added during the II level review (2026-08-10): audio clip features a prominent triangle.",
+    "question": "Identify the prominent percussion instrument used in this extract.",
+    "answer": "TRIANGLE",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Musopen Collection",
+    "rights": "Public Domain",
+    "level": "Securing",
+    "responseType": "mc-custom",
+    "choices": [
+      "Triangle",
+      "Cymbals",
+      "Glockenspiel",
+      "Tubular Bells"
+    ]
+  }
+  ,
+  {
+    "id": "II326",
+    "file": "audio/II326.mp3",
+    "instrument": "Bandoneon",
+    "family": "World/Ensemble",
+    "type": "Solo",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the solo instrument.",
+    "answer": "Bandoneon",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II327",
+    "file": "audio/II327.mp3",
+    "instrument": "Bansuri",
+    "family": "Woodwind",
+    "type": "Solo",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the solo instrument.",
+    "answer": "Bansuri",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II328",
+    "file": "audio/II328.mp3",
+    "instrument": "Bansuri",
+    "family": "Woodwind",
+    "type": "Solo",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the solo instrument.",
+    "answer": "Bansuri",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II329",
+    "file": "audio/II329.mp3",
+    "instrument": "Bass Guitar",
+    "family": "Guitar",
+    "type": "Solo",
+    "difficulty": "EASY",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Bass Guitar",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Foundation"
+  },
+  {
+    "id": "II330",
+    "file": "audio/II330.mp3",
+    "instrument": "Bass Guitar",
+    "family": "Guitar",
+    "type": "Orchestral",
+    "difficulty": "EASY",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument playing with the drums.",
+    "answer": "Bass Guitar",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II331",
+    "file": "audio/II331.mp3",
+    "instrument": "Electric Guitar",
+    "family": "Guitar",
+    "type": "Solo",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the solo instrument.",
+    "answer": "Electric Guitar",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II332",
+    "file": "audio/II332.mp3",
+    "instrument": "Erhu",
+    "family": "Strings",
+    "type": "Solo",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Erhu",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II333",
+    "file": "audio/II333.mp3",
+    "instrument": "Erhu",
+    "family": "Strings",
+    "type": "Orchestral",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Erhu",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Securing"
+  },
+  {
+    "id": "II334",
+    "file": "audio/II334.mp3",
+    "instrument": "Gamelan",
+    "family": "World/Ensemble",
+    "type": "World/Ensemble",
+    "difficulty": "EASY",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the ensemble.",
+    "answer": "Gamelan",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II335",
+    "file": "audio/II335.mp3",
+    "instrument": "Guqin",
+    "family": "Strings",
+    "type": "Orchestral",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Guqin",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Securing"
+  },
+  {
+    "id": "II336",
+    "file": "audio/II336.mp3",
+    "instrument": "Koto",
+    "family": "Strings",
+    "type": "Orchestral",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Koto",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Securing"
+  },
+  {
+    "id": "II337",
+    "file": "audio/II337.mp3",
+    "instrument": "Panpipes",
+    "family": "Woodwind",
+    "type": "Solo",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Panpipes",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II338",
+    "file": "audio/II338.mp3",
+    "instrument": "Agogo",
+    "family": "Percussion",
+    "type": "Solo",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Agogo",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II339",
+    "file": "audio/II339.mp3",
+    "instrument": "Bongos",
+    "family": "Percussion",
+    "type": "Solo",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Bongos",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II340",
+    "file": "audio/II340.mp3",
+    "instrument": "Rebab",
+    "family": "Strings",
+    "type": "Orchestral",
+    "difficulty": "HARD",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the string instrument.",
+    "answer": "Rebab",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Mastering"
+  },
+  {
+    "id": "II341",
+    "file": "audio/II341.mp3",
+    "instrument": "Sarangi",
+    "family": "Strings",
+    "type": "Orchestral",
+    "difficulty": "HARD",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Sarangi",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Mastering"
+  },
+  {
+    "id": "II342",
+    "file": "audio/II342.mp3",
+    "instrument": "Shakuhachi",
+    "family": "Woodwind",
+    "type": "Orchestral",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Shakuhachi",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Securing"
+  },
+  {
+    "id": "II343",
+    "file": "audio/II343.mp3",
+    "instrument": "Tabla",
+    "family": "Percussion",
+    "type": "Solo",
+    "difficulty": "MEDIUM",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the instrument.",
+    "answer": "Tabla",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Developing"
+  },
+  {
+    "id": "II344",
+    "file": "audio/II344.mp3",
+    "instrument": "Tenor",
+    "family": "Voice",
+    "type": "Solo",
+    "difficulty": "EASY",
+    "composer": "",
+    "genre": "",
+    "year": "",
+    "key": "",
+    "work": "",
+    "remarks": "",
+    "question": "Identify the singing voice.",
+    "answer": "Tenor",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Desktop import (New II questions)",
+    "rights": "Unknown",
+    "level": "Foundation"
+  },
+  {
+    "id": "II376",
+    "file": "audio/II376.mp3",
+    "instrument": "CELLO",
+    "family": "Strings",
+    "type": "Orchestral",
+    "difficulty": "MEDIUM",
+    "composer": "Josef Suk",
+    "genre": "Romantic",
+    "year": "",
+    "key": "",
+    "work": "Meditation on the Old Czech Chorale 'St. Wenceslas', Op. 35a",
+    "remarks": "Routed from the Meter Master NEW-50 review batch (MMY048/MTR079): slow, chordal string-orchestra/quartet opening statement of the chorale melody, with the cello line audible beneath the upper strings.",
+    "question": "Identify the string instrument.",
+    "answer": "CELLO",
+    "mmQuestion": "",
+    "mmAnswer": "",
+    "articulation": "",
+    "cadence": "",
+    "source": "Meter Master NEW-50 review batch (2026-08-12)",
+    "rights": "Public Domain Mark 1.0",
+    "level": "Developing"
   }
 ];

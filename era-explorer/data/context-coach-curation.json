@@ -1,0 +1,881 @@
+{
+  "excludedClipIds": [
+    "CLIP-16D259CD4557",
+    "CLIP-1E08BC27E146",
+    "CLIP-2F181EF25D62",
+    "CLIP-3A43794AE92E",
+    "CLIP-3D32DE59AFED",
+    "CLIP-48F13861151B",
+    "CLIP-4EE3AA2514D4",
+    "CLIP-56C93B48E3B9",
+    "CLIP-56E94FD0FE5C",
+    "CLIP-5E3697E97AF9",
+    "CLIP-5E8544720EB7",
+    "CLIP-60BB46F776B2",
+    "CLIP-646DD279B656",
+    "CLIP-6ADE25AEDCAD",
+    "CLIP-6F1A9E41BEF0",
+    "CLIP-7997EFBA03ED",
+    "CLIP-7BB5B895D6A5",
+    "CLIP-86C34A7CC395",
+    "CLIP-952610961D87",
+    "CLIP-A94AC8BECC60",
+    "CLIP-A9DE6E8A06B8",
+    "CLIP-AD2DB69A7EE3",
+    "CLIP-B05CEB45F720",
+    "CLIP-B3308EB3F053",
+    "CLIP-B5CCFA9DC607",
+    "CLIP-BA2BF1125F91",
+    "CLIP-C2B9621C8A0C",
+    "CLIP-C5C878763FFD",
+    "CLIP-C5CE5CD99BD5",
+    "CLIP-C782E9B83D9A",
+    "CLIP-D31D27BE6B6D",
+    "CLIP-D5F92722A907",
+    "CLIP-DAB52A61FFC5",
+    "CLIP-DB60A216FFA5",
+    "CLIP-E2F0E2511B48",
+    "CLIP-E5A7C974485B",
+    "CLIP-E625D2DA795B",
+    "CLIP-EXL002",
+    "CLIP-F5593EE4707A",
+    "CLIP-F5D3D6EF57A1",
+    "CLIP-FA928F966079",
+    "CLIP-FFF2B5BC5FD3",
+    "CLIP-NEWCC001",
+    "CLIP-NEWCC004",
+    "CLIP-NEWCC010",
+    "CLIP-NEWCC014",
+    "CLIP-NEWCC019",
+    "CLIP-NEWCC024",
+    "CLIP-NEWCC030",
+    "CLIP-NEWCC034",
+    "CLIP-NEWCC043",
+    "CLIP-NEWCC047",
+    "CLIP-NEWCC049",
+    "CLIP-NEWCC050",
+    "CLIP-1DE00A9590AD",
+    "CLIP-2B66A9196F3B",
+    "CLIP-3EAD4854A69E",
+    "CLIP-48E27688FE57",
+    "CLIP-576391C6A154",
+    "CLIP-6D3ECC75CAAA",
+    "CLIP-6F84DEBB8645",
+    "CLIP-9712C9354F45",
+    "CLIP-B3825A13E565",
+    "CLIP-C81EA4E0BE39",
+    "CLIP-E3787A0C5F5D",
+    "CLIP-ECD73F16829E",
+    "CLIP-F02ADF624CAF",
+    "CLIP-NEWCC048",
+    "CLIP-63EB450C8A35",
+    "CLIP-83F1AD77A603",
+    "CLIP-C74B023601B7",
+    "CLIP-FB7E09009EAA",
+    "CLIP-NEWCC046",
+    "CLIP-D8B0A1D07065",
+    "CLIP-E258E7D731CC"
+  ],
+  "typeExclusions": {
+    "CLIP-01F7D108527F": [
+      "period"
+    ],
+    "CLIP-1AACF52B8EA4": [
+      "period"
+    ],
+    "CLIP-3EE7AA59E4B0": [
+      "period"
+    ],
+    "CLIP-47D7D98369F9": [
+      "period"
+    ],
+    "CLIP-7E0AC5ACD21B": [
+      "period"
+    ],
+    "CLIP-7E20DA6BED3D": [
+      "period"
+    ],
+    "CLIP-824757EBEE02": [
+      "period"
+    ],
+    "CLIP-843210991A7E": [
+      "period"
+    ],
+    "CLIP-880A1ABB030C": [
+      "period"
+    ],
+    "CLIP-A7387AF2101C": [
+      "period"
+    ],
+    "CLIP-C92386476B1B": [
+      "period"
+    ],
+    "CLIP-CE29BE459C36": [
+      "period"
+    ],
+    "CLIP-E1972148B148": [
+      "period"
+    ],
+    "CLIP-E5A38D61240F": [
+      "period"
+    ],
+    "CLIP-E62EA2836FBB": [
+      "composer"
+    ],
+    "CLIP-EB2FD4AC0C5E": [
+      "period"
+    ],
+    "CLIP-EXL006": [
+      "period"
+    ],
+    "CLIP-F0ABD6BD0059": [
+      "period"
+    ],
+    "CLIP-F8FB5A280766": [
+      "period"
+    ],
+    "CLIP-NEWCC002": [
+      "period"
+    ],
+    "CLIP-NEWCC003": [
+      "period"
+    ],
+    "CLIP-NEWCC005": [
+      "period"
+    ],
+    "CLIP-NEWCC007": [
+      "period"
+    ],
+    "CLIP-NEWCC009": [
+      "period"
+    ],
+    "CLIP-NEWCC016": [
+      "period"
+    ],
+    "CLIP-NEWCC021": [
+      "period"
+    ],
+    "CLIP-NEWCC022": [
+      "period"
+    ],
+    "CLIP-NEWCC040": [
+      "period"
+    ]
+  },
+  "levels": {
+    "CLIP-0024FF2C50EC": {
+      "composer": "Foundation",
+      "period": "Foundation"
+    },
+    "CLIP-00851AB26D00": {
+      "composer": "Developing",
+      "period": "Developing"
+    },
+    "CLIP-016C95D89DFA": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-01F7D108527F": {
+      "composer": "Securing"
+    },
+    "CLIP-05DDF4C12254": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-09909E131C8A": {
+      "composer": "Developing",
+      "period": "Developing"
+    },
+    "CLIP-0BB3C0D30090": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-0C0FFC6D626D": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-0C3304CFE62F": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-0E13F9C57BD1": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-0F1FCCD712F0": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-135A59FE028C": {
+      "composer": "Developing",
+      "period": "Securing"
+    },
+    "CLIP-142D6CB57300": {
+      "composer": "Developing",
+      "period": "Developing"
+    },
+    "CLIP-1441083271BE": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-19ED672103DD": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-1A8F9076DD5C": {
+      "composer": "Developing",
+      "period": "Securing"
+    },
+    "CLIP-1AACF52B8EA4": {
+      "composer": "Mastering"
+    },
+    "CLIP-1AC448A4BBE5": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-1B38EA59E2EE": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-1BC0145CD248": {
+      "composer": "Developing",
+      "period": "Developing"
+    },
+    "CLIP-2188810222C5": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-223625F52037": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-235FF3C606AA": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-25F4D9626BFA": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-27234A7CB5C6": {
+      "composer": "Mastering",
+      "period": "Developing"
+    },
+    "CLIP-2C00B7CB77AF": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-2DC361124552": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-2E02BA2BFA7C": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-31903357C654": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-34C418A52540": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-36541CB40FFF": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-3CC8E09A2CA9": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-3EE7AA59E4B0": {
+      "composer": "Foundation"
+    },
+    "CLIP-3EFA80723BD7": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-421F46094C80": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-42580DC569B8": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-42A26B1CE7F3": {
+      "composer": "Securing",
+      "period": "Foundation"
+    },
+    "CLIP-453FE3DB5970": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-476AD11F16E8": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-47D7D98369F9": {
+      "composer": "Mastering"
+    },
+    "CLIP-487EFDB64270": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-4A359D3AA48D": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-4A5FAF4D271C": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-4B14662FEA29": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-504F90757D50": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-51070B8928DB": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-5209AD0016B3": {
+      "composer": "Mastering",
+      "period": "Developing"
+    },
+    "CLIP-5845A044CD66": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-58B3F86A4B02": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-59D1BDB2A7EF": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-5CE164B6E2E2": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-5D06541EE76D": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-62148D3D4575": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-62C75ECD829C": {
+      "composer": "Foundation",
+      "period": "Foundation"
+    },
+    "CLIP-64F03196836B": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-684AD73F0177": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-68BF4D7DE7B6": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-69C5DDBCA026": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-6ABC5EA44AD5": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-6AF32876910F": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-6B1DB1D7609F": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-6CC0D4E475C0": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-6E037A9F9829": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-6E4947E43E2D": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-6EAA1B494D50": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-6EF758CCCD7A": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-73DC72BF2BFD": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-777ADE752C1B": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-78D1F8D9C0D8": {
+      "composer": "Mastering",
+      "period": "Developing"
+    },
+    "CLIP-798FB76436FA": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-7C123A03E607": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-7E0AC5ACD21B": {
+      "composer": "Mastering"
+    },
+    "CLIP-7E20DA6BED3D": {
+      "composer": "Securing"
+    },
+    "CLIP-7F56E263BAF9": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-824757EBEE02": {
+      "composer": "Securing"
+    },
+    "CLIP-83C6C0E30D6C": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-843210991A7E": {
+      "composer": "Foundation"
+    },
+    "CLIP-853BE2324B22": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-880A1ABB030C": {
+      "composer": "Securing"
+    },
+    "CLIP-8895B408801D": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-8970C2F99BBD": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-8B6C21CC9D6F": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-91DCEFDCA8D1": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-9526FE4CA91F": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-988026B56804": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-98EDF9E83533": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-99F3317F092B": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-9CD4C9A4E77C": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-9E543D9B06A3": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-9F64B39F2162": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-A7387AF2101C": {
+      "composer": "Mastering"
+    },
+    "CLIP-AB6192D407EE": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-AB85A6C4209C": {
+      "composer": "Mastering",
+      "period": "Developing"
+    },
+    "CLIP-ACFFE1B15CD5": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-AD710FC01EF4": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-AEEE96E36876": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-B0B0FF994D43": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-B28568682337": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-B43473022B15": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-B47DD91F94E4": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-BC26B94AD95F": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-BD93E63F6335": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-C050D3CA1445": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-C495715D0697": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-C7A76D9D7F50": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-C8F3D509ED88": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-C92386476B1B": {
+      "composer": "Mastering"
+    },
+    "CLIP-C9727F6650BE": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-CE29BE459C36": {
+      "composer": "Foundation"
+    },
+    "CLIP-D39CE5A71344": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-D6B003076E31": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-D98A84D602B2": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-DC2CBD6FF3F8": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-DD934A1AC654": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-E1877A931785": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-E1972148B148": {
+      "composer": "Mastering"
+    },
+    "CLIP-E31FBF63603D": {
+      "composer": "Mastering",
+      "period": "Developing"
+    },
+    "CLIP-E524CD09124E": {
+      "composer": "Securing",
+      "period": "Securing"
+    },
+    "CLIP-E5A38D61240F": {
+      "composer": "Securing"
+    },
+    "CLIP-E62EA2836FBB": {
+      "period": "Developing"
+    },
+    "CLIP-E9076263DC43": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-EB2FD4AC0C5E": {
+      "composer": "Securing"
+    },
+    "CLIP-EDFBD8323161": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-EE384D8E31D6": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-EF182646E68B": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-EFE783FF6258": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-EXL001": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-EXL003": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-EXL006": {
+      "composer": "Foundation"
+    },
+    "CLIP-EXL008": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-EXL010": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-F0ABD6BD0059": {
+      "composer": "Foundation"
+    },
+    "CLIP-F1385D4E5278": {
+      "composer": "Developing",
+      "period": "Foundation"
+    },
+    "CLIP-F21C35E195E2": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-F62E655E26BE": {
+      "composer": "Securing",
+      "period": "Securing"
+    },
+    "CLIP-F8FB5A280766": {
+      "composer": "Developing"
+    },
+    "CLIP-FA7C620E7D24": {
+      "composer": "Securing",
+      "period": "Mastering"
+    },
+    "CLIP-FBC4339E9D0B": {
+      "composer": "Foundation",
+      "period": "Foundation"
+    },
+    "CLIP-FFDA358479EA": {
+      "composer": "Securing",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC002": {
+      "composer": "Foundation"
+    },
+    "CLIP-NEWCC003": {
+      "composer": "Foundation"
+    },
+    "CLIP-NEWCC005": {
+      "composer": "Foundation"
+    },
+    "CLIP-NEWCC006": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC007": {
+      "composer": "Securing"
+    },
+    "CLIP-NEWCC008": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC009": {
+      "composer": "Mastering"
+    },
+    "CLIP-NEWCC011": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC012": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC013": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC015": {
+      "composer": "Mastering",
+      "period": "Mastering"
+    },
+    "CLIP-NEWCC016": {
+      "composer": "Developing"
+    },
+    "CLIP-NEWCC017": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC018": {
+      "composer": "Mastering",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC020": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC021": {
+      "composer": "Mastering"
+    },
+    "CLIP-NEWCC022": {
+      "composer": "Securing"
+    },
+    "CLIP-NEWCC023": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC025": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC026": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC027": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC028": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC029": {
+      "composer": "Mastering",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC031": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC032": {
+      "composer": "Mastering",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC033": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC035": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC036": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC037": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC038": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC039": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC040": {
+      "composer": "Mastering"
+    },
+    "CLIP-NEWCC041": {
+      "composer": "Securing",
+      "period": "Developing"
+    },
+    "CLIP-NEWCC042": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC044": {
+      "composer": "Mastering",
+      "period": "Securing"
+    },
+    "CLIP-NEWCC045": {
+      "composer": "Mastering",
+      "period": "Securing"
+    }
+  },
+  "optionOverrides": {
+    "CLIP-00851AB26D00": {
+      "composer": [
+        "Ludwig van Beethoven",
+        "Tomaso Albinoni",
+        "Josef Suk",
+        "Franz Schubert"
+      ]
+    },
+    "CLIP-05DDF4C12254": {
+      "composer": [
+        "Ludwig van Beethoven",
+        "Antonio Vivaldi",
+        "Muzio Clementi",
+        "Claude Debussy"
+      ]
+    },
+    "CLIP-0BB3C0D30090": {
+      "composer": [
+        "Wolfgang Amadeus Mozart",
+        "Georg Philipp Telemann",
+        "Robert Schumann",
+        "Johann Sebastian Bach"
+      ]
+    },
+    "CLIP-1AACF52B8EA4": {
+      "composer": [
+        "Franz Schubert",
+        "Ludwig van Beethoven",
+        "Joseph Haydn",
+        "Johannes Brahms"
+      ]
+    },
+    "CLIP-NEWCC025": {
+      "composer": [
+        "Felix Mendelssohn",
+        "Wolfgang Amadeus Mozart",
+        "Joseph Haydn",
+        "Carl Philipp Emanuel Bach"
+      ]
+    }
+  }
+}

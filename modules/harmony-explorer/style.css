@@ -1,0 +1,665 @@
+@import url("../instrument-identifier/style.css");
+
+/* Harmony Explorer — chart purple accent #A66BFF */
+.app-shell[data-brand-app="harmony-explorer"] {
+  --module-accent: #A66BFF;
+  --he-purple: #A66BFF;
+  --he-purple-soft: #C49BFF;
+  --he-purple-deep: #8A4FE0;
+}
+
+.topbar-ii-gradient,
+.ii-title-gradient,
+.console-title-gradient {
+  background: none;
+  color: #A66BFF;
+  -webkit-text-fill-color: #A66BFF;
+  text-shadow: 0 0 12px rgba(166, 107, 255, .35);
+  animation: none;
+}
+
+/* When the console title shows a chosen skill's short name instead of the
+   suite wordmark, show it in white rather than the brand accent colour. */
+#consoleTitleGradient.is-skill-active {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: none !important;
+}
+
+/* Module branding tile — full colour, no white SVG invert. */
+.topbar-module-icon,
+.ii-hero-icon,
+.console-ii-icon,
+.answer-empty-icon {
+  overflow: hidden !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.topbar-module-icon img,
+.ii-hero-icon img,
+.console-ii-icon img,
+.answer-empty-icon img {
+  filter: none !important;
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: scale(1.06);
+  transform-origin: center center;
+}
+
+/* Centre-console skill icon: when it's a transparent white-line skill glyph
+   (not a suite's own opaque badge PNG), show it on the app's own gradient —
+   the opaque badge case simply covers this background completely. */
+.console-ii-icon {
+  background: linear-gradient(135deg, var(--he-purple-soft), var(--he-purple) 55%, var(--he-purple-deep)) !important;
+}
+
+/* =========================
+   Harmony Explorer homescreen — match Melody Master / Meter / CC layout
+   Brand accent: #A66BFF (ea-purple). Skills + Levels absent → blank slots.
+========================= */
+
+.topbar-app-link {
+  font-weight: 500;
+}
+
+.topbar-app-link-mm {
+  --module-accent: var(--ea-rose, #FF5DBA);
+}
+
+.topbar-app-link-ii {
+  --module-accent: #3FA6FF;
+}
+
+.topbar-app-link-tt {
+  --module-accent: var(--ea-teal, #27E1C1);
+}
+
+.topbar-app-link-meter {
+  --module-accent: var(--ea-amber, #FFAA2B);
+}
+
+.topbar-app-link-cc {
+  --module-accent: var(--ea-rose, #FF7AC8);
+}
+
+.topbar-app-link .module-title-text {
+  font-size: inherit;
+}
+
+.topbar-app-link .module-title-gradient {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--module-accent) 32%, transparent);
+}
+
+.setup-panel {
+  gap: 8px;
+  padding: 38px 22px;
+}
+
+.setup-panel > .panel-section-heading {
+  margin-bottom: 32px;
+}
+
+.panel-section-heading h2 .panel-heading-accent {
+  display: block;
+  width: 100%;
+  height: 2px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: #A66BFF;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  box-shadow: 0 0 6px rgba(166, 107, 255, .45);
+  animation: panel-heading-accent-breathe-he 2.8s ease-in-out infinite;
+}
+
+@keyframes panel-heading-accent-breathe-he {
+  0%, 100% {
+    opacity: .75;
+    box-shadow: 0 0 5px rgba(166, 107, 255, .35);
+    transform: scaleX(1) scaleY(1);
+  }
+  50% {
+    opacity: .92;
+    box-shadow: 0 0 10px rgba(166, 107, 255, .52), 0 0 3px rgba(166, 107, 255, .35);
+    transform: scaleX(1.03) scaleY(1.08);
+  }
+}
+
+.panel-heading-wave {
+  display: none;
+}
+
+.setup-panel .panel-hero {
+  padding-bottom: 0;
+  border-bottom: none;
+  margin-bottom: 40px;
+}
+
+.ii-panel-hero {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.ii-hero-lockup {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  margin: 0;
+}
+
+.ii-title-wave {
+  display: none;
+}
+
+.ii-panel-hero .ii-brand-eyebrow {
+  margin: 8px 0 0;
+}
+
+/* HE Skill tile row — exact MM/II skill-tile chrome (icon/tile height and size),
+   HE purple selected-state accent. */
+.setup-panel .melody-skill-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.setup-panel .melody-skill-button:hover {
+  border-color: rgba(166, 107, 255, .28);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(166, 107, 255, .14), transparent 38%),
+    var(--glass-strong);
+}
+
+.setup-panel .melody-skill-button:has(input:checked) {
+  border-color: rgba(166, 107, 255, .58);
+  background:
+    radial-gradient(circle at 85% 10%, rgba(166, 107, 255, .18), transparent 38%),
+    linear-gradient(135deg, rgba(138, 79, 224, .14), rgba(196, 155, 255, .10));
+  box-shadow:
+    0 18px 42px rgba(166, 107, 255, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+.setup-panel .level-button:hover {
+  border-color: rgba(166, 107, 255, .38);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(166, 107, 255, .16), transparent 38%),
+    var(--glass-strong);
+}
+
+.setup-panel .level-button:has(input:checked) {
+  border-color: rgba(166, 107, 255, .62);
+  background:
+    radial-gradient(circle at 85% 10%, rgba(166, 107, 255, .22), transparent 38%),
+    linear-gradient(135deg, rgba(138, 79, 224, .16), rgba(196, 155, 255, .10));
+  box-shadow:
+    0 18px 42px rgba(166, 107, 255, .15),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+.setup-panel .level-button input:focus-visible ~ strong {
+  text-decoration: underline;
+  text-decoration-color: rgba(209, 180, 255, .9);
+  text-underline-offset: 4px;
+}
+
+/* Freeze LHS skill + level selection during active/complete rounds (matches
+   Instrument Identifier's setup-panel.is-settings-locked pattern) — shared
+   here since both the HE landing page and key-signature-sprint link this file. */
+.setup-panel.is-settings-locked .melody-skill-grid,
+.setup-panel.is-settings-locked .level-grid {
+  pointer-events: none !important;
+  user-select: none;
+}
+.setup-panel.is-settings-locked .melody-skill-button,
+.setup-panel.is-settings-locked .level-button {
+  cursor: default;
+  pointer-events: none;
+}
+.setup-panel.is-settings-locked .melody-skill-button:hover,
+.setup-panel.is-settings-locked .level-button:hover {
+  transform: none;
+  border-color: rgba(130, 160, 255, .12);
+  background: radial-gradient(circle at 86% 12%, rgba(100, 150, 255, .10), transparent 38%), var(--glass);
+  box-shadow: 0 13px 32px rgba(0, 0, 0, .20), inset 0 1px 0 rgba(180, 200, 255, .08);
+}
+.setup-panel.is-settings-locked .melody-skill-button.is-selected,
+.setup-panel.is-settings-locked .level-button.is-selected,
+.setup-panel.is-settings-locked .melody-skill-button:has(input:checked),
+.setup-panel.is-settings-locked .level-button:has(input:checked),
+.setup-panel.is-settings-locked .melody-skill-button.is-selected:hover,
+.setup-panel.is-settings-locked .level-button.is-selected:hover,
+.setup-panel.is-settings-locked .melody-skill-button:has(input:checked):hover,
+.setup-panel.is-settings-locked .level-button:has(input:checked):hover {
+  opacity: 1;
+  border-color: rgba(166, 107, 255, .58);
+  background: radial-gradient(circle at 85% 10%, rgba(166, 107, 255, .18), transparent 38%), linear-gradient(135deg, rgba(138, 79, 224, .14), rgba(196, 155, 255, .10));
+  box-shadow: 0 18px 42px rgba(166, 107, 255, .12), inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+.he-setup-message {
+  margin: 12px 0 0;
+  min-height: 1.2em;
+  text-align: center;
+  color: rgba(255, 255, 255, .52);
+  font-size: .78rem;
+  line-height: 1.45;
+}
+
+.he-setup-message:empty {
+  display: none;
+}
+
+/* Subtle concentric circles — Harmony Explorer purple */
+body::before {
+  border: 1px solid rgba(166, 107, 255, .08);
+  box-shadow:
+    0 0 0 58px rgba(166, 107, 255, .018),
+    0 0 0 116px rgba(166, 107, 255, .012);
+}
+
+body::after {
+  border: 1px solid rgba(166, 107, 255, .12);
+  box-shadow:
+    0 0 0 82px rgba(166, 107, 255, .04),
+    0 0 0 164px rgba(166, 107, 255, .028),
+    0 0 0 246px rgba(255, 255, 255, .012),
+    0 0 70px rgba(166, 107, 255, .07);
+}
+
+.app-shell::before {
+  border: 1px solid rgba(166, 107, 255, .08);
+  box-shadow:
+    0 0 0 50px rgba(166, 107, 255, .018),
+    0 0 0 100px rgba(255, 255, 255, .01);
+}
+
+.app-shell::after {
+  border: 1px solid rgba(166, 107, 255, .09);
+  box-shadow:
+    0 0 0 42px rgba(166, 107, 255, .018),
+    0 0 0 84px rgba(166, 107, 255, .012);
+}
+
+/* Ready centre console — MM/II placement */
+.quiz-panel.is-ready .listening-console {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: center;
+  align-items: center;
+  justify-items: center;
+  gap: clamp(14px, 1.8vh, 24px);
+  margin: 0;
+  padding: clamp(22px, 2.5vw, 38px) clamp(14px, 1.45vw, 22px);
+  min-height: 0;
+  height: 100%;
+  border-radius: 34px;
+  box-sizing: border-box;
+}
+
+.quiz-panel.is-ready .statsRow,
+.quiz-panel.is-ready .console-question-kicker,
+.quiz-panel.is-ready .console-heading,
+.quiz-panel.is-ready .listening-cues,
+.quiz-panel.is-ready .answer-grid,
+.quiz-panel.is-ready .he-centre-panel,
+.quiz-panel.is-ready .instruments-centre-panel,
+.quiz-panel.is-ready #feedback,
+.quiz-panel.is-ready #restartButton,
+.quiz-panel.is-ready .console-actions-replay {
+  display: none !important;
+}
+
+.quiz-panel.is-ready .ii-console-start-brand,
+.quiz-panel.is-ready .console-ready-brand.ii-console-start-brand {
+  order: 1;
+  width: min(560px, 100%);
+  min-height: 0 !important;
+  height: auto;
+  display: grid !important;
+  place-items: center;
+  margin: 0 auto;
+  gap: 0;
+  opacity: 1 !important;
+  visibility: visible !important;
+  top: auto;
+  transform: translateY(clamp(0px, .2vh, 8px)) !important;
+}
+
+.quiz-panel.is-ready .ii-console-start-brand .console-ii-combined-lockup,
+.quiz-panel.is-ready .console-ii-combined-lockup {
+  display: grid;
+  justify-items: center;
+  gap: clamp(28px, 2.15vh, 38px);
+  text-align: center;
+}
+
+.quiz-panel.is-ready .ii-console-start-brand .console-ii-lockup,
+.quiz-panel.is-ready .console-ii-lockup {
+  margin-top: 0 !important;
+}
+
+.quiz-panel.is-ready .ii-console-start-brand .console-ii-icon,
+.quiz-panel.is-ready .console-ii-icon {
+  width: clamp(132px, 12.8vw, 178px);
+  height: clamp(132px, 12.8vw, 178px);
+  padding: clamp(19px, 2.05vw, 27px);
+  border-radius: clamp(32px, 3.1vw, 44px);
+  overflow: hidden !important;
+}
+
+.quiz-panel.is-ready .ii-console-start-brand .console-title-main,
+.quiz-panel.is-ready .ii-console-start-brand .console-title-gradient,
+.quiz-panel.is-ready .console-title-main,
+.quiz-panel.is-ready .console-title-gradient {
+  font-size: clamp(1.82rem, 4.2vw, 3.35rem);
+}
+
+.quiz-panel.is-ready .ii-console-start-brand .console-title-text,
+.quiz-panel.is-ready .console-ii-lockup .console-title-text {
+  transform: translateY(clamp(-8px, -0.7vh, -12px)) !important;
+}
+
+.quiz-panel.is-ready .ii-ready-wave {
+  order: 2;
+  width: min(720px, 94%);
+  height: clamp(86px, 11vh, 128px);
+  margin-top: clamp(34px, 4vh, 52px);
+  padding: 0 clamp(20px, 3vw, 32px);
+  gap: normal;
+  transform: translateY(clamp(0px, .2vh, 8px)) !important;
+  display: flex !important;
+  top: auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz-panel.is-ready .console-actions-start {
+  order: 3;
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  width: auto !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(14px, 1.8vh, 18px);
+  margin: clamp(28px, 3.8vh, 52px) auto 0;
+  padding: 0;
+  transform: translateY(clamp(-22px, -1.5vh, -14px));
+  z-index: 5;
+}
+
+.quiz-panel.is-ready .console-actions-start .settings-popover-wrap {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin-top: 0;
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quiz-panel.is-ready #startButton.centre-start {
+  min-width: clamp(280px, 44vw, 400px);
+  min-height: clamp(58px, 6.2vh, 68px);
+  padding: 0 clamp(32px, 3.6vw, 46px);
+  font-size: clamp(1.02rem, 1.16vw, 1.14rem);
+  font-weight: 780;
+  letter-spacing: .02em;
+  gap: clamp(10px, 1.2vw, 14px);
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: linear-gradient(180deg, #c49bff 0%, #A66BFF 48%, #8a4fe0 100%);
+  box-shadow:
+    0 0 28px rgba(166, 107, 255, .32),
+    0 8px 22px rgba(0, 0, 0, .18),
+    inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+
+.quiz-panel.is-ready #startButton.centre-start:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 0 36px rgba(166, 107, 255, .40),
+    0 12px 28px rgba(0, 0, 0, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .26);
+}
+
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button {
+  width: auto !important;
+  min-width: clamp(188px, 24vw, 252px);
+  min-height: 46px;
+  margin: 0;
+  padding: 0 clamp(22px, 2.4vw, 30px);
+  box-sizing: border-box;
+  flex: 0 0 auto !important;
+  gap: 8px;
+  font-size: clamp(.86rem, 1vw, .96rem);
+  font-weight: 620;
+  letter-spacing: .01em;
+  color: rgba(255, 255, 255, .92);
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .04);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button:hover {
+  transform: translateY(-1px);
+  filter: none;
+  border-color: rgba(255, 255, 255, .42);
+  background: rgba(255, 255, 255, .07);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .14);
+}
+
+.quiz-panel.is-ready #startButton.centre-start::after {
+  content: "";
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='12' fill='none' stroke='white' stroke-width='1.5' opacity='0.92'/%3E%3Cpath d='M12 9.5v9l7-4.5z' fill='white'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: .88;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none'%3E%3Cline x1='3' y1='5.5' x2='15' y2='5.5' stroke='white' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='7' cy='5.5' r='2' fill='white'/%3E%3Cline x1='3' y1='12.5' x2='15' y2='12.5' stroke='white' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='11.5' cy='12.5' r='2' fill='white'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+.quiz-panel.is-ready .listening-console::after {
+  width: clamp(220px, 32vw, 320px) !important;
+  height: clamp(220px, 32vw, 320px) !important;
+  left: 50% !important;
+  top: 40% !important;
+  border: none !important;
+  box-shadow:
+    0 0 36px rgba(166, 107, 255, .14),
+    0 0 72px rgba(166, 107, 255, .07) !important;
+  opacity: .72 !important;
+  background:
+    radial-gradient(circle,
+      rgba(166, 107, 255, .22) 0%,
+      rgba(166, 107, 255, .12) 30%,
+      rgba(166, 107, 255, .05) 52%,
+      rgba(166, 107, 255, .015) 68%,
+      transparent 84%) !important;
+}
+
+.quiz-panel.is-ready .console-orbit {
+  position: absolute !important;
+  width: clamp(300px, 48vw, 480px) !important;
+  height: clamp(300px, 48vw, 480px) !important;
+  inset: auto !important;
+  left: 50% !important;
+  top: 40% !important;
+  right: auto !important;
+  bottom: auto !important;
+  overflow: visible !important;
+  border: none !important;
+  border-radius: 50% !important;
+  box-shadow: none !important;
+  opacity: .78 !important;
+  aspect-ratio: auto !important;
+  transform: translate(-50%, -50%) !important;
+  background:
+    radial-gradient(circle, transparent calc(76% - .4px), rgba(166, 107, 255, .045) calc(76% - .4px), rgba(166, 107, 255, .045) calc(76% + .4px), transparent calc(76% + .4px)),
+    radial-gradient(circle, transparent calc(66% - .4px), rgba(166, 107, 255, .055) calc(66% - .4px), rgba(166, 107, 255, .055) calc(66% + .4px), transparent calc(66% + .4px)),
+    radial-gradient(circle, transparent calc(56% - .4px), rgba(166, 107, 255, .065) calc(56% - .4px), rgba(166, 107, 255, .065) calc(56% + .4px), transparent calc(56% + .4px)),
+    radial-gradient(circle, transparent calc(46% - .4px), rgba(166, 107, 255, .075) calc(46% - .4px), rgba(166, 107, 255, .075) calc(46% + .4px), transparent calc(46% + .4px)),
+    radial-gradient(circle, transparent calc(36% - .4px), rgba(166, 107, 255, .09) calc(36% - .4px), rgba(166, 107, 255, .09) calc(36% + .4px), transparent calc(36% + .4px)),
+    radial-gradient(circle, transparent calc(26% - .4px), rgba(166, 107, 255, .11) calc(26% - .4px), rgba(166, 107, 255, .11) calc(26% + .4px), transparent calc(26% + .4px)) !important;
+}
+
+.quiz-panel.is-ready .console-orbit::before {
+  display: none !important;
+}
+
+/* Wave stroke uses #heConsoleWaveGrad stops (purple edges + EA blue middle) */
+.ii-wave-segment .ii-wave-line {
+  stroke: url(#heConsoleWaveGrad);
+}
+
+/* RHS Answers empty state — MM sizing, Harmony Explorer purple tint */
+.info-panel .answerCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.answerCard-empty.he-source-panel {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(18px, 2.4vh, 28px);
+  text-align: center;
+}
+
+.answer-empty-stage {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: clamp(8px, 1.5vh, 18px) 0 clamp(2px, .6vh, 8px);
+}
+
+.answerCard-empty.he-source-panel .answer-empty-orbit {
+  position: relative;
+  width: clamp(148px, 13vw, 196px);
+  height: clamp(148px, 13vw, 196px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent calc(84% - .35px), rgba(166, 107, 255, .11) calc(84% - .35px), rgba(166, 107, 255, .11) calc(84% + .35px), transparent calc(84% + .35px)),
+    radial-gradient(circle, transparent calc(72% - .35px), rgba(166, 107, 255, .13) calc(72% - .35px), rgba(166, 107, 255, .13) calc(72% + .35px), transparent calc(72% + .35px)),
+    radial-gradient(circle, transparent calc(60% - .35px), rgba(166, 107, 255, .15) calc(60% - .35px), rgba(166, 107, 255, .15) calc(60% + .35px), transparent calc(60% + .35px)),
+    radial-gradient(circle, transparent calc(48% - .35px), rgba(166, 107, 255, .17) calc(48% - .35px), rgba(166, 107, 255, .17) calc(48% + .35px), transparent calc(48% + .35px)),
+    radial-gradient(circle, transparent calc(36% - .35px), rgba(166, 107, 255, .20) calc(36% - .35px), rgba(166, 107, 255, .20) calc(36% + .35px), transparent calc(36% + .35px));
+  box-shadow:
+    0 0 28px rgba(166, 107, 255, .08),
+    0 0 56px rgba(166, 107, 255, .05);
+}
+
+.answerCard-empty.he-source-panel .answer-empty-orbit .answer-empty-icon {
+  position: relative;
+  z-index: 1;
+  width: clamp(62px, 6vw, 82px) !important;
+  height: clamp(62px, 6vw, 82px) !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  margin: 0;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.answerCard-empty.he-source-panel .answer-empty-sparkle {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: #A66BFF;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  opacity: .62;
+  filter: drop-shadow(0 0 5px rgba(166, 107, 255, .55));
+  pointer-events: none;
+}
+
+.answer-empty-sparkle-1 { top: 8%; left: 18%; }
+.answer-empty-sparkle-2 { top: 14%; right: 12%; }
+.answer-empty-sparkle-3 { bottom: 16%; left: 10%; }
+.answer-empty-sparkle-4 { bottom: 10%; right: 18%; }
+
+.answerCard-empty.he-source-panel .answer-empty-copy {
+  display: grid;
+  gap: clamp(8px, 1vh, 12px);
+  justify-items: center;
+  max-width: 30ch;
+  padding: 0 clamp(8px, 1.2vw, 16px);
+}
+
+.answerCard-empty.he-source-panel .answer-empty-copy h2 {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(1.02rem, 1.28vw, 1.22rem);
+  font-weight: 780;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+  text-transform: none;
+  color: rgba(255, 255, 255, .96);
+}
+
+.answerCard-empty.he-source-panel .answer-empty-copy p {
+  margin: 0;
+  color: rgba(255, 255, 255, .52);
+  font-size: clamp(.8rem, .92vw, .9rem);
+  line-height: 1.58;
+  font-weight: 520;
+}
+
+.info-panel .answerCard-empty.he-source-panel:not(.classroom-status-panel) {
+  flex: 1;
+  min-height: clamp(280px, 42vh, 520px);
+  padding: clamp(24px, 3vh, 36px) clamp(18px, 2vw, 28px);
+  background:
+    radial-gradient(circle at 50% 28%, rgba(166, 107, 255, .08), transparent 42%),
+    radial-gradient(circle at 74% 12%, rgba(166, 107, 255, .10), transparent 38%),
+    radial-gradient(circle at 12% 92%, rgba(166, 107, 255, .06), transparent 38%),
+    linear-gradient(180deg, rgba(14, 22, 44, .62), rgba(10, 16, 34, .56));
+  box-shadow:
+    inset 0 1px 0 rgba(200, 170, 255, .08),
+    inset 0 0 0 1px rgba(255, 255, 255, .025),
+    0 16px 40px rgba(0, 0, 0, .22);
+}
+
+.answerCard-empty.he-source-panel:not(.classroom-status-panel) .answer-empty-orbit .answer-empty-icon img[src*="answers-transparent"] {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain !important;
+  transform: none !important;
+  filter: drop-shadow(0 0 12px rgba(166, 107, 255, .18)) drop-shadow(0 0 10px rgba(166, 107, 255, .10)) !important;
+}

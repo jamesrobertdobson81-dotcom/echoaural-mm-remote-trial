@@ -13,7 +13,6 @@
     xpText: document.getElementById('xpText'),
     questionText: document.getElementById('questionText'),
     staveStage: document.getElementById('staveStage'),
-    noteHint: document.getElementById('noteHint'),
     answers: document.getElementById('answers'),
     feedback: document.getElementById('feedback'),
     submitButton: document.getElementById('classroomSubmitButton'),
@@ -24,13 +23,20 @@
     studentAudio: document.getElementById('studentAudio')
   };
 
-  const NOTE_ASSET = '/modules/melody-master/assets/icons/notes/crotchet-sibelius.png';
-  const SCORE_ASSET = '/modules/melodic-intervals/assets/blank-treble-bar.png';
-  const STAVE_WIDTH = 666;
+  const NOTE_ASSET = '/assets/icons/notation/crotchet.png';
+  const ACCIDENTAL_ASSET = { '♯': '/assets/icons/notation/sharp.png', '♭': '/assets/icons/notation/flat.png' };
+  const STAVE_WIDTH = data.STAVE_IMAGE_METRICS.width;
   const STAVE_HEIGHT = 210;
-  const NOTE_START_X = 240;
-  const NOTE_TARGET_X = 360;
   const NOTE_LEDGER_WIDTH = 48;
+
+  // Baked clef+stave+key-signature artwork (real Sibelius exports), cropped wide
+  // enough that the stave lines reach the right edge of the tile natively —
+  // mirrors script.js.
+  const KEYSIG_ASSET_BASE = '/assets/icons/notation/keysig-mi/';
+  const KEYSIG_IMAGE_WIDTH = 430;
+  const KEYSIG_IMAGE_HEIGHT = 160;
+  const KEYSIG_IMAGE_OFFSET_X = -5;
+  const KEYSIG_IMAGE_OFFSET_Y = 23;
 
   const params = new URLSearchParams(window.location.search);
   let roomCode = normaliseRoomCode(params.get('room') || window.localStorage.getItem('ea_classroom_last_room'));
@@ -97,13 +103,6 @@
     return sequence.map(resolveAudioPath).filter(Boolean);
   }
 
-  function resolveStaffAsset(raw = '') {
-    const clean = String(raw || '').trim();
-    if (!clean) return SCORE_ASSET;
-    if (/^(https?:)?\/\//i.test(clean) || clean.startsWith('/')) return clean;
-    return `/modules/melodic-intervals/${clean.replace(/^\.\//, '')}`;
-  }
-
   function playAudioFile(url) {
     return new Promise((resolve, reject) => {
       els.studentAudio.pause();
@@ -126,7 +125,7 @@
     try {
       for (let index = 0; index < urls.length; index += 1) {
         await playAudioFile(urls[index]);
-        if (index < urls.length - 1) await delay(question.sequenceGapMs || 380);
+        if (index < urls.length - 1) await delay(question.sequenceGapMs || 280);
       }
     } catch (_error) {
       els.feedback.textContent = 'Audio was blocked. Tap Play on this computer again.';
@@ -159,16 +158,35 @@
 
   function accidentalMarkup(note, x, y) {
     if (!note.accidental) return '';
-    return `<span class="mi-accidental" aria-hidden="true" style="${positionStyle(x - 32, y + 1)}">${escapeHTML(note.accidental)}</span>`;
+    const asset = ACCIDENTAL_ASSET[note.accidental];
+    if (!asset) {
+      return `<span class="mi-accidental" aria-hidden="true" style="${positionStyle(x - 32, y + 1)}">${escapeHTML(note.accidental)}</span>`;
+    }
+    const typeClass = note.accidental === '♯' ? 'mi-note-accidental-sharp' : 'mi-note-accidental-flat';
+    return `<img class="mi-note-accidental ${typeClass}" src="${asset}" alt="" aria-hidden="true" draggable="false" style="${positionStyle(x - 26, y)}" />`;
   }
 
   function noteMarkup(note, x, clef) {
     const y = data.getStaffY(note, clef);
+    const stemClass = data.getStemDirection(note, clef) === 'down' ? ' is-stem-down' : '';
     return `
       ${ledgerMarkup(note, x, clef)}
       ${accidentalMarkup(note, x, y)}
-      <img class="mi-crotchet-note" src="${NOTE_ASSET}" alt="" aria-hidden="true" draggable="false" data-note-id="${escapeHTML(note.id)}" style="${positionStyle(x, y)}" />
+      <img class="mi-crotchet-note${stemClass}" src="${NOTE_ASSET}" alt="" aria-hidden="true" draggable="false" data-note-id="${escapeHTML(note.id)}" style="${positionStyle(x, y)}" />
     `;
+  }
+
+  function keySignatureAssetPath(keySignature) {
+    const map = keySignature?.accidentalMap || {};
+    const letters = Object.keys(map);
+    if (!letters.length) return `${KEYSIG_ASSET_BASE}treble-natural-0.png`;
+    const type = map[letters[0]] > 0 ? 'sharp' : 'flat';
+    return `${KEYSIG_ASSET_BASE}treble-${type}-${letters.length}.png`;
+  }
+
+  function staveBackgroundMarkup(keySignature) {
+    const asset = keySignatureAssetPath(keySignature);
+    return `<img class="mi-stave-bg" src="${asset}" alt="" aria-hidden="true" draggable="false" style="left:${pct(KEYSIG_IMAGE_OFFSET_X, STAVE_WIDTH)};top:${pct(KEYSIG_IMAGE_OFFSET_Y, STAVE_HEIGHT)};width:${pct(KEYSIG_IMAGE_WIDTH, STAVE_WIDTH)};height:${pct(KEYSIG_IMAGE_HEIGHT, STAVE_HEIGHT)};" />`;
   }
 
   function getStaveMarkup(question = {}) {
@@ -178,10 +196,14 @@
 
     if (!startNote || !targetNote) return '<p class="muted">No stave data available.</p>';
 
+    const accidentalCount = Number(question.keySignatureAccidentals);
+    const { startX, targetX } = data.getNotePositions(Number.isFinite(accidentalCount) ? accidentalCount : 0);
+    const keySignature = data.findKeySignature(question.keySignatureId);
+
     return `
-      <img class="mi-score-bg" src="${escapeHTML(resolveStaffAsset(question.staffAsset))}" alt="" aria-hidden="true" draggable="false" />
-      ${noteMarkup(startNote, NOTE_START_X, clef)}
-      ${noteMarkup(targetNote, NOTE_TARGET_X, clef)}
+      ${staveBackgroundMarkup(keySignature)}
+      ${noteMarkup(startNote, startX, clef)}
+      ${noteMarkup(targetNote, targetX, clef)}
     `;
   }
 
@@ -204,7 +226,7 @@
     const current = Number(quiz.currentQuestionNumber || 0);
     const quizTotal = Number(quiz.totalQuestions || 0);
 
-    els.scoreText.textContent = `Score: ${score} / ${total}`;
+    els.scoreText.textContent = `Mark: ${score} / ${total}`;
     els.streakText.textContent = `Submitted: ${submittedCount}`;
     els.xpText.textContent = `Accuracy: ${percentage === null || percentage === undefined ? '—' : `${percentage}%`}`;
 
@@ -257,8 +279,8 @@
     hideRoundFeedback();
     els.questionText.textContent = message;
     els.staveStage.innerHTML = '';
-    els.noteHint.textContent = 'The notes will appear here.';
     els.answers.innerHTML = '';
+    els.answers.classList.remove('mi-written-answer-area');
     els.feedback.textContent = '';
     els.feedback.className = '';
     els.submitButton.disabled = true;
@@ -266,9 +288,19 @@
     renderEmptyAnswerCard('The answer panel will unlock after you submit.');
   }
 
+  function isWrittenQuestion(question = {}) {
+    return question.answerType === 'text' || question.inputMode === 'written';
+  }
+
   function renderAnswerControls(state = currentState) {
     const question = state.question || {};
+    if (isWrittenQuestion(question)) {
+      renderWrittenAnswerControls(state);
+      return;
+    }
+
     const choices = Array.isArray(question.choices) ? question.choices : [];
+    els.answers.classList.remove('mi-written-answer-area');
     const submission = state.student?.submission || null;
     submitted = Boolean(state.student?.submitted);
     if (submitted && submission && !selectedAnswer) selectedAnswer = submission.answer || '';
@@ -315,12 +347,65 @@
     }
   }
 
+  function renderWrittenAnswerControls(state = currentState) {
+    const question = state.question || {};
+    const submission = state.student?.submission || null;
+    submitted = Boolean(state.student?.submitted);
+    if (submitted && submission && !selectedAnswer) selectedAnswer = submission.answer || '';
+
+    const placeholder = question.answerMode === 'quality' ? 'e.g. Major 3rd' : 'e.g. 5th';
+    els.answers.classList.add('mi-written-answer-area');
+    els.answers.innerHTML = `
+      <label class="mi-written-answer-label" for="classroomWrittenAnswer">Type your answer</label>
+      <input class="mi-written-answer-input" id="classroomWrittenAnswer" type="text" autocomplete="off" maxlength="40" placeholder="${escapeHTML(placeholder)}" value="${escapeHTML(selectedAnswer)}" ${submitted ? 'disabled' : ''} />
+    `;
+
+    const input = document.getElementById('classroomWrittenAnswer');
+    if (input && !submitted) {
+      input.addEventListener('input', () => {
+        selectedAnswer = input.value.trim();
+        els.submitButton.disabled = !selectedAnswer;
+        els.feedback.textContent = selectedAnswer
+          ? `Answer: ${selectedAnswer}`
+          : 'Type the full interval quality and number, then submit.';
+        els.feedback.className = '';
+      });
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          void submitAnswer();
+        }
+      });
+    }
+
+    if (submitted && submission) {
+      if (input) {
+        input.classList.toggle('is-correct', Boolean(submission.correct));
+        input.classList.toggle('is-wrong', !submission.correct);
+      }
+      els.submitButton.disabled = true;
+      els.submitButton.textContent = 'Submitted';
+      els.feedback.textContent = submission.feedback || submission.shortComment || 'Submitted.';
+      els.feedback.className = submission.correct ? 'good' : 'bad';
+      els.answerCard.innerHTML = `
+        <div class="answerCard-empty classroom-status-panel ${submission.correct ? 'is-submitted' : ''}">
+          <span class="classroom-status-pill">${submission.correct ? 'Correct' : 'Review'}</span>
+          <div class="mi-round-summary"><strong>${Number(submission.score || 0)} / ${Number(submission.total || 0)}</strong><p>${escapeHTML(submission.feedback || '')}</p><div class="mi-diagnostic-list"><div class="mi-diagnostic-row"><span>Model answer</span><span>${escapeHTML(submission.modelAnswer || question.intervalFullLabel || question.intervalLabel || '')}</span></div></div></div>
+        </div>
+      `;
+    } else {
+      els.submitButton.disabled = !selectedAnswer;
+      els.submitButton.textContent = 'Submit answer';
+      if (!selectedAnswer) els.feedback.textContent = 'Type the full interval quality and number, then submit.';
+      renderEmptyAnswerCard('Type your answer, then submit when you are ready.');
+    }
+  }
+
   function renderQuestion(state = currentState) {
     const question = state.question || {};
     hideRoundFeedback();
     els.questionText.textContent = question.prompt || 'Listen to the two notes and identify the interval.';
     els.staveStage.innerHTML = getStaveMarkup(question);
-    els.noteHint.textContent = `${question.startNoteLabel || 'First note'} to ${question.targetNoteLabel || 'second note'}. Listen, then name the interval.`;
     els.manualPlayButton.disabled = false;
     if (currentQuestionRunId !== Number(state.questionRunId || 0)) {
       currentQuestionRunId = Number(state.questionRunId || 0);

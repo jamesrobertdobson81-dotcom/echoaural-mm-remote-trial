@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ensembles | Instrument Identifier | EchoAural</title>
+  <link rel="stylesheet" href="../instrument-identifier/style.css" />
+  <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../../shared/css/track-information.css" />
+</head>
+<body>
+  <div class="app-shell" data-brand-app="ensemble-recognition">
+    <header class="topbar">
+      <a class="brand refined-logo" href="../../index.html" aria-label="EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <strong class="wordmark">
+          <span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span>
+        </strong>
+      </a>
+
+      <nav class="topbar-actions" aria-label="Ensemble Recognition navigation">
+        <a class="topbar-module-chip" href="../instrument-identifier/index.html" aria-label="Instrument Identifier">
+          <span class="topbar-module-icon" aria-hidden="true">
+            <img src="../../assets/icons/modules/instrument-identifier.png?v=8" alt="" />
+          </span>
+          <span class="topbar-ii-mark" aria-hidden="true">
+            <span class="topbar-ii-main">I</span><span class="topbar-ii-gradient">I</span>
+          </span>
+          <span class="sr-only">Instrument Identifier</span>
+        </a>
+
+        <a class="topbar-link topbar-home-link" href="../instrument-identifier/index.html">
+          <span class="back-label">Back to</span>
+          <span class="mini-wordmark" aria-hidden="true">
+            <span class="mini-wordmark-echo">Instrument</span>
+            <span class="mini-wordmark-aural">Identifier</span>
+          </span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="three-panel-layout">
+      <section class="panel setup-panel" id="homeScreen">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Settings</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
+        </div>
+
+        <div class="panel-hero ii-panel-hero">
+          <div class="ii-hero-lockup">
+            <span class="ii-hero-icon" aria-hidden="true">
+              <img
+                src="../../assets/icons/modules/instrument-identifier.png?v=8"
+                alt=""
+                onerror="this.style.display='none'; this.parentElement.classList.add('missing-ii-icon');"
+              />
+            </span>
+
+            <div class="ii-title-lockup" aria-hidden="true">
+              <span class="ii-title-wave">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+
+              <span class="ii-title-text">
+                <span class="ii-title-main">Instrument</span>
+                <span class="ii-title-gradient">Identifier</span>
+              </span>
+            </div>
+
+            <h1 class="sr-only">Instrument Identifier</h1>
+          </div>
+
+          <p class="eyebrow ii-brand-eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+        </div>
+
+        <h2 class="melody-skill-heading">Skill</h2>
+        <div class="melody-skill-grid" aria-label="Choose Instrument Identifier skill">
+          <label class="melody-skill-button">
+            <input type="radio" name="ensSkill" value="instruments" />
+            <span class="melody-skill-icon" aria-hidden="true">
+              <img class="melody-skill-icon-img" src="../../assets/icons/modules/ii-transparent/instruments-transparent-v3.png?v=3" alt="" />
+            </span>
+            <strong>Instruments</strong>
+          </label>
+
+          <label class="melody-skill-button is-selected">
+            <input type="radio" name="ensSkill" value="ensembles" />
+            <span class="melody-skill-icon" aria-hidden="true">
+              <img class="melody-skill-icon-img" src="../../assets/icons/modules/ii-transparent/ensembles-transparent-v3.png?v=3" alt="" />
+            </span>
+            <strong>Ensembles</strong>
+          </label>
+        </div>
+
+        <h2>Level</h2>
+        <div class="level-grid progression-level-grid" aria-label="Choose Ensembles level">
+          <label class="level-button">
+            <input type="radio" name="ensLevel" value="Foundation" />
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/foundation-transparent.png" alt="" aria-hidden="true" />
+            <strong>Foundation</strong>
+          </label>
+          <label class="level-button">
+            <input type="radio" name="ensLevel" value="Developing" />
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/developing-transparent.png" alt="" aria-hidden="true" />
+            <strong>Developing</strong>
+          </label>
+          <label class="level-button">
+            <input type="radio" name="ensLevel" value="Securing" />
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/securing-transparent.png" alt="" aria-hidden="true" />
+            <strong>Securing</strong>
+          </label>
+          <label class="level-button">
+            <input type="radio" name="ensLevel" value="Mastering" />
+            <img class="level-icon" src="../../assets/icons/levels/mm-transparent/mastering-transparent.png" alt="" aria-hidden="true" />
+            <strong>Mastering</strong>
+          </label>
+        </div>
+
+        <p id="setupMessage" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel quiz-panel is-ready is-ensemble-question" id="gameScreen">
+        <div class="panel-section-heading panel-section-heading-centre">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span id="centreHeadingLabel">Learning</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
+        </div>
+
+        <div class="quiz-header">
+          <p id="roundText">Ready</p>
+          <div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div>
+        </div>
+
+        <div class="statsRow ii-stats-row ens-stats-row" aria-label="Round statistics">
+          <p id="scoreText" class="ens-mark-tile ii-mark-tile">Mark: 0 / 0</p>
+          <p id="streakText">Streak: 0</p>
+          <p id="xpText">XP: 0</p>
+        </div>
+
+        <div class="listening-console">
+          <div class="console-orbit" aria-hidden="true"></div>
+
+          <div class="console-ready-brand ii-console-start-brand" aria-hidden="true">
+            <div class="console-ii-combined-lockup">
+              <span class="console-ii-icon">
+                <img
+                  id="consoleSkillIcon"
+                  src="../../assets/icons/modules/instrument-identifier.png?v=8"
+                  alt=""
+                  onerror="this.style.display='none'; this.parentElement.classList.add('missing-console-icon');"
+                />
+              </span>
+              <div class="console-ii-lockup">
+                <span class="console-title-text">
+                  <span class="console-title-main" id="consoleTitleMain">Instrument</span>
+                  <span class="console-title-gradient" id="consoleTitleGradient">Identifier</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="console-actions console-actions-replay ens-toolbar">
+            <button id="playButton" class="play-button" type="button" style="display: none;">Play Clip</button>
+          </div>
+
+          <div class="listening-visual ii-ready-wave ens-ready-wave" aria-hidden="true">
+            <svg class="ii-console-wave-svg" viewBox="0 0 480 52" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="presentation">
+              <defs>
+                <linearGradient id="iiConsoleWaveGrad" x1="0" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#3FA6FF"/>
+                  <stop offset="18%" stop-color="#3FA6FF"/>
+                  <stop offset="36%" stop-color="#6BB8FF"/>
+                  <stop offset="46%" stop-color="#FF8FD0"/>
+                  <stop offset="50%" stop-color="#FF5DBA"/>
+                  <stop offset="54%" stop-color="#FF8FD0"/>
+                  <stop offset="64%" stop-color="#6BB8FF"/>
+                  <stop offset="82%" stop-color="#3FA6FF"/>
+                  <stop offset="100%" stop-color="#3FA6FF"/>
+                </linearGradient>
+                <filter id="iiWaveGlow" x="-25%" y="-40%" width="150%" height="180%">
+                  <feGaussianBlur stdDeviation="1.6" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <g class="ii-console-wave-lines" filter="url(#iiWaveGlow)">
+                <g class="ii-wave-segment ii-wave-seg-5 ii-wave-seg-0" style="--wave-seg-duration:3.4s;--wave-seg-phase:-0.1s">
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.0s" x1="8" y1="23.4" x2="8" y2="28.6"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.038s" x1="17.1" y1="23.4" x2="17.1" y2="28.6"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.076s" x1="26.2" y1="23.2" x2="26.2" y2="28.8"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.114s" x1="35.3" y1="23.1" x2="35.3" y2="28.9"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.152s" x1="44.4" y1="22.8" x2="44.4" y2="29.2"/>
+              </g>
+
+              <g class="ii-wave-segment ii-wave-seg-7 ii-wave-seg-1" style="--wave-seg-duration:2.85s;--wave-seg-phase:-0.35s">
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.0s" x1="53.5" y1="22.4" x2="53.5" y2="29.6"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.038s" x1="62.6" y1="21.9" x2="62.6" y2="30.1"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.076s" x1="71.7" y1="21.9" x2="71.7" y2="30.1"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.114s" x1="80.8" y1="20.8" x2="80.8" y2="31.2"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.152s" x1="89.9" y1="20.2" x2="89.9" y2="31.8"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.19s" x1="99" y1="20.1" x2="99" y2="31.9"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.228s" x1="108.1" y1="18.9" x2="108.1" y2="33.1"/>
+              </g>
+
+              <g class="ii-wave-segment ii-wave-seg-5 ii-wave-seg-2" style="--wave-seg-duration:2.45s;--wave-seg-phase:-0.2s">
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.0s" x1="117.2" y1="17.5" x2="117.2" y2="34.5"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.038s" x1="126.3" y1="17.3" x2="126.3" y2="34.7"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.076s" x1="135.4" y1="16.5" x2="135.4" y2="35.5"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.114s" x1="144.5" y1="14.1" x2="144.5" y2="37.9"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.152s" x1="153.6" y1="15.2" x2="153.6" y2="36.8"/>
+              </g>
+
+              <g class="ii-wave-segment ii-wave-seg-7 ii-wave-seg-3" style="--wave-seg-duration:2.05s;--wave-seg-phase:-0.45s">
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.0s" x1="162.7" y1="12.5" x2="162.7" y2="39.5"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.038s" x1="171.8" y1="11.3" x2="171.8" y2="40.7"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.076s" x1="180.9" y1="10.6" x2="180.9" y2="41.4"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.114s" x1="190" y1="12.7" x2="190" y2="39.3"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.152s" x1="199.1" y1="5.8" x2="199.1" y2="46.2"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.19s" x1="208.2" y1="7.5" x2="208.2" y2="44.5"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.228s" x1="217.3" y1="10.7" x2="217.3" y2="41.3"/>
+              </g>
+
+              <g class="ii-wave-segment ii-wave-seg-5 ii-wave-seg-4" style="--wave-seg-duration:1.55s;--wave-seg-phase:-0.25s">
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.0s" x1="226.4" y1="5.9" x2="226.4" y2="46.1"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.038s" x1="235.5" y1="5.2" x2="235.5" y2="46.8"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.076s" x1="244.5" y1="7.9" x2="244.5" y2="44.1"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.114s" x1="253.6" y1="7.5" x2="253.6" y2="44.5"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.152s" x1="262.7" y1="5.8" x2="262.7" y2="46.2"/>
+              </g>
+
+              <g class="ii-wave-segment ii-wave-seg-7 ii-wave-seg-5" style="--wave-seg-duration:1.25s;--wave-seg-phase:-0.55s">
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.0s" x1="271.8" y1="10.5" x2="271.8" y2="41.5"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.038s" x1="280.9" y1="7.4" x2="280.9" y2="44.6"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.076s" x1="290" y1="10.1" x2="290" y2="41.9"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.114s" x1="299.1" y1="11.1" x2="299.1" y2="40.9"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.152s" x1="308.2" y1="13.1" x2="308.2" y2="38.9"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.19s" x1="317.3" y1="11.1" x2="317.3" y2="40.9"/>
+                <line class="ii-wave-line ii-wave-core" style="--wave-bar-stagger:0.228s" x1="326.4" y1="14.2" x2="326.4" y2="37.8"/>
+              </g>
+
+              <g class="ii-wave-segment ii-wave-seg-5 ii-wave-seg-6" style="--wave-seg-duration:1.55s;--wave-seg-phase:-0.4s">
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.0s" x1="335.5" y1="16.1" x2="335.5" y2="35.9"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.038s" x1="344.6" y1="15.7" x2="344.6" y2="36.3"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.076s" x1="353.7" y1="16.8" x2="353.7" y2="35.2"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.114s" x1="362.8" y1="18.2" x2="362.8" y2="33.8"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.152s" x1="371.9" y1="19.1" x2="371.9" y2="32.9"/>
+              </g>
+
+              <g class="ii-wave-segment ii-wave-seg-7 ii-wave-seg-7" style="--wave-seg-duration:2.05s;--wave-seg-phase:-0.15s">
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.0s" x1="381" y1="19.5" x2="381" y2="32.5"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.038s" x1="390.1" y1="20.6" x2="390.1" y2="31.4"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.076s" x1="399.2" y1="20.9" x2="399.2" y2="31.1"/>
+                <line class="ii-wave-line ii-wave-mid" style="--wave-bar-stagger:0.114s" x1="408.3" y1="21.7" x2="408.3" y2="30.3"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.152s" x1="417.4" y1="22" x2="417.4" y2="30"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.19s" x1="426.5" y1="22.5" x2="426.5" y2="29.5"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.228s" x1="435.6" y1="22.7" x2="435.6" y2="29.3"/>
+              </g>
+
+              <g class="ii-wave-segment ii-wave-seg-5 ii-wave-seg-8" style="--wave-seg-duration:3.4s;--wave-seg-phase:-0.3s">
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.0s" x1="444.7" y1="23" x2="444.7" y2="29"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.038s" x1="453.8" y1="23.3" x2="453.8" y2="28.7"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.076s" x1="462.9" y1="23.4" x2="462.9" y2="28.6"/>
+                <line class="ii-wave-line ii-wave-edge" style="--wave-bar-stagger:0.114s" x1="472" y1="23.3" x2="472" y2="28.7"/>
+              </g>
+              </g>
+            </svg>
+          </div>
+
+          <div class="console-question-kicker">
+            <p class="eyebrow active-only">LISTENING QUESTION</p>
+          </div>
+
+          <div class="console-heading ens-question-heading">
+            <p id="questionText"><span class="ens-question-prompt"></span><span class="ens-question-marks" id="questionMarks" hidden aria-hidden="true"></span></p>
+          </div>
+
+          <div class="console-actions console-actions-start">
+            <button id="startButton" class="primary-button centre-start" type="button">Start Learning</button>
+            <div class="settings-popover-wrap">
+              <div id="advancedSettings" class="advancedSettings settings-popover" style="display: none;" aria-hidden="true">
+                <div class="settings-popover-header">
+                  <p class="eyebrow">CUSTOMISE ROUND</p>
+                  <h3>Advanced Settings</h3>
+                </div>
+                <h3>Questions</h3>
+                <div class="pillRow" aria-label="Number of questions">
+                  <label class="pill"><input type="radio" name="questionCount" value="3" />3</label>
+                  <label class="pill"><input type="radio" name="questionCount" value="5" checked />5</label>
+                  <label class="pill"><input type="radio" name="questionCount" value="10" />10</label>
+                </div>
+                <h3>Difficulty</h3>
+                <div class="pillRow difficultyRow" aria-label="Difficulty options">
+                  <label class="familyPill mixedDifficultyPill"><input type="checkbox" name="mixedDifficulty" value="mixed" />Mixed difficulty</label>
+                </div>
+                <p class="settings-hint">Overrides the level selected in the left panel for practice rounds.</p>
+              </div>
+              <button id="settingsToggle" class="secondary-button advanced-settings-button" type="button" aria-controls="advancedSettings" aria-expanded="false">
+                Advanced Settings
+              </button>
+            </div>
+          </div>
+
+          <div id="ensembleOptions" class="ensemble-centre-panel" hidden>
+            <div class="ensemble-options" role="radiogroup" aria-label="Ensemble answer options" data-answer-count="4"></div>
+            <div id="trackInfo" class="score-track-info devices-track-info ens-track-info" aria-live="polite"></div>
+          </div>
+
+          <!-- Typed-answer response area: only shown for questions with
+               responseType "typed" (none of the original 50 use this — they
+               always render the button grid above, unchanged). -->
+          <div id="ensResponseArea" class="ii-response-area" hidden>
+            <label id="ensAnswerLabel" class="ii-answer-label" for="ensStudentAnswer">Your answer</label>
+            <textarea id="ensStudentAnswer" rows="3" placeholder="Type your answer…"></textarea>
+            <div class="ii-response-submit-row">
+              <button id="ensSubmitButton" class="primary-button" type="button">Submit Answer</button>
+            </div>
+          </div>
+
+          <p id="feedback" role="status" aria-live="polite"></p>
+
+          <button id="restartButton" class="secondary-button" type="button" style="display: none;">Restart Round</button>
+        </div>
+      </section>
+
+      <aside class="panel info-panel">
+        <div class="panel-section-heading">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span>Answers</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
+        </div>
+
+        <div id="answerCard" class="answerCard" aria-live="polite">
+          <div class="answerCard-empty ii-source-panel">
+            <div class="answer-empty-stage" aria-hidden="true">
+              <div class="answer-empty-orbit">
+                <span class="answer-empty-sparkle answer-empty-sparkle-1" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-2" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-3" aria-hidden="true"></span>
+                <span class="answer-empty-sparkle answer-empty-sparkle-4" aria-hidden="true"></span>
+                <span class="answer-empty-icon">
+                  <img src="../../assets/icons/modes/mm-transparent/answers-transparent.png?v=3" alt="" />
+                </span>
+              </div>
+            </div>
+            <div class="answer-empty-copy">
+              <h2>Your answers will appear here</h2>
+              <p>Listen to each excerpt and choose the ensemble you hear.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="ensemble-core.js"></script>
+  <script src="../../shared/js/question-prompt-marks.js"></script>
+  <script src="../../shared/js/spaced-repetition.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

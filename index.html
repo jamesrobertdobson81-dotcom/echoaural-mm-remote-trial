@@ -11,9 +11,9 @@
     content="EchoAural is a premium GCSE music listening skills platform for instruments, cadences, melody, texture, harmony and metre."
   />
 
-  <link rel="stylesheet" href="shared/css/brand.css" />
+  <link rel="stylesheet" href="shared/css/brand.css?v=9" />
   <link rel="stylesheet" href="/shared/css/login-modals.css" />
-  <link rel="stylesheet" href="shared/css/ea-brand-logos.css" />
+  <link rel="stylesheet" href="shared/css/ea-brand-logos.css?v=9" />
 </head>
 
 <body>
@@ -23,7 +23,7 @@
         <a class="nav-explore-button" href="/founding/">
           Founding Partners
           <img
-            src="assets/icons/navigation/next.png"
+            src="assets/icons/navigation/nav-transparent/next-transparent.png"
             alt=""
             aria-hidden="true"
             onerror="this.style.display='none'"
@@ -51,7 +51,7 @@
         <a class="nav-explore-button nav-action-button" href="/?login=teacher" data-ea-login="teacher">
           Teacher Login
           <img
-            src="assets/icons/login/teacher-login.png"
+            src="assets/icons/login/login-transparent/teacher-login-transparent.png"
             alt=""
             aria-hidden="true"
             onerror="this.style.display='none'"
@@ -61,7 +61,7 @@
         <a class="nav-explore-button nav-action-button" href="/?login=student" data-ea-login="student">
           Student Login
           <img
-            src="assets/icons/login/student-login.png"
+            src="assets/icons/login/login-transparent/student-login-transparent.png"
             alt=""
             aria-hidden="true"
             onerror="this.style.display='none'"
@@ -91,7 +91,7 @@
             </span>
             <span class="module-icon" data-fallback="II">
               <img
-                src="assets/icons/modules/instrument-identifier.png?v=7"
+                src="assets/icons/modules/instrument-identifier-home.png?v=1"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
@@ -198,7 +198,7 @@
             <span class="sr-only">Meter Master</span>
           </a>
 
-          <a class="module-card locked" href="#apps" data-module="Harmony Explorer" aria-label="Harmony Explorer coming soon">
+          <a class="module-card live" href="#apps" data-launch-url="modules/harmony-explorer/index.html" aria-label="Launch Harmony Explorer">
             <span class="module-card-waveform" aria-hidden="true">
               <span style="--h: 28%; --delay: 0s;"></span>
               <span style="--h: 48%; --delay: .06s;"></span>
@@ -257,6 +257,35 @@
             </span>
             <span class="sr-only">ContextCoach</span>
           </a>
+
+          <a class="module-card live module-card-score-decoder" href="#apps" data-launch-url="modules/musical-language/index.html" aria-label="Launch ScoreDecoder">
+            <span class="module-card-waveform" aria-hidden="true">
+              <span style="--h: 28%; --delay: 0s;"></span>
+              <span style="--h: 48%; --delay: .06s;"></span>
+              <span style="--h: 76%; --delay: .12s;"></span>
+              <span style="--h: 100%; --delay: .18s;"></span>
+              <span style="--h: 68%; --delay: .24s;"></span>
+              <span style="--h: 42%; --delay: .30s;"></span>
+              <span style="--h: 58%; --delay: .36s;"></span>
+              <span style="--h: 84%; --delay: .42s;"></span>
+              <span style="--h: 62%; --delay: .48s;"></span>
+            </span>
+            <span class="module-icon" data-fallback="SD">
+              <img
+                src="assets/icons/modules/score-decoder.png"
+                alt=""
+                aria-hidden="true"
+                onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
+              />
+            </span>
+            <span class="module-title-wordmark" aria-hidden="true">
+              <span class="module-title-text">
+                <span class="module-title-main">Score</span>
+                <span class="module-title-gradient">Decoder</span>
+              </span>
+            </span>
+            <span class="sr-only">ScoreDecoder</span>
+          </a>
         </div>
 
         <p class="launcher-kicker mode-launcher-kicker">Choose a Mode</p>
@@ -276,7 +305,7 @@
             </span>
             <span class="module-icon" data-fallback="PM">
               <img
-                src="assets/icons/dashboard/progress-mode.png"
+                src="assets/icons/dashboard/progress-mode.png?v=11"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
@@ -305,7 +334,7 @@
             </span>
             <span class="module-icon" data-fallback="EL">
               <img
-                src="assets/icons/modules/exam-lab.png"
+                src="assets/icons/dashboard/exam-lab.png?v=1"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
@@ -334,7 +363,7 @@
             </span>
             <span class="module-icon" data-fallback="LS">
               <img
-                src="assets/icons/dashboard/join-live-session.png"
+                src="assets/icons/dashboard/join-live-session.png?v=11"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"
@@ -363,7 +392,7 @@
             </span>
             <span class="module-icon" data-fallback="HW">
               <img
-                src="assets/icons/dashboard/homework.png"
+                src="assets/icons/dashboard/homework.png?v=11"
                 alt=""
                 aria-hidden="true"
                 onerror="this.remove(); this.parentElement.classList.add('missing-icon');"

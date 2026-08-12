@@ -16,10 +16,15 @@ let gameOver = false;
 let answerLocked = true;
 let roundHistory = [];
 let roundFeedbackOverlay = null;
+// Content-review overlay (drops/levels/option overrides) loaded alongside
+// the shared clip catalogue — see loadCatalogue(). Null until loaded, or if
+// unavailable, in which case Era Explorer falls back to the fully
+// algorithmic, uncurated pool.
+let contentCuration = null;
 
 const AUDIO_WINDOW_SECONDS = 10;
-const PERIOD_ICON_BASE_PATH = "../assets/icons/eras/";
-const PERIOD_ICON_CACHE_BUST = "v=6";
+const PERIOD_ICON_BASE_PATH = "../assets/icons/eras-transparent/";
+const PERIOD_ICON_CACHE_BUST = "v=7";
 const PERIOD_ICON_MAP = Object.freeze({
   renaissance: "renaissance.png",
   baroque: "baroque.png",
@@ -29,33 +34,43 @@ const PERIOD_ICON_MAP = Object.freeze({
   "twentieth century": "20th-century.png"
 });
 
-const COMPOSER_ICON_BASE_PATH = "../assets/icons/composers/";
-const COMPOSER_ICON_CACHE_BUST = "v=4";
+const COMPOSER_ICON_BASE_PATH = "../assets/icons/composers-transparent/";
+const COMPOSER_ICON_CACHE_BUST = "v=6";
 /** Full EchoAural composer names → verified icon filenames. */
 const COMPOSER_ICON_MAP = Object.freeze({
+  "alexander borodin": "alexander_borodin.png",
   "antonio vivaldi": "antonio_vivaldi.png",
   "antonin dvorak": "antonin_dvorak.png",
+  "bottesini": "bottesini.png",
   "carl philipp emanuel bach": "carl_philipp_emanuel_bach.png",
   "claude debussy": "claude_debussy.png",
+  "dushkin": "dushkin.png",
   "edvard grieg": "edvard_grieg.png",
   "edward elgar": "edward_elgar.png",
   "felix mendelssohn": "felix_mendelssohn.png",
+  "franz schubert": "franz_schubert.png",
   "frederic chopin": "frederic_chopin.png",
   "gabriel faure": "gabriel_faure.png",
   "georg philipp telemann": "georg_philipp_telemann.png",
   "george frideric handel": "george_frideric_handel.png",
+  "glazunov": "glazunov.png",
   "igor stravinsky": "igor_stravinsky.png",
   "johann sebastian bach": "johann_sebastian_bach.png",
   "johann strauss ii": "johann_strauss_ii.png",
   "johannes brahms": "johannes_brahms.png",
+  "josef suk": "josef_suk.png",
   "joseph haydn": "joseph_haydn.png",
+  "kuhlau": "kuhlau.png",
   "ludwig van beethoven": "ludwig_van_beethoven.png",
   "modest mussorgsky": "modest_mussorgsky.png",
+  "mouret": "mouret.png",
   "muzio clementi": "muzio_clementi.png",
+  "nikolai rimsky korsakov": "nikolai_rimsky_korsakov.png",
   "pyotr ilyich tchaikovsky": "pyotr_ilyich_tchaikovsky.png",
   "robert schumann": "robert_schumann.png",
   "sergei rachmaninoff": "sergei_rachmaninoff.png",
   "tomaso albinoni": "tomaso_albinoni.png",
+  "von weber": "von_weber.png",
   "wolfgang amadeus mozart": "wolfgang_amadeus_mozart.png"
 });
 const core = window.EraExplorer;
@@ -71,6 +86,7 @@ const restartButton = document.getElementById("restartButton");
 const streakText = document.getElementById("streakText");
 const xpText = document.getElementById("xpText");
 const questionText = document.getElementById("questionText");
+const questionMarks = document.getElementById("questionMarks");
 const startButton = document.getElementById("startButton");
 const answerCard = document.getElementById("answerCard");
 const setupMessage = document.getElementById("setupMessage");
@@ -78,6 +94,8 @@ const appShell = document.querySelector(".app-shell");
 const quizPanel = document.getElementById("gameScreen");
 const settingsToggle = document.getElementById("settingsToggle");
 const advancedSettings = document.getElementById("advancedSettings");
+const contextCoachCentrePanel = document.getElementById("contextCoachCentrePanel");
+const trackInfo = document.getElementById("trackInfo");
 
 function displayText(value) {
   return String(value ?? "").trim();
@@ -190,7 +208,7 @@ function setAnswerButtonsDisabled(disabled) {
 }
 
 function updateScore() {
-  scoreText.textContent = `Score: ${score} / ${questionsAnswered}`;
+  scoreText.textContent = `Mark: ${score} / ${questionsAnswered}`;
   streakText.textContent = `Streak: ${streak}`;
   xpText.textContent = `XP: ${xp}`;
   roundText.textContent = gameOver
@@ -201,18 +219,76 @@ function updateScore() {
     : `${(questionsAnswered / totalQuestions) * 100}%`;
 }
 
+function stripTrailingQuestionMarkSuffix(text) {
+  if (window.EAQuestionPromptMarks?.stripTrailing) {
+    return window.EAQuestionPromptMarks.stripTrailing(text);
+  }
+  return String(text ?? "")
+    .replace(/(?:[\s\u00A0\u202F]*)[(（]\s*\d+(?:\.\d+)?\s*[)）]\s*$/u, "")
+    .replace(/[\s\u00A0\u202F]+$/u, "");
+}
+
+function setQuestionPrompt(text, marks = 1) {
+  if (!questionText) return;
+  const promptEl = questionText.querySelector(".cc-question-prompt, .ii-question-prompt") || questionText;
+  const cleaned = stripTrailingQuestionMarkSuffix(text || "");
+  promptEl.textContent = cleaned;
+  if (!questionMarks) return;
+  if (marks > 0 && cleaned) {
+    questionMarks.textContent = `\u00A0(${marks})`;
+    questionMarks.hidden = false;
+    questionMarks.setAttribute("aria-hidden", "false");
+    questionMarks.setAttribute("aria-label", `${marks} mark${marks === 1 ? "" : "s"}`);
+    return;
+  }
+  questionMarks.textContent = "";
+  questionMarks.hidden = true;
+  questionMarks.setAttribute("aria-hidden", "true");
+  questionMarks.removeAttribute("aria-label");
+}
+
+function buildTrackInfoHTML(clip) {
+  if (!clip) return "";
+  const composer = displayText(clip.composer);
+  const work = displayText(clip.work);
+  const movement = displayText(clip.movement);
+  const title = [composer, work].filter(Boolean).join(" – ");
+  const sourceValue = displayText(clip.source);
+  const source = /musopen/i.test(sourceValue) ? "Musopen" : (/wikimedia|commons/i.test(sourceValue) ? "Wikimedia" : sourceValue);
+  const rightsValue = displayText(clip.rights);
+  const licenceMatch = rightsValue.match(/\b(?:PDM|CC0|CC BY(?:-NC)?(?:-SA)?|CC BY-SA)\s*\d(?:\.\d)?\b/i);
+  const licence = licenceMatch ? licenceMatch[0].toUpperCase() : (/public domain|\bPD\b/i.test(rightsValue) ? "Public domain" : rightsValue);
+  const details = [source, licence].filter(Boolean).join(" · ") || "—";
+  const fallbackId = displayText(clip.id) || "Clip";
+  return `
+    <strong title="${escapeAttr(title || fallbackId)}">${escapeHTML(title || fallbackId)}</strong>
+    <span class="score-track-info-movement" title="${escapeAttr(movement || "—")}">${escapeHTML(movement || "—")}</span>
+    <small title="${escapeAttr(details)}">${escapeHTML(details)}</small>
+  `;
+}
+
 function renderReadyCard() {
   answerCard.innerHTML = `
-    <div class="answerCard-empty">
-      <div class="answer-empty-brand" aria-hidden="true">
-        <span class="answer-empty-icon"><img src="../assets/icons/modules/context-coach.png" alt="" /></span>
-        <span class="answer-empty-wave">
-          <span></span><span></span><span></span><span></span><span></span>
-        </span>
+    <div class="answerCard-empty cc-source-panel">
+      <div class="answer-empty-stage" aria-hidden="true">
+        <div class="answer-empty-orbit">
+          <span class="answer-empty-sparkle answer-empty-sparkle-1" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-2" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-3" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-4" aria-hidden="true"></span>
+          <span class="answer-empty-icon">
+            <img
+              src="../assets/icons/modes/mm-transparent/answers-transparent.png?v=3"
+              alt=""
+              onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
+            />
+          </span>
+        </div>
       </div>
-      <p class="eyebrow">ANSWER PANEL</p>
-      <h2>Your listening evidence appears here.</h2>
-      <p class="muted">Correct answers, clip details and the round summary will build here as students listen.</p>
+      <div class="answer-empty-copy">
+        <h2>Your answers will appear here</h2>
+        <p>Complete a quiz to see your responses and performance feedback.</p>
+      </div>
     </div>
   `;
 }
@@ -324,11 +400,15 @@ function createCurrentAudio() {
 
 function renderQuestionOptions() {
   answersDiv.innerHTML = "";
-  currentQuestion.options.forEach((choice) => {
+  const options = Array.isArray(currentQuestion.options) ? currentQuestion.options.slice(0, 4) : [];
+  answersDiv.setAttribute("data-answer-count", String(options.length || 4));
+  options.forEach((choice) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "answer-option";
+    button.className = "instruments-option cc-option";
     button.dataset.answer = choice;
+    button.setAttribute("role", "radio");
+    button.setAttribute("aria-checked", "false");
     button.setAttribute("aria-label", `Choose ${choice}`);
     button.innerHTML = `
       <span class="option-icon">${optionIconForChoice(choice)}</span>
@@ -350,7 +430,7 @@ function loadQuestion() {
 
   setQuizVisualState("active");
   answerLocked = false;
-  questionText.textContent = currentQuestion.prompt;
+  setQuestionPrompt(currentQuestion.prompt, 1);
   feedback.textContent = "";
   feedback.className = "";
   nextButton.style.display = "none";
@@ -359,6 +439,11 @@ function loadQuestion() {
   playButton.disabled = false;
   playButton.textContent = "Replay Clip";
 
+  if (contextCoachCentrePanel) contextCoachCentrePanel.hidden = false;
+  if (trackInfo) {
+    trackInfo.innerHTML = "";
+    trackInfo.setAttribute("aria-hidden", "true");
+  }
   renderQuestionOptions();
   createCurrentAudio();
   updateScore();
@@ -458,6 +543,10 @@ function checkAnswer(selectedAnswer, selectedButton) {
   });
 
   showAnswerCard(wasCorrect, selectedAnswer);
+  if (trackInfo) {
+    trackInfo.innerHTML = buildTrackInfoHTML(currentQuestion.clip);
+    trackInfo.removeAttribute("aria-hidden");
+  }
   updateScore();
   nextButton.textContent = currentQuestionIndex === totalQuestions - 1 ? "Finish Quiz" : "Next Question";
   nextButton.style.display = "inline-flex";
@@ -601,11 +690,13 @@ function endGame() {
   gameOver = true;
   answerLocked = true;
   answersDiv.innerHTML = "";
+  if (contextCoachCentrePanel) contextCoachCentrePanel.hidden = true;
+  if (trackInfo) trackInfo.innerHTML = "";
   nextButton.style.display = "none";
   playButton.disabled = true;
   playButton.textContent = "Round Complete";
   restartButton.style.display = "block";
-  questionText.textContent = "";
+  setQuestionPrompt("", 0);
   updateScore();
 
   const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
@@ -635,18 +726,61 @@ function readQuestionCount() {
   return [3, 5, 10].includes(selected) ? selected : 5;
 }
 
+function readSkill() {
+  const selected = document.querySelector('input[name="ccSkill"]:checked')?.value;
+  return selected === "period" ? "period" : "composer";
+}
+
+// Maps the setup screen's ccLevel radio values to the curation file's level
+// labels (Foundation/Developing/Securing/Mastering — matching every other
+// app's level vocabulary, and the review-staging tool this was curated in).
+const CC_LEVEL_MAP = { foundation: "Foundation", developing: "Developing", secure: "Securing", exam: "Mastering" };
+
+function readLevel() {
+  const selected = document.querySelector('input[name="ccLevel"]:checked')?.value;
+  return CC_LEVEL_MAP[selected] || null;
+}
+
 function startGame() {
   if (!clipPool.length || startButton.disabled) return;
   closeRoundFeedbackWindow();
   totalQuestions = readQuestionCount();
 
-  try {
-    roundQuestions = core.buildRoundQuestions(clipPool, totalQuestions);
-  } catch (error) {
-    console.warn("[Era Explorer] Could not build the round:", error);
+  const skill = readSkill();
+  const level = readLevel();
+  const spacedKey = `cc:${skill}`;
+  const SR = window.EchoAuralSpacedRepetition;
+  let seenClipIds = SR ? new Set(SR.getSeenIds(spacedKey)) : new Set();
+  if (SR && clipPool.length && clipPool.every((clip) => seenClipIds.has(clip.id))) {
+    // Every clip has been shown for this skill — start a fresh cycle.
+    SR.resetCycle(spacedKey);
+    seenClipIds = new Set();
+  }
+
+  const tryBuildRound = (roundOptions) => {
+    try {
+      return core.buildRoundQuestions(clipPool, totalQuestions, Math.random, roundOptions);
+    } catch (error) {
+      console.warn("[Era Explorer] Could not build the round:", error);
+      return null;
+    }
+  };
+
+  roundQuestions = tryBuildRound({ questionType: skill, seenClipIds, curation: contentCuration, level });
+  if (!roundQuestions && level) {
+    // The chosen level may not yet have enough curated/reviewed clips for
+    // this skill (content coverage is still growing) — fall back to the
+    // full skill-appropriate pool rather than leaving the student stuck on
+    // a hard error for a legitimate level/skill combination.
+    console.warn(`[Era Explorer] Not enough ${level} clips for ${skill} yet — mixing in other levels.`);
+    roundQuestions = tryBuildRound({ questionType: skill, seenClipIds, curation: contentCuration });
+  }
+  if (!roundQuestions) {
     setupMessage.textContent = "There are not enough valid clips to build this round.";
     return;
   }
+
+  SR?.markShown(roundQuestions.map((question) => question.clip), { key: spacedKey, idOf: (clip) => clip.id });
 
   setAdvancedSettingsOpen(false);
   setQuizVisualState("active");
@@ -662,7 +796,7 @@ function startGame() {
   restartButton.style.display = "none";
   startButton.style.display = "none";
   playButton.style.display = "inline-flex";
-  questionText.textContent = "Loading question...";
+  setQuestionPrompt("Loading question...", 0);
   loadQuestion();
 }
 
@@ -684,15 +818,18 @@ function restartGame() {
   setQuizVisualState("ready");
   renderReadyCard();
   answersDiv.innerHTML = "";
+  if (contextCoachCentrePanel) contextCoachCentrePanel.hidden = true;
+  if (trackInfo) trackInfo.innerHTML = "";
   feedback.textContent = "";
   feedback.className = "";
   progressInner.style.width = "0%";
   roundText.textContent = "Ready";
-  scoreText.textContent = "Score: 0 / 0";
+  scoreText.textContent = "Mark: 0 / 0";
   streakText.textContent = "Streak: 0";
   xpText.textContent = "XP: 0";
-  questionText.textContent = "";
-  startButton.style.display = "block";
+  setQuestionPrompt("", 0);
+  startButton.style.display = "inline-flex";
+  startButton.textContent = "Start Learning";
   playButton.style.display = "none";
   nextButton.style.display = "none";
   restartButton.style.display = "none";
@@ -705,15 +842,73 @@ function setAdvancedSettingsOpen(isOpen) {
   settingsToggle.setAttribute("aria-expanded", String(isOpen));
 }
 
+let catalogueReady = false;
+
+const CONSOLE_SKILL_ICONS = {
+  composer: "../assets/icons/modules/cc-transparent/composers-transparent.png",
+  period: "../assets/icons/modules/cc-transparent/eras-transparent.png"
+};
+const DEFAULT_CONSOLE_ICON = "../assets/icons/modules/context-coach.png";
+const consoleSkillIcon = document.getElementById("consoleSkillIcon");
+
+function syncConsoleSkillIcon() {
+  if (!consoleSkillIcon) return;
+  const checked = document.querySelector('input[name="ccSkill"]:checked');
+  consoleSkillIcon.src = checked ? (CONSOLE_SKILL_ICONS[checked.value] || DEFAULT_CONSOLE_ICON) : DEFAULT_CONSOLE_ICON;
+}
+
+/** Centre-panel heading: "Learning" until a skill is chosen, then that
+ *  skill's short name (matching its own skill-button label). */
+const SKILL_HEADING_LABELS = { composer: "Composers", period: "Periods" };
+const centreHeadingLabel = document.getElementById("centreHeadingLabel");
+function updateCentreHeading() {
+  if (!centreHeadingLabel) return;
+  const checked = document.querySelector('input[name="ccSkill"]:checked');
+  centreHeadingLabel.textContent = checked ? (SKILL_HEADING_LABELS[checked.value] || "Learning") : "Learning";
+}
+
+/** Big console title text: the suite wordmark until a skill is chosen, then
+ *  that skill's short name in the app's own flat accent colour. */
+const consoleTitleMain = document.getElementById("consoleTitleMain");
+const consoleTitleGradient = document.getElementById("consoleTitleGradient");
+const DEFAULT_CONSOLE_TITLE_MAIN = consoleTitleMain ? consoleTitleMain.textContent : "";
+const DEFAULT_CONSOLE_TITLE_GRADIENT = consoleTitleGradient ? consoleTitleGradient.textContent : "";
+function updateConsoleTitle() {
+  if (!consoleTitleMain || !consoleTitleGradient) return;
+  const checked = document.querySelector('input[name="ccSkill"]:checked');
+  if (checked) {
+    consoleTitleMain.textContent = "";
+    consoleTitleGradient.textContent = SKILL_HEADING_LABELS[checked.value] || checked.value;
+    consoleTitleGradient.classList.add("is-skill-active");
+  } else {
+    consoleTitleMain.textContent = DEFAULT_CONSOLE_TITLE_MAIN;
+    consoleTitleGradient.textContent = DEFAULT_CONSOLE_TITLE_GRADIENT;
+    consoleTitleGradient.classList.remove("is-skill-active");
+  }
+}
+
+/** Start cannot begin until the catalogue has loaded AND the user has
+ *  explicitly picked both a skill and a level. */
+function updateStartAvailability() {
+  if (!startButton) return;
+  const hasSkill = !!document.querySelector('input[name="ccSkill"]:checked');
+  const hasLevel = !!document.querySelector('input[name="ccLevel"]:checked');
+  startButton.disabled = !(catalogueReady && hasSkill && hasLevel);
+}
+
 async function loadCatalogue() {
   try {
-    const response = await fetch("/shared/data/clip-catalogue.json", {
-      headers: { Accept: "application/json" },
-      cache: "no-cache"
-    });
-    if (!response.ok) throw new Error(`Metadata request failed (${response.status}).`);
-    const catalogue = await response.json();
-    const audit = core.auditEraExplorerClips(catalogue);
+    const [catalogueResponse, curationResponse] = await Promise.all([
+      fetch("/shared/data/clip-catalogue.json", { headers: { Accept: "application/json" }, cache: "no-cache" }),
+      fetch("data/context-coach-curation.json", { headers: { Accept: "application/json" }, cache: "no-cache" })
+    ]);
+    if (!catalogueResponse.ok) throw new Error(`Metadata request failed (${catalogueResponse.status}).`);
+    const catalogue = await catalogueResponse.json();
+    // The curation overlay (content-review drops/levels/option overrides) is
+    // additive — if it's ever missing/unreachable, fall back to the fully
+    // algorithmic, uncurated pool rather than failing the whole app.
+    contentCuration = curationResponse.ok ? await curationResponse.json() : null;
+    const audit = core.auditEraExplorerClips(catalogue, contentCuration);
     clipPool = audit.valid;
 
     if (audit.invalid.length) {
@@ -731,13 +926,15 @@ async function loadCatalogue() {
     }
 
     setupMessage.textContent = "";
-    startButton.disabled = false;
-    startButton.textContent = "Start Quiz";
+    catalogueReady = true;
+    startButton.textContent = "Start Learning";
+    updateStartAvailability();
   } catch (error) {
     console.warn("[Era Explorer] Catalogue unavailable:", error);
     setupMessage.textContent = "ContextCoach is temporarily unavailable.";
-    startButton.disabled = true;
+    catalogueReady = false;
     startButton.textContent = "Clips Unavailable";
+    updateStartAvailability();
   }
 }
 
@@ -767,6 +964,18 @@ startButton.addEventListener("click", startGame);
 window.addEventListener("pagehide", () => stopAudio());
 window.addEventListener("beforeunload", () => stopAudio());
 
+document.querySelectorAll('input[name="ccLevel"]').forEach((input) => {
+  input.addEventListener("change", updateStartAvailability);
+});
+document.querySelectorAll('input[name="ccSkill"]').forEach((input) => {
+  input.addEventListener("change", () => {
+    updateStartAvailability();
+    syncConsoleSkillIcon();
+    updateCentreHeading();
+    updateConsoleTitle();
+  });
+});
+
 window.EraExplorerApp = Object.freeze({
   startGame,
   restartGame,
@@ -787,4 +996,8 @@ window.EraExplorerApp = Object.freeze({
 
 setAdvancedSettingsOpen(false);
 setQuizVisualState("ready");
+updateStartAvailability();
+syncConsoleSkillIcon();
+updateCentreHeading();
+updateConsoleTitle();
 loadCatalogue();

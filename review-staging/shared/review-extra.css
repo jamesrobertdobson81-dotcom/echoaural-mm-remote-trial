@@ -1,0 +1,100 @@
+/* Supplements ../../modules/texture-trainer/review.css (reused as-is, it's
+   fully generic) with the handful of classes unique to this shared draft
+   reviewer: the question-list rows, decision colour-coding, and the
+   editable clip start/end scrub row. */
+
+.question-row {
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 18px;
+  display: grid;
+  gap: 4px;
+  color: var(--text);
+  text-align: left;
+  background: rgba(255, 255, 255, .045);
+  cursor: pointer;
+}
+
+.question-row strong { font-size: .82rem; }
+.question-row span { font-size: .76rem; color: var(--muted); }
+.question-row small { font-size: .68rem; color: var(--soft); text-transform: uppercase; letter-spacing: .04em; }
+
+.question-row.is-active {
+  border-color: rgba(56, 189, 248, .55);
+  background:
+    radial-gradient(circle at 85% 20%, rgba(56, 189, 248, .18), transparent 40%),
+    rgba(56, 189, 248, .08);
+}
+
+.question-row.is-keep { border-left: 3px solid var(--green); }
+.question-row.is-edit { border-left: 3px solid var(--gold); }
+.question-row.is-drop { border-left: 3px solid var(--red); opacity: .6; }
+
+.choice-preview-label {
+  display: block;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--soft);
+  margin-bottom: 6px;
+}
+
+.clip-scrub-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.clip-scrub-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: .7rem;
+  color: var(--muted);
+}
+
+.clip-scrub-row input[type="number"] {
+  padding: 7px 9px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .06);
+  color: var(--text);
+  font-size: .85rem;
+}
+
+.clip-scrub-row .secondary-button {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: .72rem;
+}
+
+.clip-scrub-hint {
+  font-size: .68rem;
+  color: var(--soft);
+  margin: 4px 0 0;
+  text-align: center;
+}
+
+.review-hub-list {
+  display: grid;
+  gap: 14px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.review-hub-card {
+  display: block;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  color: var(--text);
+  text-decoration: none;
+}
+.review-hub-card:hover { border-color: rgba(56, 189, 248, .5); }
+.review-hub-card h3 { margin: 0 0 4px; }
+.review-hub-card p { margin: 0; color: var(--muted); font-size: .85rem; }

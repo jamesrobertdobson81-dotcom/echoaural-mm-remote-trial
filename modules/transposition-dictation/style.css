@@ -1,0 +1,633 @@
+/* Chord Identifier — standalone prototype styling.
+   Adapted from Harmony Explorer / Key Signature Sprint's own design tokens
+   and component patterns (see delivery notes) so it reads as the same app
+   family. Purple is Harmony Explorer's in-app accent; the EchoAural
+   wordmark keeps the shared blue/teal brand gradient used across all apps. */
+
+:root {
+  --navy: #07111f;
+  --purple: #a66bff;
+  --purple-strong: #8a4fe0;
+  --lavender: #d1b4ff;
+  --pink: #e889d5;
+  --text: rgba(255, 255, 255, .94);
+  --muted: rgba(255, 255, 255, .68);
+  --border: rgba(130, 160, 255, .14);
+  --glass: rgba(18, 28, 52, .50);
+  --glass-strong: rgba(14, 24, 48, .65);
+  --glass-border: rgba(130, 160, 255, .15);
+  --glass-highlight: rgba(180, 200, 255, .12);
+  --panel-gradient:
+    radial-gradient(circle at 82% 10%, rgba(100, 150, 255, .10), transparent 34%),
+    radial-gradient(circle at 8% 90%, rgba(80, 120, 220, .08), transparent 36%),
+    linear-gradient(180deg, rgba(18, 28, 52, .62), rgba(12, 20, 42, .55));
+  --shadow-soft: 0 28px 70px rgba(0, 0, 0, .26);
+  --good: #56e0b6;
+  --bad: #ff8fa8;
+  --radius-xl: 30px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(circle at 50% 4%, rgba(100, 150, 255, .12), transparent 28%),
+    radial-gradient(circle at 82% 14%, rgba(100, 150, 255, .16), transparent 31%),
+    radial-gradient(circle at 18% 72%, rgba(139, 92, 246, .16), transparent 34%),
+    linear-gradient(135deg, #05070a, #060a12 48%, #0a1020);
+}
+
+button, input, select { font: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.app-shell { width: min(1540px, calc(100% - 28px)); min-height: 100svh; margin: 0 auto; padding: 10px 0 14px; }
+
+/* ============ topbar ============ */
+.topbar {
+  min-height: 78px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid var(--border);
+  border-radius: 26px 26px 0 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .078), rgba(255, 255, 255, .030)), rgba(5, 13, 28, .78);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 16px 46px rgba(0, 0, 0, .18);
+}
+/* Colour/weight for .wordmark, .wordmark-echo/-aural and the "EA" circular
+   .brand-wave mark all come from ea-brand-logos.css — the same shared file
+   every EchoAural app uses, so this logo always stays in sync with the rest
+   of the site. Only base layout (not covered by that file) lives here. */
+.brand, .refined-logo { display: inline-flex; align-items: center; gap: 14px; text-decoration: none; }
+.wordmark { display: inline-flex; align-items: baseline; line-height: .92; font-size: clamp(1.85rem, 2.25vw, 2.45rem); }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.topbar-actions a { text-decoration: none; color: inherit; }
+
+.topbar-module-chip, .topbar-link {
+  min-height: 44px; border: 1px solid rgba(166,107,255,.28); border-radius: 999px;
+  background: radial-gradient(circle at 82% 18%, rgba(166,107,255,.15), transparent 34%), linear-gradient(135deg, rgba(138,79,224,.24), rgba(166,107,255,.14));
+  box-shadow: 0 12px 28px rgba(0,0,0,.16); color: rgba(255,255,255,.82);
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, color .22s ease;
+}
+.topbar-module-chip:hover, .topbar-link:hover { transform: translateY(-2px); color: white; }
+.topbar-module-chip { padding: 7px 12px; display: inline-flex; align-items: center; gap: 9px; }
+.topbar-module-icon { width: 34px; height: 34px; display: grid; place-items: center; overflow: hidden; }
+.topbar-module-icon img { width: 100%; height: 100%; object-fit: cover; }
+.topbar-ii-mark { font-size: 1.05rem; font-weight: 950; line-height: 1; letter-spacing: -.04em; }
+/* .topbar-ii-mark/-main/-gradient (chip letters) and .module-title-text/-main/-gradient
+   (sibling pill text) come from ea-brand-logos.css. .topbar-ii-gradient picks up HE's
+   purple automatically via app-shell[data-brand-app="harmony-explorer"] there. */
+
+.topbar-link { padding: 0 15px; display: inline-flex; align-items: center; gap: 7px; font-size: .84rem; }
+.topbar-app-link { font-weight: 500; }
+.topbar-app-link-mm { --module-accent: var(--ea-rose); }
+.topbar-app-link-ii { --module-accent: var(--ea-blue); }
+.topbar-app-link-tt { --module-accent: var(--ea-teal); }
+.topbar-app-link-meter { --module-accent: var(--ea-amber); }
+.topbar-app-link-cc { --module-accent: var(--ea-rose); }
+.topbar-app-link-sd { --module-accent: #B7F34A; }
+
+.topbar-home-link { display: inline-flex; align-items: center; gap: 6px; }
+.back-label { color: rgba(255,255,255,.60); letter-spacing: .03em; font-size: .84rem; }
+.mini-wordmark { display: inline-flex; align-items: baseline; font-size: 1rem; }
+
+/* ============ three-panel layout ============ */
+.three-panel-layout {
+  height: calc(100svh - 102px);
+  display: grid;
+  grid-template-columns: minmax(290px, 340px) minmax(540px, 1fr) minmax(320px, 370px);
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0 0 26px 26px;
+  background: radial-gradient(circle at 52% 0%, rgba(100, 150, 255, .05), transparent 42%), rgba(5, 8, 16, .78);
+  backdrop-filter: blur(22px) saturate(150%);
+}
+
+.panel {
+  position: relative;
+  min-height: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: var(--panel-gradient);
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-highlight), inset 0 0 0 1px rgba(255,255,255,.03);
+  padding: 22px;
+}
+.panel::before {
+  content: ""; position: absolute; inset: 1px; z-index: -1; border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,0));
+  pointer-events: none;
+}
+
+.setup-panel { display: flex; flex-direction: column; gap: 8px; padding: 38px 22px; }
+.quiz-panel { display: grid; grid-template-rows: auto auto auto 1fr; gap: 12px; overflow: hidden; text-align: center; }
+.info-panel { display: flex; flex-direction: column; overflow: hidden; }
+
+.panel-section-heading { min-height: 34px; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; }
+.setup-panel > .panel-section-heading { margin-bottom: 32px; }
+.panel-section-heading-centre { justify-content: center; margin-bottom: 2px; }
+.panel-section-heading h2 { display: inline-flex; flex-direction: column; align-items: stretch; margin: 0; font-size: clamp(1.02rem, 1.18vw, 1.28rem); line-height: 1; font-weight: 900; letter-spacing: .17em; text-transform: uppercase; }
+.panel-section-heading h2 span:not(.panel-heading-accent) { background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(125,211,252,.78)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.panel-heading-accent { display: block; width: 100%; height: 2px; margin-top: 8px; border-radius: 999px; background: var(--purple); box-shadow: 0 0 6px rgba(166, 107, 255, .5); }
+
+.eyebrow { margin: 0 0 10px; color: var(--lavender); font-size: .7rem; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; text-align: center; }
+
+/* ============ setup panel hero (matches Melody Master's left sidebar exactly) ============ */
+.mm-panel-hero { padding-bottom: 0; border-bottom: none; margin-bottom: 40px; text-align: center; }
+.mm-hero-lockup { display: grid; justify-items: center; gap: 18px; }
+.mm-hero-icon {
+  width: 112px; height: 112px; border-radius: 31px; overflow: hidden;
+  display: grid; place-items: center;
+}
+.mm-hero-icon img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transform-origin: center center; }
+.mm-title-lockup { display: grid; justify-items: center; gap: 7px; }
+.mm-title-text { display: grid; justify-items: center; gap: 0; line-height: .96; font-weight: 930; letter-spacing: -.055em; }
+.mm-title-main, .mm-title-gradient { display: block; font-size: clamp(1.55rem, 1.8vw, 2rem); }
+.mm-title-main { color: rgba(255,255,255,.96); }
+.mm-title-gradient { color: var(--purple); }
+.mm-panel-hero .mm-brand-eyebrow { margin: 8px 0 0; }
+
+.setup-panel > h2 { margin: 0; text-align: center; color: rgba(255,255,255,.82); font-size: .74rem; font-weight: 900; letter-spacing: .17em; text-transform: uppercase; }
+.setup-panel > h2.melody-skill-heading { margin-top: 0; margin-bottom: 7px; }
+.setup-panel > .melody-skill-grid + h2 { margin-top: 36px; margin-bottom: 7px; }
+
+/* ============ skill grid (HE's own skills: Key Signatures, Chord Identifier) ============ */
+.melody-skill-grid { display: grid; grid-template-columns: repeat(3, minmax(0, calc((100% - 16px) / 3))); gap: 8px; justify-content: center; }
+.melody-skill-button {
+  position: relative; min-height: 72px; padding: 9px 7px 8px; border: 1px solid rgba(130,160,255,.12); border-radius: 19px;
+  display: grid; justify-items: center; align-content: center; gap: 5px; text-align: center;
+  color: rgba(255,255,255,.94); background: radial-gradient(circle at 86% 12%, rgba(100,150,255,.10), transparent 38%), var(--glass);
+  box-shadow: 0 13px 32px rgba(0,0,0,.20), inset 0 1px 0 rgba(180,200,255,.08);
+  cursor: pointer; transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+}
+.melody-skill-button:hover { transform: translateY(-2px); border-color: rgba(166,107,255,.28); background: radial-gradient(circle at 86% 12%, rgba(166,107,255,.14), transparent 38%), var(--glass-strong); }
+.melody-skill-button input { position: absolute; opacity: 0; pointer-events: none; }
+.melody-skill-button:has(input:checked) { border-color: rgba(166,107,255,.58); background: radial-gradient(circle at 85% 10%, rgba(166,107,255,.18), transparent 38%), linear-gradient(135deg, rgba(138,79,224,.14), rgba(166,107,255,.10)); box-shadow: 0 18px 42px rgba(166,107,255,.12), inset 0 1px 0 rgba(255,255,255,.06); }
+.melody-skill-icon { width: 52px; height: 52px; margin: -7px 0; border-radius: 12px; display: grid; place-items: center; overflow: hidden; }
+.melody-skill-icon-img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.melody-skill-button strong { font-size: .75rem; font-weight: 900; letter-spacing: -.015em; line-height: 1; }
+.melody-skill-button:has(input:disabled) { cursor: not-allowed; opacity: .6; }
+.melody-skill-button:has(input:disabled):hover { transform: none; }
+.melody-skill-button.is-coming-soon { cursor: not-allowed; opacity: .66; filter: saturate(.72); }
+.melody-skill-button.is-coming-soon:hover, .melody-skill-button.is-coming-soon:focus-within { transform: none; border-color: rgba(255,255,255,.12); box-shadow: 0 13px 32px rgba(0,0,0,.16); }
+.melody-skill-button.is-coming-soon input { pointer-events: none; }
+.skill-status {
+  position: absolute; top: 6px; right: 6px; padding: 3px 6px;
+  border: 1px solid rgba(251,191,36,.38); border-radius: 999px;
+  color: rgba(255,244,214,.94); background: rgba(5,13,28,.72);
+  font-size: .52rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase;
+}
+
+/* ============ level grid ============ */
+.level-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.level-button {
+  position: relative; min-height: 62px; padding: 10px 36px 10px 12px; border: 1px solid rgba(130,160,255,.12); border-radius: 19px;
+  display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; column-gap: 11px;
+  color: var(--text); background: radial-gradient(circle at 86% 12%, rgba(100,150,255,.10), transparent 38%), var(--glass);
+  box-shadow: 0 13px 32px rgba(0,0,0,.20), inset 0 1px 0 rgba(180,200,255,.08);
+  cursor: pointer; transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+}
+.level-button:hover { transform: translateY(-2px); border-color: rgba(166,107,255,.28); background: radial-gradient(circle at 86% 12%, rgba(166,107,255,.14), transparent 38%), var(--glass-strong); }
+.level-button input { position: absolute; opacity: 0; pointer-events: none; }
+.level-button:has(input:checked) { border-color: rgba(166,107,255,.58); background: radial-gradient(circle at 85% 10%, rgba(166,107,255,.18), transparent 38%), linear-gradient(135deg, rgba(138,79,224,.14), rgba(166,107,255,.10)); box-shadow: 0 18px 42px rgba(166,107,255,.12), inset 0 1px 0 rgba(255,255,255,.06); }
+.level-icon { grid-column: 1; grid-row: 1; width: 42px; height: 42px; display: block; object-fit: contain; }
+.level-button strong { grid-column: 2; grid-row: 1; color: rgba(255,255,255,.94); font-size: .98rem; font-weight: 500; letter-spacing: -.015em; }
+.level-button::after { content: ""; position: absolute; top: 50%; right: 15px; width: 7px; height: 7px; border-right: 1.5px solid rgba(255,255,255,.36); border-bottom: 1.5px solid rgba(255,255,255,.36); transform: translateY(-50%) rotate(-45deg); }
+.level-button:has(input:checked)::after { border-color: rgba(255,255,255,.72); }
+
+#setupMessage { min-height: 1.3em; margin: 12px 0 0; color: rgba(251,191,36,.92); font-size: .82rem; line-height: 1.4; text-align: center; }
+
+/* ============ advanced settings popover (lives beside Start, inside the centre panel — matches Melody Master) ============ */
+.settings-wrap { position: relative; margin-top: 0; }
+.settings-popover {
+  position: absolute; left: 50%; top: calc(100% + 10px); transform: translateX(-50%); z-index: 30;
+  width: min(340px, 84vw); max-height: min(64vh, 540px); overflow: auto; padding: 18px;
+  border: 1px solid rgba(166,107,255,.34); border-radius: 24px;
+  background: radial-gradient(circle at 88% 12%, rgba(166,107,255,.16), transparent 34%), radial-gradient(circle at 10% 90%, rgba(138,79,224,.15), transparent 38%), rgba(5,13,28,.96);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 28px 70px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.035) inset, 0 0 36px rgba(166,107,255,.12);
+  text-align: left;
+}
+.settings-popover-header { padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.settings-popover-header .eyebrow { margin-bottom: 4px; text-align: left; }
+.settings-popover-header h3 { margin: 0; font-size: 1.05rem; }
+.settings-popover h3 { margin: 0 0 8px; font-size: .78rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.settings-popover h3:not(:first-child) { margin-top: 16px; }
+
+.pillRow { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.pillRow input { position: absolute; opacity: 0; }
+.pill {
+  position: relative; min-height: 38px; padding: 0 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,.76); background: rgba(255,255,255,.045);
+  font-size: .8rem; font-weight: 840; cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+}
+.pill:has(input:checked) { color: white; border-color: rgba(166,107,255,.58); background: linear-gradient(135deg, rgba(138,79,224,.20), rgba(166,107,255,.16)); box-shadow: 0 10px 24px rgba(166,107,255,.08); }
+.pillRow input:disabled + * , .pill:has(input:disabled) { opacity: .38; cursor: not-allowed; }
+
+/* ============ buttons ============ */
+.primary-button, .secondary-button {
+  min-height: 54px; padding: 0 28px; border: 0; border-radius: 14px;
+  font-size: .98rem; font-weight: 700; letter-spacing: -.01em; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease, border-color .2s ease, background .2s ease;
+}
+.primary-button { color: white; background: linear-gradient(135deg, var(--purple-strong), var(--purple) 55%, var(--pink)); box-shadow: 0 10px 26px rgba(132,70,220,.32); }
+.primary-button:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.primary-button:disabled { cursor: not-allowed; opacity: .5; transform: none; filter: none; }
+.secondary-button { color: rgba(255,255,255,.88); border: 1px solid var(--border); background: rgba(166,107,255,.07); }
+.secondary-button:hover { border-color: rgba(166,107,255,.4); background: rgba(166,107,255,.14); }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(240,200,255,.85); outline-offset: 3px; }
+
+/* Exact sizing/colours/shadow from Harmony Explorer's own homepage Start/Advanced Settings buttons. */
+.quiz-panel.is-ready #startButton.centre-start {
+  min-width: clamp(280px, 44vw, 400px); min-height: clamp(58px, 6.2vh, 68px);
+  padding: 0 clamp(32px, 3.6vw, 46px); font-size: clamp(1.02rem, 1.16vw, 1.14rem); font-weight: 780;
+  letter-spacing: .02em; gap: clamp(10px, 1.2vw, 14px); box-sizing: border-box;
+  border: 0; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #c49bff 0%, #A66BFF 48%, #8a4fe0 100%);
+  box-shadow: 0 0 28px rgba(166,107,255,.32), 0 8px 22px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.22);
+  color: white;
+}
+.quiz-panel.is-ready #startButton.centre-start:hover {
+  transform: translateY(-2px); filter: brightness(1.05);
+  box-shadow: 0 0 36px rgba(166,107,255,.40), 0 12px 28px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.26);
+}
+.quiz-panel.is-ready #startButton.centre-start::after {
+  content: ""; width: 28px; height: 28px; flex-shrink: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='12' fill='none' stroke='white' stroke-width='1.5' opacity='0.92'/%3E%3Cpath d='M12 9.5v9l7-4.5z' fill='white'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button {
+  width: auto; min-width: clamp(188px, 24vw, 252px); min-height: 46px;
+  padding: 0 clamp(22px, 2.4vw, 30px); box-sizing: border-box; gap: 8px;
+  font-size: clamp(.86rem, 1vw, .96rem); font-weight: 620; letter-spacing: .01em;
+  border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.28);
+  box-shadow: none; color: rgba(255,255,255,.92);
+}
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button:hover {
+  transform: translateY(-1px); filter: none; border-color: rgba(255,255,255,.42);
+  background: rgba(255,255,255,.07); box-shadow: 0 4px 16px rgba(0,0,0,.14);
+}
+.quiz-panel.is-ready .console-actions-start .advanced-settings-button::before {
+  content: ""; width: 16px; height: 16px; flex-shrink: 0; opacity: .88;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none'%3E%3Cline x1='3' y1='5.5' x2='15' y2='5.5' stroke='white' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='7' cy='5.5' r='2' fill='white'/%3E%3Cline x1='3' y1='12.5' x2='15' y2='12.5' stroke='white' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='11.5' cy='12.5' r='2' fill='white'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.advanced-settings-button { width: 100%; }
+
+/* ============ quiz header / stats ============ */
+.quiz-header { min-height: 38px; padding: 5px 6px; display: grid; grid-template-columns: auto minmax(120px, 1fr); align-items: center; gap: 13px; color: var(--muted); font-size: .82rem; box-sizing: border-box; }
+.quiz-header p { margin: 0; color: rgba(255,255,255,.76); font-size: .80rem; font-weight: 880; letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
+.progressOuter { height: 9px; overflow: hidden; border: 1px solid rgba(255,255,255,.09); border-radius: 999px; background: rgba(255,255,255,.055); }
+#progressBar { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--purple), var(--pink)); box-shadow: 0 0 16px rgba(166,107,255,.38); transition: width .35s ease; }
+.statsRow { display: flex; justify-content: center; }
+.score-tile { box-sizing: border-box; width: 100%; max-width: 280px; min-height: 44px; margin: 0; padding: 0 20px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(166,107,255,.24); border-radius: 14px; color: var(--text); background: radial-gradient(circle at 85% 10%, rgba(166,107,255,.12), transparent 38%), var(--glass); font-size: .9rem; font-weight: 600; }
+/* Matches Harmony Explorer's own homepage: the mark/streak/XP row only appears once a round is active. */
+.quiz-panel.is-ready .statsRow { display: none; }
+
+/* ============ ready state (matches Harmony Explorer's homepage centre console) ============ */
+.ci-console {
+  position: relative;
+  display: grid; grid-template-rows: repeat(9, auto);
+  align-content: center; align-items: center; justify-items: center;
+  gap: clamp(7px, .95vh, 13px);
+  text-align: center;
+  padding: clamp(14px, 1.45vw, 22px);
+  min-height: 0; height: 100%;
+  border: 1px solid rgba(255,255,255,.12); border-radius: 34px; box-sizing: border-box;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(56,189,248,.15), transparent 30%),
+    radial-gradient(circle at 50% 56%, rgba(139,92,246,.12), transparent 40%),
+    linear-gradient(180deg, rgba(2,7,19,.36), rgba(2,7,19,.28));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.025), 0 22px 60px rgba(0,0,0,.22);
+}
+.quiz-panel.is-ready .ci-console {
+  grid-template-rows: auto auto auto;
+  gap: clamp(14px, 1.8vh, 24px);
+  padding: clamp(22px, 2.5vw, 38px) clamp(14px, 1.45vw, 22px);
+}
+.ci-console::before {
+  content: ""; position: absolute; inset: 18px; z-index: 0;
+  border: 1px solid rgba(56,189,248,.08); border-radius: 28px; pointer-events: none;
+}
+.ci-console::after {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  width: clamp(220px, 32vw, 320px); height: clamp(220px, 32vw, 320px);
+  left: 50%; top: 40%; transform: translate(-50%, -50%); border-radius: 50%;
+  opacity: .72;
+  box-shadow: 0 0 36px rgba(166,107,255,.14), 0 0 72px rgba(166,107,255,.07);
+  background: radial-gradient(circle, rgba(166,107,255,.22) 0%, rgba(166,107,255,.12) 30%, rgba(166,107,255,.05) 52%, rgba(166,107,255,.015) 68%, transparent 84%);
+}
+.ci-console > * { position: relative; z-index: 1; }
+.console-orbit {
+  position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+  width: clamp(300px, 48vw, 480px); height: clamp(300px, 48vw, 480px);
+  border-radius: 50%; pointer-events: none; z-index: 0; opacity: .78;
+  background:
+    radial-gradient(circle, transparent calc(76% - .4px), rgba(166,107,255,.045) calc(76% - .4px), rgba(166,107,255,.045) calc(76% + .4px), transparent calc(76% + .4px)),
+    radial-gradient(circle, transparent calc(66% - .4px), rgba(166,107,255,.055) calc(66% - .4px), rgba(166,107,255,.055) calc(66% + .4px), transparent calc(66% + .4px)),
+    radial-gradient(circle, transparent calc(56% - .4px), rgba(166,107,255,.065) calc(56% - .4px), rgba(166,107,255,.065) calc(56% + .4px), transparent calc(56% + .4px)),
+    radial-gradient(circle, transparent calc(46% - .4px), rgba(166,107,255,.075) calc(46% - .4px), rgba(166,107,255,.075) calc(46% + .4px), transparent calc(46% + .4px)),
+    radial-gradient(circle, transparent calc(36% - .4px), rgba(166,107,255,.09) calc(36% - .4px), rgba(166,107,255,.09) calc(36% + .4px), transparent calc(36% + .4px)),
+    radial-gradient(circle, transparent calc(26% - .4px), rgba(166,107,255,.11) calc(26% - .4px), rgba(166,107,255,.11) calc(26% + .4px), transparent calc(26% + .4px));
+}
+.ci-ready { display: contents; }
+
+.quiz-panel.is-ready .ii-console-start-brand,
+.quiz-panel.is-ready .console-ready-brand.ii-console-start-brand {
+  width: min(560px, 100%); min-height: 0; height: auto;
+  display: grid; place-items: center; margin: 0 auto; gap: 0;
+}
+.console-ii-combined-lockup { display: grid; justify-items: center; gap: 14px; text-align: center; }
+.quiz-panel.is-ready .console-ii-combined-lockup { gap: clamp(28px, 2.15vh, 38px); }
+.console-ii-lockup { margin-top: 0; }
+.quiz-panel.is-ready .console-ii-lockup .console-title-text { transform: translateY(clamp(-8px, -0.7vh, -12px)); }
+.console-ii-icon { position: relative; width: 176px; height: 176px; display: block; border-radius: 40px; overflow: hidden; background: linear-gradient(135deg, #C49BFF, var(--purple) 55%, var(--purple-strong)); }
+.console-ii-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); transform-origin: center center; }
+.quiz-panel.is-ready .console-ii-icon {
+  width: clamp(132px, 12.8vw, 178px); height: clamp(132px, 12.8vw, 178px);
+  padding: clamp(19px, 2.05vw, 27px); border-radius: clamp(32px, 3.1vw, 44px);
+  overflow: hidden; box-sizing: border-box;
+}
+.console-title-text { display: inline-flex; align-items: baseline; font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 800; letter-spacing: -.02em; }
+.console-title-main { color: white; }
+.console-title-gradient { color: var(--purple); }
+.quiz-panel.is-ready .console-title-main,
+.quiz-panel.is-ready .console-title-gradient { font-size: clamp(1.82rem, 4.2vw, 3.35rem); }
+
+/* Real multi-segment waveform, copied from Harmony Explorer's own homepage
+   (9 staggered segments of edge/mid/core bars) rather than a simplified stand-in. */
+.ii-ready-wave {
+  width: min(720px, 94%); height: clamp(86px, 11vh, 128px); margin-top: clamp(34px, 4vh, 52px);
+  padding: 0 clamp(20px, 3vw, 32px);
+  border-radius: 999px; border: 1px solid rgba(255,255,255,.085);
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 0%, rgba(166,107,255,.08), transparent 50%), var(--glass);
+  box-shadow: inset 0 0 28px rgba(166,107,255,.025);
+  box-sizing: border-box;
+}
+.ii-console-wave-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.ii-console-wave-lines, .ii-wave-segment { transform-origin: center; }
+.ii-wave-segment .ii-wave-line {
+  stroke: url(#heConsoleWaveGrad); stroke-width: 2.2; stroke-linecap: round;
+  vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center;
+  animation-duration: var(--wave-seg-duration, 1.35s);
+  animation-delay: calc(var(--wave-seg-phase, 0s) + var(--wave-bar-stagger, 0s));
+  animation-timing-function: ease-in-out; animation-iteration-count: infinite;
+  opacity: .88;
+}
+.ii-wave-segment .ii-wave-line.ii-wave-edge { animation-name: ciWaveLinePulseEdge; }
+.ii-wave-segment .ii-wave-line.ii-wave-mid { animation-name: ciWaveLinePulseMid; }
+.ii-wave-segment .ii-wave-line.ii-wave-core { animation-name: ciWaveLinePulseCore; }
+@keyframes ciWaveLinePulseEdge { 0%, 100% { transform: scaleY(.88); opacity: .62; } 45% { transform: scaleY(1); opacity: .78; } }
+@keyframes ciWaveLinePulseMid { 0%, 100% { transform: scaleY(.68); opacity: .76; } 45% { transform: scaleY(1.04); opacity: .94; } }
+@keyframes ciWaveLinePulseCore { 0%, 100% { transform: scaleY(.52); opacity: .82; } 45% { transform: scaleY(1.1); opacity: 1; } }
+
+.console-actions-start { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.quiz-panel.is-ready .console-actions-start {
+  gap: clamp(14px, 1.8vh, 18px); margin: clamp(28px, 3.8vh, 52px) auto 0;
+  transform: translateY(clamp(-22px, -1.5vh, -14px));
+}
+.console-actions-replay { display: flex; justify-content: center; min-height: 54px; margin-bottom: 6px; }
+
+.ci-play { width: 100%; display: grid; justify-items: center; align-content: start; min-height: 100%; }
+.ci-play[hidden], .ci-ready[hidden] { display: none !important; }
+
+/* ============ question heading ============ */
+.ci-question-heading { width: min(760px, 100%); margin: 4px auto 0; }
+#questionText { display: block; max-width: 62ch; margin: 0 auto; color: rgba(255,255,255,.96); font-size: clamp(1.02rem, 1.35vw, 1.28rem); font-weight: 500; line-height: 1.2; letter-spacing: -.028em; }
+.question-marks[hidden] { display: none; }
+
+/* ============ notation ============ */
+.score-stage-card {
+  position: relative; width: min(100%, 360px); margin: clamp(6px, .9vh, 12px) auto 0;
+  padding: clamp(6px, .8vw, 10px);
+  border: 1px solid rgba(166,107,255,.34); border-radius: 18px;
+  background: radial-gradient(circle at 82% 18%, rgba(166,107,255,.12), transparent 38%), linear-gradient(180deg, rgba(18,28,52,.58), rgba(12,20,42,.52));
+  box-shadow: 0 18px 50px rgba(0,0,0,.24), 0 0 28px rgba(166,107,255,.10);
+}
+.score-stage {
+  position: relative; width: 100%; aspect-ratio: 480 / 401; height: auto;
+  overflow: hidden; border-radius: 14px; border: 1px solid rgba(130,160,255,.10);
+  background: #fff; box-shadow: inset 0 1px rgba(255,255,255,.72);
+}
+.score-stage-inner {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 84%; aspect-ratio: 480 / 401;
+}
+.score-stage .stave-bg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; user-select: none; pointer-events: none; }
+.score-stage .note-head, .score-stage .note-accidental, .score-stage .note-ledger { position: absolute; user-select: none; pointer-events: none; }
+.score-stage .note-head { transform: translate(-50%, -50%); }
+.score-stage .note-accidental { transform: translate(-100%, -50%); }
+.score-stage .note-ledger { height: 1.6px; background: #1a2338; transform: translateY(-50%); }
+
+/* ============ audio controls ============ */
+.audio-controls { display: flex; justify-content: center; gap: 10px; margin: 8px 0 0; }
+.audio-button { min-height: 40px; padding: 0 20px; font-size: .84rem; }
+
+/* ============ answers ============ */
+.ci-answer-grid { display: grid; grid-template-columns: repeat(4, minmax(90px, 1fr)); width: min(100%, 640px); gap: 8px; margin: clamp(6px, .9vh, 10px) auto 0; }
+.ci-answer-grid.is-roman { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 520px; }
+.ci-answer-grid.is-inversion { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 460px; }
+.answer-button {
+  min-height: 48px; padding: 8px 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 16px;
+  color: rgba(255,255,255,.94); background: rgba(255,255,255,.13); font-size: .84rem; font-weight: 800; cursor: pointer;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.answer-button:hover, .answer-button:focus-visible { transform: translateY(-2px); background: rgba(166,107,255,.22); border-color: rgba(166,107,255,.72); }
+.answer-button.correct { background: rgba(46,204,113,.24); border-color: rgba(46,204,113,.72); }
+.answer-button.incorrect { background: rgba(255,104,104,.23); border-color: rgba(255,104,104,.72); }
+.answer-button:disabled { cursor: default; }
+
+.written-answer { width: min(100%, 540px); margin: clamp(10px, 1.2vh, 16px) auto 0; }
+.written-answer label { display: block; width: 100%; margin-bottom: 7px; text-align: center; font-size: .72rem; font-weight: 700; letter-spacing: .075em; text-transform: uppercase; color: rgba(226,232,240,.72); }
+.written-answer > div { display: flex; gap: 10px; }
+.written-answer input { flex: 1; min-width: 0; min-height: 62px; padding: .85rem 1.1rem; border-radius: 13px; border: 1px solid rgba(166,107,255,.22); background: radial-gradient(circle at 86% 12%, rgba(166,107,255,.10), transparent 38%), var(--glass); color: rgba(255,255,255,.94); font-size: clamp(1.05rem, 2.2vw, 1.22rem); font-weight: 500; text-align: center; }
+.written-answer input::placeholder { color: rgba(226,232,240,.42); }
+.written-answer input:focus-visible { outline: none; border-color: rgba(166,107,255,.42); }
+.written-answer input.is-correct { border-color: rgba(52,211,153,.58); }
+.written-answer input.is-wrong { border-color: rgba(248,113,113,.58); }
+
+/* ============ next button (matches MI's gameplay-action glass style) ============ */
+.ci-gameplay-action {
+  box-sizing: border-box; border: 1px solid rgba(130,160,255,.12); border-radius: 14px;
+  width: 188px; min-width: 188px; max-width: 188px; height: 54px; min-height: 54px; max-height: 54px;
+  padding: 0 28px; font-size: .98rem; font-weight: 500; letter-spacing: -.015em;
+  background: radial-gradient(circle at 86% 12%, rgba(166,107,255,.10), transparent 38%), var(--glass);
+  box-shadow: 0 12px 30px rgba(166,107,255,.075), 0 10px 26px rgba(0,0,0,.20);
+}
+.ci-gameplay-action:not(:disabled):hover, .ci-gameplay-action:not(:disabled):focus-visible {
+  transform: translateY(-2px); border-color: rgba(166,107,255,.58);
+  background: radial-gradient(circle at 85% 10%, rgba(166,107,255,.18), transparent 38%), linear-gradient(135deg, rgba(138,79,224,.14), rgba(166,107,255,.10));
+}
+.ci-gameplay-action:disabled { cursor: not-allowed; opacity: 1; filter: none; }
+
+/* ============ insight / answers panel (matches Melody Master homescreen's answers panel, HE purple accent) ============ */
+.answerCard { flex: 1; display: flex; flex-direction: column; }
+.answerCard-empty, .answer-reveal {
+  width: 100%; min-height: 100%; box-sizing: border-box;
+  border: 1px solid rgba(130,160,255,.12); border-radius: 26px;
+  background: radial-gradient(circle at 74% 12%, rgba(166,107,255,.08), transparent 38%), radial-gradient(circle at 12% 92%, rgba(138,79,224,.06), transparent 38%), linear-gradient(180deg, rgba(18,28,52,.58), rgba(12,20,42,.52));
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(180,200,255,.08), 0 16px 40px rgba(0,0,0,.22);
+}
+.answerCard-empty { display: grid; align-content: center; justify-items: center; gap: clamp(18px, 2.4vh, 28px); text-align: center; padding: 22px; }
+.answer-reveal { display: grid; align-content: start; justify-items: stretch; gap: 10px; text-align: left; padding: 14px; }
+.answer-reveal.is-correct { border-color: rgba(110,231,183,.24); }
+.answer-reveal.is-wrong { border-color: rgba(255,143,168,.24); }
+
+.answer-empty-stage { display: grid; place-items: center; width: 100%; padding: clamp(8px, 1.5vh, 18px) 0 clamp(2px, .6vh, 8px); }
+.answer-empty-orbit {
+  position: relative; width: clamp(148px, 13vw, 196px); height: clamp(148px, 13vw, 196px);
+  display: grid; place-items: center; border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent calc(84% - .35px), rgba(166,107,255,.11) calc(84% - .35px), rgba(166,107,255,.11) calc(84% + .35px), transparent calc(84% + .35px)),
+    radial-gradient(circle, transparent calc(72% - .35px), rgba(166,107,255,.13) calc(72% - .35px), rgba(166,107,255,.13) calc(72% + .35px), transparent calc(72% + .35px)),
+    radial-gradient(circle, transparent calc(60% - .35px), rgba(166,107,255,.15) calc(60% - .35px), rgba(166,107,255,.15) calc(60% + .35px), transparent calc(60% + .35px)),
+    radial-gradient(circle, transparent calc(48% - .35px), rgba(166,107,255,.17) calc(48% - .35px), rgba(166,107,255,.17) calc(48% + .35px), transparent calc(48% + .35px)),
+    radial-gradient(circle, transparent calc(36% - .35px), rgba(166,107,255,.20) calc(36% - .35px), rgba(166,107,255,.20) calc(36% + .35px), transparent calc(36% + .35px));
+  box-shadow: 0 0 28px rgba(166,107,255,.08), 0 0 56px rgba(166,107,255,.05);
+}
+.answer-empty-orbit .answer-empty-icon {
+  position: relative; z-index: 1;
+  width: clamp(62px, 6vw, 82px); height: clamp(62px, 6vw, 82px);
+  padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible;
+}
+.answer-empty-icon img {
+  width: 100%; height: 100%; object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(166,107,255,.18)) drop-shadow(0 0 10px rgba(166,107,255,.10));
+}
+.answer-empty-sparkle {
+  position: absolute; width: 7px; height: 7px; background: #A66BFF;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  opacity: .62; filter: drop-shadow(0 0 5px rgba(166,107,255,.55)); pointer-events: none;
+}
+.answer-empty-sparkle-1 { top: 8%; left: 18%; }
+.answer-empty-sparkle-2 { top: 14%; right: 12%; }
+.answer-empty-sparkle-3 { bottom: 16%; left: 10%; }
+.answer-empty-sparkle-4 { bottom: 10%; right: 18%; }
+
+.answer-empty-copy { display: grid; gap: clamp(8px, 1vh, 12px); justify-items: center; max-width: 30ch; padding: 0 clamp(8px, 1.2vw, 16px); }
+.answer-empty-copy h2 { margin: 0; font-size: clamp(1.02rem, 1.28vw, 1.22rem); font-weight: 780; letter-spacing: -.02em; line-height: 1.25; color: rgba(255,255,255,.96); }
+.answer-empty-copy p { margin: 0; color: rgba(255,255,255,.52); font-size: clamp(.8rem, .92vw, .9rem); line-height: 1.58; font-weight: 520; }
+
+.diagnostic-metrics { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .5rem; width: 100%; margin: 0; }
+.diagnostic-metric { padding: .55rem .65rem; border-radius: 16px; border: 1px solid rgba(148,163,184,.18); background: rgba(15,23,42,.48); box-shadow: inset 0 1px 0 rgba(255,255,255,.035); }
+.diagnostic-metric.is-focus { border-color: rgba(166,107,255,.4); background: rgba(166,107,255,.09); }
+.diagnostic-metric span { display: block; color: rgba(226,232,240,.68); font-size: .6rem; font-weight: 800; letter-spacing: .045em; text-transform: uppercase; }
+.diagnostic-metric strong { display: block; margin-top: 2px; color: rgb(248,250,252); font-size: .92rem; font-weight: 900; }
+
+.diagnostic-card { width: 100%; box-sizing: border-box; padding: 12px 13px; border: 1px solid rgba(148,163,184,.18); border-radius: 16px; background: rgba(15,23,42,.46); box-shadow: inset 0 1px 0 rgba(255,255,255,.04); text-align: left; }
+.diagnostic-card span { display: block; color: rgba(148,163,184,.88); font-size: .66rem; font-weight: 800; letter-spacing: .066em; text-transform: uppercase; }
+.diagnostic-card strong { display: block; margin-top: 4px; color: rgba(248,250,252,.94); font-size: .9rem; font-weight: 760; }
+.diagnostic-feedback-tile { border-color: rgba(166,107,255,.24); background: linear-gradient(135deg, rgba(138,79,224,.14), rgba(15,23,42,.44)); }
+.round-score-tile { border-color: rgba(166,107,255,.22); background: radial-gradient(circle at 86% 16%, rgba(166,107,255,.13), transparent 36%), linear-gradient(135deg, rgba(15,23,42,.54), rgba(2,6,23,.34)); }
+.round-score-tile small { display: block; margin-top: 6px; color: rgba(216,180,255,.84); font-size: .72rem; }
+.round-score-tile p { margin: 7px 0 0; color: rgba(226,232,240,.82); font-size: .78rem; line-height: 1.4; }
+
+/* ============ results ============ */
+.results { width: min(100%, 680px); margin: 2vh auto; text-align: center; }
+.results h2 { font-size: 1.7rem; }
+.result-score { font-size: 2.8rem; color: var(--lavender); font-weight: 900; }
+.result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 18px 0; text-align: left; }
+.result-grid div { padding: 13px; border: 1px solid var(--border); border-radius: 12px; background: rgba(166,107,255,.07); font-size: .84rem; }
+.result-grid strong { display: block; font-size: 1.1rem; color: white; }
+.weakness-box { margin: 14px 0; padding: 14px; border-radius: 12px; background: rgba(255,143,168,.08); border: 1px solid rgba(255,143,168,.2); text-align: left; font-size: .84rem; line-height: 1.6; }
+.result-actions { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
+
+/* ============ responsive (breakpoints match Harmony Explorer's own homepage exactly) ============ */
+@media (min-width: 981px) and (max-height: 880px) {
+  .app-shell { padding: 8px 0 10px; }
+  .topbar { min-height: 70px; }
+  .topbar .wordmark { font-size: clamp(1.65rem, 2vw, 2.18rem); }
+  .topbar .refined-wave { width: 56px; height: 44px; }
+  .three-panel-layout { height: calc(100svh - 88px); gap: 10px; padding: 10px; }
+  .setup-panel, .quiz-panel, .info-panel { padding: 16px; }
+  .setup-panel { gap: 11px; }
+  .quiz-panel { gap: 8px; }
+  .panel-section-heading { min-height: 30px; margin-bottom: 8px; }
+  .panel-section-heading h2 { font-size: clamp(1.08rem, 1.08vw, 1.22rem); }
+  .mm-hero-lockup { gap: 8px; }
+  .mm-hero-icon { width: 90px; height: 90px; padding: 14px; border-radius: 26px; }
+  .mm-title-lockup { gap: 5px; }
+  .mm-title-main, .mm-title-gradient { font-size: clamp(1.34rem, 1.55vw, 1.72rem); }
+  .level-button { min-height: 62px; padding: 9px 11px; border-radius: 19px; }
+  .quiz-header { min-height: 30px; padding: 2px 4px; }
+}
+@media (max-width: 1280px) {
+  .app-shell { width: min(100% - 20px, 1180px); }
+  .three-panel-layout { grid-template-columns: 310px minmax(460px, 1fr); }
+  .info-panel { grid-column: 1 / -1; min-height: 360px; }
+  .answerCard-empty, .answer-reveal { min-height: 320px; }
+}
+@media (max-width: 980px) {
+  .app-shell { width: min(100% - 16px, 760px); padding-top: 8px; }
+  .topbar { min-height: auto; padding: 15px; border-radius: 24px 24px 0 0; flex-direction: column; justify-content: center; }
+  .topbar-actions { width: 100%; justify-content: center; flex-wrap: wrap; }
+  .three-panel-layout { min-height: auto; grid-template-columns: 1fr; border-radius: 0 0 24px 24px; }
+  .setup-panel, .quiz-panel, .info-panel { padding: 18px; }
+  .quiz-panel { min-height: 720px; order: 1; }
+  .setup-panel { order: 2; }
+  .info-panel { grid-column: auto; order: 3; }
+  .settings-popover { position: fixed; left: 18px; right: 18px; bottom: 88px; max-height: min(70vh, 620px); }
+  .ci-answer-grid, .ci-answer-grid.is-roman, .ci-answer-grid.is-inversion { grid-template-columns: 1fr 1fr; }
+  .written-answer > div { flex-direction: column; }
+  .score-stage-card { width: 100%; }
+}
+@media (max-width: 460px) {
+  .ci-answer-grid, .ci-answer-grid.is-roman { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+
+/* ============ Transposition Dictation — single-line stave + answer grid ============ */
+.td-setup-copy { color: rgba(255,255,255,.7); font-size: .88rem; line-height: 1.5; margin: 14px 4px 0; }
+.td-source-caption { text-align: center; color: rgba(255,255,255,.68); font-size: .78rem; margin: 2px 0 0; }
+
+.td-stave-stage {
+  position: relative; width: 100%; aspect-ratio: 480 / 401; height: auto;
+  overflow: hidden; border-radius: 14px; border: 1px solid rgba(130,160,255,.10);
+  background: #fff; box-shadow: inset 0 1px rgba(255,255,255,.72);
+}
+/* Alto clef has no existing grand-stave asset (Chord Identifier's is
+   treble+bass only) — the one case still using a plainly-drawn 5-line
+   staff, at its own shorter aspect ratio. */
+.td-stave-stage.td-stave-stage-alto { aspect-ratio: 480 / 160; }
+.td-stave-inner { position: absolute; inset: 0; }
+.td-stave-bg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; user-select: none; pointer-events: none; }
+.td-stave-line { position: absolute; left: 4%; right: 4%; height: 1.6px; background: #1a2338; }
+.td-clef-glyph, .td-note-accidental, .td-note-head, .td-note-ledger { position: absolute; user-select: none; pointer-events: none; }
+.td-clef-glyph { object-fit: contain; }
+.td-note-head { object-fit: contain; }
+.td-note-accidental { transform: translate(-100%, -50%); object-fit: contain; }
+.td-note-ledger { height: 1.6px; background: #1a2338; transform: translateY(-50%); }
+
+.td-answer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: min(100%, 640px); gap: 10px; margin: clamp(10px, 1.4vh, 16px) auto 0; }
+.td-answer-stave-button {
+  padding: 8px; border: 1px solid rgba(255,255,255,.2); border-radius: 16px;
+  background: rgba(255,255,255,.13); cursor: pointer;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.td-answer-stave-button:hover, .td-answer-stave-button:focus-visible { transform: translateY(-2px); background: rgba(166,107,255,.22); border-color: rgba(166,107,255,.72); }
+.td-answer-stave-button.is-correct { background: rgba(46,204,113,.24); border-color: rgba(46,204,113,.72); }
+.td-answer-stave-button.is-incorrect { background: rgba(255,104,104,.23); border-color: rgba(255,104,104,.72); }
+.td-answer-stave-button:disabled { cursor: default; }
+.td-answer-stave-button .td-stave-stage-small { aspect-ratio: 480 / 401; }
+.td-answer-stave-button .td-stave-stage-small.td-stave-stage-alto { aspect-ratio: 480 / 160; }
+
+@media (max-width: 460px) {
+  .td-answer-grid { grid-template-columns: 1fr; }
+}

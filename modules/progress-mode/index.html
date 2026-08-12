@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Progress Mode | EchoAural</title>
+<link rel="stylesheet" href="../instrument-identifier/style.css">
+<link rel="stylesheet" href="../../shared/css/track-information.css">
+<link rel="stylesheet" href="../../shared/css/ea-brand-logos.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell" data-brand-app="instrument-identifier">
+  <header class="topbar">
+    <a class="brand refined-logo" href="../../index.html" aria-label="Back to EchoAural home">
+      <span class="brand-wave refined-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+      <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+    </a>
+
+    <nav class="topbar-actions" aria-label="Progress Mode navigation">
+      <a class="topbar-module-chip" href="#gameScreen" aria-label="Progress Mode module">
+        <span class="topbar-module-icon" aria-hidden="true"><img src="../../assets/icons/dashboard/progress-mode.png?v=11" alt=""></span>
+        <span class="sr-only">Progress Mode</span>
+      </a>
+
+      <a class="topbar-link topbar-app-link topbar-app-link-mm" href="../melody-master/index.html" aria-label="Open Melody Master">
+        <span class="module-title-text"><span class="module-title-main">Melody</span><span class="module-title-gradient">Master</span></span>
+      </a>
+      <a class="topbar-link topbar-app-link topbar-app-link-tt" href="../texture-trainer/index.html" aria-label="Open Texture Trainer">
+        <span class="module-title-text"><span class="module-title-main">Texture</span><span class="module-title-gradient">Trainer</span></span>
+      </a>
+      <a class="topbar-link topbar-app-link topbar-app-link-he" href="../harmony-explorer/index.html" aria-label="Open Harmony Explorer">
+        <span class="module-title-text"><span class="module-title-main">Harmony</span><span class="module-title-gradient">Explorer</span></span>
+      </a>
+      <a class="topbar-link topbar-home-link" href="/account/student-home/" aria-label="Back to my dashboard">
+        <span class="back-label">Back to</span>
+        <span class="mini-wordmark" aria-hidden="true"><span class="mini-wordmark-echo">My</span><span class="mini-wordmark-aural">Dashboard</span></span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="three-panel-layout">
+
+    <!-- LHS: settings panel, matching the II homepage exactly, minus the
+         skill/level pickers — meaningless here since every round mixes
+         apps and each app runs at its own independently-tracked level. -->
+    <section class="panel setup-panel" id="setupPanel">
+      <div class="panel-section-heading">
+        <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+        <h2><span>Settings</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
+      </div>
+
+      <div class="panel-hero ii-panel-hero">
+        <div class="ii-hero-lockup">
+          <span class="ii-hero-icon" aria-hidden="true"><img src="../../assets/icons/dashboard/progress-mode.png?v=11" alt=""></span>
+          <div class="ii-title-lockup" aria-hidden="true">
+            <span class="ii-title-wave"><span></span><span></span><span></span><span></span><span></span></span>
+            <span class="ii-title-text"><span class="ii-title-main">Progress</span><span class="ii-title-gradient">Mode</span></span>
+          </div>
+          <h1 class="sr-only">Progress Mode</h1>
+        </div>
+        <p class="eyebrow ii-brand-eyebrow">GCSE MUSIC LISTENING SKILLS</p>
+      </div>
+
+      <div id="identityBlock" class="pm-identity-block">
+        <form id="loginForm" class="pm-login-form" hidden>
+          <label for="studentName">Your name</label>
+          <input id="studentName" type="text" autocomplete="off" placeholder="e.g. Alex" required>
+          <button type="submit" class="secondary-button">Continue</button>
+        </form>
+        <div id="signedInAs" class="pm-signed-in-as" hidden>
+          <span>Signed in as</span>
+          <strong id="studentNameLabel">—</strong>
+        </div>
+      </div>
+
+      <p id="setupMessage" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- Centre: the live console. Ready state (Start Progressing) uses
+         the same panel chrome as II's homepage. Once a round starts, this
+         chrome is hidden entirely and the iframe fills the whole panel
+         edge-to-edge — the embedded app's own panel-section-heading,
+         quiz-header, stats row, and gameplay UI (already preserved by
+         app-drivers.js's focus mode) becomes the panel's only visible
+         content, so it looks and is laid out exactly like that app's own
+         homepage, not a tile nested inside another tile. -->
+    <section class="panel quiz-panel is-ready" id="gameScreen">
+      <div id="readyState">
+        <div class="panel-section-heading panel-section-heading-centre">
+          <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+          <h2><span id="centerHeading">Progress Mode</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
+        </div>
+
+        <div class="quiz-header">
+          <p id="roundText" hidden>Ready</p>
+          <div class="progressOuter" aria-hidden="true"><div id="progressInner"></div></div>
+        </div>
+
+        <div class="statsRow ii-stats-row" aria-label="Round statistics">
+          <p id="scoreText" class="ii-mark-tile">Round score: 0 / 0</p>
+          <p id="streakText" hidden>App: —</p>
+          <p id="xpText" hidden>Level: —</p>
+        </div>
+
+        <div class="listening-console" id="readyConsole">
+          <div class="console-orbit" aria-hidden="true"></div>
+
+          <div class="console-ready-brand ii-console-start-brand" aria-hidden="true">
+            <div class="console-ii-combined-lockup">
+              <span class="console-ii-icon"><img src="../../assets/icons/dashboard/progress-mode.png?v=11" alt=""></span>
+              <div class="console-ii-lockup">
+                <span class="console-title-text">
+                  <span class="console-title-main">Progress</span>
+                  <span class="console-title-gradient">Mode</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="console-actions console-actions-start">
+            <button id="startRoundButton" class="primary-button centre-start" type="button">Start Progressing</button>
+            <div class="settings-popover-wrap">
+              <div id="advancedSettings" class="advancedSettings settings-popover" style="display: none;" aria-hidden="true">
+                <div class="settings-popover-header">
+                  <p class="eyebrow">CUSTOMISE ROUND</p>
+                  <h3>Advanced Settings</h3>
+                </div>
+                <h3>Questions</h3>
+                <div class="pillRow" aria-label="Number of questions in this round">
+                  <label class="pill"><input type="radio" name="pmQuestionCount" value="5">5</label>
+                  <label class="pill"><input type="radio" name="pmQuestionCount" value="10" checked>10</label>
+                  <label class="pill"><input type="radio" name="pmQuestionCount" value="15">15</label>
+                </div>
+                <h3>Focus area</h3>
+                <div class="pillRow" aria-label="Bias this round toward one musical area">
+                  <label class="pill"><input type="radio" name="pmFocusArea" value="" checked>All areas</label>
+                  <label class="pill"><input type="radio" name="pmFocusArea" value="melody">Melody</label>
+                  <label class="pill"><input type="radio" name="pmFocusArea" value="texture">Texture</label>
+                  <label class="pill"><input type="radio" name="pmFocusArea" value="harmony">Harmony</label>
+                  <label class="pill"><input type="radio" name="pmFocusArea" value="instrumentation">Instrumentation</label>
+                  <label class="pill"><input type="radio" name="pmFocusArea" value="rhythm">Rhythm</label>
+                  <label class="pill"><input type="radio" name="pmFocusArea" value="context">Context</label>
+                </div>
+              </div>
+              <button id="settingsToggle" class="secondary-button advanced-settings-button" type="button" aria-controls="advancedSettings" aria-expanded="false">Advanced Settings</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-frame-wrap" id="roundActiveWrap" hidden>
+        <iframe id="appFrame" title="Progress Mode question" class="pm-frame"></iframe>
+        <div id="frameTransition" class="pm-frame-transition" hidden>
+          <div class="pm-frame-transition-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <p id="frameTransitionText">Nice work — next question…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- RHS: same info-panel/answerCard role as II's — shows per-app levels
+         while idle, and round feedback (incl. the cumulative musical
+         elements chart) once a round finishes. -->
+    <aside class="panel info-panel">
+      <div class="panel-section-heading">
+        <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
+        <h2><span>My Progress</span><span class="panel-heading-accent" aria-hidden="true"></span></h2>
+      </div>
+
+      <div id="answerCard" class="answerCard" aria-live="polite"></div>
+    </aside>
+
+  </main>
+</div>
+
+<script src="/shared/js/spaced-repetition.js"></script>
+<script src="store.js"></script>
+<script src="app-drivers.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

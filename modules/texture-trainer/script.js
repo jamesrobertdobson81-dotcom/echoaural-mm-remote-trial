@@ -182,26 +182,26 @@ function shuffleList(list) {
 
 function buildRandomRound(level) {
   readAdvancedSettings();
-  const pool = shuffleList(getActiveQuestionPool(level));
+  const spacedKey = `tt:${mixedDifficultyMode ? "mixed" : level}`;
+  const SR = window.EchoAuralSpacedRepetition;
+  const pool = SR
+    ? SR.orderByLeastRecentlyShown(getActiveQuestionPool(level), { key: spacedKey, idOf: (question) => question.id })
+    : shuffleList(getActiveQuestionPool(level));
   const roundLimit = Math.min(selectedRoundSize, pool.length);
-  const round = [];
-  const remaining = pool.slice();
+  // Keep the same answer from appearing twice anywhere in the round, not
+  // just back-to-back.
+  const deduped = SR?.dedupeByAnswer ? SR.dedupeByAnswer(pool, roundLimit, getAnswerSignature) : pool;
+  const round = deduped.slice(0, roundLimit);
 
-  while (remaining.length && round.length < roundLimit) {
-    const previousSignature = round.length ? getAnswerSignature(round[round.length - 1]) : "";
-    const nextIndex = previousSignature
-      ? remaining.findIndex((question) => getAnswerSignature(question) !== previousSignature)
-      : 0;
-    const chosenIndex = nextIndex >= 0 ? nextIndex : 0;
-    round.push(remaining.splice(chosenIndex, 1)[0]);
-  }
-
+  SR?.markShown(round, { key: spacedKey, idOf: (question) => question.id });
   return round;
 }
 
+let levelChosen = false;
+
 function updateLevelControls() {
   levelButtons.forEach((button) => {
-    const isSelected = button.dataset.level === selectedLevel;
+    const isSelected = levelChosen && button.dataset.level === selectedLevel;
     button.classList.toggle("is-selected", isSelected);
     button.setAttribute("aria-pressed", isSelected ? "true" : "false");
   });
@@ -214,7 +214,7 @@ function updateLevelControls() {
     const roundCount = Math.min(selectedRoundSize, poolCount);
     questionPoolText.textContent = `${poolCount} available · ${roundCount} random ${roundCount === 1 ? "question" : "questions"} per round.`;
   }
-  if (startButton && !startButton.hidden) startButton.textContent = "Start Quiz";
+  if (startButton && !startButton.hidden) startButton.textContent = "Start Learning";
 }
 
 function setSelectedLevel(level) {
@@ -349,9 +349,13 @@ function formatMark(value) {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
-function formatExamMarks(maxMarks) {
-  const marks = Number(maxMarks) || 1;
-  return `[${formatMark(marks)}]`;
+function stripTrailingQuestionMarkSuffix(text) {
+  if (window.EAQuestionPromptMarks?.stripTrailing) {
+    return window.EAQuestionPromptMarks.stripTrailing(text);
+  }
+  return String(text ?? "")
+    .replace(/(?:[\s\u00A0\u202F]*)[(（]\s*\d+(?:\.\d+)?\s*[)）]\s*$/u, "")
+    .replace(/[\s\u00A0\u202F]+$/u, "");
 }
 
 function setQuestionMarks(question) {
@@ -360,13 +364,15 @@ function setQuestionMarks(question) {
   if (!question) {
     questionMarks.hidden = true;
     questionMarks.textContent = "";
+    questionMarks.setAttribute("aria-hidden", "true");
     questionMarks.removeAttribute("aria-label");
     return;
   }
 
   const marks = Number(question.maxMarks) || 1;
-  questionMarks.textContent = formatExamMarks(marks);
+  questionMarks.textContent = `\u00A0(${formatMark(marks)})`;
   questionMarks.setAttribute("aria-label", `${formatMark(marks)} ${marks === 1 ? "mark" : "marks"}`);
+  questionMarks.setAttribute("aria-hidden", "false");
   questionMarks.hidden = false;
 }
 
@@ -382,7 +388,7 @@ function updateStats() {
       ? "Round complete"
       : `Question ${visibleQuestionNumber} / ${totalQuestions || "—"}`;
   progressInner.style.width = `${progress}%`;
-  scoreText.textContent = `Marks: ${formatMark(totalMarksAwarded)} / ${formatMark(totalMarksAvailable)}`;
+  scoreText.textContent = `Mark: ${formatMark(totalMarksAwarded)} / ${formatMark(totalMarksAvailable)}`;
   answeredText.textContent = `Answered: ${answeredCount}`;
   accuracyText.textContent = `Accuracy: ${percentage}%`;
 }
@@ -426,8 +432,9 @@ function renderChoiceButtons(question) {
   if (!choiceArea) return;
   currentChoiceOrder = getFourAnswerChoices(question);
   choiceArea.hidden = false;
+  choiceArea.setAttribute("data-answer-count", String(currentChoiceOrder.length || 4));
   choiceArea.innerHTML = currentChoiceOrder.map((choice) => `
-    <button class="tt-choice-button" type="button" data-answer="${escapeHTML(choice)}">
+    <button class="tt-choice-button texture-option" type="button" data-answer="${escapeHTML(choice)}">
       <span>${escapeHTML(choice)}</span>
     </button>
   `).join("");
@@ -456,10 +463,13 @@ function updateChoiceButtonsAfterSubmit(result, submittedAnswer) {
 function configureResponseControls(question) {
   const isChoice = question.responseType === "multiple-choice";
   const isShort = question.responseType === "short-text";
+  const textureCentrePanel = document.getElementById("textureCentrePanel");
   if (choiceArea) {
     choiceArea.hidden = !isChoice;
     choiceArea.innerHTML = "";
   }
+  if (textureCentrePanel) textureCentrePanel.hidden = !isChoice;
+  if (responseArea) responseArea.hidden = isChoice;
   if (answerLabel) {
     answerLabel.hidden = isChoice;
     answerLabel.textContent = isShort ? "Your term" : "Your answer";
@@ -477,19 +487,33 @@ function configureResponseControls(question) {
     submitButton.hidden = isChoice;
     submitButton.disabled = false;
   }
+  quizPanel?.classList.toggle("is-mc-question", isChoice);
+  quizPanel?.classList.toggle("is-text-question", !isChoice);
   if (isChoice) renderChoiceButtons(question);
 }
 
 function renderEmptyAnswerCard() {
   answerCard.innerHTML = `
-    <div class="answerCard-empty">
-      <div class="answer-empty-brand" aria-hidden="true">
-        <span class="answer-empty-icon"><img src="../../assets/icons/modules/texture-trainer.png" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');" /></span>
-        <span class="answer-empty-wave"><span></span><span></span><span></span><span></span><span></span></span>
+    <div class="answerCard-empty tt-source-panel">
+      <div class="answer-empty-stage" aria-hidden="true">
+        <div class="answer-empty-orbit">
+          <span class="answer-empty-sparkle answer-empty-sparkle-1" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-2" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-3" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-4" aria-hidden="true"></span>
+          <span class="answer-empty-icon">
+            <img
+              src="../../assets/icons/modes/mm-transparent/answers-transparent.png?v=3"
+              alt=""
+              onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
+            />
+          </span>
+        </div>
       </div>
-      <p class="eyebrow">ANSWER PANEL</p>
-      <h2>Your marked answer appears here.</h2>
-      <p class="muted">Choose or write an answer to see feedback, the preferred term and the model answer.</p>
+      <div class="answer-empty-copy">
+        <h2>Your answers will appear here</h2>
+        <p>Complete a quiz to see your responses and performance feedback.</p>
+      </div>
     </div>
   `;
 }
@@ -641,14 +665,14 @@ function loadQuestion(index) {
 
   setQuizVisualState("active");
   questionTitle.textContent = "Listening question";
-  questionPrompt.textContent = currentQuestion.prompt;
+  questionPrompt.textContent = stripTrailingQuestionMarkSuffix(currentQuestion.prompt);
   setQuestionMarks(currentQuestion);
   configureResponseControls(currentQuestion);
   nextButton.hidden = true;
-  responseArea.hidden = false;
   feedback.textContent = "";
   feedback.className = "";
   playButton.textContent = "Replay Clip";
+  playButton.style.display = "inline-flex";
   renderEmptyAnswerCard();
   updateStats();
   playCurrentClip();
@@ -731,8 +755,11 @@ function closeRoundFeedbackWindow() {
   hideRoundFeedbackPanel();
   setQuizVisualState("ready");
   responseArea.hidden = true;
+  const textureCentrePanel = document.getElementById("textureCentrePanel");
+  if (textureCentrePanel) textureCentrePanel.hidden = true;
+  quizPanel?.classList.remove("is-mc-question", "is-text-question");
   startButton.hidden = false;
-  startButton.textContent = "Start Quiz";
+  startButton.textContent = "Start Learning";
   questionTitle.textContent = "Texture Trainer";
   questionPrompt.textContent = "Choose a level, then start the texture round.";
   setQuestionMarks(null);
@@ -740,6 +767,7 @@ function closeRoundFeedbackWindow() {
   roundText.textContent = "Ready";
   feedback.textContent = "";
   feedback.className = "";
+  if (nextButton) nextButton.hidden = true;
 }
 
 function renderRoundFeedbackPanel(percentage, medal) {
@@ -828,9 +856,12 @@ function saveTextureProgress(percentage) {
 function endRound() {
   setQuizVisualState("complete");
   responseArea.hidden = true;
+  const textureCentrePanel = document.getElementById("textureCentrePanel");
+  if (textureCentrePanel) textureCentrePanel.hidden = true;
+  quizPanel?.classList.remove("is-mc-question", "is-text-question");
   hideRoundFeedbackPanel();
   startButton.hidden = false;
-  startButton.textContent = "Start Quiz";
+  startButton.textContent = "Start Learning";
   const percentage = totalMarksAvailable > 0 ? Math.round((totalMarksAwarded / totalMarksAvailable) * 100) : 0;
   const medal = getMedal(percentage);
   saveTextureProgress(percentage);
@@ -841,6 +872,7 @@ function endRound() {
   feedback.textContent = "";
   feedback.className = "";
   progressInner.style.width = "100%";
+  if (nextButton) nextButton.hidden = true;
   renderRoundFeedbackPanel(percentage, medal);
   updateStats();
 }
@@ -890,8 +922,68 @@ function closeTextureAdvancedSettings() {
   setTextureAdvancedSettingsOpen(false);
 }
 
+const consoleSkillIcon = document.getElementById("consoleSkillIcon");
+const DEFAULT_CONSOLE_ICON = "../../assets/icons/modules/texture-trainer.png";
+const SKILL_CONSOLE_ICON = "../../assets/icons/modules/tt-transparent/textural-devices-transparent.png";
+
+function syncConsoleSkillIcon() {
+  if (!consoleSkillIcon) return;
+  const checked = document.querySelector('input[name="ttSkill"]:checked');
+  consoleSkillIcon.src = checked ? SKILL_CONSOLE_ICON : DEFAULT_CONSOLE_ICON;
+  consoleSkillIcon.parentElement?.classList.toggle("is-skill-icon", !!checked);
+}
+
+/** Start cannot begin until the user has explicitly picked both a skill and a level. */
+function updateStartAvailability() {
+  if (!startButton) return;
+  const hasSkill = !!document.querySelector('input[name="ttSkill"]:checked');
+  startButton.disabled = !(hasSkill && levelChosen);
+}
+
+/** Centre-panel heading: "Learning" until a skill is chosen, then that
+ *  skill's short name (matching its own skill-button label). */
+const SKILL_HEADING_LABELS = { "textural-devices": "Devices" };
+const centreHeadingLabel = document.getElementById("centreHeadingLabel");
+function updateCentreHeading() {
+  if (!centreHeadingLabel) return;
+  const checked = document.querySelector('input[name="ttSkill"]:checked');
+  centreHeadingLabel.textContent = checked ? (SKILL_HEADING_LABELS[checked.value] || "Learning") : "Learning";
+}
+
+/** Big console title text: the suite wordmark until a skill is chosen, then
+ *  that skill's short name in the app's own flat accent colour. */
+const consoleTitleMain = document.getElementById("consoleTitleMain");
+const consoleTitleGradient = document.getElementById("consoleTitleGradient");
+const DEFAULT_CONSOLE_TITLE_MAIN = consoleTitleMain ? consoleTitleMain.textContent : "";
+const DEFAULT_CONSOLE_TITLE_GRADIENT = consoleTitleGradient ? consoleTitleGradient.textContent : "";
+function updateConsoleTitle() {
+  if (!consoleTitleMain || !consoleTitleGradient) return;
+  const checked = document.querySelector('input[name="ttSkill"]:checked');
+  if (checked) {
+    consoleTitleMain.textContent = "";
+    consoleTitleGradient.textContent = SKILL_HEADING_LABELS[checked.value] || checked.value;
+    consoleTitleGradient.classList.add("is-skill-active");
+  } else {
+    consoleTitleMain.textContent = DEFAULT_CONSOLE_TITLE_MAIN;
+    consoleTitleGradient.textContent = DEFAULT_CONSOLE_TITLE_GRADIENT;
+    consoleTitleGradient.classList.remove("is-skill-active");
+  }
+}
+
 levelButtons.forEach((button) => {
-  button.addEventListener("click", () => setSelectedLevel(button.dataset.level || "Foundation"));
+  button.addEventListener("click", () => {
+    levelChosen = true;
+    setSelectedLevel(button.dataset.level || "Foundation");
+    updateStartAvailability();
+  });
+});
+document.querySelectorAll('input[name="ttSkill"]').forEach((input) => {
+  input.addEventListener("change", () => {
+    updateStartAvailability();
+    syncConsoleSkillIcon();
+    updateCentreHeading();
+    updateConsoleTitle();
+  });
 });
 startButton?.addEventListener("click", startRound);
 restartButton?.addEventListener("click", startRound);
@@ -931,4 +1023,8 @@ if (!allQuestions.length) {
 } else {
   setSelectedLevel(selectedLevel);
   updateStats();
+  updateStartAvailability();
+  syncConsoleSkillIcon();
+  updateCentreHeading();
+  updateConsoleTitle();
 }

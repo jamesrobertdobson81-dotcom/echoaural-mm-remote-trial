@@ -91,8 +91,6 @@ let selectedChoice = "";
 let roundHistory = [];
 let eaProgressRoundId = "";
 let learningMode = "";
-let sessionStartedAt = Date.now();
-let savedPracticeSeconds = 0;
 let roundFeedbackOverlay = null;
 
 const quizPanel = document.getElementById("gameScreen");
@@ -111,7 +109,7 @@ const meterAdvancedSettings = document.getElementById("meterAdvancedSettings");
 const playButton = document.getElementById("playButton");
 const nextButton = document.getElementById("nextButton");
 const restartButton = document.getElementById("restartButton");
-const responseArea = document.getElementById("responseArea");
+const meterCentrePanel = document.getElementById("meterCentrePanel");
 const choiceGrid = document.getElementById("choiceGrid");
 const feedback = document.getElementById("feedback");
 const answerCard = document.getElementById("answerCard");
@@ -124,7 +122,6 @@ const questionPoolText = document.getElementById("questionPoolText");
 function getLearningMode() {
   const mode = String(new URLSearchParams(window.location.search).get("eaMode") || "").trim().toLowerCase();
   if (mode === "progress" || mode === "progression") return "progression";
-  if (mode === "practice") return "practice";
   return "";
 }
 
@@ -204,7 +201,14 @@ function deriveQuestionLevel(question) {
     return "Mastering";
   }
 
-  if (questionUsesScore(question)) return "Securing";
+  // Skeleton-score completion ("time signature removed from the score, pick
+  // the missing one") is the one score-based question type placed at
+  // Developing rather than Securing — per 2026-08-12 review, it tests the
+  // same notation-reading skill as the non-score Developing questions, just
+  // with a score alongside, so it shouldn't jump a whole level for that.
+  if (questionUsesScore(question)) {
+    return mode === "Skeleton-score completion" ? "Developing" : "Securing";
+  }
   if (marks >= 2) return "Securing";
   if (/Pulse analysis|Beat-unit analysis|Discrimination|Regularity|Notation vocabulary/i.test(mode)) return "Developing";
   return "Foundation";
@@ -367,28 +371,28 @@ function shuffleList(list) {
 
 function buildRandomRound(level) {
   readAdvancedSettings();
-  const pool = shuffleList(getQuestionsForLevel(level));
+  const spacedKey = `meter:${mixedDifficultyMode && !isProgressionMode() ? "mixed" : level}`;
+  const SR = window.EchoAuralSpacedRepetition;
+  const pool = SR
+    ? SR.orderByLeastRecentlyShown(getQuestionsForLevel(level), { key: spacedKey, idOf: (question) => question.id })
+    : shuffleList(getQuestionsForLevel(level));
   const roundLimit = Math.min(roundSizeForMode(), pool.length);
-  const round = [];
-  const remaining = pool.slice();
+  // Keep the same answer from appearing twice anywhere in the round, not
+  // just back-to-back.
+  const deduped = SR?.dedupeByAnswer ? SR.dedupeByAnswer(pool, roundLimit, (question) => question.answerSignature) : pool;
+  const round = deduped.slice(0, roundLimit);
 
-  while (remaining.length && round.length < roundLimit) {
-    const previousSignature = round.length ? round[round.length - 1].answerSignature : "";
-    const nextIndex = previousSignature
-      ? remaining.findIndex((question) => question.answerSignature !== previousSignature)
-      : 0;
-    const chosenIndex = nextIndex >= 0 ? nextIndex : 0;
-    round.push(remaining.splice(chosenIndex, 1)[0]);
-  }
-
+  SR?.markShown(round, { key: spacedKey, idOf: (question) => question.id });
   return round;
 }
+
+let levelChosen = false;
 
 function updateLevelControls() {
   readAdvancedSettings();
   levelButtons.forEach((button) => {
     const definition = getLevelDefinition(button.dataset.level);
-    const isSelected = definition.id === selectedLevel;
+    const isSelected = levelChosen && definition.id === selectedLevel;
     const isLocked = isProgressionMode() && definition.index > unlockedLevelIndex;
     button.classList.toggle("is-selected", isSelected);
     button.disabled = isLocked;
@@ -410,7 +414,7 @@ function updateLevelControls() {
       ? `${poolCount} available · ${roundCount} random ${roundCount === 1 ? "question" : "questions"} per round.`
       : "Loading Meter Master questions…";
   }
-  if (startButton && !startButton.hidden) startButton.textContent = "Start Quiz";
+  if (startButton && !startButton.hidden) startButton.textContent = "Start Learning";
 }
 
 function setSelectedLevel(level) {
@@ -440,10 +444,29 @@ function formatMark(value) {
   return Number.isInteger(number) ? String(number) : number.toFixed(1).replace(/\.0$/, "");
 }
 
-function setQuestionMarks(_question) {
+function stripTrailingQuestionMarkSuffix(text) {
+  if (window.EAQuestionPromptMarks?.stripTrailing) {
+    return window.EAQuestionPromptMarks.stripTrailing(text);
+  }
+  return String(text ?? "")
+    .replace(/(?:[\s\u00A0\u202F]*)[(（]\s*\d+(?:\.\d+)?\s*[)）]\s*$/u, "")
+    .replace(/[\s\u00A0\u202F]+$/u, "");
+}
+
+function setQuestionMarks(question) {
   if (!questionMarks) return;
-  questionMarks.hidden = true;
-  questionMarks.textContent = "";
+  const marks = Number(question?.maxMarks || question?.marks || 0);
+  if (!question || marks <= 0) {
+    questionMarks.hidden = true;
+    questionMarks.textContent = "";
+    questionMarks.setAttribute("aria-hidden", "true");
+    questionMarks.removeAttribute("aria-label");
+    return;
+  }
+  questionMarks.textContent = `\u00A0(${formatMark(marks)})`;
+  questionMarks.hidden = false;
+  questionMarks.setAttribute("aria-hidden", "false");
+  questionMarks.setAttribute("aria-label", `${formatMark(marks)} mark${marks === 1 ? "" : "s"}`);
 }
 
 function updateStats() {
@@ -456,7 +479,7 @@ function updateStats() {
       : `Question ${Math.min(currentIndex + 1, Math.max(1, totalQuestions))} / ${totalQuestions}`;
   }
   if (progressInner) progressInner.style.width = `${Math.max(0, Math.min(100, progress))}%`;
-  if (scoreText) scoreText.textContent = `Score: ${score} / ${answeredCount}`;
+  if (scoreText) scoreText.textContent = `Mark: ${formatMark(totalMarksAwarded)} / ${formatMark(totalMarksAvailable)}`;
   if (streakText) streakText.textContent = `Streak: ${streak}`;
   if (xpText) xpText.textContent = `XP: ${xp}`;
 }
@@ -499,9 +522,11 @@ function clearChoiceSelection() {
 
 function renderChoices(question) {
   if (!choiceGrid) return;
-  choiceGrid.innerHTML = question.choices.map((choice) => `
-    <button class="choice-button" type="button" role="radio" aria-checked="false" data-choice="${escapeHTML(choice)}">
-      ${escapeHTML(choice)}
+  const choices = Array.isArray(question.choices) ? question.choices.slice(0, 4) : [];
+  choiceGrid.setAttribute("data-answer-count", String(choices.length || 4));
+  choiceGrid.innerHTML = choices.map((choice) => `
+    <button class="choice-button meter-option" type="button" role="radio" aria-checked="false" data-choice="${escapeHTML(choice)}">
+      <span>${escapeHTML(choice)}</span>
     </button>
   `).join("");
   clearChoiceSelection();
@@ -650,14 +675,26 @@ function renderScoreContext(question) {
 function renderEmptyAnswerCard() {
   if (!answerCard) return;
   answerCard.innerHTML = `
-    <div class="answerCard-empty">
-      <div class="answer-empty-brand" aria-hidden="true">
-        <span class="answer-empty-icon"><img src="../../assets/icons/modules/meter-master.png" alt="" onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');" /></span>
-        <span class="answer-empty-wave"><span></span><span></span><span></span><span></span><span></span></span>
+    <div class="answerCard-empty meter-source-panel">
+      <div class="answer-empty-stage" aria-hidden="true">
+        <div class="answer-empty-orbit">
+          <span class="answer-empty-sparkle answer-empty-sparkle-1" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-2" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-3" aria-hidden="true"></span>
+          <span class="answer-empty-sparkle answer-empty-sparkle-4" aria-hidden="true"></span>
+          <span class="answer-empty-icon">
+            <img
+              src="../../assets/icons/modes/mm-transparent/answers-transparent.png?v=3"
+              alt=""
+              onerror="this.style.display='none'; this.parentElement.classList.add('missing-answer-icon');"
+            />
+          </span>
+        </div>
       </div>
-      <p class="eyebrow">FEEDBACK PANEL</p>
-      <h2>Your feedback appears here.</h2>
-      <p class="muted">Choose one answer to see the correct response, mark scheme and metre focus.</p>
+      <div class="answer-empty-copy">
+        <h2>Your answers will appear here</h2>
+        <p>Complete a quiz to see your responses and performance feedback.</p>
+      </div>
     </div>
   `;
 }
@@ -730,9 +767,12 @@ function submitAnswer() {
 
   feedback.textContent = "";
   feedback.className = "";
-  if (nextButton) nextButton.hidden = true;
-  playButton.dataset.action = "next";
-  playButton.textContent = currentIndex >= questions.length - 1 ? "Finish Round" : "Next Question";
+  playButton.dataset.action = "replay";
+  playButton.textContent = "Replay Clip";
+  if (nextButton) {
+    nextButton.hidden = false;
+    nextButton.textContent = currentIndex >= questions.length - 1 ? "Finish Round" : "Next Question";
+  }
   renderAnswerCard(currentQuestion, result);
   updateStats();
 }
@@ -752,17 +792,18 @@ function loadQuestion(index) {
 
   setQuizVisualState("active");
   questionTitle.textContent = currentQuestion.title;
-  questionPrompt.textContent = currentQuestion.prompt;
+  questionPrompt.textContent = stripTrailingQuestionMarkSuffix(currentQuestion.prompt);
   setQuestionMarks(currentQuestion);
   renderScoreContext(currentQuestion);
   renderChoices(currentQuestion);
   renderEmptyAnswerCard();
-  responseArea.hidden = false;
+  if (meterCentrePanel) meterCentrePanel.hidden = false;
   playButton.dataset.action = "replay";
   playButton.textContent = "Replay Clip";
   playButton.disabled = false;
+  playButton.style.display = "inline-flex";
   if (nextButton) nextButton.hidden = true;
-  feedback.textContent = "Listen to the clip, then choose the best answer.";
+  feedback.textContent = "";
   feedback.className = "";
   updateStats();
   playCurrentClip();
@@ -802,11 +843,11 @@ function closeRoundFeedbackWindow() {
 function finishRoundFeedbackWindow() {
   closeRoundFeedbackWindow();
   setQuizVisualState("ready");
-  responseArea.hidden = true;
+  if (meterCentrePanel) meterCentrePanel.hidden = true;
   listeningConsole?.classList.remove("has-score-extract");
   scoreContextCard.hidden = true;
   startButton.hidden = false;
-  startButton.textContent = "Start Quiz";
+  startButton.textContent = "Start Learning";
   questionTitle.textContent = "Meter Master";
   questionPrompt.textContent = "Choose a level, then start the metre round.";
   setQuestionMarks(null);
@@ -814,6 +855,12 @@ function finishRoundFeedbackWindow() {
   feedback.className = "";
   progressInner.style.width = "0%";
   roundText.textContent = "Ready";
+  if (playButton) {
+    playButton.dataset.action = "replay";
+    playButton.textContent = "Replay Clip";
+    playButton.style.display = "none";
+  }
+  if (nextButton) nextButton.hidden = true;
   renderEmptyAnswerCard();
 }
 
@@ -897,7 +944,7 @@ function resetMeterProgressRound() {
 }
 
 async function saveMeterRound(percentage) {
-  if (!window.EchoAuralTracking || !roundHistory.length || learningMode === "practice") return;
+  if (!window.EchoAuralTracking || !roundHistory.length) return;
   if (!eaProgressRoundId) resetMeterProgressRound();
   const medal = getMedal(percentage);
   const levelDefinition = getLevelDefinition(selectedLevel);
@@ -964,11 +1011,16 @@ async function recordProgressionAttempt(percentage) {
 
 async function endRound() {
   setQuizVisualState("complete");
-  responseArea.hidden = true;
+  if (meterCentrePanel) meterCentrePanel.hidden = true;
   listeningConsole?.classList.remove("has-score-extract");
   scoreContextCard.hidden = true;
+  if (playButton) {
+    playButton.dataset.action = "replay";
+    playButton.textContent = "Replay Clip";
+  }
+  if (nextButton) nextButton.hidden = true;
   startButton.hidden = false;
-  startButton.textContent = "Start Quiz";
+  startButton.textContent = "Start Learning";
   const percentage = totalMarksAvailable > 0 ? Math.round((totalMarksAwarded / totalMarksAvailable) * 100) : 0;
   const medal = getMedal(percentage);
 
@@ -1034,19 +1086,6 @@ function startRound() {
   loadQuestion(0);
 }
 
-function flushPracticeTime(keepalive = false) {
-  if (learningMode !== "practice" || !window.EchoAuralTracking?.savePracticeTime) return;
-  const now = Date.now();
-  const seconds = Math.max(0, Math.round((now - sessionStartedAt) / 1000) - savedPracticeSeconds);
-  if (seconds < 5) return;
-  savedPracticeSeconds += seconds;
-  window.EchoAuralTracking.savePracticeTime({
-    moduleId: MODULE_ID,
-    clientSessionId: window.EchoAuralTracking.createClientRoundId(`${MODULE_ID}-practice`),
-    durationSeconds: seconds
-  }, { keepalive });
-}
-
 async function initialiseProgressionMode() {
   if (!isProgressionMode()) return;
   try {
@@ -1075,9 +1114,69 @@ function showLoadError(error) {
   startButton.disabled = true;
 }
 
+const consoleSkillIcon = document.getElementById("consoleSkillIcon");
+const DEFAULT_CONSOLE_ICON = "../../assets/icons/modules/meter-master.png";
+const SKILL_CONSOLE_ICON = "../../assets/icons/modules/meter-transparent/rhythmic-devices-transparent.png";
+
+function syncConsoleSkillIcon() {
+  if (!consoleSkillIcon) return;
+  const checked = document.querySelector('input[name="meterSkill"]:checked');
+  consoleSkillIcon.src = checked ? SKILL_CONSOLE_ICON : DEFAULT_CONSOLE_ICON;
+  consoleSkillIcon.parentElement?.classList.toggle("is-skill-icon", !!checked);
+}
+
+/** Start cannot begin until the user has explicitly picked both a skill and a level. */
+function updateStartAvailability() {
+  if (!startButton) return;
+  const hasSkill = !!document.querySelector('input[name="meterSkill"]:checked');
+  startButton.disabled = !(hasSkill && levelChosen);
+}
+
+/** Centre-panel heading: "Learning" until a skill is chosen, then that
+ *  skill's short name (matching its own skill-button label). */
+const SKILL_HEADING_LABELS = { "rhythmic-devices": "Devices" };
+const centreHeadingLabel = document.getElementById("centreHeadingLabel");
+function updateCentreHeading() {
+  if (!centreHeadingLabel) return;
+  const checked = document.querySelector('input[name="meterSkill"]:checked');
+  centreHeadingLabel.textContent = checked ? (SKILL_HEADING_LABELS[checked.value] || "Learning") : "Learning";
+}
+
+/** Big console title text: the suite wordmark until a skill is chosen, then
+ *  that skill's short name in the app's own flat accent colour. */
+const consoleTitleMain = document.getElementById("consoleTitleMain");
+const consoleTitleGradient = document.getElementById("consoleTitleGradient");
+const DEFAULT_CONSOLE_TITLE_MAIN = consoleTitleMain ? consoleTitleMain.textContent : "";
+const DEFAULT_CONSOLE_TITLE_GRADIENT = consoleTitleGradient ? consoleTitleGradient.textContent : "";
+function updateConsoleTitle() {
+  if (!consoleTitleMain || !consoleTitleGradient) return;
+  const checked = document.querySelector('input[name="meterSkill"]:checked');
+  if (checked) {
+    consoleTitleMain.textContent = "";
+    consoleTitleGradient.textContent = SKILL_HEADING_LABELS[checked.value] || checked.value;
+    consoleTitleGradient.classList.add("is-skill-active");
+  } else {
+    consoleTitleMain.textContent = DEFAULT_CONSOLE_TITLE_MAIN;
+    consoleTitleGradient.textContent = DEFAULT_CONSOLE_TITLE_GRADIENT;
+    consoleTitleGradient.classList.remove("is-skill-active");
+  }
+}
+
 function bindEvents() {
   levelButtons.forEach((button) => {
-    button.addEventListener("click", () => setSelectedLevel(button.dataset.level));
+    button.addEventListener("click", () => {
+      levelChosen = true;
+      setSelectedLevel(button.dataset.level);
+      updateStartAvailability();
+    });
+  });
+  document.querySelectorAll('input[name="meterSkill"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      updateStartAvailability();
+      syncConsoleSkillIcon();
+      updateCentreHeading();
+      updateConsoleTitle();
+    });
   });
 
   meterSettingsToggle?.addEventListener("click", (event) => {
@@ -1129,17 +1228,11 @@ function bindEvents() {
     }
   });
 
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") flushPracticeTime(true);
-  });
-  window.addEventListener("pagehide", () => flushPracticeTime(true));
 }
 
 async function init() {
   learningMode = getLearningMode();
   bindEvents();
-
-  if (learningMode === "practice") sessionStartedAt = Date.now();
 
   try {
     await loadQuestions();
@@ -1149,12 +1242,18 @@ async function init() {
     updateStats();
 
     if (learningMode === "progression") {
+      levelChosen = true;
+      updateLevelControls();
       feedback.textContent = `Progress mode: working at ${selectedLevel}.`;
       feedback.className = "";
     } else {
       feedback.textContent = "Choose a level, then start the metre round.";
       feedback.className = "";
     }
+    updateStartAvailability();
+    syncConsoleSkillIcon();
+    updateCentreHeading();
+    updateConsoleTitle();
   } catch (error) {
     showLoadError(error);
   }

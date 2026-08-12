@@ -1,0 +1,1773 @@
+{
+  "pack": "EchoAural Ensemble Spotter 50",
+  "packSource": "Desktop/EchoAural_Audio_Packs/02_Ensemble_Spotter_50",
+  "skillCode": "INS.ENSEMBLE",
+  "responseType": "Multiple choice",
+  "levels": [
+    "Foundation",
+    "Developing",
+    "Securing",
+    "Mastering"
+  ],
+  "vocabulary": [
+    "Orchestra",
+    "String Orchestra",
+    "String Quartet",
+    "Chamber Ensemble",
+    "Duet",
+    "Trio",
+    "Wind Ensemble",
+    "Brass Band",
+    "Choir",
+    "Jazz Band",
+    "Gamelan",
+    "Arab Takht",
+    "Rock Band",
+    "Piano Trio",
+    "Wind Band"
+  ],
+  "closeMatches": {
+    "String Quartet": [
+      "Chamber Ensemble",
+      "String Orchestra",
+      "Orchestra"
+    ],
+    "Orchestra": [
+      "String Orchestra",
+      "Chamber Ensemble",
+      "Wind Ensemble"
+    ],
+    "Duet": [
+      "Trio",
+      "Chamber Ensemble",
+      "String Quartet"
+    ],
+    "Chamber Ensemble": [
+      "String Quartet",
+      "Trio",
+      "Orchestra"
+    ],
+    "Trio": [
+      "Duet",
+      "Chamber Ensemble",
+      "String Quartet"
+    ],
+    "Gamelan": [
+      "Arab Takht",
+      "Chamber Ensemble",
+      "Orchestra"
+    ],
+    "Arab Takht": [
+      "Gamelan",
+      "Chamber Ensemble",
+      "Orchestra"
+    ],
+    "Jazz Band": [
+      "Orchestra",
+      "Chamber Ensemble",
+      "Rock Band"
+    ]
+  },
+  "questions": [
+    {
+      "id": "ENS001",
+      "audioId": "ENS001",
+      "audio": "audio/ENS001.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "Duet",
+        "String Quartet",
+        "Pit Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Foundation",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Joseph Haydn",
+      "work": "String Quartet Op.64 No.5 'Lark' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS002",
+      "audioId": "ENS002",
+      "audio": "audio/ENS002.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "String Quartet",
+        "Choir",
+        "Pit Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Foundation",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "W.A. Mozart",
+      "work": "String Quartet K.465 'Dissonance' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS003",
+      "audioId": "ENS003",
+      "audio": "audio/ENS003.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "String Orchestra",
+        "Orchestra",
+        "String Quartet",
+        "Chamber Ensemble"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Ludwig van Beethoven",
+      "work": "String Quartet Op.18 No.6 – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS004",
+      "audioId": "ENS004",
+      "audio": "audio/ENS004.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Chamber Ensemble",
+        "String Quartet",
+        "String Orchestra",
+        "Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Alexander Borodin",
+      "work": "String Quartet No.2 – III Nocturne",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS005",
+      "audioId": "ENS005",
+      "audio": "audio/ENS005.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "String Quartet",
+        "Orchestra",
+        "String Orchestra",
+        "Chamber Ensemble"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Antonín Dvořák",
+      "work": "String Quartet Op.96 'American' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS006",
+      "audioId": "ENS006",
+      "audio": "audio/ENS006.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Chamber Ensemble",
+        "Orchestra",
+        "String Quartet",
+        "String Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Felix Mendelssohn",
+      "work": "String Quartet Op.80 – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS007",
+      "audioId": "ENS007",
+      "audio": "audio/ENS007.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Chamber Ensemble",
+        "Wind Ensemble",
+        "String Orchestra",
+        "Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "W.A. Mozart",
+      "work": "Symphony No.40 K.550 – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS008",
+      "audioId": "ENS008",
+      "audio": "audio/ENS008.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Orchestra",
+        "String Orchestra",
+        "Chamber Ensemble",
+        "Wind Ensemble"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Johannes Brahms",
+      "work": "Symphony No.3 Op.90 – III",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS009",
+      "audioId": "ENS009",
+      "audio": "audio/ENS009.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Orchestra",
+        "String Orchestra",
+        "Chamber Ensemble",
+        "Wind Ensemble"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Felix Mendelssohn",
+      "work": "Symphony No.4 'Italian' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS010",
+      "audioId": "ENS010",
+      "audio": "audio/ENS010.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "Chamber Ensemble",
+        "Orchestra",
+        "String Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Bedřich Smetana",
+      "work": "Má vlast – Vltava",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS011",
+      "audioId": "ENS011",
+      "audio": "audio/ENS011.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "String Quartet",
+        "Chamber Ensemble",
+        "Trio",
+        "Duet"
+      ],
+      "correctAnswer": "Duet",
+      "acceptedAnswers": [
+        "Duet"
+      ],
+      "marks": 1,
+      "feedback": "Two instruments share the texture in a clear duo partnership.",
+      "level": "Developing",
+      "ensembleLabel": "Duet",
+      "teachingTag": "duo",
+      "composer": "W.A. Mozart",
+      "work": "Sonata for Bassoon & Cello K.292 (arr.)",
+      "performer": "Romero / RF library",
+      "sourceProvider": "local RF library",
+      "licenceType": "Public Domain / Royalty-Free (local RF library)",
+      "attribution": "",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS015",
+      "audioId": "ENS015",
+      "audio": "audio/ENS015.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Chamber Ensemble",
+        "String Quartet",
+        "Trio",
+        "Duet"
+      ],
+      "correctAnswer": "Trio",
+      "acceptedAnswers": [
+        "Trio"
+      ],
+      "marks": 1,
+      "feedback": "Three parts share the texture in a trio (or trio-sonata) grouping.",
+      "level": "Developing",
+      "ensembleLabel": "Trio",
+      "teachingTag": "trio_sonata",
+      "composer": "J.S. Bach (attrib.)",
+      "work": "Trio Sonata in D minor BWV 1036",
+      "performer": "RF library",
+      "sourceProvider": "local RF library",
+      "licenceType": "Public Domain / Royalty-Free (local RF library)",
+      "attribution": "",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS016",
+      "audioId": "ENS016",
+      "audio": "audio/ENS016.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Orchestra",
+        "Chamber Ensemble",
+        "Wind Ensemble",
+        "String Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "W.A. Mozart",
+      "work": "The Magic Flute – Overture",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS018",
+      "audioId": "ENS018",
+      "audio": "audio/ENS018.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Orchestra",
+        "Gamelan",
+        "Chamber Ensemble",
+        "Arab Takht"
+      ],
+      "correctAnswer": "Gamelan",
+      "acceptedAnswers": [
+        "Gamelan"
+      ],
+      "marks": 1,
+      "feedback": "The metallic interlocking patterns and gong punctuation point to a gamelan ensemble.",
+      "level": "Developing",
+      "ensembleLabel": "Gamelan",
+      "teachingTag": "gamelan_ensemble",
+      "composer": "Traditional",
+      "work": "Gamelan Gong ensemble",
+      "performer": "Unknown (Internet Archive item GamelanGong)",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Licence not stated on IA item — verify before commercial use",
+      "attribution": "Internet Archive item GamelanGong",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS020",
+      "audioId": "ENS020",
+      "audio": "audio/ENS020.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Orchestra",
+        "Rock Band",
+        "Chamber Ensemble",
+        "Jazz Band"
+      ],
+      "correctAnswer": "Jazz Band",
+      "acceptedAnswers": [
+        "Jazz Band"
+      ],
+      "marks": 1,
+      "feedback": "Ragtime/jazz rhythmic character and ensemble colour suggest a jazz-band style force.",
+      "level": "Developing",
+      "ensembleLabel": "Jazz Band",
+      "teachingTag": "ragtime_jazz",
+      "composer": "Scott Joplin",
+      "work": "Maple Leaf Rag",
+      "performer": "Historical recording (IA CC0 item)",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "CC0 1.0",
+      "attribution": "Scott Joplin Maple Leaf Rag — Internet Archive CC0 item",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS021",
+      "audioId": "ENS021",
+      "audio": "audio/ENS021.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Chamber Ensemble",
+        "String Quartet",
+        "Orchestra",
+        "String Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Joseph Haydn",
+      "work": "String Quartet Op.64 No.5 'Lark' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS022",
+      "audioId": "ENS022",
+      "audio": "audio/ENS022.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "String Orchestra",
+        "Chamber Ensemble",
+        "String Quartet",
+        "Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "W.A. Mozart",
+      "work": "String Quartet K.465 'Dissonance' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS023",
+      "audioId": "ENS023",
+      "audio": "audio/ENS023.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "String Orchestra",
+        "Chamber Ensemble",
+        "String Quartet",
+        "Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Ludwig van Beethoven",
+      "work": "String Quartet Op.18 No.6 – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS024",
+      "audioId": "ENS024",
+      "audio": "audio/ENS024.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Chamber Ensemble",
+        "String Quartet",
+        "String Orchestra",
+        "Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Alexander Borodin",
+      "work": "String Quartet No.2 – III Nocturne",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS025",
+      "audioId": "ENS025",
+      "audio": "audio/ENS025.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Orchestra",
+        "Chamber Ensemble",
+        "String Quartet",
+        "String Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Antonín Dvořák",
+      "work": "String Quartet Op.96 'American' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS026",
+      "audioId": "ENS026",
+      "audio": "audio/ENS026.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "String Orchestra",
+        "Chamber Ensemble",
+        "String Quartet",
+        "Orchestra"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Felix Mendelssohn",
+      "work": "String Quartet Op.80 – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS027",
+      "audioId": "ENS027",
+      "audio": "audio/ENS027.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "String Orchestra",
+        "Orchestra",
+        "Wind Ensemble",
+        "Chamber Ensemble"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "W.A. Mozart",
+      "work": "Symphony No.40 K.550 – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS028",
+      "audioId": "ENS028",
+      "audio": "audio/ENS028.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "Orchestra",
+        "Chamber Ensemble",
+        "String Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Johannes Brahms",
+      "work": "Symphony No.3 Op.90 – III",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS029",
+      "audioId": "ENS029",
+      "audio": "audio/ENS029.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "String Orchestra",
+        "Chamber Ensemble",
+        "Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Felix Mendelssohn",
+      "work": "Symphony No.4 'Italian' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS030",
+      "audioId": "ENS030",
+      "audio": "audio/ENS030.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "Orchestra",
+        "Chamber Ensemble",
+        "String Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Bedřich Smetana",
+      "work": "Má vlast – Vltava",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS031",
+      "audioId": "ENS031",
+      "audio": "audio/ENS031.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Duet",
+        "String Quartet",
+        "Trio",
+        "Chamber Ensemble"
+      ],
+      "correctAnswer": "Duet",
+      "acceptedAnswers": [
+        "Duet"
+      ],
+      "marks": 1,
+      "feedback": "Two instruments share the texture in a clear duo partnership.",
+      "level": "Developing",
+      "ensembleLabel": "Duet",
+      "teachingTag": "duo",
+      "composer": "W.A. Mozart",
+      "work": "Sonata for Bassoon & Cello K.292 (arr.)",
+      "performer": "Romero / RF library",
+      "sourceProvider": "local RF library",
+      "licenceType": "Public Domain / Royalty-Free (local RF library)",
+      "attribution": "",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS032",
+      "audioId": "ENS032",
+      "audio": "audio/ENS032.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "String Quartet",
+        "Chamber Ensemble",
+        "Wind Ensemble",
+        "Trio"
+      ],
+      "correctAnswer": "Chamber Ensemble",
+      "acceptedAnswers": [
+        "Chamber Ensemble"
+      ],
+      "marks": 1,
+      "feedback": "A small chamber group (larger than a duo/trio, smaller than an orchestra) is playing.",
+      "level": "Developing",
+      "ensembleLabel": "Chamber Ensemble",
+      "teachingTag": "chamber_ensemble",
+      "composer": "Joseph Haydn",
+      "work": "Divertimento in D Hob.X:2",
+      "performer": "RF library",
+      "sourceProvider": "local RF library",
+      "licenceType": "Public Domain / Royalty-Free (local RF library)",
+      "attribution": "",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS033",
+      "audioId": "ENS033",
+      "audio": "audio/ENS033.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Trio",
+        "Chamber Ensemble",
+        "String Quartet",
+        "Wind Ensemble"
+      ],
+      "correctAnswer": "Chamber Ensemble",
+      "acceptedAnswers": [
+        "Chamber Ensemble"
+      ],
+      "marks": 1,
+      "feedback": "A small chamber group (larger than a duo/trio, smaller than an orchestra) is playing.",
+      "level": "Developing",
+      "ensembleLabel": "Chamber Ensemble",
+      "teachingTag": "chamber_ensemble",
+      "composer": "Joseph Haydn",
+      "work": "Divertimento in G Hob.X:5",
+      "performer": "RF library",
+      "sourceProvider": "local RF library",
+      "licenceType": "Public Domain / Royalty-Free (local RF library)",
+      "attribution": "",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS034",
+      "audioId": "ENS034",
+      "audio": "audio/ENS034.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "Chamber Ensemble",
+        "String Quartet",
+        "Trio"
+      ],
+      "correctAnswer": "Chamber Ensemble",
+      "acceptedAnswers": [
+        "Chamber Ensemble"
+      ],
+      "marks": 1,
+      "feedback": "A small chamber group (larger than a duo/trio, smaller than an orchestra) is playing.",
+      "level": "Developing",
+      "ensembleLabel": "Chamber Ensemble",
+      "teachingTag": "chamber_ensemble",
+      "composer": "Joseph Haydn",
+      "work": "Divertimento in A Hob.X:3",
+      "performer": "RF library",
+      "sourceProvider": "local RF library",
+      "licenceType": "Public Domain / Royalty-Free (local RF library)",
+      "attribution": "",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS037",
+      "audioId": "ENS037",
+      "audio": "audio/ENS037.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "Orchestra",
+        "Chamber Ensemble",
+        "String Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Ludwig van Beethoven",
+      "work": "Egmont Overture Op.84",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS038",
+      "audioId": "ENS038",
+      "audio": "audio/ENS038.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Gamelan",
+        "Orchestra",
+        "Chamber Ensemble",
+        "Arab Takht"
+      ],
+      "correctAnswer": "Gamelan",
+      "acceptedAnswers": [
+        "Gamelan"
+      ],
+      "marks": 1,
+      "feedback": "The metallic interlocking patterns and gong punctuation point to a gamelan ensemble.",
+      "level": "Developing",
+      "ensembleLabel": "Gamelan",
+      "teachingTag": "gamelan_ensemble",
+      "composer": "Traditional",
+      "work": "Gamelan Gong ensemble",
+      "performer": "Unknown (Internet Archive item GamelanGong)",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Licence not stated on IA item — verify before commercial use",
+      "attribution": "Internet Archive item GamelanGong",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS040",
+      "audioId": "ENS040",
+      "audio": "audio/ENS040.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Chamber Ensemble",
+        "Orchestra",
+        "Rock Band",
+        "Jazz Band"
+      ],
+      "correctAnswer": "Jazz Band",
+      "acceptedAnswers": [
+        "Jazz Band"
+      ],
+      "marks": 1,
+      "feedback": "Ragtime/jazz rhythmic character and ensemble colour suggest a jazz-band style force.",
+      "level": "Developing",
+      "ensembleLabel": "Jazz Band",
+      "teachingTag": "ragtime_jazz",
+      "composer": "Scott Joplin",
+      "work": "Maple Leaf Rag",
+      "performer": "Historical recording (IA CC0 item)",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "CC0 1.0",
+      "attribution": "Scott Joplin Maple Leaf Rag — Internet Archive CC0 item",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS042",
+      "audioId": "ENS042",
+      "audio": "audio/ENS042.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "String Orchestra",
+        "Orchestra",
+        "Chamber Ensemble",
+        "String Quartet"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "W.A. Mozart",
+      "work": "String Quartet K.465 'Dissonance' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS043",
+      "audioId": "ENS043",
+      "audio": "audio/ENS043.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Orchestra",
+        "Chamber Ensemble",
+        "String Orchestra",
+        "String Quartet"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Ludwig van Beethoven",
+      "work": "String Quartet Op.18 No.6 – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS044",
+      "audioId": "ENS044",
+      "audio": "audio/ENS044.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Orchestra",
+        "String Orchestra",
+        "String Quartet",
+        "Chamber Ensemble"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Alexander Borodin",
+      "work": "String Quartet No.2 – III Nocturne",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS046",
+      "audioId": "ENS046",
+      "audio": "audio/ENS046.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Orchestra",
+        "String Quartet",
+        "String Orchestra",
+        "Chamber Ensemble"
+      ],
+      "correctAnswer": "String Quartet",
+      "acceptedAnswers": [
+        "String Quartet"
+      ],
+      "marks": 1,
+      "feedback": "Four string instruments play without a conductor — typically two violins, viola and cello.",
+      "level": "Developing",
+      "ensembleLabel": "String Quartet",
+      "teachingTag": "string_quartet",
+      "composer": "Felix Mendelssohn",
+      "work": "String Quartet Op.80 – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS047",
+      "audioId": "ENS047",
+      "audio": "audio/ENS047.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "Chamber Ensemble",
+        "String Orchestra",
+        "Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "W.A. Mozart",
+      "work": "Symphony No.40 K.550 – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS048",
+      "audioId": "ENS048",
+      "audio": "audio/ENS048.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Wind Ensemble",
+        "Orchestra",
+        "Chamber Ensemble",
+        "String Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Johannes Brahms",
+      "work": "Symphony No.3 Op.90 – III",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS049",
+      "audioId": "ENS049",
+      "audio": "audio/ENS049.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Chamber Ensemble",
+        "String Orchestra",
+        "Wind Ensemble",
+        "Orchestra"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Felix Mendelssohn",
+      "work": "Symphony No.4 'Italian' – I",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS050",
+      "audioId": "ENS050",
+      "audio": "audio/ENS050.mp3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Which ensemble is playing?",
+      "choices": [
+        "Chamber Ensemble",
+        "String Orchestra",
+        "Orchestra",
+        "Wind Ensemble"
+      ],
+      "correctAnswer": "Orchestra",
+      "acceptedAnswers": [
+        "Orchestra"
+      ],
+      "marks": 1,
+      "feedback": "A full orchestral texture with strings plus winds and/or brass is audible.",
+      "level": "Developing",
+      "ensembleLabel": "Orchestra",
+      "teachingTag": "orchestra",
+      "composer": "Bedřich Smetana",
+      "work": "Má vlast – Vltava",
+      "performer": "Musopen Collection",
+      "sourceProvider": "Internet Archive",
+      "licenceType": "Public Domain",
+      "attribution": "Musopen via Internet Archive",
+      "durationSec": 14
+    },
+    {
+      "id": "ENS051",
+      "audioId": "ENS051",
+      "audio": "audio/ENS051.mp3",
+      "sourceQuestionId": "INS-027",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "What term describes the full instrumental ensemble accompanying a singer in a musical?",
+      "marks": 1,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Open the Doors",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "mc",
+      "choices": [
+        "Pit Orchestra",
+        "Orchestra",
+        "Wind Band",
+        "Rock Band"
+      ],
+      "correctAnswer": "Pit Orchestra",
+      "acceptedAnswers": [
+        "Pit Orchestra"
+      ],
+      "ensembleLabel": "Pit Orchestra",
+      "teachingTag": "pit_orchestra"
+    },
+    {
+      "id": "ENS052",
+      "audioId": "ENS052",
+      "audio": "audio/ENS052.mp3",
+      "sourceQuestionId": "INS-028",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "What term describes the vocal ensemble heard in this extract?",
+      "marks": 1,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Light Breaks Through the Glass",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "mc",
+      "choices": [
+        "SATB Choir",
+        "Choir",
+        "Chamber Ensemble",
+        "Duet"
+      ],
+      "correctAnswer": "SATB Choir",
+      "acceptedAnswers": [
+        "SATB Choir"
+      ],
+      "ensembleLabel": "SATB Choir",
+      "teachingTag": "satb_choir"
+    },
+    {
+      "id": "ENS053",
+      "audioId": "ENS053",
+      "audio": "audio/ENS053.mp3",
+      "sourceQuestionId": "INS-039",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Apart from the vocalist, name 4 instrument types that make up a traditional tango orquesta típica.",
+      "marks": 4,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Securing",
+      "composer": "",
+      "work": "La Ultima Cuadra",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 4,
+      "markPoints": [
+        {
+          "label": "Bandoneon",
+          "acceptedAnswers": [
+            "bandoneon",
+            "bandoneón"
+          ]
+        },
+        {
+          "label": "Violin",
+          "acceptedAnswers": [
+            "violin"
+          ]
+        },
+        {
+          "label": "Piano",
+          "acceptedAnswers": [
+            "piano"
+          ]
+        },
+        {
+          "label": "Double bass",
+          "acceptedAnswers": [
+            "double bass",
+            "bass",
+            "upright bass"
+          ]
+        }
+      ],
+      "correctAnswer": "Bandoneon, violin, piano, double bass",
+      "acceptedAnswers": [
+        "Bandoneon, violin, piano, double bass"
+      ]
+    },
+    {
+      "id": "ENS054",
+      "audioId": "ENS054",
+      "audio": "audio/ENS054.mp3",
+      "sourceQuestionId": "INS-042",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Apart from the vocalist, name 4 instrument types that make up a traditional tango orquesta típica.",
+      "marks": 4,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Securing",
+      "composer": "",
+      "work": "Ventanita de Moron",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 4,
+      "markPoints": [
+        {
+          "label": "Bandoneon",
+          "acceptedAnswers": [
+            "bandoneon",
+            "bandoneón"
+          ]
+        },
+        {
+          "label": "Violin",
+          "acceptedAnswers": [
+            "violin"
+          ]
+        },
+        {
+          "label": "Piano",
+          "acceptedAnswers": [
+            "piano"
+          ]
+        },
+        {
+          "label": "Double bass",
+          "acceptedAnswers": [
+            "double bass",
+            "bass",
+            "upright bass"
+          ]
+        }
+      ],
+      "correctAnswer": "Bandoneon, violin, piano, double bass",
+      "acceptedAnswers": [
+        "Bandoneon, violin, piano, double bass"
+      ]
+    },
+    {
+      "id": "ENS055",
+      "audioId": "ENS055",
+      "audio": "audio/ENS055.mp3",
+      "sourceQuestionId": "INS-048",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "Apart from the vocalist, name 4 instrument types that make up a traditional tango orquesta típica.",
+      "marks": 4,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Securing",
+      "composer": "",
+      "work": "Sombras de Acero",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 4,
+      "markPoints": [
+        {
+          "label": "Bandoneon",
+          "acceptedAnswers": [
+            "bandoneon",
+            "bandoneón"
+          ]
+        },
+        {
+          "label": "Violin",
+          "acceptedAnswers": [
+            "violin"
+          ]
+        },
+        {
+          "label": "Piano",
+          "acceptedAnswers": [
+            "piano"
+          ]
+        },
+        {
+          "label": "Double bass",
+          "acceptedAnswers": [
+            "double bass",
+            "bass",
+            "upright bass"
+          ]
+        }
+      ],
+      "correctAnswer": "Bandoneon, violin, piano, double bass",
+      "acceptedAnswers": [
+        "Bandoneon, violin, piano, double bass"
+      ]
+    },
+    {
+      "id": "ENS056",
+      "audioId": "ENS056",
+      "audio": "audio/ENS056.mp3",
+      "sourceQuestionId": "INS-081",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "What is the name of the small instrumental ensemble featured in the extract?",
+      "marks": 1,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Ya Layl Ya Oud (يا ليل يا عود)",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "mc",
+      "choices": [
+        "Arab Takht",
+        "Gamelan",
+        "Chamber Ensemble",
+        "Orchestra"
+      ],
+      "correctAnswer": "Arab Takht",
+      "acceptedAnswers": [
+        "Arab Takht"
+      ],
+      "ensembleLabel": "Arab Takht",
+      "teachingTag": "arab_takht"
+    },
+    {
+      "id": "ENS057",
+      "audioId": "ENS057",
+      "audio": "audio/ENS057.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The qanun’s plucked box-zither timbre and maqam-based (microtonal) tuning are characteristic of Arab takht ensemble music.",
+      "level": "Foundation",
+      "composer": "",
+      "work": "Arabic Qanun Sample",
+      "performer": "Ariel Qassis (qanun)",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY-SA 2.5",
+      "attribution": "Ariel Qassis, via Wikimedia Commons (CC BY-SA 2.5)",
+      "responseType": "mc-custom",
+      "choices": [
+        "India",
+        "China",
+        "Arabic",
+        "Indonesia"
+      ],
+      "correctAnswer": "Arabic",
+      "acceptedAnswers": [
+        "Arabic"
+      ],
+      "ensembleLabel": "Arab Takht (solo qanun demonstration)",
+      "teachingTag": "arab_takht_origin"
+    },
+    {
+      "id": "ENS058",
+      "audioId": "ENS058",
+      "audio": "audio/ENS058.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The erhu’s bowed two-string spike-fiddle timbre and sliding pitch ornamentation are core features of Chinese instrumental music.",
+      "level": "Foundation",
+      "composer": "",
+      "work": "Er Quan Ying Yue (The Moon Reflected on the Second Spring)",
+      "performer": "Zhang Peijian (erhu)",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY-SA 4.0",
+      "attribution": "Zhang Peijian, via Wikimedia Commons (CC BY-SA 4.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "China",
+        "Indonesia",
+        "Spain",
+        "Arabic"
+      ],
+      "correctAnswer": "China",
+      "acceptedAnswers": [
+        "China"
+      ],
+      "ensembleLabel": "Chinese instrumental (erhu solo)",
+      "teachingTag": "chinese_erhu_origin"
+    },
+    {
+      "id": "ENS059",
+      "audioId": "ENS059",
+      "audio": "audio/ENS059.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The erhu’s bowed two-string spike-fiddle timbre and sliding pitch ornamentation are core features of Chinese instrumental music.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Jiang He Shui (River Water)",
+      "performer": "Zhang Peijian (erhu)",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY-SA 4.0",
+      "attribution": "Zhang Peijian, via Wikimedia Commons (CC BY-SA 4.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "Indonesia",
+        "Spain",
+        "China",
+        "Cuba"
+      ],
+      "correctAnswer": "China",
+      "acceptedAnswers": [
+        "China"
+      ],
+      "ensembleLabel": "Chinese instrumental (erhu solo)",
+      "teachingTag": "chinese_erhu_origin"
+    },
+    {
+      "id": "ENS060",
+      "audioId": "ENS060",
+      "audio": "audio/ENS060.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The gaohu is a high-pitched bowed fiddle used in Cantonese/Guangdong music, a close relative of the Jiangnan silk-and-bamboo tradition.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Lianhuankou (Linked Rings)",
+      "performer": "Zhang Peijian (gaohu)",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY-SA 4.0",
+      "attribution": "Zhang Peijian, via Wikimedia Commons (CC BY-SA 4.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "China",
+        "Argentina",
+        "Spain",
+        "Cuba"
+      ],
+      "correctAnswer": "China",
+      "acceptedAnswers": [
+        "China"
+      ],
+      "ensembleLabel": "Chinese instrumental (Cantonese gaohu solo)",
+      "teachingTag": "chinese_gaohu_origin"
+    },
+    {
+      "id": "ENS061",
+      "audioId": "ENS061",
+      "audio": "audio/ENS061.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The gaohu is a high-pitched bowed fiddle used in Cantonese/Guangdong music, a close relative of the Jiangnan silk-and-bamboo tradition.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Yu Da Ba Jiao (Rain Beating on Banana Leaves)",
+      "performer": "Zhang Peijian (gaohu)",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY-SA 4.0",
+      "attribution": "Zhang Peijian, via Wikimedia Commons (CC BY-SA 4.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "Argentina",
+        "China",
+        "Cuba",
+        "India"
+      ],
+      "correctAnswer": "China",
+      "acceptedAnswers": [
+        "China"
+      ],
+      "ensembleLabel": "Chinese instrumental (Cantonese gaohu solo)",
+      "teachingTag": "chinese_gaohu_origin"
+    },
+    {
+      "id": "ENS062",
+      "audioId": "ENS062",
+      "audio": "audio/ENS062.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The tabla/tanpura accompaniment and raga-based melodic structure are hallmarks of Hindustani (North Indian) classical music.",
+      "level": "Foundation",
+      "composer": "",
+      "work": "Rag Bhimpalasi",
+      "performer": "NCERT (India) educational ensemble",
+      "sourceProvider": "Wikimedia Commons (NCERT Official)",
+      "licenceType": "CC BY 3.0",
+      "attribution": "NCERT, via Wikimedia Commons (CC BY 3.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "India",
+        "Arabic",
+        "China",
+        "Argentina"
+      ],
+      "correctAnswer": "India",
+      "acceptedAnswers": [
+        "India"
+      ],
+      "ensembleLabel": "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)",
+      "teachingTag": "hindustani_raga_origin"
+    },
+    {
+      "id": "ENS063",
+      "audioId": "ENS063",
+      "audio": "audio/ENS063.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The tabla/tanpura accompaniment and raga-based melodic structure are hallmarks of Hindustani (North Indian) classical music.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Rag Khamaj",
+      "performer": "NCERT (India) educational ensemble",
+      "sourceProvider": "Wikimedia Commons (NCERT Official)",
+      "licenceType": "CC BY 3.0",
+      "attribution": "NCERT, via Wikimedia Commons (CC BY 3.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "China",
+        "India",
+        "Indonesia",
+        "Arabic"
+      ],
+      "correctAnswer": "India",
+      "acceptedAnswers": [
+        "India"
+      ],
+      "ensembleLabel": "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)",
+      "teachingTag": "hindustani_raga_origin"
+    },
+    {
+      "id": "ENS064",
+      "audioId": "ENS064",
+      "audio": "audio/ENS064.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The tabla/tanpura accompaniment and raga-based melodic structure are hallmarks of Hindustani (North Indian) classical music.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Rag Malkauns",
+      "performer": "NCERT (India) educational ensemble",
+      "sourceProvider": "Wikimedia Commons (NCERT Official)",
+      "licenceType": "CC BY 3.0",
+      "attribution": "NCERT, via Wikimedia Commons (CC BY 3.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "Spain",
+        "Indonesia",
+        "Arabic",
+        "India"
+      ],
+      "correctAnswer": "India",
+      "acceptedAnswers": [
+        "India"
+      ],
+      "ensembleLabel": "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)",
+      "teachingTag": "hindustani_raga_origin"
+    }
+  ]
+}

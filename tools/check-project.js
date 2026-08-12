@@ -15,6 +15,11 @@ const requiredFiles = [
   'modules/instrument-identifier/script.js',
   'modules/instrument-identifier/progression.js',
   'modules/instrument-identifier/clips.js',
+  'modules/ensemble-recognition/index.html',
+  'modules/ensemble-recognition/script.js',
+  'modules/ensemble-recognition/style.css',
+  'modules/ensemble-recognition/ensemble-core.js',
+  'modules/ensemble-recognition/data/ensemble-questions.json',
   'modules/melodic-intervals/index.html',
   'modules/melodic-intervals/interval-data.js',
   'modules/melodic-intervals/script.js',
@@ -33,7 +38,8 @@ const requiredFiles = [
   'modules/meter-master/index.html',
   'modules/meter-master/style.css',
   'modules/meter-master/script.js',
-  'modules/meter-master/data/meter-master-exam-style-60.json'
+  'modules/meter-master/data/meter-master-exam-style-60.json',
+  'shared/js/question-prompt-marks.js'
 ];
 
 function fail(message) {
@@ -64,7 +70,7 @@ if (!home.includes('modules/texture-trainer/index.html')) {
 if (!home.includes('modules/meter-master/index.html')) {
   fail('Home page does not link to Meter Master.');
 }
-if (!home.includes('assets/icons/modules/exam-lab.png') || !home.includes('Exam Lab')) {
+if (!home.includes('assets/icons/dashboard/exam-lab.png') || !home.includes('Exam Lab')) {
   fail('Home page does not include the Exam Lab tile.');
 }
 
@@ -174,8 +180,18 @@ function qualitySet(items) {
 
 function assertChoicesContainAnswers(items, label) {
   for (const question of items) {
+    if (question.inputMode === 'written' || question.answerType === 'text') continue;
     if (!Array.isArray(question.choices) || !question.choices.some((choice) => intervalData.sameInterval(choice, question.correctAnswer))) {
       fail(`${label} question ${question.id} does not include its correct answer choice.`);
+    }
+  }
+}
+
+function assertMcChoiceCount(items, label) {
+  for (const question of items) {
+    if (question.inputMode === 'written' || question.answerType === 'text') continue;
+    if (!Array.isArray(question.choices) || question.choices.length !== 4) {
+      fail(`${label} question ${question.id} must have exactly 4 multiple-choice options.`);
     }
   }
 }
@@ -202,6 +218,10 @@ if (foundation.some((question) => question.answerMode !== 'number' || question.h
   fail('Foundation generated accidentals, key signatures or quality-answer questions.');
 }
 assertChoicesContainAnswers(foundation, 'Foundation');
+assertMcChoiceCount(foundation, 'Foundation');
+if (foundation.some((question) => question.inputMode !== 'choice')) {
+  fail('Foundation must use multiple-choice input.');
+}
 
 const developing = intervalQuestionsByLevel.developing;
 if (!developing.length) fail('Melodic Intervals Developing generated no questions.');
@@ -213,6 +233,10 @@ if (developing.some((question) => question.answerMode !== 'number' || question.k
   fail('Developing generated quality-answer questions or key signatures beyond two accidentals.');
 }
 assertChoicesContainAnswers(developing, 'Developing');
+assertMcChoiceCount(developing, 'Developing');
+if (developing.some((question) => question.inputMode !== 'choice')) {
+  fail('Developing must use multiple-choice input.');
+}
 
 const securing = intervalQuestionsByLevel.securing;
 if (!securing.length) fail('Melodic Intervals Securing generated no questions.');
@@ -227,6 +251,10 @@ for (const quality of ['Major', 'Minor', 'Perfect']) {
   if (!qualitySet(securing).has(quality)) fail(`Securing did not generate ${quality} intervals.`);
 }
 assertChoicesContainAnswers(securing, 'Securing');
+assertMcChoiceCount(securing.filter((question) => question.inputMode === 'choice'), 'Securing');
+if (!securing.some((question) => question.inputMode === 'choice') || !securing.some((question) => question.inputMode === 'written')) {
+  fail('Securing must mix multiple-choice and written input.');
+}
 
 const mastering = intervalQuestionsByLevel.mastering;
 if (!mastering.length) fail('Melodic Intervals Mastering generated no questions.');
@@ -238,6 +266,55 @@ if (mastering.some((question) => question.chromatic)) {
   fail('Mastering generated chromatic questions.');
 }
 assertChoicesContainAnswers(mastering, 'Mastering');
+if (mastering.some((question) => question.inputMode !== 'written')) {
+  fail('Mastering must use written input.');
+}
+
+const melodyMasterLevelExpectations = [
+  { name: 'Foundation', key: 'foundation', answerMode: 'number', inputMode: 'choice' },
+  { name: 'Developing', key: 'developing', answerMode: 'number', inputMode: 'choice' },
+  { name: 'Securing', key: 'securing', answerMode: 'quality', inputMode: 'mixed' },
+  { name: 'Mastering', key: 'mastering', answerMode: 'quality', inputMode: 'written' }
+];
+
+for (const expected of melodyMasterLevelExpectations) {
+  const definition = intervalData.getLevelDefinition(expected.name);
+  if (!definition || definition.key !== expected.key) {
+    fail(`Melody Master level ${expected.name} must map to Melodic Intervals level ${expected.key}.`);
+  }
+  if (definition.answerMode !== expected.answerMode || definition.inputMode !== expected.inputMode) {
+    fail(`Melody Master level ${expected.name} must use ${expected.answerMode}/${expected.inputMode} answer settings.`);
+  }
+  const roundQuestions = intervalData.buildQuestions({ level: expected.key }).slice(0, 3);
+  if (!roundQuestions.length) {
+    fail(`Melody Master level ${expected.name} produced no Melodic Intervals questions.`);
+  }
+  if (roundQuestions.some((question) => question.levelKey !== expected.key)) {
+    fail(`Melody Master level ${expected.name} did not stay within its Melodic Intervals question bank.`);
+  }
+}
+
+const melodyMasterScript = read('modules/melody-master/script.js');
+if (!/level:\s*getMelodicIntervalLevelKey\(\)/.test(melodyMasterScript)) {
+  fail('Melody Master Intervals launch URL must pass the selected level.');
+}
+
+const writtenAnswerVariants = [
+  ['Major 3rd', 'Major 3rd'],
+  ['major 3rd', 'Major 3rd'],
+  ['Major Third', 'Major 3rd'],
+  ['maj 3', 'Major 3rd'],
+  ['M3', 'Major 3rd'],
+  ['perfect fifth', 'Perfect 5th'],
+  ['P5', 'Perfect 5th'],
+  ['min 7', 'Minor 7th']
+];
+
+for (const [candidate, expected] of writtenAnswerVariants) {
+  if (!intervalData.sameInterval(candidate, expected)) {
+    fail(`Melodic Intervals normaliser rejected "${candidate}" for ${expected}.`);
+  }
+}
 
 const spellingExamples = [
   ['C4', 'Ef4', 'Minor 3rd'],
@@ -260,6 +337,31 @@ for (const [start, target, expected] of spellingExamples) {
   );
   if (!result || !intervalData.sameInterval(result.intervalFullLabel, expected)) {
     fail(`Interval spelling example ${expected} was calculated incorrectly.`);
+  }
+}
+
+const promptMarksSandbox = { window: {} };
+vm.createContext(promptMarksSandbox);
+vm.runInContext(read('shared/js/question-prompt-marks.js'), promptMarksSandbox, { filename: 'shared/js/question-prompt-marks.js' });
+const stripTrailing = promptMarksSandbox.window.EAQuestionPromptMarks?.stripTrailing;
+if (typeof stripTrailing !== 'function') fail('shared/js/question-prompt-marks.js must expose EAQuestionPromptMarks.stripTrailing.');
+if (stripTrailing('Is the metre simple or compound? (1)') !== 'Is the metre simple or compound?') {
+  fail('Question prompt mark stripper must remove a trailing (1) mark suffix.');
+}
+if (stripTrailing('(a) Start. (1)\n(b) Change. (1)') !== '(a) Start. (1)\n(b) Change.') {
+  fail('Question prompt mark stripper must only remove the final trailing mark suffix.');
+}
+for (const relativePath of [
+  'modules/meter-master/script.js',
+  'modules/texture-trainer/script.js',
+  'modules/melody-master/script.js',
+  'modules/instrument-identifier/script.js',
+  'modules/ensemble-recognition/script.js',
+  'era-explorer/script.js',
+  'modules/melodic-intervals/script.js'
+]) {
+  if (!read(relativePath).includes('stripTrailingQuestionMarkSuffix')) {
+    fail(`${relativePath} must strip trailing mark suffixes before displaying question marks.`);
   }
 }
 

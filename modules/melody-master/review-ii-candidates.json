@@ -1,0 +1,25 @@
+{
+  "source": "Recovered Instrument Identifier MM tags",
+  "candidateCount": 19,
+  "questions": [
+    { "id": "II225", "audio": "../instrument-identifier/audio/II225.mp3", "originalPrompt": "Name the ornament in the excerpt.", "originalAnswer": "TRILL", "composer": "CPE Bach", "work": "Flute Sonata H562 (1)", "instrument": "FLUTE", "source": "MusOpen", "rights": "PD" },
+    { "id": "II335", "audio": "review-audio/ii/II335.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Fasch", "work": "Sonata in C major WP4", "instrument": "TROMBONE", "source": "MusOpen", "rights": "PD" },
+    { "id": "II338", "audio": "review-audio/ii/II338.mp3", "originalPrompt": "Name the ornament in the excerpt.", "originalAnswer": "TRILL", "composer": "Fasch", "work": "Sonata in C major WP4", "instrument": "TROMBONE", "source": "MusOpen", "rights": "PD" },
+    { "id": "II340", "audio": "review-audio/ii/II340.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Fasch", "work": "Sonata in C major WP4", "instrument": "TROMBONE", "source": "MusOpen", "rights": "PD" },
+    { "id": "II341", "audio": "review-audio/ii/II341.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Fasch", "work": "Sonata in C major WP4", "instrument": "TROMBONE", "source": "MusOpen", "rights": "PD" },
+    { "id": "II342", "audio": "review-audio/ii/II342.mp3", "originalPrompt": "Name the ornament in the excerpt.", "originalAnswer": "Trill/Turn", "composer": "Fasch", "work": "Sonata in C major WP4", "instrument": "TRUMPET", "source": "MusOpen", "rights": "PD" },
+    { "id": "II343", "audio": "review-audio/ii/II343.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Fasch", "work": "Sonata in C major WP4", "instrument": "TROMBONE", "source": "MusOpen", "rights": "PD" },
+    { "id": "II344", "audio": "review-audio/ii/II344.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Vivaldi", "work": "Sonata No. 31 RV476", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II352", "audio": "review-audio/ii/II352.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Vivaldi", "work": "Sonata No. 31 RV476", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II353", "audio": "review-audio/ii/II353.mp3", "originalPrompt": "Descending Sequence", "originalAnswer": "DESCENDING SEQUENCE", "composer": "Vivaldi", "work": "Sonata No. 31 RV476", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II355", "audio": "review-audio/ii/II355.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Mozart", "work": "Concerto No. 4", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II356", "audio": "review-audio/ii/II356.mp3", "originalPrompt": "Name the ornament in the excerpt.", "originalAnswer": "TRILL", "composer": "Mozart", "work": "Concerto No. 4", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II359", "audio": "review-audio/ii/II359.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Mozart", "work": "Concerto No. 4 (2)", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II366", "audio": "review-audio/ii/II366.mp3", "originalPrompt": "Ascending Sequence", "originalAnswer": "ASCENDING SEQUENCE", "composer": "Vivaldi", "work": "Concerto for Bassoon (2)", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II367", "audio": "review-audio/ii/II367.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Vivaldi", "work": "Concerto for Bassoon (3)", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II368", "audio": "review-audio/ii/II368.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Vivaldi", "work": "Concerto for Bassoon (3)", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II369", "audio": "review-audio/ii/II369.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Vivaldi", "work": "Concerto for Bassoon (3)", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II370", "audio": "review-audio/ii/II370.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "Vivaldi", "work": "Concerto for Bassoon (3)", "instrument": "BASSOON", "source": "MusOpen", "rights": "PD" },
+    { "id": "II372", "audio": "review-audio/ii/II372.mp3", "originalPrompt": "Name the melodic device used.", "originalAnswer": "SEQUENCE", "composer": "", "work": "12 Concertos Op.7 (6)", "instrument": "TRUMPET", "source": "", "rights": "" }
+  ]
+}

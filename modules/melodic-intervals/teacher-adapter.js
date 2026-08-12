@@ -43,22 +43,27 @@
   function buildChoices(question = {}) {
     const data = getIntervalData();
     const correct = question.correctAnswer || (question.answerMode === 'quality' ? question.intervalFullLabel : question.intervalLabel);
-    const choices = data.buildChoices({
+    const pool = data.buildChoices({
       level: question.levelKey || question.level,
       answerMode: question.answerMode,
       includeOctave: question.intervalLabel === 'Octave'
     });
-    if (!choices.some((choice) => data.sameInterval(choice, correct))) choices.unshift(correct);
-    return shuffleArray(choices);
+    return data.buildMcChoices({
+      correctAnswer: correct,
+      answerMode: question.answerMode,
+      pool
+    });
   }
 
   function prepareQuestion(question = {}, options = {}) {
     const index = Number(options.index || 0);
-    const choices = buildChoices(question);
+    const inputMode = question.inputMode || 'choice';
+    const isWritten = inputMode === 'written';
+    const choices = isWritten ? [] : buildChoices(question);
     return {
       moduleId: 'melodic-intervals',
       moduleTitle: 'Melodic Intervals',
-      answerType: 'choice',
+      answerType: isWritten ? 'text' : 'choice',
       index,
       id: question.id || `MI${String(index + 1).padStart(3, '0')}`,
       title: 'Melodic Interval',
@@ -79,6 +84,7 @@
       intervalQuality: question.intervalQuality,
       intervalId: question.intervalId,
       answerMode: question.answerMode || 'number',
+      inputMode,
       correctAnswer: question.correctAnswer || (question.answerMode === 'quality' ? question.intervalFullLabel : question.intervalLabel),
       level: question.level || '',
       levelKey: question.levelKey || '',
@@ -88,7 +94,7 @@
       semitoneDistance: question.semitoneDistance,
       audio: question.startAudio || (Array.isArray(question.audioSequence) ? question.audioSequence[0] : ''),
       audioSequence: Array.isArray(question.audioSequence) ? question.audioSequence.slice() : [question.startAudio, question.targetAudio].filter(Boolean),
-      sequenceGapMs: Number(question.sequenceGapMs || 380),
+      sequenceGapMs: Number(question.sequenceGapMs || 280),
       audioDurationSeconds: Number(question.audioDurationSeconds || 2.4),
       choices,
       maxMarks: 1,

@@ -73,9 +73,13 @@
   }
 
   function levelQuestionIndexes() {
-    return ALL_MELODY_CLIPS
+    const indexes = ALL_MELODY_CLIPS
       .map((clip, index) => (clipMatchesLevel(clip) ? index : -1))
       .filter(index => index >= 0);
+
+    return indexes.length
+      ? indexes
+      : ALL_MELODY_CLIPS.map((_clip, index) => index);
   }
 
   function setProgressionMessage() {

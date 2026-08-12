@@ -13,7 +13,7 @@ const marking = require(path.join(moduleRoot, "marking.js"));
 
 function loadQuestionSets() {
   const context = vm.createContext({ window: {} });
-  ["exl001.js", "exl002.js", "exl003.js", "exl004.js", "exl005.js", "exl006.js", "exl007.js", "exl008.js", "exl011.js", "exl012.js", "exl013.js"].forEach((file) => {
+  ["exl001.js", "exl002.js", "exl003.js", "exl004.js", "exl005.js", "exl006.js", "exl007.js", "exl008.js", "exl010.js", "exl011.js", "exl012.js", "exl013.js", "exl014.js", "exl015.js", "exl016.js", "exl017.js", "exl018.js", "exl019.js", "exl020.js", "exl021.js", "exl022.js", "exl023.js"].forEach((file) => {
     const source = fs.readFileSync(path.join(moduleRoot, "data", file), "utf8");
     vm.runInContext(source, context, { filename: file });
   });
@@ -47,12 +47,20 @@ function parseCsvRow(row) {
   return cells;
 }
 
-test("registry and extract selector include EXL001 to EXL008 and EXL011 to EXL013", () => {
-  assert.deepEqual(Object.keys(sets).sort(), ["EXL001", "EXL002", "EXL003", "EXL004", "EXL005", "EXL006", "EXL007", "EXL008", "EXL011", "EXL012", "EXL013"]);
+test("registry and extract selector include EXL001 to EXL008 and EXL010 to EXL023", () => {
+  assert.deepEqual(Object.keys(sets).sort(), [
+    "EXL001", "EXL002", "EXL003", "EXL004", "EXL005", "EXL006", "EXL007", "EXL008", "EXL010",
+    "EXL011", "EXL012", "EXL013", "EXL014", "EXL015", "EXL016", "EXL017", "EXL018",
+    "EXL019", "EXL020", "EXL021", "EXL022", "EXL023"
+  ]);
   const html = fs.readFileSync(path.join(moduleRoot, "index.html"), "utf8");
   assert.match(html, /id="extractSelector"/);
-  ["EXL001", "EXL002", "EXL003", "EXL004", "EXL005", "EXL006", "EXL007", "EXL008", "EXL011", "EXL012", "EXL013"].forEach((id) => assert.match(html, new RegExp(`<option value="${id}">${id}</option>`)));
-  assert.match(html, /data\/exl013\.js/);
+  [
+    "EXL001", "EXL002", "EXL003", "EXL004", "EXL005", "EXL006", "EXL007", "EXL008", "EXL010",
+    "EXL011", "EXL012", "EXL013", "EXL014", "EXL015", "EXL016", "EXL017", "EXL018",
+    "EXL019", "EXL020", "EXL021", "EXL022", "EXL023"
+  ].forEach((id) => assert.match(html, new RegExp(`<option value="${id}">${id}</option>`)));
+  assert.match(html, /data\/exl023\.js/);
 });
 
 test("EXL001 and EXL002 retain their established question sets", () => {
@@ -67,7 +75,7 @@ test("EXL001 and EXL002 retain their established question sets", () => {
 test("EXL003 packaged assets retain their supplied checksums and dimensions", () => {
   const audio = fs.readFileSync(path.join(moduleRoot, "assets", "EXL003.mp3"));
   const image = fs.readFileSync(path.join(moduleRoot, "assets", "EXL003-skeleton-score.png"));
-  assert.equal(crypto.createHash("sha256").update(audio).digest("hex"), "62d2d68e6a1a45880be1adb5b95d7fe8ef3e813de100f787e11e716dcb1b0a4a");
+  assert.equal(crypto.createHash("sha256").update(audio).digest("hex"), "1b9ceb9a644f85ee6b3e17b58f4cafeeb4cb1c9a6485cdecfe50338699f1a7ac");
   assert.equal(crypto.createHash("sha256").update(image).digest("hex"), "6567edc0ebc37e01af83c44b7a4e8780ff8578b18b2e8170f295b08bc0cffc2e");
   assert.equal(image.readUInt32BE(16), 2289);
   assert.equal(image.readUInt32BE(20), 1609);

@@ -1,0 +1,378 @@
+/* Progress Mode — supplementary styles layered on top of the reused
+   Instrument Identifier stylesheet (../instrument-identifier/style.css),
+   which supplies the app-shell / three-panel-layout / panel chrome. This
+   file only styles the handful of elements unique to Progress Mode: the
+   identity block in the LHS panel, the embedded round iframe, and the RHS
+   per-area level cards + cumulative musical-areas chart. */
+
+/* --- LHS: identity block (replaces the skill/level pickers) --- */
+
+.pm-identity-block {
+  margin: 4px 0 10px;
+}
+
+.pm-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pm-login-form label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--muted-strong);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.pm-login-form input {
+  padding: 11px 13px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-bright);
+  background: rgba(255, 255, 255, .06);
+  color: var(--text);
+  font-size: .95rem;
+}
+.pm-login-form input::placeholder { color: var(--faint); }
+.pm-login-form input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, .22);
+}
+
+.pm-signed-in-as {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, .04);
+}
+
+/* The [hidden] attribute must always win over the unconditional `display`
+   values above (author CSS beats the UA [hidden]{display:none} rule on a
+   specificity tie) — and #readyConsole reuses instrument-identifier's own
+   .listening-console{display:grid}, which has the same problem. */
+.pm-login-form[hidden],
+.pm-signed-in-as[hidden],
+#readyConsole[hidden],
+#roundActiveWrap[hidden],
+#frameTransition[hidden],
+#readyState[hidden] {
+  display: none !important;
+}
+.pm-signed-in-as span {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--faint);
+}
+.pm-signed-in-as strong { font-size: 1rem; color: var(--text); }
+
+/* --- Centre: only the round score survives in PM's own HUD now that the
+   embedded app's own quiz-header/stats row (Mark, Streak, XP) is visible
+   inside the focus-mode iframe below — mirrors how II centres its own
+   score pill once streak/XP are hidden. #roundText/#streakText/#xpText are
+   marked [hidden] directly in index.html. --- */
+
+#gameScreen .statsRow.ii-stats-row {
+  display: flex;
+  justify-content: center;
+}
+
+/* --- Centre: embedded round iframe ---
+   While a round is active, #gameScreen's own chrome (#readyState — the
+   heading/quiz-header/stats-row/ready-console) is hidden and this becomes
+   the panel's *only* content, at the panel's own padding/radius (not a
+   second nested tile) — so what's on screen is the embedded app's own
+   panel-section-heading, quiz-header, stats row and gameplay UI, laid out
+   exactly as it is on that app's own homepage. */
+
+#gameScreen.is-round-active {
+  padding: 0;
+}
+
+/* .quiz-panel (borrowed from instrument-identifier/style.css) is a 4-row
+   CSS grid — grid-template-rows: auto auto auto 1fr — sized for II's own
+   4 direct children (heading/quiz-header/stats-row/listening-console).
+   #readyState now bundles those first 3 rows' worth of content into one
+   wrapper, so #gameScreen only has 2 direct children left; without this
+   override the auto-placement algorithm drops #roundActiveWrap into the
+   grid's second (auto-sized, i.e. shrink-to-fit) row instead of the 1fr
+   row, collapsing the iframe down to its min-height and forcing it to
+   scroll internally. A single flexible row fixes that, and #readyState
+   reproduces the original 4-row rhythm internally so the ready screen is
+   unaffected. */
+#gameScreen {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+#readyState {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  gap: 12px;
+  min-height: 0;
+  height: 100%;
+}
+
+.pm-frame-wrap {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.pm-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: var(--navy-deep);
+}
+
+/* MM dictation expanded score: enlarge #roundActiveWrap in place (do not
+   reparent — moving the iframe reloads Melody Master). Strip ancestor
+   overflow / backdrop-filter / transform so position:fixed inside the
+   iframe can cover the viewport, matching MM's “above everything” tile. */
+body.pm-mm-score-expanded {
+  overflow: hidden;
+}
+
+body.pm-mm-score-expanded .app-shell,
+body.pm-mm-score-expanded .three-panel-layout,
+body.pm-mm-score-expanded .quiz-panel,
+body.pm-mm-score-expanded .panel,
+body.pm-mm-score-expanded #gameScreen {
+  overflow: visible !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: none !important;
+  filter: none !important;
+  contain: none !important;
+  isolation: auto !important;
+}
+
+/* .quiz-panel/#gameScreen is a z-index:4 stacking context (set in
+   instrument-identifier/style.css), so #roundActiveWrap's z-index:10000
+   (set inline by script.js) only wins inside that context — it never gets
+   compared against the sibling .setup-panel (z-index:5), which paints on
+   top of the whole expanded tile. Bump the context itself above 5, mirroring
+   Melody Master's own .quiz-panel.is-score-expanded { z-index: 120 } rule,
+   so the side panels go behind the tile like they do in the standalone app. */
+body.pm-mm-score-expanded .quiz-panel,
+body.pm-mm-score-expanded #gameScreen {
+  z-index: 120 !important;
+}
+
+body.pm-mm-score-expanded .pm-frame-wrap {
+  box-shadow: none;
+}
+
+body.pm-mm-score-expanded .pm-frame {
+  background: transparent;
+}
+
+/* Covers the whole load/configure/focus-mode-CSS-injection sequence for the
+   next slot, not just the brief pause after an answer — the raw sequence
+   underneath (a blank iframe navigation, then the target app's own
+   full-brand topbar/setup screen before focus mode hides it) is genuinely
+   glitchy to see unmasked, so it stays hidden behind this the whole time.
+   script.js only clears [hidden] once a real question is confirmed ready
+   (revealQuestion). animation: pmOverlayIn (below) re-triggers each time
+   this reappears, since toggling [hidden] takes it fully out of the render
+   tree between slots. */
+.pm-frame-transition {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Fully opaque, deliberately — this used to sit at .94 alpha, letting a
+     rapid duplicate-question reroll's page-load flicker faintly bleed
+     through underneath (reported as "flashing between different questions
+     in the background"). No transparency here at all now. */
+  background: linear-gradient(160deg, rgb(5, 8, 16), rgb(10, 18, 36));
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 20px;
+  animation: pmOverlayIn .3s ease-out;
+}
+
+/* A dedicated pop-in for this overlay specifically — deliberately NOT the
+   shared popoverIn (instrument-identifier/style.css), which animates
+   opacity 0→1. This overlay's entire job is to block the iframe underneath
+   from ever being visible, including its own entrance: on the very FIRST
+   question of a round (nothing rendered in the iframe yet — a blank white
+   frame) any opacity ramp-up let that blank flash show through for the
+   first ~300ms, reported as "flickering as it chooses" specifically on
+   question 1 (later questions had the previous, already-styled question
+   showing through instead, which read as smooth rather than a flash).
+   Keeping opacity at the CSS default (1) throughout removes that entirely
+   — only the transform still animates, for the same "pop" feel. */
+@keyframes pmOverlayIn {
+  from { transform: translateY(8px) scale(.985); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.pm-frame-transition-wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 46px;
+  margin-bottom: 20px;
+}
+
+.pm-frame-transition-wave span {
+  display: block;
+  width: 5px;
+  border-radius: 999px;
+  background: var(--ea-gradient);
+  animation: iiWaveRoll 1.45s ease-in-out infinite;
+  box-shadow: 0 0 9px rgba(56, 189, 248, .3), 0 0 16px rgba(168, 85, 247, .16);
+}
+
+.pm-frame-transition-wave span:nth-child(1) { height: 16px; animation-delay: 0s; }
+.pm-frame-transition-wave span:nth-child(2) { height: 28px; animation-delay: .09s; }
+.pm-frame-transition-wave span:nth-child(3) { height: 40px; animation-delay: .18s; }
+.pm-frame-transition-wave span:nth-child(4) { height: 28px; animation-delay: .27s; }
+.pm-frame-transition-wave span:nth-child(5) { height: 16px; animation-delay: .36s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-frame-transition { animation: none; }
+  .pm-frame-transition-wave span { animation: none; opacity: .85; }
+}
+
+/* --- Progress Mode badge icons: transparent white-line glyph on the
+   light-blue mode plate (not Instrument Identifier's dark royal blue). --- */
+
+.topbar-module-icon,
+.ii-hero-icon,
+.console-ii-icon {
+  border-color: rgba(143, 203, 255, .42);
+  background:
+    radial-gradient(circle at 68% 22%, rgba(143, 203, 255, .38), transparent 40%),
+    linear-gradient(135deg, #8FCBFF 0%, #3FA6FF 55%, #1B6FCC 100%) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .10),
+    0 14px 30px rgba(27, 111, 204, .22);
+}
+
+.topbar-module-icon {
+  border: 1px solid rgba(143, 203, 255, .42);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.topbar-module-icon img[src*=".png"],
+.ii-hero-icon img[src*=".png"],
+.console-ii-icon img[src*=".png"] {
+  object-fit: cover !important;
+  filter:
+    drop-shadow(0 0 3px rgba(255, 255, 255, .35))
+    drop-shadow(0 0 8px rgba(255, 255, 255, .18)) !important;
+}
+
+/* --- RHS: progress-by-area bars + summary. Levels, level-progress metrics
+   and written feedback per area now live only on the student dashboard's
+   Progress Mode "Detailed feedback" dialog (account/student-home/) — this
+   panel shows only the bars below, plus a link to that dialog. --- */
+
+.pm-element-chart-block { margin-top: 4px; }
+.pm-element-chart-block h3 { margin: 0 0 4px; font-size: .92rem; color: var(--text); }
+.pm-element-chart-sub { font-size: .76rem; color: var(--muted); margin: 0 0 14px; }
+
+.pm-element-chart { display: flex; flex-direction: column; gap: 12px; }
+
+.pm-element-row {
+  --pm-area: #3FA6FF;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 10px;
+  align-items: center;
+}
+
+.pm-element-row[data-area="melody"] { --pm-area: #FF5DBA; }
+.pm-element-row[data-area="texture"] { --pm-area: #27E1C1; }
+.pm-element-row[data-area="harmony"] { --pm-area: #A66BFF; }
+.pm-element-row[data-area="instrumentation"] { --pm-area: #3FA6FF; }
+.pm-element-row[data-area="rhythm"] { --pm-area: #FFAA2B; }
+.pm-element-row[data-area="context"] { --pm-area: #FF7AC8; }
+
+.pm-element-row-label { grid-column: 1 / -1; font-weight: 700; font-size: .82rem; color: var(--text); }
+
+.pm-element-bar-track { height: 12px; border-radius: 999px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.pm-element-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pm-area) 70%, #fff), var(--pm-area));
+  transition: width .6s ease;
+}
+.pm-element-bar-fill.is-empty { background: rgba(255, 255, 255, .18); }
+
+.pm-element-row-value {
+  min-width: 44px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: .82rem;
+  color: var(--text);
+}
+
+.pm-dashboard-link {
+  margin: 16px 0 0;
+  font-size: .78rem;
+  color: var(--muted);
+}
+.pm-dashboard-link a { color: var(--blue); font-weight: 700; }
+
+.pm-app-grid-empty {
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+/* Ready-state start CTA — match Melody Master homepage size/structure,
+   using Progress Mode's light-blue brand gradient. */
+.quiz-panel.is-ready #startRoundButton.centre-start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: clamp(280px, 44vw, 400px);
+  min-height: clamp(58px, 6.2vh, 68px);
+  padding: 0 clamp(32px, 3.6vw, 46px);
+  box-sizing: border-box;
+  gap: clamp(10px, 1.2vw, 14px);
+  font-size: clamp(1.02rem, 1.16vw, 1.14rem);
+  font-weight: 780;
+  letter-spacing: .02em;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #6bb8ff 0%, #3FA6FF 48%, #2b8eef 100%);
+  box-shadow:
+    0 0 28px rgba(63, 166, 255, .38),
+    0 8px 22px rgba(0, 0, 0, .18),
+    inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+
+.quiz-panel.is-ready #startRoundButton.centre-start:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 0 36px rgba(63, 166, 255, .46),
+    0 12px 28px rgba(0, 0, 0, .22),
+    inset 0 1px 0 rgba(255, 255, 255, .26);
+}
+
+.quiz-panel.is-ready #startRoundButton.centre-start::after {
+  content: "";
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='12' fill='none' stroke='white' stroke-width='1.5' opacity='0.92'/%3E%3Cpath d='M12 9.5v9l7-4.5z' fill='white'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}

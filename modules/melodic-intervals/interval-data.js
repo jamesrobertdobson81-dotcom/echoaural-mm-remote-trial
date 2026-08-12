@@ -48,6 +48,7 @@
       key: 'foundation',
       code: 'F',
       name: 'Foundation',
+      inputMode: 'choice',
       answerMode: 'number',
       directions: ['ascending'],
       intervalIds: ['unison', '2nd', '3rd', '4th', '5th', 'octave'],
@@ -64,6 +65,7 @@
       key: 'developing',
       code: 'D',
       name: 'Developing',
+      inputMode: 'choice',
       answerMode: 'number',
       directions: ['ascending', 'descending'],
       intervalIds: ['unison', '2nd', '3rd', '4th', '5th', '6th', '7th', 'octave'],
@@ -79,6 +81,7 @@
       key: 'securing',
       code: 'S',
       name: 'Securing',
+      inputMode: 'mixed',
       answerMode: 'quality',
       directions: ['ascending', 'descending'],
       intervalIds: ['unison', '2nd', '3rd', '4th', '5th', '6th', '7th', 'octave'],
@@ -95,6 +98,7 @@
       key: 'mastering',
       code: 'M',
       name: 'Mastering',
+      inputMode: 'written',
       answerMode: 'quality',
       directions: ['ascending', 'descending'],
       intervalIds: ['unison', '2nd', '3rd', '4th', '5th', '6th', '7th', 'octave'],
@@ -229,14 +233,25 @@
   ];
 
   const STAVE_IMAGE_METRICS = {
-    width: 666,
+    // Standard display width: clef + up to 4 sharps/flats + two crotchets + bar line.
+    width: 420,
     height: 210,
     // Scanned from modules/melodic-intervals/assets/blank-treble-bar.png.
     // Treble staff lines sit at y = 63, 84, 105, 126, 147.
     topLineY: 63,
     bottomLineY: 147,
     lineSpace: 21,
-    halfSpace: 10.5
+    halfSpace: 10.5,
+    // Horizontal note placement on the PNG staff backgrounds (1:1 with the visible
+    // left portion when the stave stage is 420px wide). Measured from the assets.
+    clefEndX: 70,
+    accidentalStepX: 29,
+    noteAfterPrefixGap: 28,
+    noteGap: 120,
+    // C major (0 accidentals) baseline: positions that previously matched D major
+    // (2 sharps). Keys with n accidentals shift right by n * accidentalStepX.
+    baseStartX: 126,
+    baseTargetX: 246
   };
 
   function noteStep(note = {}) {
@@ -266,6 +281,15 @@
     return Object.keys((keySignature || {}).accidentalMap || {}).length;
   }
 
+  function getNotePositions(keySignatureAccidentals = 0) {
+    const count = Math.max(0, Math.min(4, Number(keySignatureAccidentals) || 0));
+    const startX = STAVE_IMAGE_METRICS.baseStartX + (count * STAVE_IMAGE_METRICS.accidentalStepX);
+    return {
+      startX,
+      targetX: startX + STAVE_IMAGE_METRICS.noteGap
+    };
+  }
+
   function getAudioPath(noteOrId) {
     const note = typeof noteOrId === 'string' ? findNote(noteOrId) : noteOrId;
     return note ? `${AUDIO_BASE}${note.file}` : '';
@@ -281,6 +305,13 @@
       ? (5 * 7 + NOTE_LETTER_INDEX.F)
       : (3 * 7 + NOTE_LETTER_INDEX.A);
     return STAVE_IMAGE_METRICS.topLineY - ((noteStep(note) - topLineStep) * STAVE_IMAGE_METRICS.halfSpace);
+  }
+
+  function getStemDirection(noteOrId, clef = 'treble') {
+    const y = getStaffY(noteOrId, clef);
+    const middleLineY = (STAVE_IMAGE_METRICS.topLineY + STAVE_IMAGE_METRICS.bottomLineY) / 2;
+    // On or above the middle line → stem down; below → stem up.
+    return y <= middleLineY ? 'down' : 'up';
   }
 
   function getLedgerLines(noteOrId, clef = 'treble') {
@@ -400,6 +431,16 @@
     return '';
   }
 
+  function resolveInputMode(level, serial = 0) {
+    if (!level) return 'choice';
+    const configured = level.inputMode || 'choice';
+    if (configured === 'choice' || configured === 'written') return configured;
+    if (configured === 'mixed') {
+      return Number(serial) % 4 === 0 ? 'choice' : 'written';
+    }
+    return 'choice';
+  }
+
   function buildNumberChoices(includeOctave = false) {
     return INTERVALS
       .filter((interval) => LEGACY_INTERVAL_IDS.has(interval.id))
@@ -495,6 +536,7 @@
     if (direction === 'descending' && intervalInfo.signedSemitoneDistance > 0) return null;
 
     const answerMode = level?.answerMode || 'number';
+    const inputMode = level ? resolveInputMode(level, serial) : 'choice';
     const correctAnswer = answerMode === 'quality' ? intervalInfo.intervalFullLabel : intervalInfo.intervalLabel;
     const questionId = level
       ? `MI-${level.code}-${String(serial).padStart(3, '0')}`
@@ -523,7 +565,7 @@
       startAudio: getAudioPath(startSoundingNote),
       targetAudio: getAudioPath(targetSoundingNote),
       audioSequence: [getAudioPath(startSoundingNote), getAudioPath(targetSoundingNote)],
-      sequenceGapMs: 380,
+      sequenceGapMs: 280,
       intervalId: intervalInfo.intervalId,
       intervalLabel: intervalInfo.intervalLabel,
       intervalNumberLabel: intervalInfo.intervalNumberLabel,
@@ -534,7 +576,8 @@
       answerQuality: intervalInfo.intervalFullLabel,
       correctAnswer,
       answerMode,
-      answerType: 'choice',
+      inputMode,
+      answerType: inputMode === 'written' ? 'text' : 'choice',
       mode: 'recognition',
       maxMarks: 1,
       totalNotes: 1,
@@ -549,7 +592,13 @@
       question.level = level.name;
       question.levelKey = level.key;
       question.levelIndex = level.id;
-      question.choices = buildChoices({ level: level.key });
+      question.choices = inputMode === 'choice'
+        ? buildMcChoices({
+          correctAnswer,
+          answerMode,
+          pool: buildChoices({ level: level.key })
+        })
+        : [];
       question.resourceMetadata = {
         app: 'Melodic Intervals',
         module: 'melodic-intervals',
@@ -560,7 +609,8 @@
         keySignatureLimit: level.maxKeyAccidentals,
         accidentalsAllowed: level.noteMode === 'chromatic',
         chromaticIntervalsAllowed: Boolean(level.chromatic),
-        answerMode: level.answerMode
+        answerMode: level.answerMode,
+        inputMode
       };
     }
 
@@ -679,23 +729,210 @@
     return maxQuestions > 0 ? questions.slice(0, maxQuestions) : questions;
   }
 
+  const INTERVAL_ORDINALS = {
+    1: 'unison',
+    2: '2nd',
+    3: '3rd',
+    4: '4th',
+    5: '5th',
+    6: '6th',
+    7: '7th',
+    8: 'octave'
+  };
+
+  function expandIntervalAbbreviation(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+
+    const abbrevMatch = raw.match(/^([PpMmAaDd])\s*(\d)$/);
+    if (abbrevMatch) {
+      const qualityMap = { p: 'perfect', P: 'perfect', m: 'minor', M: 'major', a: 'augmented', A: 'augmented', d: 'diminished', D: 'diminished' };
+      const quality = qualityMap[abbrevMatch[1]];
+      const numberLabel = INTERVAL_ORDINALS[Number(abbrevMatch[2])];
+      if (quality && numberLabel) {
+        return numberLabel === 'unison' || numberLabel === 'octave'
+          ? `${quality} ${numberLabel}`
+          : `${quality} ${numberLabel}`;
+      }
+    }
+
+    return raw;
+  }
+
   function normaliseIntervalAnswer(value) {
-    return String(value || '')
+    let text = expandIntervalAbbreviation(value)
       .toLowerCase()
       .replaceAll('♭', 'b')
       .replaceAll('♯', '#')
       .replaceAll('♮', 'n')
-      .replace(/\bperf\.?/g, 'perfect')
-      .replace(/\bmaj\.?/g, 'major')
-      .replace(/\bmin\.?/g, 'minor')
-      .replace(/\baug\.?/g, 'augmented')
-      .replace(/\bdim\.?/g, 'diminished')
+      .replace(/\bperf\.?\b/g, 'perfect')
+      .replace(/\bmaj\.?\b/g, 'major')
+      .replace(/\bmin\.?\b/g, 'minor')
+      .replace(/\baug\.?\b/g, 'augmented')
+      .replace(/\bdim\.?\b/g, 'diminished')
+      .replace(/\b(1|1st|first|unison)\b/g, 'unison')
+      .replace(/\b(2|2nd|second)\b/g, '2nd')
+      .replace(/\b(3|3rd|third)\b/g, '3rd')
+      .replace(/\b(4|4th|fourth)\b/g, '4th')
+      .replace(/\b(5|5th|fifth)\b/g, '5th')
+      .replace(/\b(6|6th|sixth)\b/g, '6th')
+      .replace(/\b(7|7th|seventh)\b/g, '7th')
+      .replace(/\b(8|8th|eighth|octave)\b/g, 'octave')
+      .replace(/\b(major|minor|perfect|augmented|diminished)\s+(\d)\b/g, (_, quality, number) => `${quality} ${INTERVAL_ORDINALS[Number(number)] || number}`)
       .replace(/^8th$/, 'octave')
       .replace(/[^a-z0-9#]+/g, '');
+    return text;
   }
 
   function sameInterval(left, right) {
     return normaliseIntervalAnswer(left) === normaliseIntervalAnswer(right);
+  }
+
+  const MC_CHOICE_COUNT = 4;
+
+  function shuffleArray(items, random = Math.random) {
+    const shuffled = items.slice();
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Number(random()) * (index + 1));
+      [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+    }
+    return shuffled;
+  }
+
+  function findPoolChoice(pool, label) {
+    return pool.find((choice) => sameInterval(choice, label)) || null;
+  }
+
+  function parseIntervalFullLabel(label) {
+    const text = String(label || '').trim();
+    if (!text) return null;
+
+    if (sameInterval(text, 'Perfect unison') || sameInterval(text, 'Unison')) {
+      return { quality: 'Perfect', intervalLabel: 'Unison', diatonicSteps: 0, interval: INTERVALS[0] };
+    }
+    if (sameInterval(text, 'Perfect octave') || sameInterval(text, 'Octave')) {
+      return { quality: 'Perfect', intervalLabel: 'Octave', diatonicSteps: 7, interval: INTERVALS[7] };
+    }
+
+    const match = text.match(/^(Perfect|Major|Minor|Augmented|Diminished)\s+(.+)$/i);
+    if (!match) return null;
+
+    const quality = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+    const interval = INTERVALS.find((item) => sameInterval(item.label, match[2].trim()));
+    if (!interval) return null;
+
+    return {
+      quality,
+      intervalLabel: interval.label,
+      diatonicSteps: interval.diatonicSteps,
+      interval
+    };
+  }
+
+  function getCloseDistractors(correctAnswer, answerMode, pool) {
+    const close = [];
+    const add = (label) => {
+      if (!label || sameInterval(label, correctAnswer)) return;
+      const match = findPoolChoice(pool, label);
+      if (match && !close.some((choice) => sameInterval(choice, match))) close.push(match);
+    };
+
+    if (answerMode === 'number') {
+      const interval = INTERVALS.find((item) => sameInterval(item.label, correctAnswer));
+      if (!interval) return close;
+
+      if (sameInterval(correctAnswer, 'Unison')) add('Octave');
+      if (sameInterval(correctAnswer, 'Octave')) add('Unison');
+
+      const previous = getIntervalByDiatonicSteps(interval.diatonicSteps - 1);
+      const next = getIntervalByDiatonicSteps(interval.diatonicSteps + 1);
+      if (previous) add(previous.label);
+      if (next) add(next.label);
+      return close;
+    }
+
+    const parsed = parseIntervalFullLabel(correctAnswer);
+    if (!parsed) return close;
+
+    const { quality, diatonicSteps, interval } = parsed;
+    if (!interval) return close;
+
+    if (interval.family === 'major') {
+      if (quality === 'Major') add(formatIntervalFullLabel('Minor', interval.label));
+      else if (quality === 'Minor') add(formatIntervalFullLabel('Major', interval.label));
+
+      const previous = getIntervalByDiatonicSteps(diatonicSteps - 1);
+      const next = getIntervalByDiatonicSteps(diatonicSteps + 1);
+      if (previous && previous.family === 'major') add(formatIntervalFullLabel(quality, previous.label));
+      if (next && next.family === 'major') add(formatIntervalFullLabel(quality, next.label));
+      return close;
+    }
+
+    if (interval.family === 'perfect') {
+      if (quality === 'Perfect') {
+        if (diatonicSteps === 0) add('Perfect octave');
+        if (diatonicSteps === 7) add('Perfect unison');
+
+        const previous = getIntervalByDiatonicSteps(diatonicSteps - 1);
+        const next = getIntervalByDiatonicSteps(diatonicSteps + 1);
+        if (previous) add(formatIntervalFullLabel('Perfect', previous.label));
+        if (next) add(formatIntervalFullLabel('Perfect', next.label));
+
+        if (diatonicSteps === 0) {
+          add(formatIntervalFullLabel('Major', '2nd'));
+          add(formatIntervalFullLabel('Minor', '2nd'));
+        }
+        if (diatonicSteps === 7) {
+          add(formatIntervalFullLabel('Major', '7th'));
+          add(formatIntervalFullLabel('Minor', '7th'));
+        }
+      }
+      if (diatonicSteps === 3) {
+        add('Augmented 4th');
+        add('Diminished 5th');
+      }
+      if (diatonicSteps === 4) {
+        add('Diminished 5th');
+        add('Augmented 4th');
+      }
+    }
+
+    return close;
+  }
+
+  function buildMcChoices(options = {}) {
+    const correctAnswer = String(options.correctAnswer || '').trim();
+    const answerMode = options.answerMode === 'quality' ? 'quality' : 'number';
+    const pool = Array.isArray(options.pool) && options.pool.length
+      ? options.pool.slice()
+      : buildChoices(options);
+    const random = typeof options.random === 'function' ? options.random : Math.random;
+
+    const correctChoice = findPoolChoice(pool, correctAnswer) || correctAnswer;
+    const closeDistractors = getCloseDistractors(correctChoice, answerMode, pool);
+    const selected = [correctChoice];
+
+    if (closeDistractors.length) {
+      selected.push(closeDistractors[0]);
+    } else {
+      const fallback = pool.find((choice) => !sameInterval(choice, correctChoice));
+      if (fallback) selected.push(fallback);
+    }
+
+    closeDistractors.slice(1).forEach((distractor) => {
+      if (selected.length >= MC_CHOICE_COUNT) return;
+      if (!selected.some((choice) => sameInterval(choice, distractor))) selected.push(distractor);
+    });
+
+    const remaining = shuffleArray(
+      pool.filter((choice) => !selected.some((item) => sameInterval(item, choice))),
+      random
+    );
+    while (selected.length < MC_CHOICE_COUNT && remaining.length) {
+      selected.push(remaining.shift());
+    }
+
+    return shuffleArray(selected.slice(0, MC_CHOICE_COUNT), random);
   }
 
   return {
@@ -711,7 +948,9 @@
     STAVE_IMAGE_METRICS,
     applyKeySignatureToWrittenNote,
     buildChoices,
+    buildMcChoices,
     buildQuestions,
+    getCloseDistractors,
     buildQuestionsForLevel,
     calculateInterval,
     findKeySignature,
@@ -719,12 +958,16 @@
     findNoteByMidi,
     getAudioPath,
     getIntervalQuality,
+    getKeySignatureAccidentalCount,
     getLedgerLines,
+    getNotePositions,
     getStaffY,
+    getStemDirection,
     getTargetForInterval,
     getLevelDefinition,
     levelDefinitionsList,
     noteStep,
+    resolveInputMode,
     sameInterval,
     normaliseIntervalAnswer
   };

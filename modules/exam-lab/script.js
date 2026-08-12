@@ -55,7 +55,8 @@
     zoom: 1,
     lastResult: null,
     startingPlayback: false,
-    rhythmOptionOrders: new Map()
+    rhythmOptionOrders: new Map(),
+    choiceOptionOrders: new Map()
   };
 
   const formatTime = (seconds) => {
@@ -73,6 +74,17 @@
       [options[index], options[target]] = [options[target], options[index]];
     }
     state.rhythmOptionOrders.set(question.id, options);
+    return options;
+  }
+
+  function shuffledChoiceOptions(question, forceShuffle = false) {
+    if (!forceShuffle && state.choiceOptionOrders.has(question.id)) return state.choiceOptionOrders.get(question.id);
+    const options = question.options.slice();
+    for (let index = options.length - 1; index > 0; index -= 1) {
+      const target = Math.floor(Math.random() * (index + 1));
+      [options[index], options[target]] = [options[target], options[index]];
+    }
+    state.choiceOptionOrders.set(question.id, options);
     return options;
   }
 
@@ -123,7 +135,7 @@
 
       if (q.responseType === "multiple-choice") {
         response = `<div class="choice-grid" role="radiogroup" aria-label="${escapeHtml(q.prompt)}">
-          ${q.options.map((option, index) => `<label class="choice-option">
+          ${shuffledChoiceOptions(q, forceRhythmShuffle).map((option, index) => `<label class="choice-option">
             <input type="radio" name="${q.id}" value="${escapeHtml(option)}" ${index === 0 ? "" : ""} />
             <span>${escapeHtml(option)}</span>
           </label>`).join("")}

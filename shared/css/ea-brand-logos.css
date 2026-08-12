@@ -8,6 +8,7 @@
   --ea-amber: #FFAA2B;
   --ea-purple: #A66BFF;
   --ea-rose: #FF7AC8;
+  --ea-score-decoder: #B7F34A;
   --ea-wordmark-gradient: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
   --ea-waveform-gradient: linear-gradient(90deg, #FF5DBA 0%, #A66BFF 50%, #3FA6FF 100%);
   --ea-mark-fill: #0A1224;
@@ -387,6 +388,10 @@
 .teacher-module-card[data-module-id="instrument-identifier"],
 body[data-module="instrument-identifier"],
 .app-shell[data-brand-app="instrument-identifier"] {
+  --module-accent: #4666D4;
+}
+
+.app-shell[data-brand-app="ensemble-recognition"] {
   --module-accent: var(--ea-blue);
 }
 
@@ -427,6 +432,23 @@ body[data-module="era-explorer"],
   --module-accent: var(--ea-rose);
 }
 
+.module-grid-main .module-card:nth-child(7),
+.module-card-score-decoder,
+.app-shell[data-brand-app="musical-language"],
+.topbar-app-link-sd {
+  --module-accent: var(--ea-score-decoder);
+}
+
+.module-card-score-decoder .module-icon {
+  border-color: rgba(220, 255, 145, .38) !important;
+  background:
+    radial-gradient(circle at 68% 20%, rgba(220, 255, 145, .24), transparent 40%),
+    linear-gradient(145deg, #315F10, #639D20 54%, #8FD02F) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .20),
+    0 0 26px rgba(183, 243, 74, .22) !important;
+}
+
 .module-grid-main .module-card .module-title-gradient,
 .teacher-module-card[data-module-id="instrument-identifier"] .teacher-module-title-gradient,
 .teacher-module-card[data-module-id="melody-master"] .teacher-module-title-gradient,
@@ -437,6 +459,9 @@ body[data-module="era-explorer"],
 .app-shell[data-brand-app="instrument-identifier"] .topbar-ii-gradient,
 .app-shell[data-brand-app="instrument-identifier"] .ii-title-gradient,
 .app-shell[data-brand-app="instrument-identifier"] .console-title-gradient,
+.app-shell[data-brand-app="ensemble-recognition"] .topbar-ii-gradient,
+.app-shell[data-brand-app="ensemble-recognition"] .ii-title-gradient,
+.app-shell[data-brand-app="ensemble-recognition"] .console-title-gradient,
 .app-shell[data-brand-app="melody-master"] .topbar-mm-gradient,
 .app-shell[data-brand-app="melody-master"] .mm-title-gradient,
 .app-shell[data-brand-app="melody-master"] .console-title-gradient,
@@ -446,6 +471,9 @@ body[data-module="era-explorer"],
 .app-shell[data-brand-app="meter-master"] .topbar-mm-gradient,
 .app-shell[data-brand-app="meter-master"] .meter-title-gradient,
 .app-shell[data-brand-app="meter-master"] .console-title-gradient,
+.app-shell[data-brand-app="harmony-explorer"] .topbar-ii-gradient,
+.app-shell[data-brand-app="harmony-explorer"] .ii-title-gradient,
+.app-shell[data-brand-app="harmony-explorer"] .console-title-gradient,
 .app-shell[data-brand-app="context-coach"] .topbar-ii-gradient,
 .app-shell[data-brand-app="context-coach"] .ii-title-gradient,
 .app-shell[data-brand-app="context-coach"] .console-title-gradient {

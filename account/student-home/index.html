@@ -60,36 +60,13 @@
           </div>
 
           <div class="student-quick-actions-v3" aria-label="Student app actions">
-            <div class="student-action-wrap-v3">
-              <button class="student-mode-button-v3 primary-button" type="button" data-student-app-menu-button aria-expanded="false" aria-controls="practiceModeMenu">
-                <span class="student-mode-icon-v3" style="--ea-icon:url('/assets/icons/dashboard/practice-mode.png')" aria-hidden="true"></span>
-                <span>Practice Mode</span>
-              </button>
-              <div class="student-app-menu-v3" id="practiceModeMenu" hidden>
-                <a href="/modules/melody-master/?eaMode=practice&eaDashboard=/account/student-home/">Melody Master</a>
-                <a href="/modules/melodic-intervals/?eaMode=practice&eaDashboard=/account/student-home/">Melodic Intervals</a>
-                <a href="/modules/instrument-identifier/?eaMode=practice&eaDashboard=/account/student-home/">Instrument Identifier</a>
-                <a href="/modules/texture-trainer/?eaMode=practice&eaDashboard=/account/student-home/">Texture Trainer</a>
-                <a href="/modules/meter-master/?eaMode=practice&eaDashboard=/account/student-home/">Meter Master</a>
-              </div>
-            </div>
-
-            <div class="student-action-wrap-v3">
-              <button class="student-mode-button-v3 primary-button" type="button" data-student-app-menu-button aria-expanded="false" aria-controls="progressModeMenu">
-                <span class="student-mode-icon-v3" style="--ea-icon:url('/assets/icons/dashboard/progress-mode.png')" aria-hidden="true"></span>
-                <span>Progress mode</span>
-              </button>
-              <div class="student-app-menu-v3" id="progressModeMenu" hidden>
-                <a href="/modules/melody-master/?eaMode=progression&eaDashboard=/account/student-home/">Melody Master</a>
-                <a href="/modules/melodic-intervals/?eaMode=progression&eaDashboard=/account/student-home/">Melodic Intervals</a>
-                <a href="/modules/instrument-identifier/?eaMode=progression&eaDashboard=/account/student-home/">Instrument Identifier</a>
-                <a href="/modules/texture-trainer/?eaMode=progression&eaDashboard=/account/student-home/">Texture Trainer</a>
-                <a href="/modules/meter-master/?eaMode=progression&eaDashboard=/account/student-home/">Meter Master</a>
-              </div>
-            </div>
+            <a id="progressModeLink" class="student-mode-button-v3 primary-button" href="/modules/progress-mode/index.html">
+              <span class="student-mode-icon-v3" style="--ea-icon:url('/assets/icons/dashboard/progress-mode.png?v=11')" aria-hidden="true"></span>
+              <span>Progress mode</span>
+            </a>
 
             <a class="student-mode-button-v3 primary-button" href="/join">
-              <span class="student-mode-icon-v3" style="--ea-icon:url('/assets/icons/dashboard/join-live-session.png')" aria-hidden="true"></span>
+              <span class="student-mode-icon-v3" style="--ea-icon:url('/assets/icons/dashboard/join-live-session.png?v=11')" aria-hidden="true"></span>
               <span>Join live session</span>
             </a>
           </div>
@@ -109,7 +86,6 @@
             <section class="student-learning-summary-card-v3 progress-mode-summary-v3" id="studentProgressModeContent" aria-labelledby="studentProgressModeHeading"></section>
             <section class="student-learning-summary-card-v3 quiz-summary-v3" id="studentQuizContent" aria-labelledby="studentQuizHeading"></section>
             <section class="student-learning-summary-card-v3 homework-summary-v3" id="studentHomeworkContent" aria-labelledby="studentHomeworkHeading"></section>
-            <section class="student-learning-summary-card-v3 practice-summary-v3" id="studentPracticeContent" aria-labelledby="studentPracticeHeading"></section>
           </div>
         </section>
 
@@ -151,7 +127,7 @@
     <div class="dialog-inner category-detail-dialog-inner-v5">
       <div class="category-detail-heading-v5">
         <div class="category-detail-title-wrap-v5">
-          <div class="category-detail-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" id="studentCategoryDetailIcon" style="--ea-icon:url('/assets/icons/dashboard/progress-mode.png')"></span></div>
+          <div class="category-detail-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" id="studentCategoryDetailIcon" style="--ea-icon:url('/assets/icons/dashboard/progress-mode.png?v=11')"></span></div>
           <div>
             <p class="card-eyebrow" id="studentCategoryDetailEyebrow">My learning</p>
             <h2 class="section-title" id="studentCategoryDetailTitle">Detailed feedback</h2>
@@ -166,6 +142,14 @@
 
   <script src="/account/account-common.js"></script>
   <script src="/shared/js/progression-store.js"></script>
+  <!-- Progress Mode (modules/progress-mode/) is a self-contained,
+       localStorage-only feature, not connected to the server-side
+       progress API above — its own store.js/app-drivers.js/feedback.js
+       are loaded here read-only so the "Detailed feedback" dialog can
+       render its per-area levels and written feedback directly. -->
+  <script src="/modules/progress-mode/store.js"></script>
+  <script src="/modules/progress-mode/app-drivers.js"></script>
+  <script src="/modules/progress-mode/feedback.js"></script>
   <script src="/account/student-home/student-home.js"></script>
 </body>
 </html>

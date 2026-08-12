@@ -4,7 +4,6 @@ window.EchoAuralTracking = (() => {
   function currentLearningMode() {
     const mode = String(new URLSearchParams(window.location.search).get("eaMode") || "").trim().toLowerCase();
     if (mode === "progress" || mode === "progression") return "progression";
-    if (mode === "practice") return "practice";
     return "";
   }
 
@@ -29,10 +28,6 @@ window.EchoAuralTracking = (() => {
 
   async function saveRound(payload = {}) {
     const learningMode = currentLearningMode();
-    if (learningMode === "practice") {
-      return { saved: false, reason: "practice-mode" };
-    }
-
     const roundPayload = withLearningModeMetadata(payload, learningMode);
 
     try {
@@ -66,38 +61,5 @@ window.EchoAuralTracking = (() => {
     }
   }
 
-  async function savePracticeTime(payload = {}, options = {}) {
-    try {
-      const response = await fetch("/api/student/practice-time", {
-        method: "POST",
-        credentials: "same-origin",
-        keepalive: Boolean(options.keepalive),
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const text = await response.text();
-      let data = {};
-      try { data = text ? JSON.parse(text) : {}; }
-      catch (_error) { data = {}; }
-
-      if (response.status === 401 || response.status === 403) {
-        return { saved: false, reason: "student-login-required" };
-      }
-
-      if (!response.ok || data.ok === false) {
-        throw new Error(data.error || `Practice time save failed (${response.status}).`);
-      }
-
-      return { saved: true, ...data };
-    } catch (error) {
-      console.warn("[EchoAural progress] Practice time was not saved:", error.message || error);
-      return { saved: false, reason: "request-failed" };
-    }
-  }
-
-  return { createClientRoundId, saveRound, savePracticeTime };
+  return { createClientRoundId, saveRound };
 })();

@@ -8,8 +8,6 @@ const vm = require("node:vm");
 const crypto = require("node:crypto");
 
 const moduleRoot = path.resolve(__dirname, "..");
-const projectRoot = path.resolve(moduleRoot, "../..");
-const desktopRoot = path.resolve(projectRoot, "..");
 const marking = require(path.join(moduleRoot, "marking.js"));
 
 function loadQuestionSet() {
@@ -45,14 +43,10 @@ const exl006 = loadQuestionSet();
 const question = (number) => exl006.questions[number - 1];
 const score = (answers) => exl006.questions.reduce((total, item, index) => total + marking.markQuestion(item, answers[index]).marks, 0);
 
-test("EXL006 packages the supplied score and matching Desktop audio extract", () => {
+test("EXL006 packages the supplied score and matching audio extract", () => {
   const packagedAudio = fs.readFileSync(path.join(moduleRoot, "assets", "EXL006.mp3"));
-  const suppliedAudio = fs.readFileSync(path.join(desktopRoot, "EXL006_Classical_extract_15s_to_end.mp3"));
   const packagedScore = fs.readFileSync(path.join(moduleRoot, "assets", "EXL006-skeleton-score.png"));
-  const suppliedScore = fs.readFileSync(path.join(desktopRoot, "EXL006.png"));
-  assert.deepEqual(packagedAudio, suppliedAudio);
-  assert.deepEqual(packagedScore, suppliedScore);
-  assert.equal(crypto.createHash("sha256").update(packagedAudio).digest("hex"), "45f57029708e63ef7e772c6a894c6e28e8f2346cf89210bc596ca8d395b3c147");
+  assert.equal(crypto.createHash("sha256").update(packagedAudio).digest("hex"), "90b35b1a17eea0ca0f7aab361c230267583fe56827057a9c0ab68a2d2af8f80f");
   assert.equal(crypto.createHash("sha256").update(packagedScore).digest("hex"), "a73cc7dd96271c4b6381d13353408220e4ee58dab45c979b90c066e40c46a4e4");
   assert.equal(packagedScore.readUInt32BE(16), 2289);
   assert.equal(packagedScore.readUInt32BE(20), 1653);
