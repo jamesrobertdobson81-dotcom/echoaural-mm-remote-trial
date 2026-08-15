@@ -118,10 +118,11 @@
     return Engine.chordLabel(rootPitch, chordDef.quality);
   }
 
-  function shuffle(list) {
+  function shuffle(list, random) {
+    var rng = typeof random === 'function' ? random : Math.random;
     var arr = list.slice();
     for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
+      var j = Math.floor(rng() * (i + 1));
       var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
     }
     return arr;
@@ -132,7 +133,7 @@
    * bass-note confusion when inverted, a neighbouring diatonic chord, and
    * (as filler) other diatonic chords from the same key.
    */
-  function chordNameDistractors(question, keyData, count) {
+  function chordNameDistractors(question, keyData, count, random) {
     var target = count || 3;
     var seen = new Set([question.chordLabel]);
     var out = [];
@@ -164,7 +165,7 @@
     }
 
     // 4) Fill any remaining slots with other diatonic chords from this key.
-    shuffle(diatonic).some(function (c) {
+    shuffle(diatonic, random).some(function (c) {
       tryAdd(labelForChoice(keyData, c));
       return out.length >= target;
     });
@@ -173,18 +174,18 @@
   }
 
   /** Roman-numeral MC distractors: other diatonic numerals from the same key. */
-  function romanNumeralDistractors(question, keyData, count) {
+  function romanNumeralDistractors(question, keyData, count, random) {
     var diatonic = diatonicChoicesForKey(keyData, isAdvancedCategory(question.category))
       .filter(function (c) { return c.roman !== question.romanNumeral; });
-    return shuffle(diatonic).slice(0, count || 3).map(function (c) { return c.roman; });
+    return shuffle(diatonic, random).slice(0, count || 3).map(function (c) { return c.roman; });
   }
 
-  function buildMultipleChoice(question, keyData, recognitionType, distractorCount) {
+  function buildMultipleChoice(question, keyData, recognitionType, distractorCount, random) {
     var correct = recognitionType === 'roman' ? question.romanNumeral : question.chordLabel;
     var distractors = recognitionType === 'roman'
-      ? romanNumeralDistractors(question, keyData, distractorCount)
-      : chordNameDistractors(question, keyData, distractorCount);
-    return shuffle([correct].concat(distractors));
+      ? romanNumeralDistractors(question, keyData, distractorCount, random)
+      : chordNameDistractors(question, keyData, distractorCount, random);
+    return shuffle([correct].concat(distractors), random);
   }
 
   root.EAChordAnswers = {

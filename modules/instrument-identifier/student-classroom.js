@@ -189,7 +189,7 @@
   }
 
   async function api(path, bodyPayload = null, method = bodyPayload ? 'POST' : 'GET') {
-    const options = { method, headers: { Accept: 'application/json' } };
+    const options = { method, credentials: 'include', headers: { Accept: 'application/json' } };
     if (bodyPayload) {
       options.headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(bodyPayload);

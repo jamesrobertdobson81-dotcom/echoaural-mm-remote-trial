@@ -31,6 +31,7 @@
   const advancedSettings = document.getElementById("advancedSettings");
 
   let questionBank = [];
+  let pendingHostedQuestion = null;
   let roundDeck = [];
   let questionIndex = 0;
   let currentQuestion = null;
@@ -368,6 +369,16 @@
     updateMarkTile();
     updateProgress();
     renderAnswerSubmitted(result, currentQuestion);
+    window.EAProgressEmbed?.answerComplete({
+      questionId: currentQuestion.id,
+      score: result.awardedMarks,
+      maximumScore: result.maxMarks,
+      correct: result.isCorrect,
+      responseType: "multiple-choice",
+      answerData: choice,
+      modelAnswer: currentQuestion.correctAnswer,
+      feedback: result.shortComment || ""
+    });
     if (trackInfo) {
       trackInfo.innerHTML = buildTrackInfoHTML(currentQuestion);
       trackInfo.removeAttribute("aria-hidden");
@@ -502,6 +513,16 @@
     updateMarkTile();
     updateProgress();
     renderAnswerSubmitted(result, currentQuestion);
+    window.EAProgressEmbed?.answerComplete({
+      questionId: currentQuestion.id,
+      score: result.awardedMarks,
+      maximumScore: result.maxMarks,
+      correct: result.isCorrect,
+      responseType: "typed",
+      answerData: rawAnswer,
+      modelAnswer: currentQuestion.correctAnswer,
+      feedback: result.shortComment || ""
+    });
     if (trackInfo) {
       trackInfo.innerHTML = buildTrackInfoHTML(currentQuestion);
       trackInfo.removeAttribute("aria-hidden");
@@ -527,6 +548,7 @@
     }
 
     hasSubmitted = false;
+    window.EAProgressEmbed?.questionReady({ id: currentQuestion.id, level: currentQuestion.level });
     hasPlayedAudio = false;
     stopAudio();
     setQuestionPrompt(currentQuestion.question, currentQuestion.marks);
@@ -580,7 +602,12 @@
     startButton.style.display = "none";
   }
 
-  function startRound() {
+  // True once a Live Session host has loaded its first question through the
+  // contract (see loadQuestionById below) — distinguishes "boot the round"
+  // from "load another question into an already-running round."
+  let contractSessionStarted = false;
+
+  function startRound(options = {}) {
     syncSetupSelectionHighlights();
     setSetupSettingsLocked(true);
 
@@ -610,6 +637,13 @@
       orderedPool = SR.dedupeByAnswer(orderedPool, count, (question) => Core.cleanText(question.correctAnswer || question.ensembleLabel || ""));
     }
     roundDeck = orderedPool.slice(0, Math.max(1, Math.min(Number(count) || 5, orderedPool.length)));
+    // Live Session host handed us a specific question via the contract
+    // (see loadQuestionById below) — pin it to the front so the existing
+    // loadQuestion()/goNext() flow picks it up completely unchanged.
+    if (options.forcedQuestion) {
+      roundDeck = roundDeck.filter((question) => question !== options.forcedQuestion);
+      roundDeck.unshift(options.forcedQuestion);
+    }
     SR?.markShown(roundDeck, { key: spacedKey, idOf: (question) => question.id });
     questionIndex = 0;
     score = 0;
@@ -626,6 +660,44 @@
     if (setupMessage) setupMessage.textContent = "";
     loadQuestion();
   }
+
+  // Live Sessions entry point: a teacher (via the classroom server) has
+  // picked an exact question and the host wants this exact question
+  // rendered, not whatever startRound()'s spaced-repetition draw would have
+  // picked next. Reuses startRound()/loadQuestion() completely unchanged
+  // (see the forcedQuestion handling above), so this app's real UI, audio
+  // and scoring are exactly what a student sees in normal practice, just
+  // pointed at a specific question instead of a random round draw.
+  function loadQuestionById(rawId) {
+    const id = String(rawId || "").trim();
+    if (!id) return false;
+    const target = questionBank.find((question) => question.id === id);
+    if (!target) {
+      window.EAProgressEmbed?.poolEmpty({ reason: "unknown-question-id", questionId: id });
+      return false;
+    }
+
+    if (!contractSessionStarted) {
+      contractSessionStarted = true;
+      startRound({ forcedQuestion: target });
+    } else {
+      roundDeck = roundDeck.filter((question) => question !== target);
+      roundDeck.unshift(target);
+      questionIndex = 0;
+      loadQuestion();
+    }
+    return true;
+  }
+
+  window.EAProgressEmbed?.registerQuestionHandler((payload) => {
+    // The ensemble bank is fetched during boot. Queue host selection until
+    // it is ready instead of turning a valid ID into a false pool-empty state.
+    if (!questionBank.length) {
+      pendingHostedQuestion = payload || {};
+      return true;
+    }
+    return loadQuestionById(payload && (payload.questionId || payload.id));
+  });
 
   function restartRound() {
     stopAudio();
@@ -769,6 +841,11 @@
       questionBank = Array.isArray(pack.questions) ? pack.questions.filter(Core.validateQuestion) : [];
       if (!questionBank.length) throw new Error("No valid questions in pack.");
       if (setupMessage) setupMessage.textContent = `${questionBank.length} ensemble clips ready.`;
+      if (pendingHostedQuestion) {
+        const request = pendingHostedQuestion;
+        pendingHostedQuestion = null;
+        loadQuestionById(request.questionId || request.id);
+      }
     } catch (error) {
       if (setupMessage) setupMessage.textContent = `Could not load ensemble questions: ${error.message}`;
       startButton.disabled = true;

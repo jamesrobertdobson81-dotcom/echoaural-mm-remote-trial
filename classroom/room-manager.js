@@ -7,6 +7,7 @@ const {
   buildLeaderboard
 } = require('./scoring');
 const crypto = require('crypto');
+const { QuestionCatalogue } = require('./question-catalogue');
 
 const DEFAULT_MAX_LISTENS = 4;
 const DEFAULT_QUIZ_TOTAL = 3;
@@ -14,6 +15,8 @@ const DEFAULT_ROOM_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const QUESTION_LEVELS = new Set(['all', 'foundation', 'developing', 'securing', 'mastering']);
 const MIXED_MODULE_ID = 'mixed';
 const MIXED_MODULE_TITLE = 'Mixed Apps';
+// Preserve the legacy fallback for old room URLs; new teacher launches pass
+// the complete compatible app list explicitly.
 const DEFAULT_MIXED_MODULE_IDS = ['instrument-identifier', 'melodic-intervals'];
 
 function shuffleArray(items = []) {
@@ -210,6 +213,7 @@ class RoomManager {
     this.defaultModuleId = options.defaultModuleId || 'melody-master';
     this.roomMaxAgeMs = Math.max(60 * 60 * 1000, Number(options.roomMaxAgeMs || process.env.ROOM_MAX_AGE_MS || DEFAULT_ROOM_MAX_AGE_MS));
     (options.adapters || []).forEach((adapter) => this.registerAdapter(adapter));
+    this.questionCatalogue = options.questionCatalogue || new QuestionCatalogue(this.getAdapters());
   }
 
   registerAdapter(adapter) {
@@ -222,16 +226,7 @@ class RoomManager {
   }
 
   getModules() {
-    return this.getAdapters().map((adapter) => {
-      const questions = this.getQuestions(adapter.id);
-      return {
-        id: adapter.id,
-        title: adapter.title || adapter.id,
-        description: adapter.description || '',
-        studentMode: adapter.studentMode || 'generic',
-        questionCount: questions.length
-      };
-    });
+    return this.questionCatalogue.modules();
   }
 
   getAdapter(moduleId = this.defaultModuleId) {
@@ -246,7 +241,9 @@ class RoomManager {
 
   normaliseMixedModuleIds(moduleIds = DEFAULT_MIXED_MODULE_IDS) {
     const source = Array.isArray(moduleIds) ? moduleIds : String(moduleIds || '').split(',');
-    const allowed = new Set(DEFAULT_MIXED_MODULE_IDS);
+    const allowed = new Set(this.questionCatalogue.modules()
+      .filter((module) => module.mixedCompatible)
+      .map((module) => module.id));
     const unique = [];
     source.forEach((moduleId) => {
       const cleanModuleId = String(moduleId || '').trim();
@@ -277,7 +274,8 @@ class RoomManager {
       if (moduleId === 'instrument-identifier') return instrumentIdentifierQuestionMatchesLevel(questions[index], level);
       if (moduleId === 'melody-master') return melodyMasterQuestionMatchesLevel(questions[index], level);
       if (moduleId === 'melodic-intervals') return melodicIntervalsQuestionMatchesLevel(questions[index], level);
-      return true;
+      const descriptor = this.questionCatalogue.all().find((item) => item.moduleId === moduleId && item.questionIndex === index);
+      return !descriptor?.level || descriptor.level === level;
     });
     return filtered.length ? filtered : indexes;
   }
@@ -287,6 +285,7 @@ class RoomManager {
   }
 
   getRoomQuestionCount(room = {}, options = {}) {
+    if (Array.isArray(room.questionPlan) && room.questionPlan.length) return room.questionPlan.length;
     if (!this.isMixedRoom(room)) return this.getQuestionCount(room.moduleId, options);
     return this.normaliseMixedModuleIds(room.mixedModuleIds).reduce((total, moduleId) => {
       return total + this.getQuestionCount(moduleId, options);
@@ -302,7 +301,6 @@ class RoomManager {
 
   buildMixedQuestionOrder(moduleIds = DEFAULT_MIXED_MODULE_IDS, questionCount = 1, options = {}) {
     const pools = this.normaliseMixedModuleIds(moduleIds)
-      .filter((moduleId) => moduleId !== 'melody-master')
       .map((moduleId) => ({
         moduleId,
         indexes: shuffleArray(this.getQuestionIndexes(moduleId, options))
@@ -344,6 +342,45 @@ class RoomManager {
     return room.questionOrder[Math.max(0, Number(orderPosition) || 0)] ?? (this.isMixedRoom(room)
       ? { moduleId: this.normaliseMixedModuleIds(room.mixedModuleIds)[0], questionIndex: 0 }
       : Number(room.questionIndex || 0));
+  }
+
+  resolveQuestionIndex(moduleId, target = 0) {
+    const questions = this.getQuestions(moduleId);
+    if (!questions.length) return 0;
+    if (target && typeof target === 'object') {
+      const questionId = String(target.questionId || '').trim();
+      if (questionId) {
+        const resolved = questions.findIndex((question) => String(question?.id || '').trim() === questionId);
+        if (resolved >= 0) return resolved;
+      }
+      return Math.max(0, Math.min(Number(target.questionIndex || 0), questions.length - 1));
+    }
+    return Math.max(0, Math.min(Number(target) || 0, questions.length - 1));
+  }
+
+  setQuestionSet(room, questionSet = null) {
+    if (!questionSet || !Array.isArray(questionSet.questionPlan) || !questionSet.questionPlan.length) {
+      room.questionSetSpec = null;
+      room.questionSetPreview = null;
+      room.questionPlan = [];
+      return room;
+    }
+    room.questionSetSpec = questionSet.spec || null;
+    room.questionSetPreview = questionSet.preview || null;
+    room.questionPlan = questionSet.questionPlan.map((item) => ({
+      moduleId: String(item.moduleId || room.moduleId),
+      sourceKey: String(item.sourceKey || ''),
+      questionId: String(item.questionId || ''),
+      questionIndex: Math.max(0, Number(item.questionIndex || 0)),
+      // Carried through unchanged for seed-mode PM sources (see
+      // question-set-builder.js) — a future Live Session host reads this
+      // off the room's questionOrder entry to send with teacher-load-
+      // question; id-mode sources simply ignore it.
+      seed: String(item.seed || '')
+    }));
+    room.quizTotal = room.questionPlan.length;
+    room.maxListens = Math.max(1, Math.min(Number(questionSet.spec?.maxListens || room.maxListens || DEFAULT_MAX_LISTENS), 8));
+    return room;
   }
 
   makeRoomCode() {
@@ -448,6 +485,9 @@ class RoomManager {
       quizEnded: false,
       quizQuestionNumber: 0,
       questionOrder: [],
+      questionPlan: [],
+      questionSetSpec: null,
+      questionSetPreview: null,
       questionOrderPosition: 0,
       totalMarks: 0,
       totalNotes: 0,
@@ -580,7 +620,9 @@ class RoomManager {
         : options.maxListens;
       if (Number(requestedQuizLength)) room.quizTotal = Math.max(1, Math.min(Number(requestedQuizLength), availableQuestionCount));
       if (Number(requestedMaxListens)) room.maxListens = Math.max(1, Math.min(Number(requestedMaxListens), 8));
-      room.questionOrder = this.buildRoomQuestionOrder(room, room.quizTotal || 1, { questionLevel: room.questionLevel });
+      room.questionOrder = Array.isArray(room.questionPlan) && room.questionPlan.length
+        ? room.questionPlan.slice(0, room.quizTotal || room.questionPlan.length)
+        : this.buildRoomQuestionOrder(room, room.quizTotal || 1, { questionLevel: room.questionLevel });
       room.questionOrderPosition = 0;
       target = this.getQuestionTargetFromOrder(room, 0);
     } else if (options.advanceQuiz) {
@@ -611,15 +653,36 @@ class RoomManager {
       adapter = this.getAdapter(activeModuleId);
       questions = this.getQuestions(activeModuleId);
       if (!questions.length) throw new Error(`No questions found for ${MIXED_MODULE_TITLE}.`);
-      targetIndex = Math.max(0, Math.min(Number(cleanTarget.questionIndex) || 0, questions.length - 1));
+      targetIndex = this.resolveQuestionIndex(activeModuleId, cleanTarget);
     } else {
-      targetIndex = Math.max(0, Math.min(Number(target) || 0, Math.max(questions.length - 1, 0)));
+      targetIndex = this.resolveQuestionIndex(activeModuleId, target);
     }
+
+    // The plan target (when it comes from room.questionOrder — see
+    // getQuestionTargetFromOrder/setQuestionSet) carries a per-question
+    // seed that resolveQuestionIndex above never reads (it only matches on
+    // questionId/questionIndex). Carrying it onto activeQuestion is what
+    // lets a Live Session host later send it to seed-mode PM sources (see
+    // shared/js/pm-registry.js's questionSelectionMode) via teacher-load-
+    // question — harmless to attach for id-mode sources too, since they
+    // simply never read it.
+    const planSeed = target && typeof target === 'object' ? String(target.seed || '') : '';
 
     room.questionIndex = Math.max(0, Math.min(Number(targetIndex) || 0, questions.length - 1));
     room.questionModuleId = activeModuleId;
     room.question = this.getQuestion(room, room.questionIndex, activeModuleId);
-    room.activeQuestion = adapter.prepareQuestion(room.question, { index: room.questionIndex, room });
+    room.activeQuestion = adapter.prepareQuestion(room.question, { index: room.questionIndex, room, seed: planSeed });
+    // Keep the wire shape stable for legacy clients and seed-aware hosts: all
+    // prepared questions expose a seed field, even when an old room/order did
+    // not carry one.
+    if (room.activeQuestion && !Object.prototype.hasOwnProperty.call(room.activeQuestion, 'seed')) {
+      room.activeQuestion.seed = '';
+    }
+    // Seed-mode adapters may derive a stable fallback seed from their
+    // catalogue ticket for legacy/non-planned rooms. Do not erase that
+    // adapter-supplied seed merely because an old question order has no
+    // explicit planSeed; planned rounds remain authoritative when present.
+    if (room.activeQuestion && planSeed) room.activeQuestion.seed = planSeed;
     if (room.activeQuestion && mixedRoom) {
       room.activeQuestion.roomModuleId = MIXED_MODULE_ID;
       room.activeQuestion.mixedQuestion = true;
@@ -744,6 +807,32 @@ class RoomManager {
       error.code = 'ALREADY_SUBMITTED';
       throw error;
     }
+    // Only enforced when the client actually sends a run/round id — older
+    // clients (pre-dating this check) omit it entirely and are scored
+    // exactly as before, so this can't reject a legitimate existing
+    // submission it doesn't understand yet. Clients that DO send one are
+    // asserting "this is my answer to the question I can see"; if the room
+    // has already moved to a different question/round by the time this
+    // request lands (teacher pressed Next while the request was in flight,
+    // or a background tab's slow request finally arrives), score it against
+    // what the student was actually shown, never silently against whatever
+    // the room happens to be showing now.
+    if (payload.questionRunId !== undefined && payload.questionRunId !== null) {
+      const submittedRunId = Number(payload.questionRunId);
+      if (Number.isFinite(submittedRunId) && submittedRunId !== Number(room.questionRunId || 0)) {
+        const error = new Error('That question has moved on — showing the current one.');
+        error.code = 'STALE_QUESTION';
+        throw error;
+      }
+    }
+    if (payload.roundId !== undefined && payload.roundId !== null) {
+      const submittedRoundId = Number(payload.roundId);
+      if (Number.isFinite(submittedRoundId) && submittedRoundId !== Number(room.roundId || 1)) {
+        const error = new Error('That round has ended — showing the current one.');
+        error.code = 'STALE_QUESTION';
+        throw error;
+      }
+    }
 
     const activeModuleId = room.activeQuestion?.moduleId || room.questionModuleId || room.moduleId;
     const adapter = this.getAdapter(activeModuleId);
@@ -863,13 +952,18 @@ class RoomManager {
       questionRunId: room.questionRunId,
       roundId: Number(room.roundId || 1),
       questionLevel: normaliseQuestionLevel(room.questionLevel),
+      questionSet: room.questionSetSpec ? {
+        spec: room.questionSetSpec,
+        preview: room.questionSetPreview,
+        questionCount: Array.isArray(room.questionPlan) ? room.questionPlan.length : 0
+      } : null,
       progressSave: room.lastProgressSave || null,
       playback: room.playback || null,
       question: publicQuestion,
       totalNotes: room.totalNotes || 0,
       totalMarks: room.totalMarks || 0,
       students,
-      leaderboard: isExamLab ? [] : buildLeaderboard(students),
+      leaderboard: isExamLab || room.questionSetSpec?.leaderboard === false ? [] : buildLeaderboard(students),
       examLabAnalysis: classAnalysis,
       summary: {
         joined: students.length,

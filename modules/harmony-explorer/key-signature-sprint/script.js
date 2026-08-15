@@ -1,6 +1,7 @@
 (function () {
   'use strict';
   const data = window.EAKeySignatureSprintData;
+  const questionCore = window.EAKeySignatureSprintCore;
   const $ = (id) => document.getElementById(id);
   const els = { panel:$('questionPanel'), start:$('startButton'), advanced:$('advancedSettings'), advancedToggle:$('advancedToggle'), ready:$('readyState'), play:$('playState'), results:$('resultsState'), notation:$('notation'), answers:$('answers'), typedForm:$('typedForm'), typedInput:$('typedInput'), feedback:$('feedback'), next:$('nextButton'), question:$('questionText'), questionMarks:$('questionMarks'), round:$('roundText'), score:$('scoreText'), streak:$('streakText'), xp:$('xpText'), progress:$('progressBar'), insight:$('insightContent') };
   let state = null;
@@ -110,6 +111,7 @@
   }
 
   function distractors(question) {
+    if (Array.isArray(question.choices) && question.choices.length) return question.choices.slice();
     const idx=data.SIGNATURES.indexOf(question.signature);
     const total=data.SIGNATURES.length;
     const at=(offset)=>data.SIGNATURES[((idx+offset)%total+total)%total];
@@ -119,7 +121,8 @@
   }
 
   function showQuestion() {
-    state.current=makeQuestion(state.index); state.answered=false;
+    state.current=state.seededQuestion || makeQuestion(state.index); state.seededQuestion=null; state.answered=false;
+    window.EAProgressEmbed?.questionReady({id:state.current.id || `key-signature:${state.current.clef}:${state.current.signature.type}:${state.current.signature.count}:${state.current.target}`,level:state.settings.difficulty});
     setQuestionPrompt(state.current);
     els.notation.innerHTML=signatureMarkup(state.current.signature,state.current.clef);
     els.notation.setAttribute('aria-label',`${state.current.clef} clef key signature with ${state.current.signature.displayLabel.toLowerCase()}`);
@@ -168,7 +171,35 @@
           <div class="meta-row"><span>Remember</span><strong>${escapeHTML(ruleFor(q.signature))}</strong></div>
         </div>
       </div>`;
+    window.EAProgressEmbed?.answerComplete({questionId:`key-signature:${q.clef}:${q.signature.type}:${q.signature.count}:${q.target}`,score:correct?1:0,maximumScore:1,correct,responseType:q.typed?'typed':'multiple-choice',answerData:answer,modelAnswer:q.answer,feedback:els.feedback.textContent});
   }
+
+  // Live Sessions and the server adapter both call the same isomorphic
+  // generator. This makes the rendered signature and the scored answer a
+  // deterministic function of (seed, level), rather than two implementations
+  // which merely happen to enumerate similar content.
+  function loadQuestionBySeed(seed, payload) {
+    if (seed === undefined || seed === null || seed === '') return false;
+    const requestedLevel = questionCore.appLevel(payload && payload.level);
+    const requestedOption = document.querySelector(`[name="difficulty"][value="${requestedLevel}"]`);
+    if (requestedOption) requestedOption.checked = true;
+    const roundSettings = settings();
+    const question = questionCore.buildQuestion(data, seed, {
+      level: requestedLevel,
+      focus: roundSettings.focus,
+      clef: roundSettings.clef,
+      range: roundSettings.range,
+      answerMode: 'choice'
+    });
+    state={settings:{...roundSettings,difficulty:requestedLevel,count:1},index:0,correct:0,streak:0,best:0,xp:0,typedErrors:0,results:[],signatureDeck:[question.signature],seededQuestion:question};
+    setSettingsLocked(true);els.panel.classList.remove('is-ready','is-complete');els.panel.classList.add('is-active');els.score.textContent='Mark: 0 / 0';els.ready.hidden=true;els.results.hidden=true;els.play.hidden=false;els.typedInput.disabled=false;showQuestion();
+    return true;
+  }
+
+  window.EAProgressEmbed?.registerQuestionHandler((payload) => {
+    const seed = payload && (payload.seed !== undefined ? payload.seed : payload.questionId);
+    loadQuestionBySeed(seed, payload || {});
+  });
 
   function finish() {
     els.panel.classList.remove('is-active');els.panel.classList.add('is-complete');els.play.hidden=true;els.results.hidden=false;els.progress.style.width='100%';els.round.textContent='Sprint complete';

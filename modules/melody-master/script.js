@@ -254,23 +254,16 @@ function buildRoundQuestionIndices(questionCount = DEFAULT_QUIZ_SETTINGS.questio
   const indexes = getDictationQuestionIndexes();
   const pool = indexes.length ? indexes : Array.from({ length: ALL_MELODY_CLIPS.length || 1 }, (_item, index) => index);
   const count = Math.max(1, Math.min(Number(questionCount) || DEFAULT_QUIZ_SETTINGS.questionCount, pool.length));
-  // TEMPORARY AUTHORING AID: newly appended MM dictation questions open first for checking.
-  const newestQuestionIndex = pool[pool.length - 1];
-  const remainingPool = pool.filter((index) => index !== newestQuestionIndex);
   const key = dictationSpacedRepetitionKey();
   const idOf = (index) => ALL_MELODY_CLIPS[index]?.id ?? index;
   const SR = window.EchoAuralSpacedRepetition;
-  const ordered = SR ? SR.orderByLeastRecentlyShown(remainingPool, { key, idOf }) : shuffleArray(remainingPool);
-  // Keep the same target melody from appearing twice in one round. The
-  // pinned newest-question slot's pitches count as already "used" so the
-  // rest of the round can't duplicate it either.
+  const ordered = SR ? SR.orderByLeastRecentlyShown(pool, { key, idOf }) : shuffleArray(pool);
+  // Keep the same target melody from appearing twice in one round.
   const pitchSignature = (index) => (ALL_MELODY_CLIPS[index]?.answerPitches || []).join(",");
-  const newestSignature = pitchSignature(newestQuestionIndex);
-  const candidates = ordered.filter((index) => pitchSignature(index) !== newestSignature || !newestSignature);
-  const deduped = SR?.dedupeByAnswer ? SR.dedupeByAnswer(candidates, count - 1, pitchSignature) : candidates;
-  const picked = deduped.slice(0, count - 1);
+  const deduped = SR?.dedupeByAnswer ? SR.dedupeByAnswer(ordered, count, pitchSignature) : ordered;
+  const picked = deduped.slice(0, count);
   SR?.markShown(picked, { key, idOf });
-  return [newestQuestionIndex, ...picked];
+  return picked;
 }
 
 function getRoundTotal() {
@@ -1754,6 +1747,8 @@ function loadMelodicDeviceQuestion(options = {}) {
     return;
   }
 
+  window.EAProgressEmbed?.questionReady({ id: currentDeviceQuestion.id, level: currentDeviceQuestion.level });
+
   activeRoundSkill = "devices";
   syncMelodyShellLabels("devices");
   isLoaded = true;
@@ -1977,6 +1972,16 @@ function submitMelodicDeviceAnswer(choice = "") {
     isCorrect ? "good" : "bad"
   );
   renderMelodicDevicesAnswerPanelSubmitted(result, currentDeviceQuestion);
+  window.EAProgressEmbed?.answerComplete({
+    questionId: currentDeviceQuestion.id,
+    score: awardedMarks,
+    maximumScore: currentDeviceQuestion.marks,
+    correct: isCorrect,
+    responseType: currentDeviceQuestion.responseType === "Written response" ? "typed" : "multiple-choice",
+    answerData: selectedDeviceAnswer,
+    modelAnswer: currentDeviceQuestion.correctAnswer,
+    feedback: result.shortComment
+  });
 }
 
 
@@ -2013,6 +2018,7 @@ function loadQuestion(options = {}) {
 
   scoreImage.src = MM001.questionImage;
   scoreImage.alt = `${MM001.id} question score with missing notes`;
+  window.EAProgressEmbed?.questionReady({ id: MM001.id, signature: MM001.id });
   clearScoreTrackInfo();
 
   audio = new Audio(MM001.audio);
@@ -2332,6 +2338,18 @@ function checkAnswer() {
   }
 
   renderAnswerPanelSubmitted(correctCount, total);
+  if (isFirstSubmissionForQuestion) {
+    window.EAProgressEmbed?.answerComplete({
+      questionId: MM001.id,
+      score: gcseMarking.awardedMarks,
+      maximumScore: gcseMarking.maxMarks,
+      correct: gcseMarking.awardedMarks >= gcseMarking.maxMarks,
+      responseType: "dictation",
+      answerData: dictationSlots.map((slot) => slot.selectedPitch || null),
+      modelAnswer: dictationSlots.map((slot) => slot.pitch),
+      feedback: gcseMarking.shortComment || ""
+    });
+  }
 }
 
 
@@ -3838,6 +3856,83 @@ async function startQuizRound() {
   if (startButton) startButton.textContent = "Start Learning";
   loadQuestion({ autoPlay: true, expandOnLoad: true });
 }
+
+// True once a Live Session host has loaded its first question through the
+// contract (see loadQuestionById below) — distinguishes "boot the round"
+// from "load another question into an already-running round."
+let contractSessionStarted = false;
+
+function loadContractDeviceQuestion(index) {
+  activeRoundSkill = "devices";
+  if (!contractSessionStarted) {
+    contractSessionStarted = true;
+    roundQuestionIndices = [index];
+    roundQuestionPosition = 0;
+    roundResults = [];
+    isRoundActive = true;
+    hasSubmittedCurrentQuestion = false;
+  } else {
+    roundQuestionIndices[roundQuestionPosition] = index;
+  }
+  currentDeviceQuestionIndex = index;
+  loadMelodicDeviceQuestion({ autoPlay: true });
+}
+
+function loadContractDictationQuestion(index) {
+  activeRoundSkill = "dictation";
+  if (!contractSessionStarted) {
+    contractSessionStarted = true;
+    roundQuestionIndices = [index];
+    roundQuestionPosition = 0;
+    roundResults = [];
+    isRoundActive = true;
+    hasSubmittedCurrentQuestion = false;
+  } else {
+    roundQuestionIndices[roundQuestionPosition] = index;
+  }
+  setActiveQuestion(index);
+  loadQuestion({ autoPlay: true, expandOnLoad: true });
+}
+
+// Live Sessions entry point: a teacher (via the classroom server) has
+// picked an exact question from either of Melody Master's 2 PM sources
+// (melodic devices or dictation — both served by this one script.js) and
+// wants this exact question rendered. Disambiguates purely by which pool
+// the id is found in (device ids and dictation ids don't collide in
+// practice), so the host doesn't need to tell this app which mode it's
+// asking for. Reuses loadMelodicDeviceQuestion()/loadQuestion()
+// completely unchanged, so this app's real UI, audio and scoring are
+// exactly what a student sees in normal practice, just pointed at a
+// specific question instead of a random round draw.
+async function loadQuestionById(rawId) {
+  const id = String(rawId || "").trim();
+  if (!id) return false;
+
+  if (!melodicDeviceQuestions.some((question) => question.id === id)) {
+    // Devices data loads asynchronously (fetch); dictation's
+    // ALL_MELODY_CLIPS is available synchronously from boot. Only wait on
+    // the fetch if the id isn't already resolvable without it.
+    await loadMelodicDeviceQuestions().catch(() => {});
+  }
+  const deviceIndex = melodicDeviceQuestions.findIndex((question) => question.id === id);
+  if (deviceIndex !== -1) {
+    loadContractDeviceQuestion(deviceIndex);
+    return true;
+  }
+
+  const dictationIndex = ALL_MELODY_CLIPS.findIndex((clip) => clip.id === id);
+  if (dictationIndex !== -1) {
+    loadContractDictationQuestion(dictationIndex);
+    return true;
+  }
+
+  window.EAProgressEmbed?.poolEmpty({ reason: "unknown-question-id", questionId: id });
+  return false;
+}
+
+window.EAProgressEmbed?.registerQuestionHandler((payload) => {
+  return loadQuestionById(payload && (payload.questionId || payload.id));
+});
 
 if (settingsToggle && advancedSettings) {
   settingsToggle.addEventListener("click", () => {

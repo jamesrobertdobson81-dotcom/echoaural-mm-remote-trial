@@ -5496,44 +5496,44 @@ const melodyClips = [
       ],
       "slots": [
         {
-          "x": 47.14,
+          "x": 47.24,
           "pitch": "B5",
           "icon": "assets/icons/notes/dottedcrotchet-sibelius.png",
           "rhythm": "dotted crotchet"
         },
         {
-          "x": 50.94,
+          "x": 50.88,
           "pitch": "A5",
           "icon": "assets/icons/notes/crotchet-sibelius.png",
           "rhythm": "crotchet"
         },
         {
-          "x": 53.78,
+          "x": 53.61,
           "pitch": "G5",
           "icon": "assets/icons/notes/quaver-sibelius.png",
           "rhythm": "quaver"
         },
         {
-          "x": 57.36,
+          "x": 57.04,
           "pitch": "F5",
           "icon": "assets/icons/notes/dottedcrotchet-sibelius.png",
           "rhythm": "dotted crotchet"
         },
         {
-          "x": 61.03,
+          "x": 60.56,
           "pitch": "G5",
           "icon": "assets/icons/notes/crotchet-sibelius.png",
           "rhythm": "crotchet"
         },
         {
-          "x": 63.74,
+          "x": 63.16,
           "pitch": "D5",
           "icon": "assets/icons/notes/quaver-sibelius.png",
           "rhythm": "quaver"
         }
       ]
     },
-    "notes": "Question 16 uses six draggable notes. Pitch sequence: B5, A5, G5, F5, G5, D5. Rhythms are dotted crotchet, crotchet, quaver, dotted crotchet, crotchet, quaver. The printed preceding G5 and following E5 are score context only. The score also contains a turn ornament.",
+    "notes": "Question 16 uses six draggable notes. Pitch sequence: B5, A5, G5, F5, G5, D5. Rhythms are dotted crotchet, crotchet, quaver, dotted crotchet, crotchet, quaver. The printed preceding G5 and following E5 are score context only. The score also contains a turn ornament. All 5 mm016 images padded 2026-08-15 from 2289x219 to 2386x219 (48/49px white left/right) to match the 2048/188 aspect ratio .score-image-frame's CSS assumes — the original ratio (10.45) was a small but real mismatch under object-fit:fill. staffTopY/staffStepY unchanged (height untouched); slot x values recalculated for the new width.",
     "composer": "Frédéric Chopin",
     "work": "Nocturne in E-flat major, Op. 9 No. 2",
     "movement": "Andante",
@@ -10836,12 +10836,12 @@ const melodyMasterLevelledClips = [
       "noteCountLabel": "1 crotchet, 1 quaver",
       "staffPitches": ["C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5", "B4", "A4", "G4", "F4", "E4", "D4", "C4"],
       "slots": [
-        { "x": 50.94, "pitch": "A5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet", "sourceSlot": 2 },
-        { "x": 53.78, "pitch": "G5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 3 }
+        { "x": 50.88, "pitch": "A5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet", "sourceSlot": 2 },
+        { "x": 53.61, "pitch": "G5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 3 }
       ]
     },
     "markScheme": { "pitchMarks": 2, "shapeMarks": 1 },
-    "notes": "Manually authored Foundation variant supplied by the user. Missing source slots 2–3 only.",
+    "notes": "Manually authored Foundation variant supplied by the user. Missing source slots 2–3 only. Image padded 2026-08-15 to 2386x219 to match the shared 2048/188 aspect ratio (see MM016 base entry notes); slot x values recalculated accordingly.",
     "composer": "Frédéric Chopin",
     "work": "Nocturne in E-flat major, Op. 9 No. 2",
     "movement": "Andante",
@@ -10875,14 +10875,14 @@ const melodyMasterLevelledClips = [
       "noteCountLabel": "2 crotchets, 1 quaver, 1 dotted crotchet",
       "staffPitches": ["C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5", "B4", "A4", "G4", "F4", "E4", "D4", "C4"],
       "slots": [
-        { "x": 50.94, "pitch": "A5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet", "sourceSlot": 2 },
-        { "x": 53.78, "pitch": "G5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 3 },
-        { "x": 57.36, "pitch": "F5", "icon": "assets/icons/notes/dottedcrotchet-sibelius.png", "rhythm": "dotted crotchet", "sourceSlot": 4 },
-        { "x": 61.03, "pitch": "G5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet", "sourceSlot": 5 }
+        { "x": 50.88, "pitch": "A5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet", "sourceSlot": 2 },
+        { "x": 53.61, "pitch": "G5", "icon": "assets/icons/notes/quaver-sibelius.png", "rhythm": "quaver", "sourceSlot": 3 },
+        { "x": 57.04, "pitch": "F5", "icon": "assets/icons/notes/dottedcrotchet-sibelius.png", "rhythm": "dotted crotchet", "sourceSlot": 4 },
+        { "x": 60.56, "pitch": "G5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet", "sourceSlot": 5 }
       ]
     },
     "markScheme": { "pitchMarks": 4, "shapeMarks": 1 },
-    "notes": "Manually authored Securing variant supplied by the user. Missing source slots 2–5 only.",
+    "notes": "Manually authored Securing variant supplied by the user. Missing source slots 2–5 only. Image padded 2026-08-15 to 2386x219 to match the shared 2048/188 aspect ratio (see MM016 base entry notes); slot x values recalculated accordingly.",
     "composer": "Frédéric Chopin",
     "work": "Nocturne in E-flat major, Op. 9 No. 2",
     "movement": "Andante",
@@ -10906,8 +10906,8 @@ const melodyMasterLevelledClips = [
     "noteImageFallback": "assets/icons/notes/quaver-sibelius.png",
     "dictationLayout": {
       "topLinePitch": "F5",
-      "staffTopY": 30.41,
-      "staffStepY": 6.14,
+      "staffTopY": 33.81,
+      "staffStepY": 5,
       "homeY": 2,
       "snapToleranceY": 10,
       "noteWidthPercent": 3.95,
@@ -10922,7 +10922,7 @@ const melodyMasterLevelledClips = [
       ]
     },
     "markScheme": { "pitchMarks": 3, "shapeMarks": 1 },
-    "notes": "Manually authored Developing variant supplied by the user (folder: Desktop/new dictations). Missing notes 22-24 of the full 29-note melody (bar 6, second half). Pitch/rhythm/staff calibration measured programmatically from the supplied PNGs — composer/work/movement metadata was not supplied and needs confirming.",
+    "notes": "Manually authored Developing variant supplied by the user (folder: Desktop/new dictations). Missing notes 22-24 of the full 29-note melody (bar 6, second half). Pitch/rhythm/staff calibration measured programmatically from the supplied PNGs — composer/work/movement metadata was not supplied and needs confirming. Question/answer images padded 2026-08-15 (question: 2288x171 to 2288x210, 19/20px top/bottom; answer: 2288x186 to 2288x210, 12/12px top/bottom) to match the shared 2048/188 aspect ratio — the original ratios (13.38 and 12.30) were rendering visibly stretched under object-fit:fill. staffTopY/staffStepY recalculated for the new question-image height; slot x values unchanged (width untouched).",
     "composer": "Unknown (source not supplied)",
     "work": "MM027 dictation exercise",
     "movement": "",
@@ -10946,8 +10946,8 @@ const melodyMasterLevelledClips = [
     "noteImageFallback": "assets/icons/notes/quaver-sibelius.png",
     "dictationLayout": {
       "topLinePitch": "F5",
-      "staffTopY": 30.41,
-      "staffStepY": 6.14,
+      "staffTopY": 33.81,
+      "staffStepY": 5,
       "homeY": 2,
       "snapToleranceY": 10,
       "noteWidthPercent": 3.95,
@@ -10965,12 +10965,95 @@ const melodyMasterLevelledClips = [
       ]
     },
     "markScheme": { "pitchMarks": 6, "shapeMarks": 1 },
-    "notes": "Manually authored Mastering variant supplied by the user (folder: Desktop/new dictations). Missing notes 19-24 of the full 29-note melody (end of bar 5 through bar 6, second half). Pitch/rhythm/staff calibration measured programmatically from the supplied PNGs — composer/work/movement metadata was not supplied and needs confirming.",
+    "notes": "Manually authored Mastering variant supplied by the user (folder: Desktop/new dictations). Missing notes 19-24 of the full 29-note melody (end of bar 5 through bar 6, second half). Pitch/rhythm/staff calibration measured programmatically from the supplied PNGs — composer/work/movement metadata was not supplied and needs confirming. Question/answer images padded 2026-08-15 (question: 2288x171 to 2288x210, 19/20px top/bottom; answer: 2288x186 to 2288x210, 12/12px top/bottom) to match the shared 2048/188 aspect ratio — the original ratios (13.38 and 12.30) were rendering visibly stretched under object-fit:fill. staffTopY/staffStepY recalculated for the new question-image height; slot x values unchanged (width untouched).",
     "composer": "Unknown (source not supplied)",
     "work": "MM027 dictation exercise",
     "movement": "",
     "source": "Local MM Audio Library",
     "rights": "Unknown — confirm before publishing"
+  },
+  {
+    "id": "MM017-F",
+    "sourceQuestionId": "MM017",
+    "manualLevelVariant": true,
+    "level": "Foundation",
+    "file": "questions/mm017/MM017-audio.mp3",
+    "questionImage": "questions/mm017/mm017-foundation-question.png",
+    "answerImage": "questions/mm017/mm017-answer.png",
+    "mode": "dictation",
+    "difficulty": "easy",
+    "skill": "Melodic Dictation",
+    "question": "Complete the 3 missing notes.",
+    "answerPitches": ["E5", "E5", "D5"],
+    "noteImage": "assets/icons/notes/crotchet-sibelius.png",
+    "noteImageFallback": "assets/icons/notes/crotchet-sibelius.png",
+    "dictationLayout": {
+      "topLinePitch": "F5",
+      "staffTopY": 31.068,
+      "staffStepY": 5.0971,
+      "homeY": 2,
+      "snapToleranceY": 10,
+      "noteWidthPercent": 3.95,
+      "noteHeightPercent": 47,
+      "noteStretchX": 1.95,
+      "noteCountLabel": "2 crotchets, 1 minim",
+      "staffPitches": ["G5", "F5", "E5", "D5", "C5", "B4", "A4", "G4", "F4", "E4", "D4", "C4"],
+      "slots": [
+        { "x": 58.43, "pitch": "E5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet" },
+        { "x": 63.38, "pitch": "E5", "icon": "assets/icons/notes/minim-sibelius.png", "rhythm": "minim" },
+        { "x": 69.54, "pitch": "D5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet" }
+      ]
+    },
+    "markScheme": { "pitchMarks": 3, "shapeMarks": 1 },
+    "notes": "Manually authored Foundation variant supplied by the user (folder: Desktop/saturday questions). Missing notes are a crotchet E5, minim E5, and crotchet D5, preceded by a crotchet C5 and followed by a crotchet A4 (both printed as score context, not draggable). Pitch and staff calibration measured programmatically from the supplied answer PNG (originally 2242x160px, staff lines at y=41/62/83/104/125, 21px apart) — octaves were not supplied by the user and were derived from the score image, cross-checked against the given preceding-C/following-A landmarks. Canvas was then padded to 2242x206px (23px white top/bottom, staff lines now at y=64/85/106/127/148) to match the 2048/188 aspect ratio every other MM dictation image and .score-image-frame's CSS assume — the original 2242x160 canvas was a materially different ratio (14.01 vs 10.89) and was rendering visibly vertically stretched under the shared object-fit:fill rule.",
+    "composer": "Felix Mendelssohn",
+    "work": "Symphony No. 3 in A minor, Op. 56 \"Scottish\"",
+    "movement": "I. Andante con moto",
+    "source": "Musopen",
+    "rights": "PDM 1.0"
+  },
+  {
+    "id": "MM017-M",
+    "sourceQuestionId": "MM017",
+    "manualLevelVariant": true,
+    "level": "Mastering",
+    "file": "questions/mm017/MM017-audio.mp3",
+    "questionImage": "questions/mm017/mm017-mastering-question.png",
+    "answerImage": "questions/mm017/mm017-answer.png",
+    "mode": "dictation",
+    "difficulty": "hard",
+    "skill": "Melodic Dictation",
+    "question": "Complete the 6 missing notes.",
+    "answerPitches": ["E5", "E5", "D5", "A4", "C5", "B4"],
+    "noteImage": "assets/icons/notes/crotchet-sibelius.png",
+    "noteImageFallback": "assets/icons/notes/crotchet-sibelius.png",
+    "dictationLayout": {
+      "topLinePitch": "F5",
+      "staffTopY": 31.068,
+      "staffStepY": 5.0971,
+      "homeY": 2,
+      "snapToleranceY": 10,
+      "noteWidthPercent": 3.95,
+      "noteHeightPercent": 47,
+      "noteStretchX": 1.95,
+      "noteCountLabel": "4 crotchets, 1 minim, 1 dotted quaver",
+      "staffPitches": ["G5", "F5", "E5", "D5", "C5", "B4", "A4", "G4", "F4", "E4", "D4", "C4"],
+      "slots": [
+        { "x": 58.43, "pitch": "E5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet" },
+        { "x": 63.38, "pitch": "E5", "icon": "assets/icons/notes/minim-sibelius.png", "rhythm": "minim" },
+        { "x": 69.54, "pitch": "D5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet" },
+        { "x": 74.58, "pitch": "A4", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet" },
+        { "x": 78.19, "pitch": "C5", "icon": "assets/icons/notes/crotchet-sibelius.png", "rhythm": "crotchet" },
+        { "x": 81.80, "pitch": "B4", "icon": "assets/icons/notes/dottedquaver-sibelius.png", "rhythm": "dotted quaver" }
+      ]
+    },
+    "markScheme": { "pitchMarks": 6, "shapeMarks": 1 },
+    "notes": "Manually authored Mastering variant supplied by the user (folder: Desktop/saturday questions). Missing notes are crotchet E5, minim E5, crotchet D5, crotchet A4, crotchet C5, and dotted-quaver B4, preceded by a crotchet C5 and followed by a crotchet A4 (both printed as score context, not draggable). Pitch and staff calibration measured programmatically from the supplied answer PNG (originally 2242x160px, staff lines at y=41/62/83/104/125, 21px apart) — octaves were not supplied by the user and were derived from the score image, cross-checked against the given preceding-C/following-A landmarks. Canvas was then padded to 2242x206px (23px white top/bottom, staff lines now at y=64/85/106/127/148) to match the 2048/188 aspect ratio every other MM dictation image and .score-image-frame's CSS assume — the original 2242x160 canvas was a materially different ratio (14.01 vs 10.89) and was rendering visibly vertically stretched under the shared object-fit:fill rule.",
+    "composer": "Felix Mendelssohn",
+    "work": "Symphony No. 3 in A minor, Op. 56 \"Scottish\"",
+    "movement": "I. Andante con moto",
+    "source": "Musopen",
+    "rights": "PDM 1.0"
   }
 ];
 

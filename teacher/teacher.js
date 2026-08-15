@@ -37,17 +37,27 @@ const els = {
   classResultsHeading: document.getElementById('classResultsHeading'),
   quizLengthSettingsSection: document.getElementById('quizLengthSettingsSection'),
   playLimitSettingsSection: document.getElementById('playLimitSettingsSection'),
-  finalLeaderboardTitle: document.getElementById('finalLeaderboardTitle')
+  finalLeaderboardTitle: document.getElementById('finalLeaderboardTitle'),
+  questionSetSummary: document.getElementById('questionSetSummary')
 };
 
 const launchParams = new URLSearchParams(window.location.search);
+const requestedRoomCode = String(launchParams.get('roomCode') || launchParams.get('room') || '').trim().toUpperCase();
 const requestedLaunchModuleId = String(launchParams.get('module') || '').trim();
 const DASHBOARD_LAUNCH_MODULE_IDS = new Set([
   'instrument-identifier',
   'melody-master',
   'melodic-intervals',
   'mixed',
-  'exam-lab'
+  'exam-lab',
+  'texture-trainer',
+  'meter-master',
+  'cadence-coach',
+  'musical-language',
+  'ensemble-recognition',
+  'key-signature-sprint',
+  'chord-identifier',
+  'era-explorer'
 ]);
 const QUESTION_LEVEL_LABELS = {
   all: 'All levels',
@@ -56,7 +66,7 @@ const QUESTION_LEVEL_LABELS = {
   securing: 'Securing',
   mastering: 'Mastering'
 };
-const DEFAULT_MIXED_MODULE_IDS = ['instrument-identifier', 'melodic-intervals'];
+const DEFAULT_MIXED_MODULE_IDS = ['instrument-identifier', 'ensemble-recognition', 'melodic-intervals', 'texture-trainer', 'meter-master', 'cadence-coach', 'musical-language', 'key-signature-sprint', 'melody-master'];
 
 function normaliseQuestionLevel(value) {
   const level = String(value || '').trim().toLowerCase();
@@ -88,7 +98,8 @@ const dashboardLaunch = {
   quizLength: numberFromParam('quizLength', 3, [1, 3, 5, 10, 15]),
   maxListens: numberFromParam('maxListens', 4, [1, 2, 3, 4, 5, 6, 7, 8]),
   mixedModuleIds: parseMixedModuleIds(launchParams.get('mixedModules')),
-  classId: String(launchParams.get('classId') || '').trim()
+  classId: String(launchParams.get('classId') || '').trim(),
+  questionSetDraftId: String(launchParams.get('questionSetDraft') || '').trim()
 };
 
 if (dashboardLaunch.enabled) {
@@ -118,10 +129,13 @@ const TEACHER_MODULE_CATALOG = [
   { id: 'melodic-intervals', title: 'Melodic Intervals', shortLabel: 'MI', active: true, status: 'Live', showInSelector: false, parentModule: 'melody-master' },
   { id: 'mixed', title: 'Mixed Apps', shortLabel: 'MIX', active: true, status: 'Live', iconPath: '/assets/icons/dashboard/progress-mode.png' },
   { id: 'exam-lab', title: 'Exam Lab', shortLabel: 'EL', active: true, status: 'Live', iconPath: '/assets/icons/modules/exam-lab.png' },
-  { id: 'cadence-coach', title: 'Cadence Coach', shortLabel: 'CC', active: false, status: 'Coming Soon' },
+  { id: 'cadence-coach', title: 'Cadence Coach', shortLabel: 'CC', active: true, status: 'Live' },
   { id: 'context-coach', title: 'ContextCoach', shortLabel: 'CX', active: false, status: 'Coming Soon', iconPath: '/assets/icons/modules/context-coach.png' },
-  { id: 'texture-trainer', title: 'Texture Trainer', shortLabel: 'TT', active: false, status: 'Coming Soon' },
-  { id: 'meter-master', title: 'Meter Master', shortLabel: 'MT', active: false, status: 'Coming Soon' },
+  { id: 'texture-trainer', title: 'Texture Trainer', shortLabel: 'TT', active: true, status: 'Live' },
+  { id: 'meter-master', title: 'Meter Master', shortLabel: 'MT', active: true, status: 'Live' },
+  { id: 'musical-language', title: 'ScoreDecoder Vocabulary', shortLabel: 'SD', active: true, status: 'Live', iconPath: '/modules/musical-language/assets/score-decoder-icon.png' },
+  { id: 'ensemble-recognition', title: 'Ensemble Recognition', shortLabel: 'ER', active: true, status: 'Live', iconPath: '/assets/icons/modules/instrument-identifier.png' },
+  { id: 'key-signature-sprint', title: 'Key Signature Sprint', shortLabel: 'KS', active: true, status: 'Live', iconPath: '/assets/icons/modules/harmony-explorer.png' },
   { id: 'harmony-explorer', title: 'Harmony Explorer', shortLabel: 'HX', active: false, status: 'Coming Soon' }
 ];
 
@@ -175,7 +189,7 @@ function setConnectedUI(isConnected) {
 }
 
 async function api(path, body = null, method = body ? 'POST' : 'GET') {
-  const options = { method, headers: { Accept: 'application/json' } };
+  const options = { method, credentials: 'include', headers: { Accept: 'application/json' } };
   if (body) {
     options.headers['Content-Type'] = 'application/json';
     options.body = JSON.stringify(body);
@@ -203,12 +217,20 @@ function resolveAudioPath(question = {}) {
   if (moduleId === 'texture-trainer') return `/modules/texture-trainer/${cleanPath}`;
   if (moduleId === 'melody-master') return `/modules/melody-master/${cleanPath}`;
   if (moduleId === 'melodic-intervals') return `/modules/melodic-intervals/${cleanPath}`;
+  if (moduleId === 'cadence-coach') return `/modules/cadence-coach/${cleanPath}`;
+  if (moduleId === 'meter-master') return `/modules/meter-master/${cleanPath}`;
+  if (moduleId === 'musical-language') return `/modules/musical-language/${cleanPath}`;
+  if (moduleId === 'ensemble-recognition') return `/modules/ensemble-recognition/${cleanPath}`;
   return cleanPath;
 }
 
 function resolveAudioSequence(question = {}) {
   const sequence = Array.isArray(question.audioSequence) ? question.audioSequence : [];
   return sequence.map((item) => resolveAudioPath({ ...question, audio: item, file: item })).filter(Boolean);
+}
+
+function questionHasAudio(question = currentState?.question) {
+  return Boolean(resolveAudioPath(question || {}) || resolveAudioSequence(question || {}).length);
 }
 
 function playAudioFileOnce(url) {
@@ -503,6 +525,13 @@ function updatePrimaryButton(state = currentState) {
     return;
   }
 
+
+  if (!questionHasAudio(state?.question)) {
+    primaryAction = quiz.current >= quiz.total ? 'finish' : 'next';
+    els.primaryQuizButton.textContent = quiz.current >= quiz.total ? 'Finish Quiz' : 'Next Question';
+    return;
+  }
+
   if (isTeacherAudioPlaying) {
     primaryAction = 'playing';
     els.primaryQuizButton.disabled = true;
@@ -561,6 +590,35 @@ function updateSessionCard(payload) {
   els.joinLink.value = payload.shortJoinUrl || payload.laptopJoinUrl || payload.joinUrl || 'Create a session first';
   els.copyLinkButton.disabled = false;
   setNotice(dashboardLaunch.enabled || payload.moduleId === 'exam-lab' ? 'Session created. Settings are being applied…' : 'Select Settings', 'good');
+}
+
+function renderQuestionSetSummary(state = currentState) {
+  if (!els.questionSetSummary) return;
+  const questionSet = state?.questionSet;
+  if (!questionSet?.spec || !questionSet?.preview) {
+    els.questionSetSummary.hidden = true;
+    els.questionSetSummary.innerHTML = '';
+    return;
+  }
+  const purposeLabels = {
+    starter: 'Starter',
+    main: 'Main activity',
+    plenary: 'Plenary',
+    diagnostic: 'Diagnostic',
+    exam: 'Exam practice',
+    custom: 'Custom set'
+  };
+  const strategyLabels = {
+    'class-priorities': 'Class priorities',
+    balanced: 'Balanced mixed',
+    random: 'Random',
+    'skill-focus': 'Skill focus',
+    'app-focus': 'App focus',
+    'teacher-picked': 'Teacher-picked'
+  };
+  const modulesLabel = Object.keys(questionSet.preview.modules || {}).join(', ');
+  els.questionSetSummary.innerHTML = `<strong>${escapeHTML(purposeLabels[questionSet.spec.purpose] || 'Planned set')}</strong> · ${escapeHTML(strategyLabels[questionSet.spec.strategy] || questionSet.spec.strategy)} · ${Number(questionSet.questionCount || questionSet.preview.questionCount || 0)} questions${modulesLabel ? ` · ${escapeHTML(modulesLabel)}` : ''}`;
+  els.questionSetSummary.hidden = false;
 }
 
 function classroomSettingsPayload() {
@@ -841,6 +899,7 @@ function renderState(state) {
   }
 
   updateExamLabPresentation(state);
+  renderQuestionSetSummary(state);
 
   renderQuestionInfo(state);
   if (state.quiz && state.quiz.ended && !state.dismissed) showFinalLeaderboard(state);
@@ -880,7 +939,8 @@ async function createSession() {
     const payload = {
       moduleId: sessionModuleId,
       questionLevel: quizSettings.questionLevel,
-      classId: sessionModuleId === 'exam-lab' ? dashboardLaunch.classId : '',
+      classId: dashboardLaunch.classId,
+      questionSetDraftId: dashboardLaunch.questionSetDraftId,
       frontendBase: window.EchoAuralClassroom.getFrontendBase(),
       apiBase: window.EchoAuralClassroom.getApiBase()
     };
@@ -921,7 +981,7 @@ async function startQuiz() {
     const response = await api('/api/classroom/start', payload);
     renderState(response.state);
     updateTeacherStatus(response.state);
-    await playExcerpt({ leadInSeconds: selectedModuleId === 'melody-master' ? 2 : 1 });
+    if (questionHasAudio(response.state?.question)) await playExcerpt({ leadInSeconds: selectedModuleId === 'melody-master' ? 2 : 1 });
   } catch (error) {
     setNotice(error.message || 'Could not start the quiz.', 'bad');
   }
@@ -935,7 +995,7 @@ async function nextQuestion() {
     const response = await api('/api/classroom/next', { roomCode });
     renderState(response.state);
     updateTeacherStatus(response.state);
-    await playExcerpt({ leadInSeconds: selectedModuleId === 'melody-master' ? 2 : 1 });
+    if (questionHasAudio(response.state?.question)) await playExcerpt({ leadInSeconds: selectedModuleId === 'melody-master' ? 2 : 1 });
   } catch (error) {
     setNotice(error.message || 'Could not start the next question.', 'bad');
   }
@@ -1046,6 +1106,14 @@ async function checkServer() {
     renderModuleSelector();
     updateSettingsSummary();
     setConnectedUI(true);
+    if (requestedRoomCode && !roomCode) {
+      roomCode = requestedRoomCode;
+      els.roomCode.textContent = roomCode;
+      els.sessionCard.classList.remove('is-muted');
+      await refreshState();
+      startPolling();
+      return;
+    }
     setNotice(dashboardLaunch.enabled ? 'Dashboard setup loaded.' : 'Create a Class Session', 'good');
     await maybeAutoCreateDashboardSession();
   } catch (_error) {

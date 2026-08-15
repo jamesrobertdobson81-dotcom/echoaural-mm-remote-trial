@@ -32,6 +32,10 @@
   let correctCount = 0;
   let streak = 0;
   let xp = 0;
+  // True once a Live Session host has loaded its first question through the
+  // contract (see loadQuestionById below) — distinguishes "boot the round"
+  // from "load another question into an already-running round."
+  let contractSessionStarted = false;
 
   function shuffled(items) {
     const result = items.slice();
@@ -103,6 +107,7 @@
   function showQuestion() {
     question = deck[questionIndex];
     answered = false;
+    window.EAProgressEmbed?.questionReady({ id: question.id });
     els.panel.classList.remove("is-ready", "is-complete");
     els.panel.classList.add("is-active");
     els.playState.hidden = false;
@@ -121,8 +126,15 @@
     window.setTimeout(playExcerpt, 180);
   }
 
-  function startRound() {
+  function startRound(options = {}) {
     deck = buildDeck();
+    // Live Session host handed us a specific question via the contract
+    // (see loadQuestionById below) — pin it to the front so the existing
+    // showQuestion()/nextQuestion() flow picks it up completely unchanged.
+    if (options.forcedQuestion) {
+      deck = deck.filter((item) => item !== options.forcedQuestion);
+      deck.unshift(options.forcedQuestion);
+    }
     questionIndex = 0;
     correctCount = 0;
     streak = 0;
@@ -132,6 +144,38 @@
     els.xpText.textContent = "XP: 0";
     showQuestion();
   }
+
+  // Live Sessions entry point: a teacher (via the classroom server) has
+  // picked an exact question and the host wants this exact question
+  // rendered, not whatever buildDeck() would have drawn next. Reuses
+  // startRound()/showQuestion() completely unchanged (see the
+  // forcedQuestion handling above), so this app's real UI, audio and
+  // scoring are exactly what a student sees in normal practice, just
+  // pointed at a specific question instead of a random deck draw.
+  function loadQuestionById(rawId) {
+    const id = String(rawId || "").trim();
+    if (!id) return false;
+    const target = questions.find((item) => item.id === id);
+    if (!target) {
+      window.EAProgressEmbed?.poolEmpty({ reason: "unknown-question-id", questionId: id });
+      return false;
+    }
+
+    if (!contractSessionStarted) {
+      contractSessionStarted = true;
+      startRound({ forcedQuestion: target });
+    } else {
+      deck = deck.filter((item) => item !== target);
+      deck.unshift(target);
+      questionIndex = 0;
+      showQuestion();
+    }
+    return true;
+  }
+
+  window.EAProgressEmbed?.registerQuestionHandler((payload) => {
+    loadQuestionById(payload && (payload.questionId || payload.id));
+  });
 
   function nextQuestion() {
     questionIndex += 1;
@@ -182,6 +226,16 @@
     const cadenceArticle = /^[aeiou]/i.test(question.answer) ? "an" : "a";
     els.answerCard.innerHTML = `<div class="cadence-feedback-card"><p class="${correct ? "good" : "bad"}">${correct ? "Correct" : "Not quite"}</p><div class="cadence-feedback-answer">${question.answer} cadence</div><p>The final harmony forms ${cadenceArticle} ${question.answer.toLowerCase()} cadence in ${question.key}.</p></div>`;
     els.replay.textContent = "Next Question";
+    window.EAProgressEmbed?.answerComplete({
+      questionId: question.id,
+      score: correct ? 1 : 0,
+      maximumScore: 1,
+      correct,
+      responseType: useTypedAnswer() ? "typed" : "multiple-choice",
+      answerData: value,
+      modelAnswer: question.answer,
+      feedback: els.feedback.textContent
+    });
     els.replay.focus();
   }
 

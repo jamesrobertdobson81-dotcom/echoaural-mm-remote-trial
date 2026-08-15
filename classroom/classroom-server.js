@@ -4,9 +4,10 @@ const vm = require('vm');
 const os = require('os');
 const crypto = require('crypto');
 const { RoomManager, DEFAULT_MAX_LISTENS } = require('./room-manager');
-const { getTeacherSession, getStudentSession } = require('../accounts/account-server');
+const { getTeacherSession, getStudentSession, buildCanonicalSkillEvidence } = require('../accounts/account-server');
 const { getPool } = require('../db/pool');
 const { saveTeacherModeProgress } = require('./progress-recorder');
+const { buildQuestionSet } = require('./question-set-builder');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -40,6 +41,26 @@ function normalizePublicBaseUrl(value) {
   if (!raw) return '';
   if (!/^https?:\/\//i.test(raw)) return '';
   return raw;
+}
+
+function allowedClassroomOrigin(origin) {
+  const value = String(origin || '').trim().replace(/\/+$/, '');
+  if (!value) return '';
+  const configured = String(process.env.ACCOUNT_ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((item) => item.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
+  const allowed = new Set([
+    'https://echoaural.com',
+    'https://www.echoaural.com',
+    String(process.env.PUBLIC_SITE_URL || '').trim().replace(/\/+$/, ''),
+    String(process.env.APP_BASE_URL || '').trim().replace(/\/+$/, ''),
+    ...configured
+  ].filter(Boolean));
+  if (allowed.has(value)) return value;
+  if (/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/i.test(value)) return value;
+  if (/^http:\/\/(?:10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[0-1])\.\d+\.\d+)(?::\d+)?$/i.test(value)) return value;
+  return '';
 }
 
 function createBaseUrlResolver({ port }) {
@@ -169,11 +190,18 @@ function createAdapters(projectRoot) {
   const instrumentAdapter = require(path.join(projectRoot, 'modules', 'instrument-identifier', 'teacher-adapter.js'))(context);
   const textureAdapter = require(path.join(projectRoot, 'modules', 'texture-trainer', 'teacher-adapter.js'))(context);
   const melodicIntervalsAdapter = require(path.join(projectRoot, 'modules', 'melodic-intervals', 'teacher-adapter.js'))(context);
+  const cadenceAdapter = require(path.join(projectRoot, 'modules', 'cadence-coach', 'teacher-adapter.js'))(context);
+  const meterAdapter = require(path.join(projectRoot, 'modules', 'meter-master', 'teacher-adapter.js'))(context);
+  const musicalLanguageAdapter = require(path.join(projectRoot, 'modules', 'musical-language', 'teacher-adapter.js'))(context);
+  const ensembleAdapter = require(path.join(projectRoot, 'modules', 'ensemble-recognition', 'teacher-adapter.js'))(context);
+  const keySignatureAdapter = require(path.join(projectRoot, 'modules', 'harmony-explorer', 'key-signature-sprint', 'teacher-adapter.js'))(context);
+  const chordIdentifierAdapter = require(path.join(projectRoot, 'modules', 'chord-identifier', 'teacher-adapter.js'))(context);
+  const contextCoachAdapter = require(path.join(projectRoot, 'era-explorer', 'teacher-adapter.js'))(context);
   const examLabAdapter = require(path.join(projectRoot, 'modules', 'exam-lab', 'teacher-adapter.js'))({
     ...context,
     moduleDir: path.join(projectRoot, 'modules', 'exam-lab')
   });
-  return [melodyAdapter, instrumentAdapter, textureAdapter, melodicIntervalsAdapter, examLabAdapter];
+  return [melodyAdapter, instrumentAdapter, textureAdapter, melodicIntervalsAdapter, ensembleAdapter, cadenceAdapter, meterAdapter, musicalLanguageAdapter, keySignatureAdapter, chordIdentifierAdapter, contextCoachAdapter, examLabAdapter];
 }
 
 function sendJson(res, statusCode, payload) {
@@ -181,7 +209,8 @@ function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
-    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin') || '*',
+    ...(res.getHeader('Access-Control-Allow-Credentials') ? { 'Access-Control-Allow-Credentials': 'true' } : {})
   });
   res.end(body);
   return true;
@@ -222,6 +251,10 @@ function resolveQuestionAudioForBrowser(room, audioPath = '') {
   if (moduleId === 'instrument-identifier') return `/modules/instrument-identifier/${raw.replace(/^\.\//, '')}`;
   if (moduleId === 'texture-trainer') return `/modules/texture-trainer/${raw.replace(/^\.\//, '')}`;
   if (moduleId === 'melodic-intervals') return `/modules/melodic-intervals/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'cadence-coach') return `/modules/cadence-coach/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'meter-master') return `/modules/meter-master/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'musical-language') return `/modules/musical-language/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'ensemble-recognition') return `/modules/ensemble-recognition/${raw.replace(/^\.\//, '')}`;
   if (moduleId === 'exam-lab') return `/modules/exam-lab/${raw.replace(/^\.\//, '')}`;
 
   return raw;
@@ -297,6 +330,14 @@ function createClassroomServer(options = {}) {
     adapters: createAdapters(projectRoot),
     defaultModuleId: 'melody-master'
   });
+  const questionSetDrafts = new Map();
+  const QUESTION_SET_DRAFT_TTL_MS = 30 * 60 * 1000;
+
+  function cleanupQuestionSetDrafts(now = Date.now()) {
+    for (const [draftId, draft] of questionSetDrafts.entries()) {
+      if (now - Number(draft.createdAt || 0) > QUESTION_SET_DRAFT_TTL_MS) questionSetDrafts.delete(draftId);
+    }
+  }
 
   function activeAccountSession(session) {
     if (!session || !['trial', 'active'].includes(session.licence_status)) return false;
@@ -341,14 +382,14 @@ function createClassroomServer(options = {}) {
   }
 
   async function requireExamLabTeacher(req, res, room) {
-    if (!isExamLabRoom(room)) return true;
+    if (!isExamLabRoom(room) && !room?.ownerTeacherId) return true;
     const teacher = await optionalTeacherSession(req);
     if (!teacher) {
-      sendJson(res, 401, { ok: false, error: 'Teacher login required for Exam Lab.' });
+      sendJson(res, 401, { ok: false, error: 'Teacher login required for this classroom.' });
       return false;
     }
     if (!room.ownerTeacherId || String(room.ownerTeacherId) !== String(teacher.id)) {
-      sendJson(res, 403, { ok: false, error: 'This Exam Lab room belongs to another teacher.' });
+      sendJson(res, 403, { ok: false, error: 'This classroom belongs to another teacher.' });
       return false;
     }
     return true;
@@ -395,6 +436,85 @@ function createClassroomServer(options = {}) {
       throw error;
     }
     return result.rows[0];
+  }
+
+  async function loadClassQuestionEvidence(teacher, classId = '') {
+    if (!teacher) return { skills: [], recentQuestionIds: [], studentCount: 0 };
+    const selectedClass = classId ? await resolveOwnedClass(teacher, classId) : null;
+    const values = [teacher.id];
+    const classClause = selectedClass ? 'AND s.class_id = $2' : '';
+    if (selectedClass) values.push(selectedClass.id);
+    const progressModeEvidenceQuery = getPool().query(`
+        SELECT pms.areas
+        FROM progress_mode_summaries pms
+        JOIN students s ON s.id = pms.student_id
+        WHERE s.teacher_id = $1 AND s.active = TRUE ${classClause}
+      `, values).catch((error) => {
+        // Older classroom databases may not have received the additive
+        // Progress Mode mirror migration yet. Class-priority rounds can still
+        // use attempts and class membership without that optional evidence.
+        if (error?.code === '42P01') return { rows: [] };
+        throw error;
+      });
+    const [attemptResult, studentResult, progressModeResult] = await Promise.all([
+      getPool().query(`
+        SELECT a.student_id, a.question_id, a.module_id, a.score, a.maximum_score, a.answer_data, a.completed_at
+        FROM attempts a
+        JOIN students s ON s.id = a.student_id
+        WHERE a.teacher_id = $1
+          AND s.active = TRUE
+          ${classClause}
+        ORDER BY a.completed_at DESC
+        LIMIT 2000
+      `, values),
+      getPool().query(`
+        SELECT COUNT(*)::int AS count
+        FROM students s
+        WHERE s.teacher_id = $1 AND s.active = TRUE ${classClause}
+      `, values),
+      progressModeEvidenceQuery
+    ]);
+    const attempts = attemptResult.rows;
+    const aggregateSkills = buildCanonicalSkillEvidence(attempts);
+    const attemptsByStudent = new Map();
+    attempts.forEach((attempt) => {
+      const studentId = String(attempt.student_id || '');
+      if (!attemptsByStudent.has(studentId)) attemptsByStudent.set(studentId, []);
+      attemptsByStudent.get(studentId).push(attempt);
+    });
+    const studentSkillPercentages = new Map();
+    attemptsByStudent.forEach((studentAttempts) => {
+      buildCanonicalSkillEvidence(studentAttempts).forEach((skill) => {
+        if (!studentSkillPercentages.has(skill.skillCode)) studentSkillPercentages.set(skill.skillCode, []);
+        studentSkillPercentages.get(skill.skillCode).push(skill.percentage);
+      });
+    });
+    const skills = aggregateSkills.map((skill) => {
+      const values = (studentSkillPercentages.get(skill.skillCode) || []).slice().sort((left, right) => left - right);
+      if (!values.length) return skill;
+      const median = values[Math.floor((values.length - 1) / 2)];
+      const lowerQuartile = values[Math.floor((values.length - 1) * 0.25)];
+      return {
+        ...skill,
+        aggregatePercentage: skill.percentage,
+        medianPercentage: median,
+        lowerQuartilePercentage: lowerQuartile,
+        percentage: Math.round((median * 0.6) + (lowerQuartile * 0.4)),
+        participatingStudents: values.length
+      };
+    });
+    const progressModeAreas = progressModeResult.rows.flatMap((row) => Array.isArray(row.areas) ? row.areas : []);
+    const areaLevels = progressModeAreas.map((area) => Number(area.level)).filter((level) => Number.isInteger(level) && level >= 0 && level <= 3).sort((left, right) => left - right);
+    const recommendedLevel = areaLevels.length
+      ? ['foundation', 'developing', 'securing', 'mastering'][areaLevels[Math.floor((areaLevels.length - 1) / 2)]]
+      : '';
+    return {
+      skills,
+      recentQuestionIds: Array.from(new Set(attempts.slice(0, 120).map((attempt) => String(attempt.question_id || '')).filter(Boolean))),
+      studentCount: Number(studentResult.rows[0]?.count || 0),
+      progressModeAreas,
+      recommendedLevel
+    };
   }
 
   async function serveExamLabAsset(req, res, room, kind) {
@@ -447,10 +567,17 @@ function createClassroomServer(options = {}) {
   async function handleApi(req, res, parsedUrl) {
     try {
       const pathname = parsedUrl.pathname;
+      const requestOrigin = allowedClassroomOrigin(req.headers.origin);
+      if (requestOrigin) {
+        res.setHeader('Access-Control-Allow-Origin', requestOrigin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Vary', 'Origin');
+      }
 
       if (req.method === 'OPTIONS') {
         res.writeHead(204, {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin') || '*',
+          ...(res.getHeader('Access-Control-Allow-Credentials') ? { 'Access-Control-Allow-Credentials': 'true' } : {}),
           'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type'
         });
@@ -474,6 +601,37 @@ function createClassroomServer(options = {}) {
         return sendJson(res, 200, {
           ok: true,
           modules: roomManager.getModules()
+        });
+      }
+
+      if (req.method === 'POST' && pathname === '/api/classroom/question-set/preview') {
+        const teacher = await optionalTeacherSession(req);
+        if (!teacher) return sendJson(res, 401, { ok: false, error: 'Teacher login required to plan a class question set.' });
+        const body = await readJsonBody(req);
+        const spec = body.spec && typeof body.spec === 'object' ? body.spec : {};
+        const evidence = await loadClassQuestionEvidence(teacher, spec.classId);
+        const questionSet = buildQuestionSet(roomManager.questionCatalogue, {
+          ...spec,
+          recentQuestionIds: spec.avoidRecent === false ? [] : evidence.recentQuestionIds
+        }, evidence);
+        questionSet.spec.recentQuestionIds = [];
+        if (!questionSet.questionPlan.length) {
+          return sendJson(res, 400, { ok: false, error: 'No live-compatible questions matched those filters.', preview: questionSet.preview });
+        }
+        cleanupQuestionSetDrafts();
+        const draftId = crypto.randomBytes(18).toString('base64url');
+        questionSetDrafts.set(draftId, {
+          teacherId: teacher.id,
+          createdAt: Date.now(),
+          classId: questionSet.spec.classId,
+          questionSet
+        });
+        return sendJson(res, 200, {
+          ok: true,
+          draftId,
+          preview: questionSet.preview,
+          spec: questionSet.spec,
+          questionPlan: questionSet.questionPlan
         });
       }
 
@@ -510,17 +668,29 @@ function createClassroomServer(options = {}) {
           || normalizePublicBaseUrl(process.env.PUBLIC_API_URL);
 
         const teacherAccount = await optionalTeacherSession(req);
-        const requestedModuleId = requestedClassroomModule(body, 'melody-master');
+        cleanupQuestionSetDrafts();
+        const draftId = String(body.questionSetDraftId || '').trim();
+        const draft = draftId ? questionSetDrafts.get(draftId) : null;
+        if (draftId && (!draft || !teacherAccount || String(draft.teacherId) !== String(teacherAccount.id))) {
+          return sendJson(res, 403, { ok: false, error: 'That planned question set has expired or belongs to another teacher.' });
+        }
+        const plannedModules = draft
+          ? Array.from(new Set(draft.questionSet.questionPlan.map((item) => item.moduleId)))
+          : [];
+        const requestedModuleId = draft
+          ? (plannedModules.length > 1 ? 'mixed' : plannedModules[0])
+          : requestedClassroomModule(body, 'melody-master');
         if (requestedModuleId === 'exam-lab' && !teacherAccount) {
           return sendJson(res, 401, { ok: false, error: 'Teacher login required to start Exam Lab.' });
         }
-        const selectedClass = requestedModuleId === 'exam-lab'
-          ? await resolveOwnedClass(teacherAccount, body.classId)
+        const requestedClassId = draft?.classId || body.classId;
+        const selectedClass = teacherAccount && requestedClassId
+          ? await resolveOwnedClass(teacherAccount, requestedClassId)
           : null;
         const room = roomManager.createRoom({
           moduleId: requestedModuleId,
           questionLevel: body.questionLevel,
-          mixedModuleIds: body.mixedModuleIds,
+          mixedModuleIds: plannedModules.length > 1 ? plannedModules : body.mixedModuleIds,
           baseUrl: frontendBase,
           apiBase,
           ownerTeacherId: teacherAccount?.id || null,
@@ -528,6 +698,7 @@ function createClassroomServer(options = {}) {
           classId: selectedClass?.id || null,
           className: selectedClass?.class_name || ''
         });
+        if (draft) roomManager.setQuestionSet(room, draft.questionSet);
 
         return sendJson(res, 200, {
           ok: true,
@@ -538,6 +709,7 @@ function createClassroomServer(options = {}) {
           shortJoinUrl: room.shortJoinUrl,
           laptopJoinUrl: room.laptopJoinUrl,
           studentShellUrl: room.studentShellUrl,
+          questionSet: room.questionSetSpec ? { spec: room.questionSetSpec, preview: room.questionSetPreview } : null,
           state: roomManager.createRoomState(room)
         });
       }
@@ -765,14 +937,14 @@ function createClassroomServer(options = {}) {
         if (!room) return sendJson(res, 404, { ok: false, error: 'Invalid room code. Check the teacher screen.' });
 
         const accountStudent = await optionalStudentSession(req);
-        if (isExamLabRoom(room) && !accountStudent) {
-          return sendJson(res, 401, { ok: false, error: 'Sign in with your EchoAural student account before joining Exam Lab.' });
+        if ((isExamLabRoom(room) || room.classId) && !accountStudent) {
+          return sendJson(res, 401, { ok: false, error: 'Sign in with your EchoAural student account before joining this class session.' });
         }
         if (accountStudent && room.ownerTeacherId && room.ownerTeacherId !== accountStudent.teacher_id) {
           return sendJson(res, 403, { ok: false, error: 'This classroom belongs to a different teacher account.' });
         }
-        if (isExamLabRoom(room) && room.classId && String(accountStudent.class_id || '') !== String(room.classId)) {
-          return sendJson(res, 403, { ok: false, error: 'This Exam Lab room is for a different class.' });
+        if (room.classId && String(accountStudent.class_id || '') !== String(room.classId)) {
+          return sendJson(res, 403, { ok: false, error: 'This room is for a different class.' });
         }
 
         const studentId = accountStudent
@@ -838,11 +1010,14 @@ function createClassroomServer(options = {}) {
             state
           });
         } catch (error) {
-          const status = error.code === 'ALREADY_SUBMITTED' || error.code === 'SUBMISSIONS_CLOSED' ? 400 : 404;
+          const status = error.code === 'STALE_QUESTION'
+            ? 409
+            : (error.code === 'ALREADY_SUBMITTED' || error.code === 'SUBMISSIONS_CLOSED' ? 400 : 404);
 
           return sendJson(res, status, {
             ok: false,
             error: error.message,
+            code: error.code || '',
             state: roomManager.createRoomState(room, studentId)
           });
         }

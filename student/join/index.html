@@ -65,6 +65,7 @@
     async function api(path, body = null) {
       const response = await fetch(window.EchoAuralClassroom.buildApiUrl(path), {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(body || {})
       });

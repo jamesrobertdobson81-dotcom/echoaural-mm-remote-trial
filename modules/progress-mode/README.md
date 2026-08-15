@@ -9,10 +9,11 @@ question sourced from its own independently-tracked driver, presented inside
 the same three-panel console layout used across the rest of EchoAural.
 Transposition Dictation is intentionally excluded for now.
 
-**No app file (Instrument Identifier, Melody Master, etc.) is modified,
-imported into, or otherwise made aware Progress Mode exists** — this folder
-can still be deleted with zero impact on any of them. There are two
-deliberate exceptions:
+Each integrated app loads one shared, dormant embed bridge. It does nothing
+during normal standalone play and only reports question/result events when
+Progress Mode supplies an explicit, versioned launch token. Removing Progress
+Mode therefore still leaves standalone app layout, gameplay and progression
+unchanged. There are also two deliberate external dependencies:
 1. The student dashboard (`account/student-home/`), which both links to
    this folder (see "Dashboard entry point" below) AND loads `store.js`,
    `app-drivers.js` and `feedback.js` directly to render Progress Mode's own
@@ -147,12 +148,13 @@ interleaving is a genuine strength worth keeping even in a focused round.
 
 ## How the round mechanics work
 
-Each real app page is loaded, unmodified, inside the `<iframe>`. After it
-loads, `app-drivers.js` reads/checks that app's own setup radios (skill,
-level, question count) from outside via `iframe.contentDocument`, clicks its
-real Start button, then polls the DOM for that app's own "answered" signal
-(disabled answer buttons / next-button state) to detect when the single
-question has been answered and whether it was correct. The iframe is then
+Each real app page is loaded inside the `<iframe>`. After it loads,
+`app-drivers.js` still configures the app's real setup controls so existing
+level selection and question filtering remain unchanged. Once play begins,
+the shared `progress-embed-contract.js` bridge reports stable
+`question-ready` and `answer-complete` events to Progress Mode. The older DOM
+signature/answer polling remains as a compatibility fallback, but it is no
+longer the normal result path. The iframe is then
 reloaded with a fresh `src` for the next round-slot — every slot is a full,
 independent single-question load of a real app page. That raw load/setup
 sequence is masked behind `#frameTransition` (a branded pulsing-wave overlay,
@@ -169,8 +171,9 @@ case (the target app stays on its `.quiz-panel.is-ready` screen instead of
 proceeding) and retry the same source one level up, escalating as far as
 Mastering, before finally giving up and moving to the next queued source.
 
-Once a question is confirmed ready, `checkSignatureThenPoll` checks its
-`getSignature(doc)` fingerprint against that SOURCE's own persistent
+Once a question is confirmed ready, its app-supplied stable ID (or the legacy
+driver fingerprint when running through the fallback) is checked against that
+SOURCE's own persistent
 "already seen" set — not just this round, every round this student has ever
 played — reusing `shared/js/spaced-repetition.js` (`getSeenIds`/`markShown`/
 `resetCycle`), the same utility several other apps already use for their own

@@ -10,6 +10,10 @@ const MODULE_TITLES = {
   'instrument-identifier': 'Instrument Identifier',
   'texture-trainer': 'Texture Trainer',
   'meter-master': 'Meter Master',
+  'cadence-coach': 'Cadence Coach',
+  'musical-language': 'ScoreDecoder Vocabulary',
+  'ensemble-recognition': 'Ensemble Recognition',
+  'key-signature-sprint': 'Key Signature Sprint',
   'exam-lab': 'Exam Lab'
 };
 
@@ -49,6 +53,7 @@ function buildRoundFeedback(score, maximumScore, questionCount) {
 function buildAnswerData(room, rawQuestion, result) {
   const moduleId = result.moduleId || room.questionModuleId || room.moduleId;
   const answerData = {
+    ...cleanJson(result.answerData),
     source: 'teacher_mode',
     roomCode: room.code,
     classroomRoundId: Number(room.roundId || 1),
@@ -69,6 +74,18 @@ function buildAnswerData(room, rawQuestion, result) {
     firstContourError: cleanText(result.firstContourError, 500),
     firstIntervalSizeError: cleanText(result.firstIntervalSizeError, 500)
   };
+
+  // Several modules (melody-master, musical-language, era-explorer) cover
+  // more than one Progress Mode sub-app/area and already tag each question
+  // with the finer sourceKey their own teacher-adapter uses (see e.g.
+  // modules/melody-master/teacher-adapter.js's cachedQuestions mapping) —
+  // carried through here so server-side aggregation (accounts/account-
+  // server.js's buildProgressSummary) can attribute marks to the correct
+  // sub-app/area instead of only the coarser moduleId. No-op for every
+  // other module, whose question objects have no sourceKey at all.
+  if (rawQuestion?.sourceKey) {
+    answerData.sourceKey = cleanText(rawQuestion.sourceKey, 80);
+  }
 
   if (moduleId === 'instrument-identifier') {
     answerData.family = cleanText(rawQuestion?.family, 120);
@@ -249,7 +266,12 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
       moduleId: room.moduleId,
       mixedModuleIds: Array.isArray(room.mixedModuleIds) ? room.mixedModuleIds.slice() : [],
       teacherMode: true,
-      questionLevel: cleanText(room.questionLevel, 80)
+      questionLevel: cleanText(room.questionLevel, 80),
+      questionSetPurpose: cleanText(room.questionSetSpec?.purpose, 80),
+      questionSetStrategy: cleanText(room.questionSetSpec?.strategy, 80),
+      questionSetSeed: cleanText(room.questionSetSpec?.seed, 160),
+      classId: cleanText(room.classId, 120),
+      className: cleanText(room.className, 120)
     },
     clientRoundId: `teacher-mode:${room.code}:${Number(room.roundId || 1)}:${participant.accountStudentId}`
   };

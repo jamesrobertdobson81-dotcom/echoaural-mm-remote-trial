@@ -72,6 +72,8 @@ const COMPOUND_EXPLANATION_CHOICES = [
 
 let sourceQuestions = [];
 let allQuestions = [];
+let questionsReadyPromise = null;
+let pendingHostedQuestion = null;
 let currentIndex = 0;
 let currentQuestion = null;
 let questions = [];
@@ -774,6 +776,16 @@ function submitAnswer() {
     nextButton.textContent = currentIndex >= questions.length - 1 ? "Finish Round" : "Next Question";
   }
   renderAnswerCard(currentQuestion, result);
+  window.EAProgressEmbed?.answerComplete({
+    questionId: currentQuestion.id,
+    score: result.correct ? 1 : 0,
+    maximumScore: 1,
+    correct: result.correct,
+    responseType: "multiple-choice",
+    answerData: result.studentAnswer,
+    modelAnswer: currentQuestion.correctChoice,
+    feedback: result.feedback
+  });
   updateStats();
 }
 
@@ -789,6 +801,8 @@ function loadQuestion(index) {
     updateStats();
     return;
   }
+
+  window.EAProgressEmbed?.questionReady({ id: currentQuestion.id, level: currentQuestion.level });
 
   setQuizVisualState("active");
   questionTitle.textContent = currentQuestion.title;
@@ -1057,9 +1071,22 @@ function goToNextQuestion() {
   else loadQuestion(currentIndex);
 }
 
-function startRound() {
+// True once a Live Session host has loaded its first question through the
+// contract (see loadQuestionById below) — distinguishes "boot the round"
+// from "load another question into an already-running round."
+let contractSessionStarted = false;
+
+function startRound(options = {}) {
   closeRoundFeedbackWindow();
   questions = buildRandomRound(selectedLevel);
+  // Live Session host handed us a specific question via the contract (see
+  // loadQuestionById below) — pin it to the front so the existing
+  // loadQuestion()/goToNextQuestion() flow picks it up completely
+  // unchanged.
+  if (options.forcedQuestion) {
+    questions = questions.filter((question) => question !== options.forcedQuestion);
+    questions.unshift(options.forcedQuestion);
+  }
   currentIndex = 0;
   currentQuestion = null;
   totalMarksAwarded = 0;
@@ -1085,6 +1112,45 @@ function startRound() {
   startButton.hidden = true;
   loadQuestion(0);
 }
+
+// Live Sessions entry point: a teacher (via the classroom server) has
+// picked an exact question and the host wants this exact question
+// rendered, not whatever buildRandomRound() would have drawn next. Reuses
+// startRound()/loadQuestion() completely unchanged (see the forcedQuestion
+// handling above), so this app's real UI, audio and scoring are exactly
+// what a student sees in normal practice, just pointed at a specific
+// question instead of a random round draw.
+function loadQuestionById(rawId) {
+  const id = String(rawId || "").trim();
+  if (!id) return false;
+  const target = allQuestions.find((question) => question.id === id);
+  if (!target) {
+    window.EAProgressEmbed?.poolEmpty({ reason: "unknown-question-id", questionId: id });
+    return false;
+  }
+
+  if (!contractSessionStarted) {
+    contractSessionStarted = true;
+    startRound({ forcedQuestion: target });
+  } else {
+    questions = questions.filter((question) => question !== target);
+    questions.unshift(target);
+    currentIndex = 0;
+    loadQuestion(currentIndex);
+  }
+  return true;
+}
+
+window.EAProgressEmbed?.registerQuestionHandler((payload) => {
+  // The classroom host can send teacher-load-question immediately after
+  // app-ready while the bank fetch is still resolving. Queue it rather than
+  // reporting a false pool-empty result; init drains it after loadQuestions.
+  if (!allQuestions.length) {
+    pendingHostedQuestion = payload || {};
+    return true;
+  }
+  return loadQuestionById(payload && (payload.questionId || payload.id));
+});
 
 async function initialiseProgressionMode() {
   if (!isProgressionMode()) return;
@@ -1235,7 +1301,13 @@ async function init() {
   bindEvents();
 
   try {
-    await loadQuestions();
+    questionsReadyPromise = loadQuestions();
+    await questionsReadyPromise;
+    if (pendingHostedQuestion) {
+      const request = pendingHostedQuestion;
+      pendingHostedQuestion = null;
+      loadQuestionById(request.questionId || request.id);
+    }
     await initialiseProgressionMode();
     questions = buildRandomRound(selectedLevel);
     updateLevelControls();

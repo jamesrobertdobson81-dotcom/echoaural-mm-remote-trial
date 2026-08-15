@@ -6,121 +6,86 @@
   <title>Student Dashboard | EchoAural</title>
   <link rel="stylesheet" href="/account/account.css" />
   <link rel="stylesheet" href="/account/student-home/student-dashboard.css" />
-  <link rel="stylesheet" href="/account/student-home/student-banner-standardised.css" />
   <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
 </head>
-<body class="progress-dashboard-v2 student-dashboard-v2 student-dashboard-v3">
-  <div class="account-shell student-dashboard-shell-v3">
-    <header class="student-dashboard-header-v3">
-      <nav class="student-dashboard-topbar-v3" aria-label="EchoAural student navigation">
-        <a class="account-logo student-dashboard-logo-v3" href="/" aria-label="EchoAural home">
-          <span class="account-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
-          <strong class="account-wordmark"><span class="account-wordmark-echo">Echo</span><span class="account-wordmark-aural">Aural</span></strong>
+<body class="student-dashboard-v3 eahome-v4">
+  <div class="eahome-shell">
+    <aside class="eahome-sidebar">
+      <a class="eahome-logo" href="/" aria-label="EchoAural home">
+        <span class="account-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span>
+      </a>
+
+      <nav class="eahome-nav" aria-label="Student navigation">
+        <a class="eahome-nav-item is-active" href="#eahomeTop" data-dashboard-view="overall">
+          <span class="eahome-nav-icon" aria-hidden="true"><img src="/assets/icons/navigation/home.svg" alt="" /></span>
+          <span>Overall</span>
         </a>
-
-        <div class="student-welcome-v3">
-          <p>Student dashboard</p>
-          <h1>Hello, <span class="gradient" id="studentHeroName">student.</span></h1>
-          <span>Teacher <strong id="studentTeacherName">—</strong> · Code <strong id="studentTeacherCode">—</strong></span>
-        </div>
-
-        <div class="dashboard-nav-actions student-dashboard-actions-v3">
-          <button class="nav-link" id="refreshProgressButton" type="button">Refresh</button>
-          <button class="nav-link" id="studentLogoutButton" type="button">Log out</button>
-        </div>
+        <button class="eahome-nav-item" type="button" data-dashboard-view="progress">
+          <span class="eahome-nav-icon" aria-hidden="true"><img src="/assets/icons/dashboard/progress-mode.png" alt="" /></span>
+          <span>Progress Mode</span>
+        </button>
+        <button class="eahome-nav-item" type="button" data-dashboard-view="quizzes">
+          <span class="eahome-nav-icon" aria-hidden="true"><img src="/assets/icons/dashboard/join-live-session.png" alt="" /></span>
+          <span>Live Sessions</span>
+        </button>
+        <button class="eahome-nav-item" type="button" data-dashboard-view="homework">
+          <span class="eahome-nav-icon" aria-hidden="true"><img src="/assets/icons/dashboard/homework.png" alt="" /></span>
+          <span>Homework</span>
+        </button>
+        <button class="eahome-nav-item is-disabled" type="button" disabled title="Not available yet">
+          <span class="eahome-nav-icon" aria-hidden="true"><img src="/assets/icons/ui/settings.svg" alt="" /></span>
+          <span>Settings</span>
+        </button>
       </nav>
-    </header>
 
-    <main class="student-dashboard-main-v3">
-      <div class="student-console-grid-v3">
-        <section class="student-console-v3 student-progress-console-v3" aria-labelledby="myProgressHeading">
-          <div class="student-console-heading-v3">
-            <div>
-              <p class="card-eyebrow">Your listening record</p>
-              <h2 id="myProgressHeading">My progress</h2>
-            </div>
-          </div>
-
-          <div class="student-overall-score-v3">
-            <span id="overallLevel">Not started</span>
-            <strong id="overallPercentage">—</strong>
-            <small id="overallScore">0 / 0 marks</small>
-          </div>
-
-          <div class="student-overall-metrics-v3">
-            <div><span>Questions</span><strong id="overallQuestions">0</strong></div>
-            <div><span>Rounds</span><strong id="overallRounds">0</strong></div>
-            <div><span>Apps</span><strong id="overallModules">0 / 6</strong></div>
-          </div>
-
-          <div class="student-account-card-v3">
-            <span>Learning account</span>
-            <strong id="studentAccountName">—</strong>
-            <small>Results save automatically while you are logged in.</small>
-          </div>
-
-          <div class="student-quick-actions-v3" aria-label="Student app actions">
-            <a id="progressModeLink" class="student-mode-button-v3 primary-button" href="/modules/progress-mode/index.html">
-              <span class="student-mode-icon-v3" style="--ea-icon:url('/assets/icons/dashboard/progress-mode.png?v=11')" aria-hidden="true"></span>
-              <span>Progress mode</span>
-            </a>
-
-            <a class="student-mode-button-v3 primary-button" href="/join">
-              <span class="student-mode-icon-v3" style="--ea-icon:url('/assets/icons/dashboard/join-live-session.png?v=11')" aria-hidden="true"></span>
-              <span>Join live session</span>
-            </a>
-          </div>
-        </section>
-
-        <section class="student-console-v3 student-learning-console-v3" aria-labelledby="myLearningHeading">
-          <div class="student-console-heading-v3 student-learning-heading-v3">
-            <div>
-              <p class="card-eyebrow">Listen · Identify · Improve</p>
-              <h2 id="myLearningHeading">My learning</h2>
-            </div>
-          </div>
-
-          <p class="progress-status student-dashboard-status-v3" id="progressStatus" role="status" aria-live="polite"></p>
-
-          <div class="student-learning-summary-list-v3">
-            <section class="student-learning-summary-card-v3 progress-mode-summary-v3" id="studentProgressModeContent" aria-labelledby="studentProgressModeHeading"></section>
-            <section class="student-learning-summary-card-v3 quiz-summary-v3" id="studentQuizContent" aria-labelledby="studentQuizHeading"></section>
-            <section class="student-learning-summary-card-v3 homework-summary-v3" id="studentHomeworkContent" aria-labelledby="studentHomeworkHeading"></section>
-          </div>
-        </section>
-
-        <aside class="student-console-v3 student-memory-console-v3" aria-labelledby="learningMemoryHeading">
-          <div class="student-console-heading-v3">
-            <div>
-              <p class="card-eyebrow">Your learning memory</p>
-              <h2 id="learningMemoryHeading">Feedback & history</h2>
-            </div>
-          </div>
-
-          <div class="student-memory-scroll-v3">
-            <div class="student-compiled-feedback-v3">
-              <span>Overall feedback</span>
-              <p id="compiledFeedback">Complete a round to begin your progress record.</p>
-            </div>
-
-            <div class="student-next-step-v3">
-              <span>Focus next</span>
-              <p id="studentNextStep">Choose an app and complete your first listening round.</p>
-            </div>
-
-            <section class="student-recent-memory-v3" aria-labelledby="recentLearningHeading">
-              <div class="student-memory-heading-v3">
-                <span id="recentLearningHeading">Recent learning</span>
-                <small>Progress & sessions</small>
-              </div>
-              <div id="recentLearningList" class="student-memory-list-v3">
-                <div class="student-memory-empty-v3">Your completed rounds will appear here.</div>
-              </div>
-            </section>
-          </div>
-        </aside>
+      <div class="eahome-sidebar-footer">
+        <strong class="account-wordmark eahome-sidebar-wordmark"><span class="account-wordmark-echo">Echo</span><span class="account-wordmark-aural">Aural</span></strong>
       </div>
-    </main>
+    </aside>
+
+    <div class="eahome-main" id="eahomeTop">
+      <header class="eahome-topbar">
+        <div class="eahome-topbar-brand" aria-hidden="true">
+          <span class="eahome-topbar-badge"><img id="eahomeTopbarIcon" src="/assets/icons/dashboard/overall-progress.png" alt="" /></span>
+          <span class="eahome-topbar-brand-text"><span class="eahome-topbar-brand-main" id="eahomeTopbarTitleMain">Overall</span><span class="eahome-topbar-brand-gradient" id="eahomeTopbarTitleAccent">Progress</span></span>
+        </div>
+
+        <div class="eahome-topbar-right">
+          <button class="eahome-icon-button" id="refreshProgressButton" type="button" title="Refresh results" aria-label="Refresh results">
+            <img src="/assets/icons/ui/replay.svg" alt="" />
+          </button>
+
+          <div class="eahome-profile">
+            <button class="eahome-profile-toggle" id="eahomeProfileToggle" type="button" aria-haspopup="true" aria-expanded="false">
+              <span class="eahome-avatar" id="eahomeAvatarInitial">S</span>
+              <span id="studentAccountName">Student</span>
+              <svg class="eahome-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="eahome-profile-menu" id="eahomeProfileMenu" hidden>
+              <p class="eahome-profile-meta">Teacher <strong id="studentTeacherName">—</strong> · Code <strong id="studentTeacherCode">—</strong></p>
+              <button class="eahome-profile-menu-button" id="studentLogoutButton" type="button">Log out</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="progress-status eahome-status" id="progressStatus" role="status" aria-live="polite"></p>
+      </header>
+
+      <div class="eahome-content-grid">
+        <div class="eahome-content-left">
+          <section class="eahome-hero" id="eahomeHero" aria-label="Overall listening progress"></section>
+
+          <section class="eahome-modules" id="eahomeModules" aria-label="Your learning modules">
+            <h2>Your learning modules</h2>
+            <div class="eahome-modules-grid" id="eahomeModulesGrid"></div>
+          </section>
+
+          <section class="eahome-stats-row" id="eahomeStatsRow" aria-label="Your stats"></section>
+        </div>
+
+        <aside class="eahome-content-right" id="eahomeRightColumn" aria-label="Next step, live session and homework"></aside>
+      </div>
+    </div>
   </div>
 
   <dialog class="dialog category-detail-dialog-v5 student-category-detail-dialog-v3" id="studentCategoryDetailDialog">
@@ -134,9 +99,37 @@
             <p class="section-copy" id="studentCategoryDetailSubtitle">Your saved EchoAural progress.</p>
           </div>
         </div>
+        <div class="pm-heading-brand" id="studentPmHeadingBrand" aria-hidden="true"></div>
         <button class="dialog-close-button" id="closeStudentCategoryDetail" type="button" aria-label="Close detailed feedback">×</button>
       </div>
       <div id="studentCategoryDetailContent"><div class="progress-empty-state">Choose a learning area to view detailed feedback.</div></div>
+    </div>
+  </dialog>
+
+  <dialog class="eahome-history-dialog" id="studentQuestionHistoryDialog" aria-labelledby="studentQuestionHistoryTitle">
+    <div class="eahome-history-dialog-inner">
+      <header class="eahome-history-heading">
+        <div class="eahome-history-title-wrap">
+          <span class="eahome-history-title-icon" aria-hidden="true"><img src="/assets/icons/dashboard/questions-answered.png" alt="" /></span>
+          <div>
+            <p>Recent activity</p>
+            <h2 id="studentQuestionHistoryTitle">Question history</h2>
+            <span>Search every saved question across your learning modes.</span>
+          </div>
+        </div>
+        <button class="eahome-history-close" id="closeStudentQuestionHistory" type="button" aria-label="Close question history">×</button>
+      </header>
+
+      <div class="eahome-history-filters" aria-label="Question history filters">
+        <label><span>Search</span><input id="questionHistorySearch" type="search" placeholder="Question, feedback or app" /></label>
+        <label><span>Mode</span><select id="questionHistoryMode"><option value="">All modes</option><option value="progress">Progress Mode</option><option value="quizzes">Live Sessions</option><option value="homework">Homework</option></select></label>
+        <label><span>Date</span><input id="questionHistoryDate" type="date" /></label>
+        <label><span>Musical element</span><select id="questionHistoryElement"><option value="">All elements</option></select></label>
+        <label><span>Sub-app</span><select id="questionHistoryApp"><option value="">All sub-apps</option></select></label>
+      </div>
+
+      <div class="eahome-history-summary" id="questionHistorySummary" aria-live="polite"></div>
+      <div class="eahome-history-results" id="questionHistoryResults"></div>
     </div>
   </dialog>
 
@@ -150,6 +143,10 @@
   <script src="/modules/progress-mode/store.js"></script>
   <script src="/modules/progress-mode/app-drivers.js"></script>
   <script src="/modules/progress-mode/feedback.js"></script>
+  <!-- Canonical sub-app -> server moduleId/area mapping, used to combine
+       Progress Mode evidence with Live Session/Homework marks per sub-app
+       and per area (see student-home.js's getCombinedSourceStats). -->
+  <script src="/shared/js/pm-registry.js"></script>
   <script src="/account/student-home/student-home.js"></script>
 </body>
 </html>

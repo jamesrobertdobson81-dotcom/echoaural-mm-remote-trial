@@ -2496,3 +2496,17 @@ body.dashboard-launched .leaderboard-panel .summary-grid {
   max-height: 100%;
   object-fit: cover;
 }
+.question-set-summary {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border: 1px solid rgba(105, 65, 198, 0.2);
+  border-radius: 12px;
+  background: rgba(245, 243, 255, 0.72);
+  color: #475467;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.question-set-summary strong {
+  color: #42307d;
+}

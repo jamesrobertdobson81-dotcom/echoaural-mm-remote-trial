@@ -10,10 +10,10 @@ const current = JSON.parse(fs.readFileSync(path.join(moduleRoot, "data", "melody
 const recovered = JSON.parse(fs.readFileSync(path.join(moduleRoot, "review-ii-candidates.json"), "utf8"));
 
 test("reviewed bank contains only approved Cambridge-facing questions", () => {
-  assert.equal(current.questions.length, 37);
-  assert.equal(new Set(current.questions.map((question) => question.id)).size, 37);
+  assert.equal(current.questions.length, 75);
+  assert.equal(new Set(current.questions.map((question) => question.id)).size, 75);
   assert.equal(current.questions.some((question) => ["Conjunct", "Disjunct", "Triadic"].includes(question.correctAnswer)), false);
-  assert.equal(current.questions.filter((question) => question.responseType === "Written response").length, 7);
+  assert.equal(current.questions.filter((question) => question.responseType === "Written response").length, 16);
   assert.equal(current.questions.filter((question) => question.sourceGroup === "Reviewed Instrument Identifier melodic-device tag").length, 13);
   current.questions.forEach((question) => {
     assert.equal(fs.existsSync(path.resolve(moduleRoot, question.audio)), true, `${question.id} audio is missing`);

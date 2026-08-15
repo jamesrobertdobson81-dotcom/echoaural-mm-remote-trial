@@ -210,7 +210,7 @@
   }
 
   function inferBroadCategory(question = {}) {
-    const specific = inferSpecificTerm(question);
+    const specific = question.specificTextureTerm || inferSpecificTerm(question);
     if (["Polyphonic", "Fugal imitation", "Imitative texture", "Canon"].some((term) => sameAnswer(term, specific))) return "Polyphonic";
     if (["Melody and accompaniment", "Chordal homophony", "Homorhythmic", "Homophonic"].some((term) => sameAnswer(term, specific))) return "Homophonic";
     if (["Monophonic", "Unison", "Octaves"].some((term) => sameAnswer(term, specific))) return "Monophonic";
@@ -351,8 +351,8 @@
 
   function plausibleDistractors(question = {}, correctChoice = "") {
     const level = getQuestionLevel(question);
-    const broad = inferBroadCategory(question);
-    const specific = inferSpecificTerm(question);
+    const broad = question.broadTextureCategory || inferBroadCategory(question);
+    const specific = question.specificTextureTerm || inferSpecificTerm(question);
     const base = level === "Foundation" ? BASIC_TEXTURE_CHOICES : DEVELOPING_CHOICES;
     const custom = [];
 
@@ -381,6 +381,9 @@
       ...splitPhrases(question.answerOptions)
     ]);
     const limit = level === "Foundation" ? 3 : 4;
+
+    if (question.lockAnswerOptions && existing.length) return existing.slice(0, limit);
+
     const source = existing.length && existing.some((choice) => sameAnswer(choice, correctChoice))
       ? existing
       : [];

@@ -111,7 +111,7 @@ describe("Era Explorer core", () => {
     assert.equal(core.composerHasIcon("Alexander Borodin"), true);
     assert.equal(core.composerHasIcon("Franz Schubert"), true);
     assert.equal(core.composerHasIcon("Josef Suk"), true);
-    assert.equal(core.composerHasIcon("Mouret"), true);
+    assert.equal(core.composerHasIcon("Jean-Joseph Mouret"), true);
     assert.equal(core.composerHasIcon("Nikolai Rimsky-Korsakov"), true);
     assert.equal(core.composerHasIcon("Unknown Composer XYZ"), false);
     const questions = core.buildRoundQuestions(pool, 10, () => 0.44)

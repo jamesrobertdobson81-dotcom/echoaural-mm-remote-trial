@@ -238,6 +238,16 @@
     // desktop width that only narrows to 2 columns past a max-width
     // breakpoint the iframe's real width triggers unreliably.
     ".cadence-answer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }" +
+    // Cadence Coach's standalone layout offsets the play state downward and
+    // gives its score splice a 45vh budget. In a Live Session the iframe is
+    // already the centre tile, so that offset pushes the final MC row below
+    // the tile edge. Keep the same cadence artwork, but reclaim the vertical
+    // space so all four choices remain visible and clickable.
+    ".cadence-play { transform: none !important; gap: clamp(4px, .55vh, 8px) !important; }" +
+    ".cadence-play { align-content: center !important; }" +
+    ".cadence-score-card { width: min(96%, 700px, calc(40vh * 1.64)) !important; }" +
+    ".cadence-answer-grid { align-self: end !important; }" +
+    ".cadence-answer-grid .answer-button { min-height: 44px !important; padding: 7px 9px !important; }" +
     // .listening-console (the shared central quiz card every one of these
     // apps uses — instrument-identifier, ensemble-recognition, musical-
     // language, meter-master, texture-trainer, harmony-explorer, era-
@@ -258,6 +268,10 @@
     // real reason — see its own comment) means anything that doesn't fit
     // becomes reachable by scrolling the card, instead of vanishing.
     ".listening-console { overflow-y: auto !important; overflow-x: hidden !important; }" +
+    // Live Session transport is teacher-controlled. Keep answer controls in
+    // the embedded PM app, but remove student-facing replay/start/next and
+    // local-play actions that would let a student change the class sequence.
+    "#replayButton, #replayIntervalButton, #nextButton, #startButton, #restartButton, #manualPlayButton, #playButton, #roundFinishButton, #finishQuizButton, #finishRoundButton, .replay-button, .next-question-button, .start-round-button, .restart-round-button, [data-action=\"replay\"], [data-action=\"next\"], .console-actions-replay button { display: none !important; }" +
     // Melody Master dictation: the expanded score popup is sized with
     // 100vw / @media(max-width:760|1100) rules and a 3-panel translate
     // offset. Inside Progress Mode the iframe is only the centre column
@@ -517,23 +531,26 @@
     }, 50);
   }
 
-  // Melody Master dictation's own "Question X of Y" (#roundText/#progressInner)
-  // always reflects its own internal 3-question sub-round — the
-  // melody-master-dictation driver below always configures it with
-  // questionCount:"3", but Progress Mode's own poll (isAnswered) advances to
-  // the next slot the moment the first of those three is checked, so the
-  // student never reaches question 2 or 3 and that "of 3" never corresponded
-  // to anything they could see happen. Overwrite it with Progress Mode's own
-  // real round position (see EAProgressModeGetRoundProgress in script.js)
-  // instead, continuously — MM sets roundText/progressInner itself at
-  // several points (question load, answer, replay), so a one-off write
-  // would just get clobbered by the next one.
-  function installMmDictationRoundLabelFix(doc) {
-    if (!doc || doc.getElementById("pmMmRoundLabelFix")) return;
-    if (!doc.querySelector(".score-shell, .dictation-console, .dictation-workspace")) return;
+  // Every embedded app's own "Question X of Y" (#roundText, plus a progress
+  // fill element — #progressInner on most apps, #progressBar on a few)
+  // reflects that app's own internal per-slot sub-round, never Progress
+  // Mode's real round position: every driver's questionCount is configured
+  // to that app's smallest option (see this file's own header comment —
+  // "a round-slot only ever uses the first question the app generates"),
+  // and Progress Mode's poll (isAnswered) advances to the next slot the
+  // moment that FIRST question is checked, so "of 3"/"of 5" never
+  // corresponds to anything the student can actually reach — for every
+  // app, not just Melody Master dictation (where this technique was first
+  // built). Overwrite it with Progress Mode's own real round position (see
+  // EAProgressModeGetRoundProgress in script.js) instead, continuously —
+  // most apps set roundText/progress themselves at several points
+  // (question load, answer, replay), so a one-off write would just get
+  // clobbered by the next one.
+  function installRoundLabelFix(doc) {
+    if (!doc || doc.getElementById("pmRoundLabelFix")) return;
 
     var marker = doc.createElement("meta");
-    marker.id = "pmMmRoundLabelFix";
+    marker.id = "pmRoundLabelFix";
     doc.head.appendChild(marker);
 
     var win = doc.defaultView;
@@ -546,7 +563,7 @@
       clearInterval(timer);
       if (!quizPanel || !roundTextEl || !win) return;
 
-      var progressInnerEl = doc.getElementById("progressInner");
+      var progressFillEl = doc.getElementById("progressInner") || doc.getElementById("progressBar");
       var applying = false;
 
       function alive() {
@@ -559,10 +576,6 @@
 
       function applyLabel() {
         if (applying || !alive()) return;
-        // Only melodic dictation runs a fake sub-round like this — devices
-        // questions' own "of 3" is a real, reachable count (see the
-        // melody-master-devices driver, which lets all 3 play out).
-        if (quizPanel.classList.contains("is-devices-question")) return;
         if (quizPanel.classList.contains("is-ready")) return;
 
         var progress = null;
@@ -578,8 +591,8 @@
 
         applying = true;
         if (roundTextEl.textContent !== label) roundTextEl.textContent = label;
-        if (progressInnerEl && progressInnerEl.style.width !== pct + "%") {
-          progressInnerEl.style.width = pct + "%";
+        if (progressFillEl && progressFillEl.style.width !== pct + "%") {
+          progressFillEl.style.width = pct + "%";
         }
         applying = false;
       }
@@ -589,7 +602,7 @@
         var observer = new win.MutationObserver(applyLabel);
         observer.observe(roundTextEl, { characterData: true, childList: true, subtree: true });
         observer.observe(quizPanel, { attributes: true, attributeFilter: ["class"] });
-        if (progressInnerEl) observer.observe(progressInnerEl, { attributes: true, attributeFilter: ["style"] });
+        if (progressFillEl) observer.observe(progressFillEl, { attributes: true, attributeFilter: ["style"] });
 
         var aliveCheck = setInterval(function () {
           if (!alive()) {
@@ -609,7 +622,7 @@
       doc.head.appendChild(style);
     }
     installMmDictationScoreFix(doc);
-    installMmDictationRoundLabelFix(doc);
+    installRoundLabelFix(doc);
   }
 
   var LEVEL_VALUES = ["Foundation", "Developing", "Securing", "Mastering"];
@@ -625,7 +638,7 @@
     texture: "Texture",
     harmony: "Harmony",
     instrumentation: "Instrumentation",
-    rhythm: "Rhythm",
+    rhythm: "Meter",
     context: "Context"
   };
   // Coloured per-area app icons for the student dashboard Progress Mode
@@ -780,29 +793,13 @@
         var feedback = doc.getElementById("feedback");
         return !!feedback && feedback.classList.contains("good");
       },
-      // Melody Master declares ALL_MELODY_CLIPS / currentQuestionIndex with
-      // const/let, so they are NOT on window — reading win.ALL_MELODY_CLIPS
-      // always failed and returned null. Prefer iframe eval (sees those
-      // bindings), then fall back to the live question PNG path once the
-      // quiz has left the ready screen.
+      // The shared embed contract supplies Melody Master's stable question
+      // ID on the normal path. The live question image remains a safe,
+      // read-only fingerprint for legacy fallback mode; never execute code
+      // inside the child window to reach its private lexical bindings.
       getSignature: function (doc) {
         var quizPanel = doc.querySelector(".quiz-panel");
         if (quizPanel && quizPanel.classList.contains("is-ready")) return null;
-
-        var win = doc.defaultView;
-        if (win) {
-          try {
-            var pitches = win.eval(
-              "(function () {" +
-                "try {" +
-                  "var clip = ALL_MELODY_CLIPS[currentQuestionIndex];" +
-                  "return (clip && Array.isArray(clip.answerPitches)) ? clip.answerPitches.join(',') : '';" +
-                "} catch (err) { return ''; }" +
-              "})()"
-            );
-            if (pitches) return "mm-dictation:" + pitches;
-          } catch (err) { /* ignore */ }
-        }
 
         var img = doc.getElementById("scoreImage");
         var src = img && (img.currentSrc || img.getAttribute("src") || "");

@@ -131,26 +131,46 @@ test("floor gating ignores a source with too small a sample to judge", () => {
   assert.equal(result.advanced, true);
 });
 
-test("missed-question retry requires both the draw-count AND wall-clock gate", () => {
+test("a missed signature's retry requires both the draw-count AND wall-clock gate", () => {
   const Store = freshStore();
   const sid = "student-1";
 
-  Store.recordQuestionOutcome(sid, "src", "sig-1", false); // miss #1: dueAtDraw = 3, dueAtTime = +3min
-  assert.equal(Store.isMissCoolingDown(sid, "src", "sig-1"), true);
+  Store.recordQuestionOutcome(sid, "src", "sig-1", false); // miss: intervalDraws=1, dueAtDraw = 1+1 = 2, dueAtTime = +3min
+  assert.equal(Store.isSignatureCoolingDown(sid, "src", "sig-1"), true);
 
   Store.recordQuestionOutcome(sid, "src", "sig-2", true);
-  Store.recordQuestionOutcome(sid, "src", "sig-3", true);
-  // drawCount is now 3 (draw gate satisfied) but no time has passed.
-  assert.equal(Store.isMissCoolingDown(sid, "src", "sig-1"), true, "should still cool down on the time gate alone");
+  // drawCount is now 2 (draw gate satisfied, dueAtDraw=2) but no time has passed.
+  assert.equal(Store.isSignatureCoolingDown(sid, "src", "sig-1"), true, "should still cool down on the time gate alone");
 });
 
-test("a correct answer clears a signature from the missed queue immediately", () => {
+test("a correct answer schedules a signature further out than a miss would", () => {
   const Store = freshStore();
   const sid = "student-1";
-  Store.recordQuestionOutcome(sid, "src", "sig-1", false);
-  assert.equal(Store.isMissCoolingDown(sid, "src", "sig-1"), true);
-  Store.recordQuestionOutcome(sid, "src", "sig-1", true);
-  assert.equal(Store.isMissCoolingDown(sid, "src", "sig-1"), false);
+
+  var missResult = Store.recordQuestionOutcome(sid, "src", "sig-1", false);
+  assert.equal(missResult.intervalDraws, 1, "a miss resets to a short 1-draw relearn interval");
+  assert.equal(missResult.repetitions, 0);
+
+  var correctResult = Store.recordQuestionOutcome(sid, "src", "sig-1", true);
+  assert.equal(correctResult.repetitions, 1, "repetitions restart at 1 on the next correct answer");
+  assert.ok(correctResult.intervalDraws > missResult.intervalDraws, "a correct answer's interval should be longer than a miss's relearn interval");
+  assert.ok(correctResult.easeFactor > missResult.easeFactor, "ease factor should recover after a correct answer");
+});
+
+test("question outcomes expose a read-only individual history for the dashboard", () => {
+  const Store = freshStore();
+  const sid = "history-student";
+
+  Store.recordQuestionOutcome(sid, "meter-master", "MTR001", true);
+  Store.recordQuestionOutcome(sid, "meter-master", "MTR002", false);
+
+  const history = Store.getQuestionHistory(sid);
+  assert.equal(history.length, 2);
+  assert.equal(history.some((entry) => entry.questionId === "MTR001" && entry.correct === true), true);
+  assert.equal(history.some((entry) => entry.questionId === "MTR002" && entry.correct === false), true);
+
+  history.pop();
+  assert.equal(Store.getQuestionHistory(sid).length, 2, "returned history must not mutate stored progress");
 });
 
 test("getReviewCandidate returns null for an empty source list, and the least-recently-drawn source otherwise", () => {
@@ -177,6 +197,111 @@ test("getAreaOverallProgressPercentage banks 25 points per fully-cleared level p
   Store.recordSourceResult(sid, "src-a", "melody", 5, 5, [], false, 0);
   const percentage = Store.getAreaOverallProgressPercentage(sid, "melody", false);
   assert.ok(percentage > 0 && percentage < 25, `expected a partial level-0 fraction, got ${percentage}`);
+});
+
+test("recordStreakOutcome increments on correct, resets on wrong, and tracks a personal best", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+
+  assert.deepEqual(Store.recordStreakOutcome(sid, true), { correctCurrent: 1, correctBest: 1 });
+  assert.deepEqual(Store.recordStreakOutcome(sid, true), { correctCurrent: 2, correctBest: 2 });
+  assert.deepEqual(Store.recordStreakOutcome(sid, true), { correctCurrent: 3, correctBest: 3 });
+
+  // A miss resets the current streak but must never erase the best.
+  assert.deepEqual(Store.recordStreakOutcome(sid, false), { correctCurrent: 0, correctBest: 3 });
+
+  // Best only ever tracks the highest current streak has ever reached — a
+  // shorter run after a break shouldn't overwrite it.
+  assert.deepEqual(Store.recordStreakOutcome(sid, true), { correctCurrent: 1, correctBest: 3 });
+
+  const snapshot = Store.getStreakSnapshot(sid);
+  assert.equal(snapshot.correctCurrent, 1);
+  assert.equal(snapshot.correctBest, 3);
+});
+
+test("getStreakSnapshot never mutates state (read-only, matches getSnapshot's own pattern)", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+  Store.recordStreakOutcome(sid, true);
+  Store.getStreakSnapshot(sid);
+  Store.getStreakSnapshot(sid);
+  assert.equal(Store.getStreakSnapshot(sid).correctCurrent, 1, "reading the snapshot repeatedly must not change it");
+});
+
+test("recordRoundComplete starts a daily streak at 1 on the first-ever round", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+  const result = Store.recordRoundComplete(sid);
+  assert.deepEqual(result, { dailyCurrent: 1, dailyBest: 1 });
+});
+
+test("recordRoundComplete does not extend the daily streak for a second round the same day", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+  Store.recordRoundComplete(sid);
+  const second = Store.recordRoundComplete(sid);
+  assert.deepEqual(second, { dailyCurrent: 1, dailyBest: 1 }, "same-day repeat must not double-count a day");
+});
+
+test("recordRoundComplete extends the daily streak on a genuine next calendar day, and tracks best", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+  const realNow = Date.now;
+  try {
+    Date.now = () => new Date(2026, 0, 1, 9, 0, 0).getTime();
+    assert.deepEqual(Store.recordRoundComplete(sid), { dailyCurrent: 1, dailyBest: 1 });
+
+    Date.now = () => new Date(2026, 0, 2, 8, 0, 0).getTime();
+    assert.deepEqual(Store.recordRoundComplete(sid), { dailyCurrent: 2, dailyBest: 2 });
+
+    Date.now = () => new Date(2026, 0, 3, 22, 0, 0).getTime();
+    assert.deepEqual(Store.recordRoundComplete(sid), { dailyCurrent: 3, dailyBest: 3 });
+  } finally {
+    Date.now = realNow;
+  }
+});
+
+test("recordRoundComplete resets the daily streak to 1 after a gap day, without losing the best", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+  const realNow = Date.now;
+  try {
+    Date.now = () => new Date(2026, 0, 1).getTime();
+    Store.recordRoundComplete(sid);
+    Date.now = () => new Date(2026, 0, 2).getTime();
+    Store.recordRoundComplete(sid);
+    Date.now = () => new Date(2026, 0, 3).getTime();
+    assert.deepEqual(Store.recordRoundComplete(sid), { dailyCurrent: 3, dailyBest: 3 });
+
+    // Skip a day (no round on Jan 4) — Jan 5 is a gap, not a continuation.
+    Date.now = () => new Date(2026, 0, 5).getTime();
+    assert.deepEqual(Store.recordRoundComplete(sid), { dailyCurrent: 1, dailyBest: 3 }, "best must survive a broken streak");
+  } finally {
+    Date.now = realNow;
+  }
+});
+
+test("getRoundsThisWeek counts only rounds within the trailing 7 days", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+  const realNow = Date.now;
+  try {
+    Date.now = () => new Date(2026, 0, 1).getTime();
+    Store.recordRoundComplete(sid); // 10 days before the "now" below — outside the window
+    Date.now = () => new Date(2026, 0, 8).getTime();
+    Store.recordRoundComplete(sid); // 3 days before "now" — inside the window
+    Date.now = () => new Date(2026, 0, 10).getTime();
+    Store.recordRoundComplete(sid); // 1 day before "now" — inside the window
+    Date.now = () => new Date(2026, 0, 11).getTime();
+    assert.equal(Store.getRoundsThisWeek(sid), 2);
+  } finally {
+    Date.now = realNow;
+  }
+});
+
+test("getRoundsThisWeek returns 0 for a student who has never played", () => {
+  const Store = freshStore();
+  assert.equal(Store.getRoundsThisWeek("never-played"), 0);
 });
 
 test("getSnapshot averages level across areas and reports rounds completed", () => {

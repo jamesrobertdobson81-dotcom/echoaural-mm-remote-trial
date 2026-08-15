@@ -25,6 +25,11 @@ CREATE TABLE IF NOT EXISTS progress_mode_summaries (
   CONSTRAINT progress_mode_summaries_questions_nonnegative CHECK (total_questions >= 0)
 );
 
+-- Added after the original lightweight mirror: per-source totals let teacher
+-- dashboards combine PM evidence with Live Session/Homework app totals.
+ALTER TABLE progress_mode_summaries
+  ADD COLUMN IF NOT EXISTS sources JSONB NOT NULL DEFAULT '[]'::JSONB;
+
 CREATE INDEX IF NOT EXISTS progress_mode_summaries_teacher_index
   ON progress_mode_summaries (teacher_id);
 

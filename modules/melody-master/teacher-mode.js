@@ -71,7 +71,7 @@ function setConnectedUI(isConnected) {
 }
 
 async function api(path, body = null, method = body ? 'POST' : 'GET') {
-  const options = { method, headers: { Accept: 'application/json' } };
+  const options = { method, credentials: 'include', headers: { Accept: 'application/json' } };
   if (body) {
     options.headers['Content-Type'] = 'application/json';
     options.body = JSON.stringify(body);

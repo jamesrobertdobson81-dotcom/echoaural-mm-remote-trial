@@ -626,6 +626,22 @@
     return buildLevelRound(activeLevel, getQuestionCount());
   }
 
+  // Extracted from buildRound() below so a single raw question (from
+  // getAvailableQuestions()) can be wrapped into the same 'recognition'-mode
+  // shape a normal round produces — reused by loadQuestionById's Live
+  // Session path so a host-selected question renders exactly like any
+  // other practice question, not a bespoke second wrapping.
+  function wrapQuestionForRecognition(question, { answerMode, questionChoices }) {
+    const correctAnswer = answerMode === 'quality' ? question.intervalFullLabel : question.intervalLabel;
+    return {
+      ...question,
+      mode: 'recognition',
+      answerMode,
+      choices: buildQuestionMcChoices({ ...question, answerMode, correctAnswer }, questionChoices),
+      correctAnswer
+    };
+  }
+
   function buildRound() {
     if (isProgressionMode()) return buildProgressionRound();
 
@@ -652,17 +668,7 @@
     }
     const questions = orderedPool.slice(0, roundSize);
     SR?.markShown(questions, { key: practiceKey, idOf: (question) => question.id });
-    return questions.map((question) => ({
-      ...question,
-      mode: 'recognition',
-      answerMode,
-      choices: buildQuestionMcChoices({
-        ...question,
-        answerMode,
-        correctAnswer: answerMode === 'quality' ? question.intervalFullLabel : question.intervalLabel
-      }, questionChoices),
-      correctAnswer: answerMode === 'quality' ? question.intervalFullLabel : question.intervalLabel
-    }));
+    return questions.map((question) => wrapQuestionForRecognition(question, { answerMode, questionChoices }));
   }
 
   function audioPath(raw) {
@@ -1035,6 +1041,7 @@
   function setQuestion(question) {
     setQuizVisualState('active');
     currentQuestion = question;
+    window.EAProgressEmbed?.questionReady({ id: question.id, level: question.levelKey || question.level });
     answered = false;
     selectedInterval = '';
     draggedNoteId = '';
@@ -1335,6 +1342,16 @@
     result.total = possible;
     result.message = message;
     renderAnswerCard(result);
+    window.EAProgressEmbed?.answerComplete({
+      questionId: currentQuestion.id,
+      score: awarded,
+      maximumScore: possible,
+      correct: awarded >= possible,
+      responseType: currentQuestion.mode === 'construction' ? 'construction' : (isWrittenInputQuestion(currentQuestion) ? 'typed' : 'multiple-choice'),
+      answerData: selectedInterval,
+      modelAnswer: currentQuestion.correctAnswer,
+      feedback: message
+    });
     updateReplayButton();
   }
 
@@ -1538,6 +1555,63 @@
     setQuestion(roundQuestions[0]);
     playInterval();
   }
+
+  // True once a Live Session host has loaded its first question through the
+  // contract (see loadQuestionById below) — distinguishes "boot the round"
+  // from "load another question into an already-running round."
+  let contractSessionStarted = false;
+
+  // Live Sessions entry point: a teacher (via the classroom server) has
+  // picked an exact question and wants this exact question rendered, not
+  // whatever buildRound() would have drawn next. Reused
+  // wrapQuestionForRecognition() so a host-selected question is wrapped
+  // exactly the way a normal round wraps one (always 'recognition' mode —
+  // the same MC/typed shape every practice round already uses — never
+  // 'construction', which only a different, explicit launch path selects).
+  function loadQuestionById(rawId, hostQuestion = null) {
+    const id = String(rawId || '').trim();
+    if (!id) return false;
+    // A Live Session host has already selected the exact question. Do not
+    // apply the student's stale interval-set filter here (it can exclude
+    // octaves or other valid host-selected questions and falsely report
+    // "ask your teacher to move on").
+    const target = allQuestions.find((question) => question.id === id)
+      || (hostQuestion && String(hostQuestion.id || '') === id ? hostQuestion : null);
+    if (!target) {
+      window.EAProgressEmbed?.poolEmpty({ reason: 'unknown-question-id', questionId: id });
+      return false;
+    }
+
+    const answerMode = getAnswerMode();
+    const includeOctave = getIntervalSet() === 'octaves';
+    const questionChoices = data.buildChoices({ answerMode, includeOctave });
+    const wrapped = wrapQuestionForRecognition(target, { answerMode, questionChoices });
+
+    if (!contractSessionStarted) {
+      contractSessionStarted = true;
+      stopIntervalAudio();
+      removeRoundFeedbackOverlay();
+      recordedProgressionRound = false;
+      roundQuestions = [wrapped];
+      questionIndex = 0;
+      score = 0;
+      total = 0;
+      roundResults = [];
+      resetIntervalProgressRound();
+      roundActive = true;
+      els.scoreText.textContent = 'Mark: 0 / 0';
+      els.startButton.textContent = 'Next Question';
+    } else {
+      roundQuestions[questionIndex] = wrapped;
+    }
+    setQuestion(wrapped);
+    playInterval();
+    return true;
+  }
+
+  window.EAProgressEmbed?.registerQuestionHandler((payload) => {
+    loadQuestionById(payload && (payload.questionId || payload.id), payload && payload.questionData);
+  });
 
   function resetApp() {
     stopIntervalAudio();

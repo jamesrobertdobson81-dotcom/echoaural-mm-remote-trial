@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="/account/onboarding.css" />
   <link rel="stylesheet" href="/account/teacher-dashboard/class-dialog-viewport-fix.css" />
   <link rel="stylesheet" href="/account/teacher-dashboard/class-management-v7.css" />
+  <link rel="stylesheet" href="/account/teacher-dashboard/question-set-planner.css" />
+  <link rel="stylesheet" href="/account/teacher-dashboard/teacher-dashboard-modern.css?v=student-roster-scroll-20260814-5" />
   <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
 </head>
 <body class="progress-dashboard-v2 teacher-dashboard-v2 teacher-dashboard-v3 teacher-dashboard-v4 teacher-dashboard-v5">
@@ -21,15 +23,18 @@
         </a>
 
         <div class="teacher-welcome-v3">
-          <p>Teacher dashboard</p>
-          <h1>Welcome, <span class="gradient" id="heroTeacherName">Teacher.</span></h1>
-          <span>Code <strong id="teacherCode">—</strong> · Licence ends <strong id="licenceExpiry">—</strong></span>
+          <span class="teacher-dashboard-title-icon" aria-hidden="true"><img src="/assets/icons/dashboard/join-live-session.png" alt="" /></span>
+          <div class="teacher-dashboard-title-copy">
+            <p>Teacher dashboard</p>
+            <h1>Welcome, <span class="gradient" id="heroTeacherName">Teacher.</span></h1>
+            <span>Code <strong id="teacherCode">—</strong> · Licence ends <strong id="licenceExpiry">—</strong></span>
+          </div>
         </div>
 
         <div class="dashboard-nav-actions teacher-dashboard-actions-v3">
-          <button class="nav-link" id="refreshClassProgress" type="button">Refresh</button>
-          <button class="nav-link" id="openPasswordDialog" type="button">Password</button>
-          <button class="nav-link" id="logoutButton" type="button">Log out</button>
+          <button class="nav-link is-active" id="refreshClassProgress" type="button"><span class="teacher-nav-icon" aria-hidden="true"><img src="/assets/icons/navigation/home.svg" alt="" /></span><span>Dashboard</span></button>
+          <button class="nav-link" id="openPasswordDialog" type="button"><span class="teacher-nav-icon" aria-hidden="true"><img src="/assets/icons/ui/settings.svg" alt="" /></span><span>Password</span></button>
+          <button class="nav-link" id="logoutButton" type="button"><span class="teacher-nav-icon" aria-hidden="true"><img src="/assets/icons/navigation/back.svg" alt="" /></span><span>Log out</span></button>
         </div>
       </nav>
     </header>
@@ -59,12 +64,19 @@
             <button class="small-button" id="openClassDialog" type="button">Create class</button>
           </div>
 
+          <div class="add-student-after-classes-v10" id="addStudentAction" hidden>
+            <button class="secondary-button add-student-launch-v4 teacher-add-student-button-v10" id="openStudentDialog" type="button"><span class="teacher-button-icon teacher-add-student-icon-v10" aria-hidden="true"><img src="/assets/icons/dashboard/add-student.png?v=desktop-addstudent" alt="" /></span><span class="teacher-button-label">Add student</span></button>
+          </div>
+
           <div class="student-list student-list-v2 student-list-v3 student-list-v4 class-grouped-student-list-v7" id="studentList"><div class="empty-state">Loading classes and student accounts…</div></div>
 
           <div class="student-console-footer-v4">
             <div class="notice-card compact-notice-v3" id="passwordNotice" hidden>Your account is using a temporary password. Change it before sharing student logins.</div>
             <p class="form-message compact-form-message-v3" id="studentFormMessage" aria-live="polite"></p>
-            <button class="primary-button add-student-launch-v4" id="openStudentDialog" type="button">Add student</button>
+            <div class="teacher-launch-actions-v8 teacher-launch-actions-left-v10" aria-label="Teacher launch actions">
+              <button class="primary-button compact-primary-v3 teacher-mode-action-button" id="openLiveLaunchDialog" type="button"><span class="teacher-button-icon teacher-button-mode-icon" aria-hidden="true"><img src="/assets/icons/dashboard/join-live-session.png" alt="" /></span><span>Start Live Session</span></button>
+              <button class="primary-button compact-primary-v3 teacher-mode-action-button" id="openHomeworkLaunchDialog" type="button"><span class="teacher-button-icon teacher-button-mode-icon" aria-hidden="true"><img src="/assets/icons/dashboard/homework.png" alt="" /></span><span>Set homework</span></button>
+            </div>
           </div>
         </section>
         <section class="teacher-console-v3 learning-console-v3 learning-console-v5" aria-labelledby="learningActivityHeading">
@@ -72,10 +84,6 @@
             <div>
               <p class="card-eyebrow">Class learning</p>
               <h2 id="learningActivityHeading">Progress, sessions & homework</h2>
-            </div>
-            <div class="teacher-launch-actions-v8" aria-label="Teacher launch actions">
-              <button class="primary-button compact-primary-v3" id="openLiveLaunchDialog" type="button">Start Live Session</button>
-              <button class="primary-button compact-primary-v3" id="openHomeworkLaunchDialog" type="button">Set homework</button>
             </div>
           </div>
 
@@ -269,16 +277,45 @@
         <input id="teacherLaunchQuestionCount" name="questionCount" type="hidden" value="5" />
         <input id="teacherLaunchPlayCount" name="playCount" type="hidden" value="4" />
         <input id="teacherLaunchLevel" name="questionLevel" type="hidden" value="all" />
+        <input id="teacherLaunchPurpose" name="purpose" type="hidden" value="starter" />
+        <input id="teacherLaunchStrategy" name="strategy" type="hidden" value="balanced" />
+
+        <section id="teacherLaunchPurposeSection" class="teacher-launch-section-v8" hidden>
+          <div class="teacher-launch-section-heading-v8">
+            <span>Lesson purpose</span>
+            <p>Start from a classroom-ready preset, then adjust anything below.</p>
+          </div>
+          <div class="teacher-launch-option-grid-v8 planner-purpose-grid" data-launch-group="purpose">
+            <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchPurpose" data-value="starter" aria-pressed="true"><strong>Starter</strong><span>Quick retrieval</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchPurpose" data-value="main" aria-pressed="false"><strong>Main activity</strong><span>Focused practice</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchPurpose" data-value="plenary" aria-pressed="false"><strong>Plenary</strong><span>Check learning</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchPurpose" data-value="diagnostic" aria-pressed="false"><strong>Diagnostic</strong><span>Find priorities</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchPurpose" data-value="custom" aria-pressed="false"><strong>Custom</strong><span>Full control</span></button>
+          </div>
+        </section>
+
+        <section id="teacherLaunchStrategySection" class="teacher-launch-section-v8" hidden>
+          <div class="teacher-launch-section-heading-v8">
+            <span>Selection strategy</span>
+            <p>Choose how EchoAural should assemble this shared class round.</p>
+          </div>
+          <div class="teacher-launch-option-grid-v8 planner-strategy-grid" data-launch-group="strategy">
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchStrategy" data-value="class-priorities" aria-pressed="false"><strong>Class priorities</strong><span>Use class evidence</span></button>
+            <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchStrategy" data-value="balanced" aria-pressed="true"><strong>Balanced mixed</strong><span>Spread coverage</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchStrategy" data-value="random" aria-pressed="false"><strong>Random</strong><span>Fresh surprise set</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchStrategy" data-value="skill-focus" aria-pressed="false"><strong>Skill focus</strong><span>Target a skill</span></button>
+          </div>
+        </section>
 
         <section class="teacher-launch-section-v8">
           <div class="teacher-launch-section-heading-v8">
-            <span>Question source</span>
-            <p>Choose how the questions for this session will be selected.</p>
+            <span>Type</span>
+            <p>Choose how the questions for this round will be selected.</p>
           </div>
           <div class="teacher-launch-option-grid-v8 module-options-v8 source-options-v9" data-launch-group="question-source">
-            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8 is-selected" type="button" data-launch-source="app" aria-pressed="true"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/instrument-identifier.png" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>App</strong><span>Choose one EchoAural app</span></span></button>
-            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-source="mixed" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/dashboard/progress-mode.png" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Mixed Apps</strong><span>Questions selected across the app range</span></span></button>
-            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-source="exam-lab" data-live-only aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/modules/exam-lab.png" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>ExamLab</strong><span>One shared exam extract for the class</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8 is-selected" type="button" data-launch-source="mixed" aria-pressed="true"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/dashboard/progress-mode.png" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Mixed</strong><span>Random questions across the app range</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-source="targeted" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/dashboard/progress-mode.png" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Targeted</strong><span>Use weak areas across the class</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-module-option-v8" type="button" data-launch-source="app" aria-pressed="false"><span class="teacher-launch-module-icon-v8" aria-hidden="true"><img src="/assets/icons/dashboard/progress-mode.png" alt="" loading="lazy" /></span><span class="teacher-launch-module-copy-v8"><strong>Choose an app</strong><span>Use one app or sub-app</span></span></button>
           </div>
         </section>
 
@@ -291,8 +328,21 @@
             <label for="teacherLaunchApp">Individual app</label>
             <select id="teacherLaunchApp" name="individualApp">
               <option value="instrument-identifier">Instrument Identifier</option>
-              <option value="melody-master">Melody Master</option>
+              <option value="melody-master-devices">Melody Master · Devices</option>
+              <option value="melody-master-dictation">Melody Master · Melodic Dictation</option>
               <option value="melodic-intervals">Melodic Intervals</option>
+              <option value="texture-trainer">Texture Trainer</option>
+              <option value="meter-master">Meter Master</option>
+              <option value="cadence-coach">Cadence Coach</option>
+              <option value="musical-language-ornamentation">ScoreDecoder · Ornamentation</option>
+              <option value="musical-language-articulation">ScoreDecoder · Articulation</option>
+              <option value="musical-language-dynamics">ScoreDecoder · Dynamics</option>
+              <option value="musical-language-tempo">ScoreDecoder · Tempo</option>
+              <option value="ensemble-recognition">Ensemble Recognition</option>
+              <option value="key-signature-sprint">Key Signature Sprint</option>
+              <option value="chord-identifier">Chord Identifier</option>
+              <option value="context-coach-composer">ContextCoach · Composers</option>
+              <option value="context-coach-period">ContextCoach · Eras &amp; Periods</option>
             </select>
           </div>
         </section>
@@ -300,24 +350,54 @@
         <section id="teacherLaunchClassSection" class="teacher-launch-section-v8" hidden>
           <div class="teacher-launch-section-heading-v8">
             <span>Class</span>
-            <p>Choose which class will join this ExamLab session.</p>
+            <p>Choose the class whose evidence should inform this session.</p>
           </div>
           <div class="field">
-            <label for="teacherLaunchClass">ExamLab class</label>
+            <label for="teacherLaunchClass">Class</label>
             <select id="teacherLaunchClass" name="classId"></select>
+          </div>
+        </section>
+
+        <section id="teacherLaunchFilterSection" class="teacher-launch-section-v8 planner-filter-section">
+          <div class="teacher-launch-section-heading-v8">
+            <span>Focus filters</span>
+            <p>Optional. Leave these blank for the widest compatible question pool.</p>
+          </div>
+          <div class="planner-filter-grid">
+            <div class="field">
+              <label for="teacherLaunchElement">Musical element</label>
+              <select id="teacherLaunchElement" name="musicalElement">
+                <option value="">All musical elements</option>
+                <option>Instrumentation</option>
+                <option>Melody</option>
+                <option>Meter and rhythm</option>
+                <option>Texture</option>
+                <option>Harmony and tonality</option>
+                <option>Dynamics and articulation</option>
+                <option>Structure and form</option>
+                <option>Context and genre</option>
+                <option>Notation and exam application</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="teacherLaunchSkill">Specific skill</label>
+              <select id="teacherLaunchSkill" name="skillCode"><option value="">All available skills</option></select>
+            </div>
+            <label class="planner-check"><input id="teacherLaunchAvoidRecent" type="checkbox" checked /> <span>Avoid questions recently used by this class</span></label>
+            <label class="planner-check"><input id="teacherLaunchLeaderboard" type="checkbox" checked /> <span>Show the live leaderboard</span></label>
           </div>
         </section>
 
         <section id="teacherLaunchQuestionSection" class="teacher-launch-section-v8">
           <div class="teacher-launch-section-heading-v8">
-            <span>Questions</span>
+            <span>Number of questions</span>
             <p>Choose the length of the round.</p>
           </div>
           <div class="teacher-launch-option-grid-v8 count-options-v8" data-launch-group="question-count">
-            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchQuestionCount" data-value="3" aria-pressed="false"><strong>3</strong><span>Quick check</span></button>
             <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchQuestionCount" data-value="5" aria-pressed="true"><strong>5</strong><span>Short round</span></button>
             <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchQuestionCount" data-value="10" aria-pressed="false"><strong>10</strong><span>Full quiz</span></button>
             <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchQuestionCount" data-value="15" aria-pressed="false"><strong>15</strong><span>Extended</span></button>
+            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchQuestionCount" data-value="20" aria-pressed="false"><strong>20</strong><span>Long round</span></button>
           </div>
         </section>
 
@@ -340,19 +420,20 @@
             <p>Use progression levels where available.</p>
           </div>
           <div class="teacher-launch-option-grid-v8 level-options-v8" data-launch-group="level">
-            <button class="teacher-launch-option-v8 is-selected" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="all" aria-pressed="true"><strong>All</strong><span>Mixed levelled questions</span></button>
-            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="foundation" aria-pressed="false"><strong>Foundation</strong><span>Starter level</span></button>
-            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="developing" aria-pressed="false"><strong>Developing</strong><span>Building level</span></button>
-            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="securing" aria-pressed="false"><strong>Securing</strong><span>Secure level</span></button>
-            <button class="teacher-launch-option-v8" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="mastering" aria-pressed="false"><strong>Mastering</strong><span>Challenge level</span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-level-option-v10" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="foundation" aria-pressed="false"><span class="teacher-level-button-icon" aria-hidden="true"><img src="/assets/icons/levels/pm-detail/foundation.png" alt="" /></span><span class="teacher-level-button-copy"><strong>Foundation</strong><span>Starter level</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-level-option-v10" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="developing" aria-pressed="false"><span class="teacher-level-button-icon" aria-hidden="true"><img src="/assets/icons/levels/pm-detail/developing.png" alt="" /></span><span class="teacher-level-button-copy"><strong>Developing</strong><span>Building level</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-level-option-v10" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="securing" aria-pressed="false"><span class="teacher-level-button-icon" aria-hidden="true"><img src="/assets/icons/levels/pm-detail/securing.png" alt="" /></span><span class="teacher-level-button-copy"><strong>Securing</strong><span>Secure level</span></span></button>
+            <button class="teacher-launch-option-v8 teacher-launch-level-option-v10" type="button" data-launch-option data-target="teacherLaunchLevel" data-value="mastering" aria-pressed="false"><span class="teacher-level-button-icon" aria-hidden="true"><img src="/assets/icons/levels/pm-detail/mastering.png" alt="" /></span><span class="teacher-level-button-copy"><strong>Mastering</strong><span>Challenge level</span></span></button>
           </div>
         </section>
 
         <p class="launch-helper-v8" id="teacherLaunchHelper">Choose a level to focus this round, or use all levelled questions.</p>
+        <section class="question-set-preview" id="teacherLaunchPreview" hidden aria-live="polite"></section>
         <p class="form-message" id="teacherLaunchMessage" aria-live="polite"></p>
         <div class="dialog-actions">
           <button class="secondary-button" id="cancelTeacherLaunch" type="button">Cancel</button>
-          <button class="primary-button" id="teacherLaunchSubmit" type="submit">Open live room</button>
+          <button class="secondary-button" id="previewTeacherLaunch" type="button" hidden>Preview question set</button>
+          <button class="primary-button teacher-mode-submit-button" id="teacherLaunchSubmit" type="submit"><span class="teacher-button-icon" aria-hidden="true"><img src="/assets/icons/dashboard/join-live-session.png" alt="" /></span><span>Open live room</span></button>
         </div>
       </form>
     </div>
@@ -416,7 +497,14 @@
     </div>
   </dialog>
 
+  <dialog class="dialog teacher-element-breakdown-dialog-v10" id="teacherElementBreakdownDialog">
+    <div class="dialog-inner teacher-element-breakdown-dialog-inner-v10">
+      <div id="teacherElementBreakdownContent"></div>
+    </div>
+  </dialog>
+
   <script src="/account/account-common.js"></script>
-  <script src="/account/teacher-dashboard/teacher-dashboard.js?v=mixed-ii-mi-20260717b"></script>
+  <script src="/shared/js/pm-registry.js"></script>
+  <script src="/account/teacher-dashboard/teacher-dashboard.js?v=overall-pm-subapps-20260814-vocabulary-texture"></script>
 </body>
 </html>

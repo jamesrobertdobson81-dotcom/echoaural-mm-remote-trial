@@ -10,10 +10,9 @@
   'use strict';
 
   var Keys = window.EAChordKeys;
-  var Engine = window.EAChordEngine;
   var Notation = window.EAChordNotation;
   var Audio = window.EAChordAudio;
-  var Answers = window.EAChordAnswers;
+  var Core = window.EAChordIdentifierCore;
 
   var $ = function (id) { return document.getElementById(id); };
   var els = {
@@ -39,25 +38,14 @@
     arpeggiate: $('arpeggiateButton')
   };
 
-  var random = function (items) { return items[Math.floor(Math.random() * items.length)]; };
-  var shuffle = function (items) {
-    var arr = items.slice();
-    for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
-    return arr;
-  };
   var escapeHTML = function (value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c];
     });
   };
 
-  var INVERSION_CHOICES = ['Root position', 'First inversion', 'Second inversion', 'Third inversion'];
-  var ROMAN_CHOICE_POOL = {
-    major: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'],
-    minor: ['i', 'ii°', 'III', 'iv', 'V', 'VI', 'vii°']
-  };
-
   var state = null;
+  var contractQuestionId = '';
 
   function checkedValue(name, fallback) {
     var el = document.querySelector('[name="' + name + '"]:checked');
@@ -75,18 +63,12 @@
     var recognition = checkedValue('recognition', 'name');
     var answerMode = checkedValue('answerMode', 'adaptive');
 
-    if (difficulty === 'foundation') { tonality = 'major'; answerMode = 'choice'; recognition = 'name'; }
-    if (difficulty === 'developing') { tonality = 'major'; answerMode = 'choice'; }
-    // Securing must be a real step up from Developing even with default
-    // settings untouched — without this, a student who never opens the
-    // Tonality picker gets major-only keys at Securing too (identical to
-    // Developing), and the only differences are which chord/question type
-    // happens to come up. Forcing minor keys into the mix here guarantees
-    // Securing is always meaningfully harder, the same way Developing
-    // already forces major regardless of the raw setting.
-    if (difficulty === 'securing') { tonality = 'mixed'; }
-
-    return { difficulty: difficulty, count: count, tonality: tonality, recognition: recognition, answerMode: answerMode };
+    return Core.settingsForLevel(difficulty, {
+      count: count,
+      tonality: tonality,
+      recognition: recognition,
+      answerMode: answerMode
+    });
   }
 
   /** Enable/disable settings that don't make sense at the chosen difficulty (section 31). */
@@ -114,84 +96,8 @@
     });
   }
 
-  /** Every MC question across EA apps always has exactly 4 options (the
-   *  answer plus 3 distractors), regardless of difficulty (section 19-21). */
-  function distractorCountFor() {
-    return 3;
-  }
-
-  /** How many of the most-recently-answered questions (this round) came
-   *  before the last question of the given recognitionType — used to keep
-   *  both Roman-numeral and inversion questions spaced through a round
-   *  instead of clumping or going missing for long stretches. Counts back
-   *  from the current state.results, which holds every question answered so
-   *  far this round (the one being built now isn't in there yet). */
-  function questionsSinceLastType(type) {
-    if (!state || !state.results || !state.results.length) return 3;
-    for (var i = state.results.length - 1; i >= 0; i--) {
-      if (state.results[i].recognitionType === type) return state.results.length - 1 - i;
-    }
-    return state.results.length;
-  }
-
-  function buildQuestion(roundSettings) {
-    var difficulty = roundSettings.difficulty;
-    var allowSeventh = difficulty === 'securing' || difficulty === 'mastering';
-    var allowInversions = difficulty === 'securing' || difficulty === 'mastering';
-
-    var question = Engine.generateQuestion({
-      difficulty: difficulty,
-      tonality: roundSettings.tonality,
-      allowSeventh: allowSeventh,
-      allowInversions: allowInversions
-    });
-
-    var recognition = roundSettings.recognition;
-    if (recognition === 'mixed') recognition = random(['name', 'roman']);
-
-    // Secondary chords (ii, iii, vi, vii° and their minor-key equivalents)
-    // are a function-in-key question by nature — testing the Roman numeral
-    // is the skill that actually matters once a student meets them, so this
-    // overrides the random name/roman split above and skips the balanced
-    // roman/inversion pick below entirely.
-    if (allowSeventh && question.category === 'secondary') {
-      recognition = 'roman';
-    } else if (allowSeventh) {
-      // Roman-numeral and inversion recognition are both core Securing/
-      // Mastering skills, not just occasional extras — each grows more
-      // likely the longer it's been since the last question of that type,
-      // so both stay spread through a round rather than one crowding out
-      // the other or either clumping/going missing for long stretches.
-      // When both come up "due" on the same question, whichever has gone
-      // longer without appearing wins.
-      var romanGap = questionsSinceLastType('roman');
-      var romanDue = Math.random() < Math.min(0.7, 0.2 + romanGap * 0.15);
-
-      // Mastering's extended chords (9ths, maj7, sus2/sus4) are always root
-      // position, so only its primary/seventh questions can ever be
-      // inversion questions — a smaller eligible slice than Securing gets
-      // (where every non-secondary chord is invertible). To still land a
-      // clearly higher inversion ratio there, the eligible ones need a much
-      // higher per-question chance, not just a bigger base than Securing's.
-      var inversionEligible = allowInversions && question.inversion > 0;
-      var inversionGap = questionsSinceLastType('inversion');
-      var inversionBaseChance = difficulty === 'mastering' ? 0.65 : 0.45;
-      var inversionGrowth = difficulty === 'mastering' ? 0.15 : 0.1;
-      var inversionCap = difficulty === 'mastering' ? 0.95 : 0.8;
-      var inversionDue = inversionEligible && Math.random() < Math.min(inversionCap, inversionBaseChance + inversionGap * inversionGrowth);
-
-      if (romanDue && inversionDue) recognition = romanGap >= inversionGap ? 'roman' : 'inversion';
-      else if (romanDue) recognition = 'roman';
-      else if (inversionDue) recognition = 'inversion';
-    }
-
-    question.recognitionType = recognition;
-    return question;
-  }
-
   function questionMarkTotal(question) {
-    var isAdvanced = question.category === 'seventh' || question.category === 'extended';
-    return question.recognitionType === 'inversion' || !isAdvanced ? 1 : 2;
+    return Core.questionMarkTotal(question);
   }
 
   function setQuestionPrompt(question) {
@@ -237,23 +143,17 @@
   function renderMultipleChoice(question, roundSettings) {
     els.answers.hidden = false;
     els.typedForm.hidden = true;
-    var key = Keys.findKey(question.key.id);
-    var choices, correctValue, cssClass;
-    var distractorCount = distractorCountFor(question.difficulty);
+    var choices = Core.buildChoices(question, state.currentSeed);
+    var correctValue = Core.modelAnswer(question);
+    var cssClass;
 
     if (question.recognitionType === 'roman') {
-      choices = Answers.buildMultipleChoice(question, key, 'roman', distractorCount);
-      correctValue = question.romanNumeral;
       cssClass = 'is-roman';
     } else if (question.recognitionType === 'inversion') {
       // Always all 4 labels, even for triads (which only ever have 3 valid
       // positions) — "Third inversion" then serves as a same-type distractor.
-      choices = shuffle(INVERSION_CHOICES.slice());
-      correctValue = INVERSION_CHOICES[question.inversion];
       cssClass = 'is-inversion';
     } else {
-      choices = Answers.buildMultipleChoice(question, key, 'name', distractorCount);
-      correctValue = question.chordLabel;
       cssClass = '';
     }
 
@@ -291,25 +191,28 @@
     else renderMultipleChoice(question, roundSettings);
   }
 
-  function answerSignature(question) {
-    if (question.recognitionType === 'roman') return 'roman|' + question.romanNumeral;
-    if (question.recognitionType === 'inversion') return 'inversion|' + question.inversionLabel;
-    return 'name|' + question.chordLabel;
-  }
-
-  function showQuestion() {
+  function showQuestion(forcedQuestion, seed) {
     // Chord questions are generated procedurally rather than drawn from a
     // fixed pool, so avoiding a repeat answer within the round means
     // retrying generation rather than removing an item from a list.
-    var question = buildQuestion(state.settings);
+    var question = forcedQuestion || Core.buildQuestion(state.settings, state.results, Math.random);
     var attempts = 0;
-    while (state.usedAnswerSignatures.indexOf(answerSignature(question)) !== -1 && attempts < 20) {
-      question = buildQuestion(state.settings);
+    while (!forcedQuestion && state.usedAnswerSignatures.indexOf(Core.answerSignature(question)) !== -1 && attempts < 20) {
+      question = Core.buildQuestion(state.settings, state.results, Math.random);
       attempts += 1;
     }
-    state.usedAnswerSignatures.push(answerSignature(question));
+    state.usedAnswerSignatures.push(Core.answerSignature(question));
     state.current = question;
+    state.currentSeed = seed || '';
+    state.currentQuestionId = contractQuestionId || Core.questionId(question);
     state.answered = false;
+
+    window.EAProgressEmbed?.questionReady({
+      id: state.currentQuestionId,
+      signature: Core.questionId(question),
+      generatedQuestionId: Core.questionId(question),
+      level: state.settings.difficulty
+    });
 
     setQuestionPrompt(question);
     renderNotation(question);
@@ -318,12 +221,14 @@
     els.round.textContent = 'Question ' + (state.index + 1) + ' of ' + state.settings.count;
     els.progress.style.width = (state.index / state.settings.count * 100) + '%';
     els.next.disabled = true;
-  }
 
-  function checkAnswer(question, typedValueOrChoice) {
-    if (question.recognitionType === 'roman') return typedValueOrChoice === question.romanNumeral;
-    if (question.recognitionType === 'inversion') return typedValueOrChoice === INVERSION_CHOICES[question.inversion];
-    return Answers.checkChordNameAnswer(typedValueOrChoice, question) || typedValueOrChoice === question.chordLabel;
+    // Auto-play the chord once as soon as the question appears, so students
+    // hear it immediately rather than having to press Play Chord first. Not
+    // chained onto anything else — a blocked/failed autoplay (e.g. no user
+    // gesture yet on first load) should never stop the question from
+    // rendering, so failures are swallowed here; Play Chord remains as a
+    // manual fallback either way.
+    Audio.playChord(question.displayPitches).catch(function () {});
   }
 
   function feedbackText(question, correct) {
@@ -380,7 +285,7 @@
     if (state.answered) return;
     state.answered = true;
     var question = state.current;
-    var correct = checkAnswer(question, givenValue);
+    var correct = Core.checkAnswer(question, givenValue);
 
     if (correct) {
       state.correct++; state.streak++; state.best = Math.max(state.best, state.streak);
@@ -419,6 +324,17 @@
     els.next.focus();
 
     renderInsight(question, correct, givenValue);
+    window.EAProgressEmbed?.answerComplete({
+      questionId: state.currentQuestionId,
+      generatedQuestionId: Core.questionId(question),
+      score: correct ? questionMarkTotal(question) : 0,
+      maximumScore: questionMarkTotal(question),
+      correct: correct,
+      responseType: els.typedForm.hidden === false ? 'typed' : 'multiple-choice',
+      answerData: givenValue,
+      modelAnswer: correctValue,
+      feedback: feedbackText(question, correct)
+    });
   }
 
   function next() {
@@ -427,6 +343,33 @@
     els.typedInput.disabled = false;
     showQuestion();
   }
+
+  // True once a Live Session host has loaded its first question through the
+  // contract — distinguishes "boot the round" from "load another question
+  // into an already-running round."
+  var contractSessionStarted = false;
+
+  function loadQuestionBySeed(payload) {
+    var details = payload && typeof payload === 'object' ? payload : {};
+    var seed = details.seed !== undefined ? details.seed : details.questionId;
+    if (seed === undefined || seed === null || seed === '') return false;
+    var level = details.level || details.difficulty || (state && state.settings && state.settings.difficulty) || 'foundation';
+    var roundSettings = Core.settingsForLevel(level, details.settings || details);
+    var question = Core.buildQuestionFromSeed(seed, roundSettings, []);
+    contractQuestionId = String(details.questionId || Core.questionId(question));
+    if (!contractSessionStarted) {
+      contractSessionStarted = true;
+      beginRound(roundSettings, question, seed);
+    } else {
+      state.settings = roundSettings;
+      showQuestion(question, seed);
+    }
+    return true;
+  }
+
+  window.EAProgressEmbed?.registerQuestionHandler(function (payload) {
+    loadQuestionBySeed(payload);
+  });
 
   function breakdownBy(keyFn) {
     var groups = {};
@@ -516,9 +459,8 @@
     document.querySelectorAll('[name="skill"], [name="difficulty"]').forEach(function (input) { input.disabled = locked; });
   }
 
-  function start() {
-    var roundSettings = settings();
-    state = { settings: roundSettings, index: 0, correct: 0, streak: 0, best: 0, xp: 0, typedErrors: 0, results: [], current: null, answered: false, usedAnswerSignatures: [] };
+  function beginRound(roundSettings, initialQuestion, seed) {
+    state = { settings: roundSettings, index: 0, correct: 0, streak: 0, best: 0, xp: 0, typedErrors: 0, results: [], current: null, currentSeed: '', currentQuestionId: '', answered: false, usedAnswerSignatures: [] };
 
     setSettingsLocked(true);
     els.panel.classList.remove('is-ready', 'is-complete'); els.panel.classList.add('is-active');
@@ -526,7 +468,12 @@
     els.ready.hidden = true; els.results.hidden = true; els.play.hidden = false;
     els.typedInput.disabled = false;
     Audio.unlock();
-    showQuestion();
+    showQuestion(initialQuestion, seed);
+  }
+
+  function start() {
+    contractQuestionId = '';
+    beginRound(settings());
   }
 
   function setAdvancedOpen(open) {

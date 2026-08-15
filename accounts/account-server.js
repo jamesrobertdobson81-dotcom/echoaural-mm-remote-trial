@@ -381,6 +381,70 @@ const PROGRESS_MODULE_ORDER = [
   'exam-lab'
 ];
 
+// Concept-level breakdown config for buildProgressSummary's byConcept pass
+// (see the module's own comment there). Each module lists one or more
+// extractors: a raw answer_data field, plus either a whitelist (keep the
+// raw value only if it's a genuinely clean, single-concept value — several
+// of these fields carry non-concept noise, e.g. instrument-identifier's
+// `family` also carries genre/context tags like "Deep House") or a bucket
+// function (derive a coarser concept, or null to exclude). Checked against
+// the actual distinct values present in each module's data before writing
+// this, not assumed.
+function chordExtensionTier(quality) {
+  const q = String(quality || '').toLowerCase();
+  if (!q) return null;
+  if (q.includes('9') || q.includes('sus')) return 'Extended chords';
+  if (q.includes('7')) return 'Seventh chords';
+  if (['major', 'minor', 'diminished', 'augmented'].includes(q)) return 'Triads';
+  return null;
+}
+function accidentalCountTier(count) {
+  const n = Math.abs(Number(count));
+  if (!Number.isFinite(n)) return null;
+  return n <= 2 ? 'Few accidentals (0-2)' : n <= 4 ? 'Moderate accidentals (3-4)' : 'Many accidentals (5-7)';
+}
+function simpleCompoundTier(metreFamily) {
+  const value = String(metreFamily || '');
+  if (value.startsWith('Simple')) return 'Simple time';
+  if (value.startsWith('Compound')) return 'Compound time';
+  return null;
+}
+const CONCEPT_EXTRACTORS_BY_MODULE = {
+  'chord-identifier': [
+    { field: 'inversionLabel', whitelist: new Set(['root position', 'first inversion', 'second inversion', 'third inversion']) },
+    { field: 'quality', bucket: chordExtensionTier }
+  ],
+  'key-signature-sprint': [
+    { field: 'accidentalType', whitelist: new Set(['sharp', 'flat', 'natural']) },
+    { field: 'accidentalCount', bucket: accidentalCountTier }
+  ],
+  'meter-master': [
+    { field: 'metreFamily', whitelist: new Set(['Simple duple', 'Simple triple', 'Simple quadruple', 'Compound duple', 'Compound quadruple', 'Irregular quintuple', 'Variable/mixed']) },
+    { field: 'metreFamily', bucket: simpleCompoundTier }
+  ],
+  'instrument-identifier': [
+    { field: 'family', whitelist: new Set(['strings', 'woodwind', 'brass', 'percussion', 'keyboard', 'guitar', 'voice', 'world/ensemble']), caseInsensitive: true },
+    // "World/Ensemble" deliberately excluded here (kept only in `family`
+    // above) — both fields can independently carry that exact string, and
+    // since both dimensions feed the same flat per-module concept pool,
+    // keeping it in both would silently merge two different meanings
+    // (family vs performance context) into one bucket.
+    { field: 'type', whitelist: new Set(['Orchestral', 'Solo', 'Piano Accomp.', 'Organ Accomp.', 'Harpsichord']) }
+  ],
+  'texture-trainer': [
+    { field: 'textureFocus', whitelist: new Set(['Monophonic', 'Homophonic', 'Polyphonic', 'Heterophonic', 'Fugal imitation', 'Fugal polyphony', 'Fugue', 'Canon', 'Alberti Bass', 'Inverted Pedal', 'Pedal / drone', 'Advanced polyphonic', 'Simple polyphonic', 'Melody and accompaniment']) }
+  ]
+};
+// Canonical display casing for whitelisted values matched case-insensitively
+// (instrument-identifier's `family` values are inconsistently cased in the
+// source data, e.g. "BRASS" vs "Brass") — the whitelist above is lowercase
+// for matching; this maps back to how it should actually be displayed/used
+// as a CONCEPT_PHRASES key.
+const CONCEPT_DISPLAY_CASE = {
+  strings: 'Strings', woodwind: 'Woodwind', brass: 'Brass', percussion: 'Percussion',
+  keyboard: 'Keyboard', guitar: 'Guitar', voice: 'Voice', 'world/ensemble': 'World/Ensemble'
+};
+
 const PROGRESSION_LEVEL_LABELS = ['Foundation', 'Developing', 'Securing', 'Mastering'];
 const PROGRESSION_PASS_MARKS = {
   'melody-master': [100, 100, 100, 100],
@@ -402,10 +466,9 @@ function buildCanonicalSkillEvidence(attempts = []) {
 
   for (const attempt of attempts) {
     const metadata = getQuestionSkillMetadata(attempt.question_id);
-    if (!metadata.primary_skill_code) continue;
     const answerData = enrichAnswerData(attempt.question_id, attempt.answer_data || {});
     if (answerData.submitted === false) continue;
-    const skillCode = String(metadata.primary_skill_code).trim();
+    const skillCode = String(metadata.primary_skill_code || answerData.skillCode || '').trim();
     const maximumScore = Math.max(0, progressNumber(attempt.maximum_score));
     if (!skillCode || maximumScore <= 0) continue;
 
@@ -570,12 +633,12 @@ function buildProgressCategories(allRounds, allAttempts) {
   const quizzes = filterProgressBySource(allRounds, allAttempts, 'quizzes');
   const homework = filterProgressBySource(allRounds, allAttempts, 'homework');
   return {
-    quizzes: buildProgressSummary(quizzes.rounds, quizzes.attempts),
-    homework: buildProgressSummary(homework.rounds, homework.attempts)
+    quizzes: buildProgressSummary(quizzes.rounds, quizzes.attempts, true),
+    homework: buildProgressSummary(homework.rounds, homework.attempts, true)
   };
 }
 
-function buildProgressSummary(allRounds, allAttempts) {
+function buildProgressSummary(allRounds, allAttempts, includeQuestionHistory = false) {
   const scoredRounds = allRounds;
   const scoredRoundIds = new Set(scoredRounds.map((round) => String(round.id)));
   const scoredAttempts = allAttempts.filter((attempt) => scoredRoundIds.has(String(attempt.round_id)));
@@ -704,6 +767,65 @@ function buildProgressSummary(allRounds, allAttempts) {
     };
   });
 
+  // Sub-app-level breakdown, alongside the per-module one above — only
+  // meaningfully different from moduleSummaries for the handful of modules
+  // that cover more than one Progress Mode sub-app/area (melody-master,
+  // musical-language, era-explorer; see classroom/progress-recorder.js's
+  // buildAnswerData, which is what stamps this sourceKey onto an attempt in
+  // the first place). Attempts with no sourceKey (every other module, or
+  // older data recorded before that field existed) simply don't appear
+  // here — the client falls back to the coarser per-module numbers for
+  // those, rather than guessing which sub-app they belonged to.
+  const bySourceKey = {};
+  allAttempts.forEach((attempt) => {
+    const sourceKey = attempt.answer_data?.sourceKey;
+    if (!sourceKey) return;
+    if (!bySourceKey[sourceKey]) bySourceKey[sourceKey] = { correct: 0, questions: 0 };
+    bySourceKey[sourceKey].correct += progressNumber(attempt.score);
+    bySourceKey[sourceKey].questions += progressNumber(attempt.maximum_score);
+  });
+  Object.keys(bySourceKey).forEach((sourceKey) => {
+    bySourceKey[sourceKey].percentage = progressPercentage(bySourceKey[sourceKey].correct, bySourceKey[sourceKey].questions);
+  });
+
+  // Concept-level breakdown (e.g. chord inversions, texture terms) for the
+  // 5 modules configured in CONCEPT_EXTRACTORS_BY_MODULE — see that
+  // constant's own comment. Both dimensions a module might have (e.g.
+  // chord-identifier's inversion AND extension tier) land in one flat pool
+  // per module, which is what lets the feedback sentence-builder
+  // (modules/progress-mode/feedback.js's buildConceptFeedback) pick
+  // whichever single concept has the clearest signal, regardless of which
+  // dimension it came from.
+  const byConcept = {};
+  allAttempts.forEach((attempt) => {
+    const extractors = CONCEPT_EXTRACTORS_BY_MODULE[attempt.module_id];
+    if (!extractors) return;
+    const data = attempt.answer_data || {};
+    extractors.forEach((extractor) => {
+      const raw = data[extractor.field];
+      let conceptValue = null;
+      if (extractor.bucket) {
+        conceptValue = extractor.bucket(raw);
+      } else if (extractor.whitelist) {
+        const key = extractor.caseInsensitive ? String(raw || '').toLowerCase() : raw;
+        if (extractor.whitelist.has(key)) {
+          conceptValue = extractor.caseInsensitive ? (CONCEPT_DISPLAY_CASE[key] || raw) : raw;
+        }
+      }
+      if (!conceptValue) return;
+      if (!byConcept[attempt.module_id]) byConcept[attempt.module_id] = {};
+      if (!byConcept[attempt.module_id][conceptValue]) byConcept[attempt.module_id][conceptValue] = { correct: 0, questions: 0 };
+      byConcept[attempt.module_id][conceptValue].correct += progressNumber(attempt.score);
+      byConcept[attempt.module_id][conceptValue].questions += progressNumber(attempt.maximum_score);
+    });
+  });
+  Object.keys(byConcept).forEach((moduleId) => {
+    Object.keys(byConcept[moduleId]).forEach((conceptValue) => {
+      const entry = byConcept[moduleId][conceptValue];
+      entry.percentage = progressPercentage(entry.correct, entry.questions);
+    });
+  });
+
   const totalScore = scoredRounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
   const totalMaximum = scoredRounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
   const totalQuestions = scoredRounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
@@ -735,6 +857,18 @@ function buildProgressSummary(allRounds, allAttempts) {
   const roundSourceById = new Map(
     allRounds.map((round) => [String(round.id), progressSource(round)])
   );
+  const questionHistory = allAttempts.map((attempt) => ({
+    id: attempt.id,
+    moduleId: attempt.module_id,
+    moduleTitle: PROGRESS_MODULE_DEFINITIONS[attempt.module_id]?.title || attempt.module_id,
+    questionId: attempt.question_id,
+    score: progressNumber(attempt.score),
+    maximumScore: progressNumber(attempt.maximum_score),
+    feedback: attempt.feedback || '',
+    answerData: attempt.answer_data || {},
+    source: roundSourceById.get(String(attempt.round_id)) || 'practice',
+    completedAt: attempt.completed_at
+  }));
 
   return {
     overall: {
@@ -753,6 +887,8 @@ function buildProgressSummary(allRounds, allAttempts) {
       lastCompletedAt: scoredRounds[0]?.completed_at || null
     },
     modules: moduleSummaries,
+    bySourceKey,
+    byConcept,
     skills,
     recentRounds: scoredRounds.slice(0, 10).map((round) => ({
       id: round.id,
@@ -766,18 +902,8 @@ function buildProgressSummary(allRounds, allAttempts) {
       source: progressSource(round),
       completedAt: round.completed_at
     })),
-    recentQuestions: allAttempts.slice(0, 16).map((attempt) => ({
-      id: attempt.id,
-      moduleId: attempt.module_id,
-      moduleTitle: PROGRESS_MODULE_DEFINITIONS[attempt.module_id]?.title || attempt.module_id,
-      questionId: attempt.question_id,
-      score: progressNumber(attempt.score),
-      maximumScore: progressNumber(attempt.maximum_score),
-      feedback: attempt.feedback || '',
-      answerData: attempt.answer_data || {},
-      source: roundSourceById.get(String(attempt.round_id)) || 'practice',
-      completedAt: attempt.completed_at
-    }))
+    recentQuestions: questionHistory.slice(0, 16),
+    ...(includeQuestionHistory ? { questionHistory } : {})
   };
 }
 
@@ -1609,19 +1735,27 @@ async function handleAccountApi(req, res, parsedUrl) {
         correct: cleanNonNegativeInt(area?.correct),
         questions: cleanNonNegativeInt(area?.questions)
       }));
+      const sources = (Array.isArray(body.sources) ? body.sources : []).slice(0, 64).map((source) => ({
+        sourceKey: cleanShortText(source?.sourceKey, 80),
+        areaKey: cleanShortText(source?.areaKey, 40),
+        label: cleanShortText(source?.label, 100),
+        correct: cleanNonNegativeInt(source?.correct),
+        questions: cleanNonNegativeInt(source?.questions)
+      })).filter((source) => source.sourceKey);
 
       await getPool().query(`
         INSERT INTO progress_mode_summaries (
           student_id, teacher_id, overall_level_label, rounds_completed,
-          total_correct, total_questions, areas, updated_at
+          total_correct, total_questions, areas, sources, updated_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, NOW())
         ON CONFLICT (student_id) DO UPDATE SET
           overall_level_label = EXCLUDED.overall_level_label,
           rounds_completed = EXCLUDED.rounds_completed,
           total_correct = EXCLUDED.total_correct,
           total_questions = EXCLUDED.total_questions,
           areas = EXCLUDED.areas,
+          sources = EXCLUDED.sources,
           updated_at = NOW()
       `, [
         student.id,
@@ -1630,10 +1764,210 @@ async function handleAccountApi(req, res, parsedUrl) {
         cleanNonNegativeInt(body.roundsCompleted),
         cleanNonNegativeInt(body.totalCorrect),
         cleanNonNegativeInt(body.totalQuestions),
+        JSON.stringify(areas),
+        JSON.stringify(sources)
+      ]);
+
+      return sendJson(res, 200, { ok: true });
+    }
+
+    // Server-side mirror of modules/progress-mode/store.js's per-area
+    // level/level-progress — NOT the same table or route as
+    // progress-mode-summary above, which stays teacher-facing and is never
+    // read back by the app. Exists purely so a student's level state
+    // survives switching devices; the client always GETs and merges this
+    // before a round can start (see script.js's syncStateFromServer), so
+    // the POST below is a safe blind upsert — whatever the client posts
+    // already reflects a merge of local + server state, not just its own
+    // local view. Identity comes entirely from the session (requireStudent),
+    // never trusted from the request body, same as every other student
+    // route in this file. Per-question scheduling state used to live here
+    // too (as a `sources` column) but was superseded by the append-only
+    // /api/student/progress-mode-reviews log below — see that route's
+    // comment for why.
+    if (req.method === 'GET' && pathname === '/api/student/progress-mode-state') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const result = await getPool().query(`
+        SELECT areas, updated_at
+        FROM progress_mode_sync_state
+        WHERE student_id = $1
+        LIMIT 1
+      `, [student.id]);
+
+      const row = result.rows[0];
+      return sendJson(res, 200, {
+        ok: true,
+        areas: row?.areas || {},
+        updatedAt: row?.updated_at || null
+      });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/student/progress-mode-state') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const body = await readJsonBody(req, 64_000);
+      const cleanKey = (value, maximum) => String(value || '').trim().slice(0, maximum);
+      const cleanNonNegativeInt = (value) => {
+        const number = Math.round(Number(value));
+        return Number.isFinite(number) && number >= 0 ? number : 0;
+      };
+
+      const rawAreas = body.areas && typeof body.areas === 'object' && !Array.isArray(body.areas) ? body.areas : {};
+      const areas = {};
+      Object.keys(rawAreas).slice(0, 12).forEach((rawKey) => {
+        const areaKey = cleanKey(rawKey, 40);
+        if (!areaKey) return;
+        const value = rawAreas[rawKey] || {};
+        const level = Math.min(3, cleanNonNegativeInt(value.level));
+        const rawLevelProgress = value.levelProgress && typeof value.levelProgress === 'object' ? value.levelProgress : {};
+        const levelProgress = {};
+        Object.keys(rawLevelProgress).slice(0, 4).forEach((levelKey) => {
+          const cleanLevelKey = cleanKey(levelKey, 4);
+          if (!/^[0-3]$/.test(cleanLevelKey)) return;
+          const entry = rawLevelProgress[levelKey] || {};
+          const rawConcepts = entry.concepts && typeof entry.concepts === 'object' ? entry.concepts : {};
+          const concepts = {};
+          Object.keys(rawConcepts).slice(0, 200).forEach((conceptKey) => {
+            const cleanConceptKey = cleanKey(conceptKey, 200);
+            if (cleanConceptKey) concepts[cleanConceptKey] = true;
+          });
+          levelProgress[cleanLevelKey] = {
+            correct: cleanNonNegativeInt(entry.correct),
+            total: cleanNonNegativeInt(entry.total),
+            concepts
+          };
+        });
+        areas[areaKey] = { level, levelProgress };
+      });
+
+      await getPool().query(`
+        INSERT INTO progress_mode_sync_state (student_id, teacher_id, areas, updated_at)
+        VALUES ($1, $2, $3::jsonb, NOW())
+        ON CONFLICT (student_id) DO UPDATE SET
+          areas = EXCLUDED.areas,
+          updated_at = NOW()
+      `, [
+        student.id,
+        student.teacher_id,
         JSON.stringify(areas)
       ]);
 
       return sendJson(res, 200, { ok: true });
+    }
+
+    // Append-only log of individual Progress Mode answered-question events
+    // (db/progress-mode-reviews-schema.sql) — the server-side source of
+    // truth for spaced repetition, replacing an earlier mutable-state sync
+    // (this route used to also carry a `sources` field; see the
+    // progress-mode-state route above). Each row stores the RESULTING
+    // ease/interval/repetitions after that review (not just correct/
+    // incorrect), so a device merging this in just needs "the most recent
+    // row per source+signature" (see modules/progress-mode/store.js's
+    // applyIncomingReviews) — no server-side merge logic needed, same
+    // idempotent-insert shape as /api/student/rounds and
+    // classroom/progress-recorder.js's saveRoundPayload (client_review_id
+    // unique per student, pre-check + 23505-catch).
+    if (req.method === 'GET' && pathname === '/api/student/progress-mode-reviews') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const result = await getPool().query(`
+        SELECT source_key, question_signature, correct, response_time_ms,
+               ease_factor, interval_draws, repetitions, level_index,
+               EXTRACT(EPOCH FROM completed_at)::bigint * 1000 AS completed_at_ms
+        FROM progress_mode_reviews
+        WHERE student_id = $1
+        ORDER BY completed_at ASC
+      `, [student.id]);
+
+      return sendJson(res, 200, {
+        ok: true,
+        reviews: result.rows.map((row) => ({
+          sourceKey: row.source_key,
+          questionSignature: row.question_signature,
+          correct: row.correct,
+          responseTimeMs: row.response_time_ms,
+          easeFactor: Number(row.ease_factor),
+          intervalDraws: row.interval_draws,
+          repetitions: row.repetitions,
+          levelIndex: row.level_index,
+          completedAt: Number(row.completed_at_ms)
+        }))
+      });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/student/progress-mode-reviews') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const body = await readJsonBody(req, 256_000);
+      const cleanKey = (value, maximum) => String(value || '').trim().slice(0, maximum);
+      const cleanNonNegativeInt = (value) => {
+        const number = Math.round(Number(value));
+        return Number.isFinite(number) && number >= 0 ? number : 0;
+      };
+      const cleanEaseFactor = (value) => {
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.min(5, Math.max(1, number)) : 2.5;
+      };
+      const cleanResponseTimeMs = (value) => {
+        const number = Math.round(Number(value));
+        return Number.isFinite(number) && number >= 0 ? Math.min(number, 600_000) : null;
+      };
+
+      const reviews = (Array.isArray(body.reviews) ? body.reviews : [])
+        .slice(0, 50)
+        .map((review) => ({
+          sourceKey: cleanKey(review?.sourceKey, 80),
+          questionSignature: cleanKey(review?.questionSignature, 200),
+          correct: Boolean(review?.correct),
+          responseTimeMs: cleanResponseTimeMs(review?.responseTimeMs),
+          easeFactor: cleanEaseFactor(review?.easeFactor),
+          intervalDraws: cleanNonNegativeInt(review?.intervalDraws),
+          repetitions: cleanNonNegativeInt(review?.repetitions),
+          levelIndex: Math.min(3, cleanNonNegativeInt(review?.levelIndex)),
+          clientReviewId: cleanKey(review?.clientReviewId, 160)
+        }))
+        .filter((review) => review.sourceKey && review.questionSignature && review.clientReviewId);
+
+      if (!reviews.length) return sendJson(res, 200, { ok: true, saved: 0 });
+
+      const client = await getPool().connect();
+      let saved = 0;
+      try {
+        await client.query('BEGIN');
+        for (const review of reviews) {
+          const existing = await client.query(`
+            SELECT id FROM progress_mode_reviews WHERE student_id = $1 AND client_review_id = $2 LIMIT 1
+          `, [student.id, review.clientReviewId]);
+          if (existing.rows[0]) continue;
+
+          await client.query(`
+            INSERT INTO progress_mode_reviews (
+              student_id, teacher_id, source_key, question_signature, correct,
+              response_time_ms, ease_factor, interval_draws, repetitions,
+              level_index, client_review_id
+            )
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+          `, [
+            student.id, student.teacher_id, review.sourceKey, review.questionSignature, review.correct,
+            review.responseTimeMs, review.easeFactor, review.intervalDraws, review.repetitions,
+            review.levelIndex, review.clientReviewId
+          ]);
+          saved += 1;
+        }
+        await client.query('COMMIT');
+      } catch (error) {
+        await client.query('ROLLBACK');
+        if (error.code !== '23505') throw error;
+      } finally {
+        client.release();
+      }
+
+      return sendJson(res, 200, { ok: true, saved });
     }
 
     if (req.method === 'GET' && pathname === '/api/student/progress') {
@@ -1746,6 +2080,7 @@ async function handleAccountApi(req, res, parsedUrl) {
           totalCorrect: row.total_correct,
           totalQuestions: row.total_questions,
           areas: row.areas,
+          sources: row.sources || [],
           updatedAt: row.updated_at
         }))
       });

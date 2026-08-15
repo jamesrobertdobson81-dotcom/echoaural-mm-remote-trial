@@ -54,6 +54,10 @@ let hasSubmittedCurrent = false;
 let currentChoiceOrder = [];
 let roundHistory = [];
 let eaProgressRoundId = "";
+// True once a Live Session host has loaded its first question through the
+// contract (see loadQuestionById below) — distinguishes "boot the round"
+// from "load another question into an already-running round."
+let contractSessionStarted = false;
 
 const appShell = document.querySelector(".app-shell");
 const quizPanel = document.getElementById("gameScreen");
@@ -663,6 +667,8 @@ function loadQuestion(index) {
     return;
   }
 
+  window.EAProgressEmbed?.questionReady({ id: currentQuestion.id, level: currentQuestion.level });
+
   setQuizVisualState("active");
   questionTitle.textContent = "Listening question";
   questionPrompt.textContent = stripTrailingQuestionMarkSuffix(currentQuestion.prompt);
@@ -707,6 +713,16 @@ function submitCurrentAnswer(providedAnswer = null) {
 
   stopCurrentAudio();
   renderAnswerCard(currentQuestion, result, rawAnswer);
+  window.EAProgressEmbed?.answerComplete({
+    questionId: currentQuestion.id,
+    score: result.marksAwarded,
+    maximumScore: result.maxMarks,
+    correct: result.status === "correct" || result.status === "partial",
+    responseType: currentQuestion.responseType,
+    answerData: rawAnswer,
+    modelAnswer: currentQuestion.preferredAnswer || currentQuestion.correctChoice || "",
+    feedback: result.feedback || ""
+  });
   updateStats();
 
   if (currentIndex >= questions.length - 1) {
@@ -884,10 +900,19 @@ function goToNextQuestion() {
   else loadQuestion(currentIndex);
 }
 
-function startRound() {
+function startRound(options = {}) {
   closeTextureAdvancedSettings();
   hideRoundFeedbackPanel();
   questions = buildRandomRound(selectedLevel);
+  // Live Session host handed us a specific question via the contract (see
+  // loadQuestionById below) — pin it to the front so the existing
+  // loadQuestion()/goToNextQuestion() flow picks it up completely
+  // unchanged. Done even when buildRandomRound() found nothing, so a
+  // forced question is never lost to an otherwise-empty pool.
+  if (options.forcedQuestion) {
+    questions = questions.filter((question) => question !== options.forcedQuestion);
+    questions.unshift(options.forcedQuestion);
+  }
   currentIndex = 0;
   currentQuestion = null;
   totalMarksAwarded = 0;
@@ -909,6 +934,40 @@ function startRound() {
   startButton.hidden = true;
   loadQuestion(0);
 }
+
+// Live Sessions entry point: a teacher (via the classroom server) has
+// picked an exact question and the host wants this exact question
+// rendered, not whatever buildRandomRound() would have drawn next. Reuses
+// startRound()/loadQuestion() completely unchanged (see the forcedQuestion
+// handling added to startRound() above), so this app's real UI, audio and
+// scoring are exactly what a student sees in normal practice, just pointed
+// at a specific question instead of a random round draw. Level/round-size
+// are still whatever the host already configured via the same DOM controls
+// Progress Mode's own driver uses.
+function loadQuestionById(rawId) {
+  const id = String(rawId || "").trim();
+  if (!id) return false;
+  const target = allQuestions.find((question) => question.id === id);
+  if (!target) {
+    window.EAProgressEmbed?.poolEmpty({ reason: "unknown-question-id", questionId: id });
+    return false;
+  }
+
+  if (!contractSessionStarted) {
+    contractSessionStarted = true;
+    startRound({ forcedQuestion: target });
+  } else {
+    questions = questions.filter((question) => question !== target);
+    questions.unshift(target);
+    currentIndex = 0;
+    loadQuestion(currentIndex);
+  }
+  return true;
+}
+
+window.EAProgressEmbed?.registerQuestionHandler((payload) => {
+  loadQuestionById(payload && (payload.questionId || payload.id));
+});
 
 function setTextureAdvancedSettingsOpen(isOpen) {
   if (!textureSettingsToggle || !textureAdvancedSettings) return;

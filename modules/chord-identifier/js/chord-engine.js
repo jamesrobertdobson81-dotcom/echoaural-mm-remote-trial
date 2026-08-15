@@ -120,9 +120,10 @@
    * applied when the jump stays under `ceilingStep`, so it never fights the
    * off-canvas safety checks that run after this.
    */
-  function openVoice(voiced, ceilingStep) {
+  function openVoice(voiced, ceilingStep, random) {
+    var rng = typeof random === 'function' ? random : Math.random;
     for (var i = 1; i < voiced.length; i++) {
-      if (Math.random() < OPEN_VOICING_PROBABILITY) {
+      if (rng() < OPEN_VOICING_PROBABILITY) {
         var candidate = { letter: voiced[i].letter, accidental: voiced[i].accidental, octave: voiced[i].octave + 1, scaleDegree: voiced[i].scaleDegree };
         if (PU.diatonicStep(candidate) <= ceilingStep) voiced[i] = candidate;
       }
@@ -150,7 +151,7 @@
    * both independently repeat the full chord — this way the 5th tone still
    * shows up rather than silently vanishing.
    */
-  function voiceBalanced(rootPositionTones, rotated, bassOctave, maxNotes) {
+  function voiceBalanced(rootPositionTones, rotated, bassOctave, maxNotes, random) {
     var toneCount = rootPositionTones.length;
     var total = Math.min(maxNotes, toneCount * 2);
     var bassSlots = Math.ceil(total / 2);
@@ -169,7 +170,7 @@
     }
 
     var bass = voiceClosePosition(bassSource, bassOctave);
-    openVoice(bass, BASS_CLEF_CEILING_STEP);
+    openVoice(bass, BASS_CLEF_CEILING_STEP, random);
     bass = sortByPitch(bass);
     while (PU.diatonicStep(bass[bass.length - 1]) > BASS_CLEF_CEILING_STEP) {
       bass.forEach(function (t) { t.octave -= 1; });
@@ -179,7 +180,7 @@
     while (PU.midiNumber(treble[0]) <= PU.midiNumber(bass[bass.length - 1])) {
       treble.forEach(function (t) { t.octave += 1; });
     }
-    openVoice(treble, MAX_SAFE_DIATONIC_STEP);
+    openVoice(treble, MAX_SAFE_DIATONIC_STEP, random);
     treble = sortByPitch(treble);
     // A wide chord or high inversion can still push the top treble note
     // above the safe ceiling even with no doubling involved — shift the
@@ -209,7 +210,7 @@
    *     somewhere across the two staves, and both staves are open-voiced so
    *     neither one just reads as a plain stack of thirds.
    */
-  function voiceForDifficulty(rootPositionTones, inversionIndex, difficulty, bassOctave) {
+  function voiceForDifficulty(rootPositionTones, inversionIndex, difficulty, bassOctave, random) {
     var isTriad = rootPositionTones.length === 3;
     var rotated = rootPositionTones.slice(inversionIndex).concat(rootPositionTones.slice(0, inversionIndex));
 
@@ -249,11 +250,11 @@
     }
 
     if (difficulty === 'securing') {
-      return voiceBalanced(rootPositionTones, rotated, bassOctave, 6); // Mastering's 8 is its own ceiling, not Securing's
+      return voiceBalanced(rootPositionTones, rotated, bassOctave, 6, random); // Mastering's 8 is its own ceiling, not Securing's
     }
 
     if (difficulty === 'mastering') {
-      return voiceBalanced(rootPositionTones, rotated, bassOctave, 8);
+      return voiceBalanced(rootPositionTones, rotated, bassOctave, 8, random);
     }
 
     return voiceClosePosition(rotated, bassOctave);
@@ -282,10 +283,10 @@
   // occasionally fall back to the full candidate pool.
   var FAVOUR_PROBABILITY = 0.75;
 
-  function pickKeyId(candidateKeyIds, favouredKeyIds) {
+  function pickKeyId(candidateKeyIds, favouredKeyIds, random) {
     var favoured = favouredKeyIds ? candidateKeyIds.filter(function (id) { return favouredKeyIds.indexOf(id) !== -1; }) : [];
-    var pool = (favoured.length && Math.random() < FAVOUR_PROBABILITY) ? favoured : candidateKeyIds;
-    return pool[Math.floor(Math.random() * pool.length)];
+    var pool = (favoured.length && random() < FAVOUR_PROBABILITY) ? favoured : candidateKeyIds;
+    return pool[Math.floor(random() * pool.length)];
   }
 
   // Securing/Mastering "favour" richer chord types over plain triads — a
@@ -300,10 +301,10 @@
     mastering: ['seventh', 'extended']
   };
 
-  function pickChordDef(chordChoices, favouredCategories) {
+  function pickChordDef(chordChoices, favouredCategories, random) {
     var favoured = favouredCategories ? chordChoices.filter(function (c) { return favouredCategories.indexOf(c.category) !== -1; }) : [];
-    var pool = (favoured.length && Math.random() < CHORD_FAVOUR_PROBABILITY) ? favoured : chordChoices;
-    return pool[Math.floor(Math.random() * pool.length)];
+    var pool = (favoured.length && random() < CHORD_FAVOUR_PROBABILITY) ? favoured : chordChoices;
+    return pool[Math.floor(random() * pool.length)];
   }
 
   /**
@@ -315,6 +316,10 @@
    */
   function generateQuestion(options) {
     var opts = options || {};
+    // Supplying an RNG lets the shared Chord Identifier core reproduce this
+    // exact generator in Node and in the browser. Existing callers omit it
+    // and retain the original Math.random behaviour.
+    var random = typeof opts.random === 'function' ? opts.random : Math.random;
     var difficulty = opts.difficulty || 'foundation';
     var pool = KeysData.KEY_POOLS[difficulty] || KeysData.KEY_POOLS.foundation;
 
@@ -326,7 +331,7 @@
     if (!candidateKeyIds.length) candidateKeyIds = pool;
 
     var favouredKeyIds = KeysData.FAVOURED_KEY_POOLS && KeysData.FAVOURED_KEY_POOLS[difficulty];
-    var keyId = opts.keyId || pickKeyId(candidateKeyIds, favouredKeyIds);
+    var keyId = opts.keyId || pickKeyId(candidateKeyIds, favouredKeyIds, random);
     var key = KeysData.findKey(keyId);
 
     var allowSeventh = Boolean(opts.allowSeventh);
@@ -346,7 +351,7 @@
       chordChoices = chordChoices.filter(function (c) { return allowSeventh || !/7/.test(c.quality); });
     }
 
-    var chordDef = opts.chordDef || pickChordDef(chordChoices, CHORD_FAVOURED_CATEGORIES[difficulty]);
+    var chordDef = opts.chordDef || pickChordDef(chordChoices, CHORD_FAVOURED_CATEGORIES[difficulty], random);
 
     var rootPositionTones = buildChordSpelling(key, chordDef);
     var toneCount = rootPositionTones.length;
@@ -358,10 +363,10 @@
     var isInvertibleCategory = chordDef.category !== 'extended';
     var allowInversions = Boolean(opts.allowInversions) && isInvertibleCategory && (difficulty === 'securing' || difficulty === 'mastering');
     var inversionIndex = 0;
-    if (allowInversions) inversionIndex = Math.floor(Math.random() * toneCount);
+    if (allowInversions) inversionIndex = Math.floor(random() * toneCount);
 
     var bassOctave = 3;
-    var voiced = voiceForDifficulty(rootPositionTones, inversionIndex, difficulty, bassOctave);
+    var voiced = voiceForDifficulty(rootPositionTones, inversionIndex, difficulty, bassOctave, random);
 
     var displayPitches = voiced.map(function (t) { return PU.formatPitch(t); });
     var rootTone = rootPositionTones[0];

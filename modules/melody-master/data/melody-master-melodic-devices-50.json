@@ -1,8 +1,8 @@
 {
   "pack": "EchoAural Melody Master – Reviewed Cambridge Melodic Devices Bank",
-  "questionCount": 73,
+  "questionCount": 75,
   "sourceQuestionCount": 50,
-  "audioClipCount": 73,
+  "audioClipCount": 75,
   "omittedAudioIds": [],
   "omittedReason": "Candidates excluded by the completed MM Devices review are not served to students.",
   "scoreRequired": false,
@@ -3134,6 +3134,86 @@
       "clipDurationSeconds": "9.056",
       "buildStatus": "MP3 bundled",
       "finalListeningReview": "Added from II245 review note on 2026-08-10; new clip trimmed from 7s."
+    },
+    {
+      "id": "MDV090",
+      "audioId": "MDA090",
+      "audio": "audio/melodic-devices/MDA090.mp3",
+      "sourceId": "WSB003",
+      "mode": "melodic_device_recognition",
+      "category": "Mode/Scale",
+      "question": "Name the tonality of this extract.",
+      "choices": [
+        "Whole tone",
+        "Major",
+        "Minor",
+        "Modal"
+      ],
+      "correctAnswer": "Modal",
+      "acceptedAnswers": [
+        "Modal"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Unaccompanied Latin plainchant in a Phrygian-family Gregorian mode (Mode IV / Hypophrygian) rather than major/minor tonality -- modal.",
+      "level": "Securing",
+      "composer": "",
+      "work": "Resurrexi et Adhuc Tecum Sum (Easter Introit)",
+      "movement": "",
+      "performer": "The Tudor Consort (choir)",
+      "instrumentation": "",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY 3.0",
+      "rightsNote": "The Tudor Consort, via Wikimedia Commons, CC BY 3.0.",
+      "diagnosticTags": "Modal tonality",
+      "sourceGroup": "World Scales styles batch (WSB), imported 2026-08-14",
+      "clarityConfidence": "New import -- not yet aurally reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "25",
+      "clipDurationSeconds": "25",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": ""
+    },
+    {
+      "id": "MDV091",
+      "audioId": "MDA091",
+      "audio": "audio/melodic-devices/MDA091.mp3",
+      "sourceId": "WSB015",
+      "mode": "melodic_device_recognition",
+      "category": "Ornament",
+      "question": "What ornamentation is frequently used in the following extract?",
+      "choices": [
+        "Trill",
+        "Turn",
+        "Slur",
+        "Meend"
+      ],
+      "correctAnswer": "Meend",
+      "acceptedAnswers": [
+        "Meend"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Meend is the sliding, continuous glide between pitches characteristic of Hindustani classical vocal and instrumental ornamentation.",
+      "level": "Securing",
+      "composer": "Traditional Hindustani classical",
+      "work": "Rag Miyan Malhar",
+      "movement": "",
+      "performer": "NCERT educational ensemble (voice with tabla/harmonium accompaniment)",
+      "instrumentation": "Voice, tabla, tanpura/harmonium",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY 3.0",
+      "rightsNote": "NCERT OFFICIAL, via Wikimedia Commons, CC BY 3.0.",
+      "diagnosticTags": "Meend; ornamentation",
+      "sourceGroup": "World Scales styles batch (WSB), imported 2026-08-14",
+      "clarityConfidence": "New import -- not yet aurally reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "25",
+      "clipDurationSeconds": "25",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": ""
     }
   ]
 }

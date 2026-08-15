@@ -44,6 +44,7 @@ const els = {
   studentDialogMessage: document.getElementById("studentDialogMessage"),
   studentDialog: document.getElementById("studentDialog"),
   studentClassId: document.getElementById("studentClassId"),
+  addStudentAction: document.getElementById("addStudentAction"),
   openStudentDialog: document.getElementById("openStudentDialog"),
   cancelStudentButton: document.getElementById("cancelStudentButton"),
   studentList: document.getElementById("studentList"),
@@ -81,6 +82,8 @@ const els = {
   progressStudentName: document.getElementById("progressStudentName"),
   progressStudentMeta: document.getElementById("progressStudentMeta"),
   studentProgressContent: document.getElementById("studentProgressContent"),
+  teacherElementBreakdownDialog: document.getElementById("teacherElementBreakdownDialog"),
+  teacherElementBreakdownContent: document.getElementById("teacherElementBreakdownContent"),
   classCountMetric: document.getElementById("classCountMetric"),
   classSeatSummary: document.getElementById("classSeatSummary"),
   openClassDialog: document.getElementById("openClassDialog"),
@@ -126,6 +129,17 @@ const els = {
   teacherLaunchQuestionCount: document.getElementById("teacherLaunchQuestionCount"),
   teacherLaunchPlayCount: document.getElementById("teacherLaunchPlayCount"),
   teacherLaunchLevel: document.getElementById("teacherLaunchLevel"),
+  teacherLaunchPurpose: document.getElementById("teacherLaunchPurpose"),
+  teacherLaunchStrategy: document.getElementById("teacherLaunchStrategy"),
+  teacherLaunchPurposeSection: document.getElementById("teacherLaunchPurposeSection"),
+  teacherLaunchStrategySection: document.getElementById("teacherLaunchStrategySection"),
+  teacherLaunchFilterSection: document.getElementById("teacherLaunchFilterSection"),
+  teacherLaunchElement: document.getElementById("teacherLaunchElement"),
+  teacherLaunchSkill: document.getElementById("teacherLaunchSkill"),
+  teacherLaunchAvoidRecent: document.getElementById("teacherLaunchAvoidRecent"),
+  teacherLaunchLeaderboard: document.getElementById("teacherLaunchLeaderboard"),
+  teacherLaunchPreview: document.getElementById("teacherLaunchPreview"),
+  previewTeacherLaunch: document.getElementById("previewTeacherLaunch"),
   teacherLaunchHelper: document.getElementById("teacherLaunchHelper"),
   teacherLaunchMessage: document.getElementById("teacherLaunchMessage"),
   teacherLaunchSubmit: document.getElementById("teacherLaunchSubmit"),
@@ -160,6 +174,16 @@ const TEACHER_LAUNCH_COPY = {
 let teacherLaunchMode = "live";
 let teacherLaunchStandardQuestionCount = "5";
 let teacherLaunchStandardLevel = "all";
+let teacherLaunchDraft = null;
+let teacherLaunchCatalogueLoaded = false;
+
+const TEACHER_PURPOSE_PRESETS = {
+  starter: { questionCount: "5", strategy: "balanced", plays: "4" },
+  main: { questionCount: "10", strategy: "class-priorities", plays: "3" },
+  plenary: { questionCount: "5", strategy: "skill-focus", plays: "2" },
+  diagnostic: { questionCount: "10", strategy: "balanced", plays: "2" },
+  custom: { questionCount: "5", strategy: "random", plays: "4" }
+};
 
 function formatMark(value) {
   const number = Number(value || 0);
@@ -176,9 +200,16 @@ function openTeacherLaunchDialog(mode = "live") {
   setTeacherLaunchValue(els.teacherLaunchQuestionCount, "5");
   setTeacherLaunchValue(els.teacherLaunchPlayCount, "4");
   setTeacherLaunchValue(els.teacherLaunchLevel, teacherLaunchMode === "live" ? "all" : "foundation");
+  setTeacherLaunchValue(els.teacherLaunchPurpose, "starter");
+  setTeacherLaunchValue(els.teacherLaunchStrategy, "balanced");
+  els.teacherLaunchElement.value = "";
+  els.teacherLaunchSkill.value = "";
+  els.teacherLaunchAvoidRecent.checked = true;
+  els.teacherLaunchLeaderboard.checked = true;
+  invalidateTeacherLaunchPreview();
   teacherLaunchStandardQuestionCount = "5";
   teacherLaunchStandardLevel = teacherLaunchMode === "live" ? "all" : "foundation";
-  setTeacherLaunchSource("app");
+  setTeacherLaunchSource(teacherLaunchMode === "live" ? "mixed" : "app");
   els.teacherLaunchForm.querySelectorAll("[data-live-only]").forEach((button) => {
     button.disabled = teacherLaunchMode !== "live";
     button.classList.toggle("is-disabled", teacherLaunchMode !== "live");
@@ -186,11 +217,37 @@ function openTeacherLaunchDialog(mode = "live") {
   els.teacherLaunchEyebrow.textContent = copy.eyebrow;
   els.teacherLaunchTitle.textContent = copy.title;
   els.teacherLaunchSubtitle.textContent = copy.subtitle;
-  els.teacherLaunchSubmit.textContent = copy.submit;
+  const submitIcon = teacherLaunchMode === "homework"
+    ? "/assets/icons/dashboard/homework.png"
+    : "/assets/icons/dashboard/join-live-session.png";
+  els.teacherLaunchSubmit.innerHTML = `<span class="teacher-button-icon" aria-hidden="true"><img src="${submitIcon}" alt="" /></span><span>${escapeHtml(copy.submit)}</span>`;
   updateTeacherLaunchHelper();
+  loadTeacherLaunchCatalogue();
   setMessage(els.teacherLaunchMessage);
   els.teacherLaunchDialog.showModal();
   window.setTimeout(() => els.teacherLaunchDialog.querySelector("[data-launch-source]:not(:disabled), [data-launch-option]:not(:disabled)")?.focus(), 0);
+}
+
+function invalidateTeacherLaunchPreview() {
+  teacherLaunchDraft = null;
+  els.teacherLaunchPreview.hidden = true;
+  els.teacherLaunchPreview.innerHTML = "";
+}
+
+async function loadTeacherLaunchCatalogue() {
+  if (teacherLaunchCatalogueLoaded) return;
+  try {
+    const result = await api("/api/classroom/modules");
+    const skills = Array.from(new Map((result.modules || [])
+      .flatMap((module) => module.skills || [])
+      .map((skill) => [skill.code, skill])).values())
+      .sort((left, right) => left.name.localeCompare(right.name));
+    els.teacherLaunchSkill.innerHTML = '<option value="">All available skills</option>'
+      + skills.map((skill) => `<option value="${escapeHtml(skill.code)}">${escapeHtml(skill.name)}</option>`).join("");
+    teacherLaunchCatalogueLoaded = true;
+  } catch (_error) {
+    // The existing live launcher remains usable if the classroom service is offline.
+  }
 }
 
 function closeTeacherLaunchDialog() {
@@ -207,7 +264,7 @@ function setTeacherLaunchValue(input, value) {
 }
 
 function setTeacherLaunchSource(source) {
-  const nextSource = ["app", "mixed", "exam-lab"].includes(source) ? source : "app";
+  const nextSource = ["app", "mixed", "targeted", "exam-lab"].includes(source) ? source : "mixed";
   const previousSource = els.teacherLaunchSource.value;
   if (nextSource === "exam-lab" && previousSource !== "exam-lab") {
     teacherLaunchStandardQuestionCount = els.teacherLaunchQuestionCount.value || "5";
@@ -222,8 +279,9 @@ function setTeacherLaunchSource(source) {
     button.classList.toggle("is-selected", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
-  const moduleId = nextSource === "app" ? (els.teacherLaunchApp.value || "instrument-identifier") : nextSource;
+  const moduleId = nextSource === "app" ? (els.teacherLaunchApp.value || "instrument-identifier") : nextSource === "targeted" ? "mixed" : nextSource;
   setTeacherLaunchValue(els.teacherLaunchModule, moduleId);
+  invalidateTeacherLaunchPreview();
   updateTeacherLaunchHelper();
 }
 
@@ -232,24 +290,38 @@ function updateTeacherLaunchHelper() {
   const selectedModule = els.teacherLaunchModule.value;
   const selectedSource = els.teacherLaunchSource.value;
   const examLab = selectedModule === "exam-lab";
-  const showsStandardChoices = selectedSource === "app" || selectedSource === "mixed";
-  const supportsLevelFilters = ["instrument-identifier", "melody-master", "melodic-intervals", "mixed"].includes(selectedModule);
+  // Targeted rounds still let the teacher choose round length and playback;
+  // only the level control is inapplicable because the class evidence sets it.
+  const showsStandardChoices = selectedSource === "app" || selectedSource === "mixed" || selectedSource === "targeted";
+  const supportsLevelFilters = !examLab && selectedSource !== "targeted";
   els.teacherLaunchHelper.textContent = examLab
     ? "ExamLab sets one server-selected exam extract for the whole class. The teacher controls all playback."
-    : selectedSource === "mixed"
-      ? "Mixed Apps creates a varied set of questions selected from the supported EchoAural apps."
+    : selectedSource === "targeted"
+      ? "Targeted rounds use class weaknesses while preserving variety across question types and apps."
+      : selectedSource === "mixed"
+        ? "Mixed creates a random varied set of questions selected from the supported EchoAural apps."
       : `${els.teacherLaunchApp.options[els.teacherLaunchApp.selectedIndex]?.text || "The selected app"} will supply every question in this session. ${copy.helper}`;
 
-  els.teacherLaunchAppSection.hidden = selectedSource !== "app";
+  els.teacherLaunchAppSection.hidden = false;
+  els.teacherLaunchAppSection.classList.toggle("is-inactive", selectedSource !== "app");
+  els.teacherLaunchApp.disabled = selectedSource !== "app";
   els.teacherLaunchQuestionSection.hidden = !showsStandardChoices;
   els.teacherLaunchPlaySection.hidden = !showsStandardChoices;
-  els.teacherLaunchLevelSection.hidden = !showsStandardChoices;
-  els.teacherLaunchClassSection.hidden = !examLab;
-  if (examLab) {
+  els.teacherLaunchLevelSection.hidden = false;
+  els.teacherLaunchLevelSection.classList.toggle("is-inactive", !showsStandardChoices);
+  els.teacherLaunchPurposeSection.hidden = true;
+  els.teacherLaunchStrategySection.hidden = true;
+  // The live-session launcher intentionally keeps the four core choices
+  // focused; legacy element/skill filters remain available to other launch
+  // flows without cluttering this popup.
+  els.teacherLaunchFilterSection.hidden = teacherLaunchMode === "live" || examLab;
+  if (els.previewTeacherLaunch) els.previewTeacherLaunch.hidden = true;
+  els.teacherLaunchHelper.hidden = true;
+  els.teacherLaunchClassSection.hidden = true;
+  if (!els.teacherLaunchClassSection.hidden) {
     const active = activeClasses();
-    els.teacherLaunchClass.innerHTML = active.length
-      ? active.map((classItem) => `<option value="${escapeHtml(classItem.id)}">${escapeHtml(classItem.className)}</option>`).join("")
-      : '<option value="">All account students</option>';
+    els.teacherLaunchClass.innerHTML = '<option value="">All account students</option>'
+      + active.map((classItem) => `<option value="${escapeHtml(classItem.id)}">${escapeHtml(classItem.className)}</option>`).join("");
   }
   if (examLab) {
     setTeacherLaunchValue(els.teacherLaunchQuestionCount, "1");
@@ -261,7 +333,7 @@ function updateTeacherLaunchHelper() {
     button.classList.toggle("is-disabled", !supportsLevelFilters);
   });
 
-  if (!supportsLevelFilters) setTeacherLaunchValue(els.teacherLaunchLevel, "all");
+  if (!supportsLevelFilters || selectedSource === "targeted") setTeacherLaunchValue(els.teacherLaunchLevel, "all");
 }
 
 function selectTeacherLaunchOption(button) {
@@ -269,30 +341,134 @@ function selectTeacherLaunchOption(button) {
   const input = document.getElementById(button.dataset.target);
   if (!input) return;
   setTeacherLaunchValue(input, button.dataset.value);
+  invalidateTeacherLaunchPreview();
+  if (input === els.teacherLaunchPurpose) {
+    const preset = TEACHER_PURPOSE_PRESETS[input.value] || TEACHER_PURPOSE_PRESETS.custom;
+    setTeacherLaunchValue(els.teacherLaunchQuestionCount, preset.questionCount);
+    setTeacherLaunchValue(els.teacherLaunchPlayCount, preset.plays);
+    setTeacherLaunchValue(els.teacherLaunchStrategy, preset.strategy);
+  }
   if (els.teacherLaunchSource.value !== "exam-lab" && input === els.teacherLaunchQuestionCount) teacherLaunchStandardQuestionCount = input.value;
   if (els.teacherLaunchSource.value !== "exam-lab" && input === els.teacherLaunchLevel) teacherLaunchStandardLevel = input.value;
   if (input === els.teacherLaunchModule) updateTeacherLaunchHelper();
 }
 
-function submitTeacherLaunch(event) {
+function selectedQuestionSetModules() {
+  if (els.teacherLaunchSource.value === "app") {
+    const selected = els.teacherLaunchApp.value || "instrument-identifier";
+    const source = window.EchoAuralPMRegistry?.get(selected);
+    return [source?.moduleId || selected];
+  }
+  return ["instrument-identifier", "ensemble-recognition", "melodic-intervals", "texture-trainer", "meter-master", "cadence-coach", "musical-language", "key-signature-sprint", "chord-identifier", "era-explorer", "melody-master"];
+}
+
+function selectedQuestionSetSources() {
+  if (els.teacherLaunchSource.value !== "app") return [];
+  const source = window.EchoAuralPMRegistry?.get(els.teacherLaunchApp.value || "");
+  return source ? [source.sourceKey] : [];
+}
+
+function buildTeacherQuestionSetSpec() {
+  const level = els.teacherLaunchSource.value === "targeted" ? "all" : (els.teacherLaunchLevel.value || "all");
+  return {
+    version: 1,
+    purpose: els.teacherLaunchPurpose.value || "custom",
+    // Mixed rounds should retain the selected balancing strategy so the
+    // shared class queue does not accidentally cluster several questions from
+    // one app (for example three Melodic Intervals in a row). App-specific
+    // rounds remain random within that app; Targeted rounds use class evidence.
+    strategy: els.teacherLaunchSource.value === "targeted"
+      ? "class-priorities"
+      : els.teacherLaunchSource.value === "mixed"
+        ? (els.teacherLaunchStrategy.value || "balanced")
+        : "random",
+    classId: els.teacherLaunchClass.value || "",
+    questionCount: Number(els.teacherLaunchQuestionCount.value || 5),
+    maxListens: Number(els.teacherLaunchPlayCount.value || 4),
+    moduleIds: selectedQuestionSetModules(),
+    sourceKeys: selectedQuestionSetSources(),
+    musicalElements: els.teacherLaunchElement.value ? [els.teacherLaunchElement.value] : [],
+    skillCodes: els.teacherLaunchSkill.value ? [els.teacherLaunchSkill.value] : [],
+    levels: level === "all" ? [] : [level],
+    avoidRecent: els.teacherLaunchAvoidRecent.checked,
+    leaderboard: els.teacherLaunchLeaderboard.checked,
+    seed: `${state.teacher?.id || "teacher"}:${Date.now()}`
+  };
+}
+
+function formatPreviewDistribution(values = {}) {
+  return Object.entries(values).map(([label, count]) => `${label}: ${count}`).join(" · ") || "No classified questions";
+}
+
+function renderTeacherLaunchPreview(result) {
+  const preview = result.preview || {};
+  els.teacherLaunchPreview.innerHTML = `
+    <h3>${Number(preview.questionCount || 0)} questions · about ${Number(preview.estimatedMinutes || 1)} min</h3>
+    <p>${escapeHtml(preview.rationale || "Question set ready.")}</p>
+    <p><strong>Apps:</strong> ${escapeHtml(formatPreviewDistribution(preview.modules))}</p>
+    <p><strong>Elements:</strong> ${escapeHtml(formatPreviewDistribution(preview.musicalElements))}</p>
+    ${preview.focusSkills?.length ? `<p><strong>Skills:</strong> ${escapeHtml(preview.focusSkills.join(", "))}</p>` : ""}
+    ${preview.questions?.length ? `<ol class="question-set-preview-list">${preview.questions.map((question) => `<li><strong>${escapeHtml(question.moduleTitle)}</strong><span>${escapeHtml([question.questionId, question.skillName, question.level].filter(Boolean).join(" · "))}</span></li>`).join("")}</ol>` : ""}
+    ${preview.warnings?.length ? `<ul>${preview.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul>` : ""}
+  `;
+  els.teacherLaunchPreview.hidden = false;
+}
+
+async function previewTeacherQuestionSet() {
+  if (els.teacherLaunchStrategy.value === "skill-focus" && !els.teacherLaunchElement.value && !els.teacherLaunchSkill.value) {
+    setMessage(els.teacherLaunchMessage, "Choose a musical element or specific skill for a Skill Focus set.", "error");
+    return null;
+  }
+  setMessage(els.teacherLaunchMessage, "Building preview…");
+  els.previewTeacherLaunch.disabled = true;
+  try {
+    const result = await api("/api/classroom/question-set/preview", {
+      method: "POST",
+      body: JSON.stringify({ spec: buildTeacherQuestionSetSpec() })
+    });
+    teacherLaunchDraft = result;
+    renderTeacherLaunchPreview(result);
+    setMessage(els.teacherLaunchMessage, "Question set ready. Review it, then open the live room.", "success");
+    return result;
+  } catch (error) {
+    teacherLaunchDraft = null;
+    setMessage(els.teacherLaunchMessage, error.message, "error");
+    return null;
+  } finally {
+    els.previewTeacherLaunch.disabled = false;
+  }
+}
+
+async function submitTeacherLaunch(event) {
   event.preventDefault();
   const copy = TEACHER_LAUNCH_COPY[teacherLaunchMode] || TEACHER_LAUNCH_COPY.live;
+  const examLab = els.teacherLaunchModule.value === "exam-lab";
+  if (teacherLaunchMode === "live" && !examLab && !teacherLaunchDraft) {
+    teacherLaunchDraft = await previewTeacherQuestionSet();
+    if (!teacherLaunchDraft) return;
+  }
+  const plannedModules = teacherLaunchDraft?.questionPlan
+    ? Array.from(new Set(teacherLaunchDraft.questionPlan.map((item) => item.moduleId)))
+    : [];
+  const plannedModule = plannedModules.length > 1 ? "mixed" : (plannedModules[0] || els.teacherLaunchModule.value || "instrument-identifier");
   const params = new URLSearchParams({
     dashboardLaunch: "1",
     launch: teacherLaunchMode,
-    module: els.teacherLaunchModule.value || "instrument-identifier",
+    module: plannedModule,
     quizLength: els.teacherLaunchQuestionCount.value || "5",
     maxListens: els.teacherLaunchPlayCount.value || "4",
     questionLevel: els.teacherLaunchLevel.value || "all",
     autoCreate: copy.autoCreate
   });
 
-  if (els.teacherLaunchModule.value === "exam-lab" && els.teacherLaunchClass.value) {
+  if (els.teacherLaunchClass.value) {
     params.set("classId", els.teacherLaunchClass.value);
   }
 
+  if (teacherLaunchDraft?.draftId) params.set("questionSetDraft", teacherLaunchDraft.draftId);
+
   if (els.teacherLaunchModule.value === "mixed") {
-    params.set("mixedModules", "instrument-identifier,melodic-intervals");
+    params.set("mixedModules", plannedModules.length ? plannedModules.join(",") : selectedQuestionSetModules().join(","));
   }
 
   window.location.assign(`/teacher/?${params.toString()}`);
@@ -400,13 +576,12 @@ function renderClassSummary() {
   const canAddStudent = classes.length > 0 && !seatLimitReached;
   els.openStudentDialog.disabled = !canAddStudent;
 
-  if (!classes.length) {
-    els.openStudentDialog.textContent = "Create a class first";
-  } else if (seatLimitReached) {
-    els.openStudentDialog.textContent = "All student seats used";
-  } else {
-    els.openStudentDialog.textContent = "Add student";
-  }
+  const addStudentLabel = !classes.length
+    ? "Create a class first"
+    : seatLimitReached
+      ? "All student seats used"
+      : "Add student";
+  els.openStudentDialog.querySelector(".teacher-button-label").textContent = addStudentLabel;
 }
 
 async function loadClasses() {
@@ -593,20 +768,11 @@ function progressPill(progress, fallback = "No results") {
 }
 
 function studentRowMarkup(student) {
-  const overall = overallStudent(student.id);
-  const progressModeRow = progressModeStudentSummary(student.id);
-  const quizzes = categoryStudent("quizzes", student.id);
-
   return `
     <article class="student-row student-row-v2 class-student-row-v7 ${student.active ? "" : "inactive"}" data-student-id="${escapeHtml(student.id)}">
-      <button class="student-summary-button" type="button" data-action="view-progress">
+      <div class="student-summary-copy">
         <span class="student-name">${escapeHtml(student.displayName)}</span>
         <span class="student-username">${escapeHtml(student.username)}</span>
-      </button>
-      <div class="student-category-results-v2">
-        <div><span>Overall</span>${progressPill(overall)}</div>
-        <div><span>Progress Mode</span>${progressModePill(progressModeRow)}</div>
-        <div><span>Live Sessions</span>${progressPill(quizzes, "No sessions")}</div>
       </div>
       <div class="student-status">${student.active ? "Active seat" : "Inactive"}</div>
       <div class="student-actions">
@@ -656,6 +822,7 @@ function renderStudents() {
   renderClassSummary();
 
   const classes = activeClasses();
+  els.addStudentAction.hidden = classes.length === 0;
   if (!classes.length) {
     els.studentList.innerHTML = '<div class="empty-state">No classes yet. Create a class, add named student logins, then finish the class.</div>';
     return;
@@ -733,6 +900,15 @@ const CLASS_CATEGORY_CONFIG = {
   }
 };
 
+function teacherLearningTitleMarkup(title) {
+  const parts = title === "Homework"
+    ? ["Home", "work"]
+    : title === "Progress Mode"
+      ? ["Progress", "Mode"]
+      : title.split(" ");
+  return `<span class="teacher-learning-title-main">${escapeHtml(parts[0])}</span> <span class="teacher-learning-title-accent">${escapeHtml(parts.slice(1).join(" "))}</span>`;
+}
+
 function classCategorySummaryMarkup(categoryKey, category) {
   const config = CLASS_CATEGORY_CONFIG[categoryKey];
   const overall = category?.overall || {};
@@ -754,7 +930,7 @@ function classCategorySummaryMarkup(categoryKey, category) {
       <div class="learning-summary-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" style="--ea-icon:url('${config.icon}')"></span></div>
       <div class="learning-summary-title-v5">
         <p>${escapeHtml(config.eyebrow)}</p>
-        <h3 id="${escapeHtml(config.headingId)}">${escapeHtml(config.title)}</h3>
+        <h3 id="${escapeHtml(config.headingId)}" class="teacher-learning-title">${teacherLearningTitleMarkup(config.title)}</h3>
       </div>
       <strong class="learning-summary-percentage-v5 ${scoreClass(overall.percentage, overall.questions)}">${percentage}</strong>
     </div>
@@ -766,7 +942,7 @@ function classCategorySummaryMarkup(categoryKey, category) {
 
     <div class="learning-summary-footer-v5">
       <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds${practiceTimeText} · ${studentCount} students</span>
-      <button class="secondary-button learning-detail-button-v5" type="button" data-category-detail="${escapeHtml(categoryKey)}">Detailed feedback</button>
+      <button class="secondary-button learning-detail-button-v5" type="button" data-category-detail="${escapeHtml(categoryKey)}"><span class="teacher-button-icon" aria-hidden="true"><img src="${escapeHtml(config.icon)}" alt="" /></span><span>Detailed feedback</span></button>
     </div>
   `;
 }
@@ -807,7 +983,7 @@ function progressModeClassSummaryMarkup() {
       <div class="learning-summary-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" style="--ea-icon:url('${config.icon}')"></span></div>
       <div class="learning-summary-title-v5">
         <p>${escapeHtml(config.eyebrow)}</p>
-        <h3 id="${escapeHtml(config.headingId)}">${escapeHtml(config.title)}</h3>
+        <h3 id="${escapeHtml(config.headingId)}" class="teacher-learning-title">${teacherLearningTitleMarkup("Progress Mode")}</h3>
       </div>
       <strong class="learning-summary-percentage-v5 ${scoreClass(data.percentage, data.totalQuestions)}">${hasEvidence ? `${data.percentage}%` : "—"}</strong>
     </div>
@@ -819,7 +995,7 @@ function progressModeClassSummaryMarkup() {
 
     <div class="learning-summary-footer-v5">
       <span>${data.totalQuestions} questions · ${data.participating} / ${data.totalStudents} students</span>
-      <button class="secondary-button learning-detail-button-v5" type="button" data-category-detail="progress">Detailed feedback</button>
+      <button class="secondary-button learning-detail-button-v5" type="button" data-category-detail="progress"><span class="teacher-button-icon" aria-hidden="true"><img src="${escapeHtml(config.icon)}" alt="" /></span><span>Detailed feedback</span></button>
     </div>
   `;
 }
@@ -1194,27 +1370,360 @@ function individualProgressModeCategory(studentId) {
   `;
 }
 
-function renderStudentProgress(progress) {
-  const overall = progress.overall;
-  const categories = progress.categories || { quizzes: { overall: {}, modules: [], recentRounds: [], recentQuestions: [] }, homework: { overall: {} } };
-  els.studentProgressContent.innerHTML = `
-    <div class="individual-overall-strip-v2">
-      <div class="individual-overall-score-v2 ${scoreClass(overall.percentage, overall.questions)}">
-        <span>${escapeHtml(overall.level)}</span><strong>${overall.questions ? `${overall.percentage}%` : "—"}</strong><small>${formatMark(overall.score)} / ${formatMark(overall.maximumScore)} marks</small>
+const TEACHER_ELEMENT_ICONS = {
+  melody: "/assets/icons/modules/melody-master.png",
+  texture: "/assets/icons/modules/texture-trainer.png",
+  harmony: "/assets/icons/modules/harmony-explorer.png",
+  instrumentation: "/assets/icons/modules/instrument-identifier.png",
+  rhythm: "/assets/icons/modules/meter-master.png",
+  context: "/assets/icons/modules/context-coach.png"
+};
+
+const TEACHER_ELEMENT_LABELS = {
+  melody: "Melody",
+  texture: "Texture",
+  harmony: "Harmony",
+  instrumentation: "Instrumentation",
+  rhythm: "Rhythm",
+  context: "Context"
+};
+
+const TEACHER_MODULE_ELEMENTS = {
+  "melody-master": "melody",
+  "melody-master-dictation": "melody",
+  "melody-master-devices": "melody",
+  "melodic-intervals": "melody",
+  "texture-trainer": "texture",
+  "instrument-identifier": "instrumentation",
+  "ensemble-recognition": "instrumentation",
+  "meter-master": "rhythm",
+  "key-signature-sprint": "harmony",
+  "harmony-key-signatures": "harmony",
+  "chord-identifier": "harmony",
+  "cadence-coach": "harmony",
+  "era-explorer": "context",
+  "context-coach-composer": "context",
+  "context-coach-period": "context",
+  "exam-lab": "context",
+  "musical-language-articulation": "melody",
+  "musical-language-ornamentation": "melody",
+  "musical-language-dynamics": "texture",
+  "musical-language-tempo": "rhythm",
+  "musical-language": "melody"
+};
+
+const TEACHER_SUBAPP_ICONS = {
+  "melody-master": "/assets/icons/modules/mm-transparent/melodic-dictation-transparent.png",
+  "melodic-devices": "/assets/icons/modules/mm-transparent/melodic-devices-transparent.png",
+  "melodic-intervals": "/assets/icons/modules/mm-transparent/melodic-intervals-transparent.png",
+  "texture-trainer": "/assets/icons/modules/texture-trainer.png",
+  "instrument-identifier": "/assets/icons/modules/instrument-identifier.png",
+  "ensemble-recognition": "/assets/icons/modules/ii-transparent/ensembles-transparent-v3.png",
+  "key-signatures": "/assets/icons/modules/he-transparent/key-signatures-transparent.png",
+  "chord-identifier": "/assets/icons/modules/he-transparent/chord-identifier-transparent.png",
+  "cadence-coach": "/assets/icons/modules/he-transparent/cadences-transparent.png",
+  "meter-master": "/assets/icons/modules/meter-master.png",
+  "exam-lab": "/assets/icons/modules/exam-lab.png",
+  "context-coach-composer": "/assets/icons/modules/cc-transparent/composers-transparent.png",
+  "context-coach-period": "/assets/icons/modules/cc-transparent/eras-transparent.png"
+};
+
+const TEACHER_PM_SOURCE_MODULES = {
+  "melody-master-dictation": "melody-master",
+  "melody-master-devices": "melodic-devices",
+  "melodic-intervals": "melodic-intervals",
+  "instrument-identifier": "instrument-identifier",
+  "ensemble-recognition": "ensemble-recognition",
+  "texture-trainer": "texture-trainer",
+  "chord-identifier": "chord-identifier",
+  "harmony-key-signatures": "key-signatures",
+  "cadence-coach": "cadence-coach",
+  "meter-master": "meter-master",
+  "musical-language-ornamentation": "vocabulary-melody",
+  "musical-language-articulation": "vocabulary-melody",
+  "musical-language-dynamics": "vocabulary-texture",
+  "musical-language-tempo": "vocabulary-rhythm",
+  "context-coach-composer": "context-coach-composer",
+  "context-coach-period": "context-coach-period"
+};
+
+function teacherProgressNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function teacherElementTotals(progress) {
+  const totals = new Map();
+  Object.keys(TEACHER_ELEMENT_LABELS).forEach((areaKey) => totals.set(areaKey, {
+    score: 0,
+    maximumScore: 0,
+    questions: 0,
+    modules: []
+  }));
+
+  Object.entries(progress?.categories || {}).forEach(([categoryKey, category]) => {
+    (category?.modules || []).forEach((module) => {
+      const areaKey = TEACHER_MODULE_ELEMENTS[module.moduleId];
+      if (!areaKey) return;
+      const target = totals.get(areaKey);
+      const score = teacherProgressNumber(module.score);
+      const maximumScore = teacherProgressNumber(module.maximumScore);
+      const questions = teacherProgressNumber(module.questions);
+      target.score += score;
+      target.maximumScore += maximumScore;
+      target.questions += questions;
+      const vocabularyModule = module.moduleId === "musical-language"
+        || String(module.moduleId).startsWith("musical-language-");
+      const displayModuleId = vocabularyModule ? `vocabulary-${areaKey}` : module.moduleId;
+      const existing = target.modules.find((entry) => entry.moduleId === displayModuleId);
+      if (existing) {
+        existing.score += score;
+        existing.maximumScore += maximumScore;
+        existing.questions += questions;
+        existing.percentage = existing.maximumScore ? Math.round((existing.score / existing.maximumScore) * 100) : 0;
+      } else target.modules.push({
+        categoryKey: "overall",
+        title: vocabularyModule
+          ? "Vocabulary"
+          : module.moduleId === "texture-trainer"
+            ? "Devices"
+            : module.moduleId === "meter-master"
+              ? "Devices"
+            : (module.title || module.moduleId),
+        moduleId: displayModuleId,
+        icon: vocabularyModule ? "/assets/icons/modules/score-decoder.png" : (TEACHER_SUBAPP_ICONS[module.moduleId] || module.icon),
+        score,
+        maximumScore,
+        questions,
+        percentage: maximumScore ? Math.round((score / maximumScore) * 100) : 0,
+        level: module.level || "Not started"
+      });
+    });
+  });
+
+  // Progress Mode is stored separately from the server's round history. Add
+  // its area totals to the element cards so the headline percentages cover
+  // all three modes. Do not add a synthetic "Progress Mode" sub-app row:
+  // the breakdown is intentionally an overall-by-app view, not a mode view.
+  const progressMode = progressModeStudentSummary(state.progressStudent?.id);
+  (progressMode?.sources || []).forEach((source) => {
+    const areaKey = String(source.areaKey || "");
+    const target = totals.get(areaKey);
+    if (!target) return;
+    const score = teacherProgressNumber(source.correct);
+    const maximumScore = teacherProgressNumber(source.questions);
+    const sourceKey = String(source.sourceKey || "");
+    const displayModuleId = TEACHER_PM_SOURCE_MODULES[sourceKey] || sourceKey;
+    const existing = target.modules.find((module) => module.moduleId === displayModuleId);
+    if (existing) {
+      existing.score += score;
+      existing.maximumScore += maximumScore;
+      existing.questions += maximumScore;
+      existing.percentage = existing.maximumScore ? Math.round((existing.score / existing.maximumScore) * 100) : 0;
+      return;
+    }
+    const vocabulary = displayModuleId === "vocabulary-melody"
+      || displayModuleId === "vocabulary-texture"
+      || displayModuleId === "vocabulary-rhythm";
+    target.modules.push({
+      categoryKey: "overall",
+      title: vocabulary ? "Vocabulary" : (source.label || sourceKey),
+      moduleId: displayModuleId,
+      icon: vocabulary ? "/assets/icons/modules/score-decoder.png" : (TEACHER_SUBAPP_ICONS[displayModuleId] || TEACHER_ELEMENT_ICONS[areaKey]),
+      score,
+      maximumScore,
+      questions: maximumScore,
+      percentage: maximumScore ? Math.round((score / maximumScore) * 100) : 0,
+      level: "Overall"
+    });
+  });
+  (progressMode?.areas || []).forEach((area) => {
+    const target = totals.get(String(area.areaKey));
+    if (!target) return;
+    const questions = teacherProgressNumber(area.questions);
+    const correct = teacherProgressNumber(area.correct);
+    target.score += correct;
+    target.maximumScore += questions;
+    target.questions += questions;
+  });
+
+  // Context Coach is presented as its two student-facing sub-apps rather
+  // than the legacy Exam Lab bucket. Keep both rows visible even when the
+  // student has not attempted either one yet.
+  const context = totals.get("context");
+  if (context) {
+    context.modules = context.modules.filter((module) => module.moduleId !== "exam-lab");
+    [
+      ["context-coach-composer", "Composers"],
+      ["context-coach-period", "Eras & Periods"]
+    ].forEach(([moduleId, title]) => {
+      if (!context.modules.some((module) => module.moduleId === moduleId)) {
+        context.modules.push({
+          categoryKey: "overall",
+          title,
+          moduleId,
+          icon: TEACHER_SUBAPP_ICONS[moduleId],
+          score: 0,
+          maximumScore: 0,
+          questions: 0,
+          percentage: 0,
+          level: "Not started"
+        });
+      }
+    });
+  }
+
+  const instrumentation = totals.get("instrumentation");
+  if (instrumentation && !instrumentation.modules.some((module) => module.moduleId === "ensemble-recognition")) {
+    instrumentation.modules.push({
+      categoryKey: "overall",
+      title: "Ensembles",
+      moduleId: "ensemble-recognition",
+      icon: TEACHER_SUBAPP_ICONS["ensemble-recognition"],
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      percentage: 0,
+      level: "Not started"
+    });
+  }
+
+  const harmony = totals.get("harmony");
+  if (harmony) {
+    const harmonyApps = [
+      ["key-signatures", "Keys"],
+      ["chord-identifier", "Chords"],
+      ["cadence-coach", "Cadences"]
+    ];
+    harmonyApps.forEach(([moduleId, title]) => {
+      if (!harmony.modules.some((module) => module.moduleId === moduleId)) {
+        harmony.modules.push({
+          categoryKey: "overall",
+          title,
+          moduleId,
+          icon: TEACHER_SUBAPP_ICONS[moduleId],
+          score: 0,
+          maximumScore: 0,
+          questions: 0,
+          percentage: 0,
+          level: "Not started"
+        });
+      }
+    });
+  }
+
+  ["melody", "texture", "rhythm"].forEach((areaKey) => {
+    const area = totals.get(areaKey);
+    if (!area || area.modules.some((module) => module.moduleId === `vocabulary-${areaKey}`)) return;
+    area.modules.push({
+      categoryKey: "overall",
+      title: "Vocabulary",
+      moduleId: `vocabulary-${areaKey}`,
+      icon: "/assets/icons/modules/score-decoder.png",
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      percentage: 0,
+      level: "Not started"
+    });
+  });
+  const melody = totals.get("melody");
+  if (melody && !melody.modules.some((module) => module.moduleId === "melodic-devices")) {
+    melody.modules.unshift({
+      categoryKey: "overall",
+      title: "Devices",
+      moduleId: "melodic-devices",
+      icon: TEACHER_SUBAPP_ICONS["melodic-devices"],
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      percentage: 0,
+      level: "Not started"
+    });
+  }
+  return totals;
+}
+
+function renderTeacherElementBreakdown(areaKey, totals) {
+  const detail = els.teacherElementBreakdownContent;
+  if (!detail) return;
+  const area = totals.get(areaKey) || { modules: [] };
+  detail.innerHTML = `
+    <div class="pm-detail teacher-pm-detail-v10">
+      <div class="teacher-element-detail-toolbar-v10">
+        <button type="button" class="teacher-element-breakdown-close-v10" data-element-breakdown-close>← Back to elements</button>
       </div>
-      <div class="individual-overall-metrics-v2">
-        <div><span>Questions</span><strong>${overall.questions}</strong></div>
-        <div><span>Rounds</span><strong>${overall.rounds}</strong></div>
-        <div><span>Apps started</span><strong>${overall.modulesStarted} / 6</strong></div>
+      <div class="pm-element-columns">
+        <section class="pm-panel pm-element-header">
+          <span class="pm-element-header-icon" aria-hidden="true"><img src="${TEACHER_ELEMENT_ICONS[areaKey]}" alt="" /></span>
+          <div class="pm-element-header-copy">
+            <strong class="pm-element-header-title">${escapeHtml(TEACHER_ELEMENT_LABELS[areaKey] || areaKey)}</strong>
+            <span class="pm-element-header-meta">${area.maximumScore ? `${Math.round((area.score / area.maximumScore) * 100)}% overall` : "No evidence yet"}</span>
+          </div>
+        </section>
+        <section class="pm-panel">
+          <div class="pm-section-heading"><h3>Overall performance by app</h3><p class="pm-section-note">Progress Mode, Live Sessions and Homework combined</p></div>
+          <div class="pm-area-list" data-area="${escapeHtml(areaKey)}">
+            ${area.modules.length ? area.modules.map((module) => `
+              <div class="pm-subapp-row">
+                <span class="pm-subapp-row-icon pm-subapp-row-icon-tile"><img src="${escapeHtml(module.icon || TEACHER_ELEMENT_ICONS[areaKey])}" alt="" /></span>
+                <div class="pm-subapp-row-body">
+                  <div class="pm-subapp-row-main">
+                    <span class="pm-subapp-row-label" title="${escapeHtml(module.title)}">${escapeHtml(module.title)}</span>
+                    <span class="pm-subapp-row-bar"><i style="width:${module.questions ? module.percentage : 0}%"></i></span>
+                    <strong class="pm-subapp-row-pct">${module.questions ? `${module.percentage}%` : "—"}</strong>
+                  </div>
+                  <p class="pm-subapp-row-feedback">${module.questions ? `${formatMark(module.score)} / ${formatMark(module.maximumScore)} marks overall` : "No attempts yet — complete a round to start building feedback here."}</p>
+                </div>
+              </div>
+            `).join("") : '<p class="pm-callout-empty">No apps found for this element.</p>'}
+          </div>
+        </section>
       </div>
-      <p>${escapeHtml(overall.compiledFeedback)}</p>
-    </div>
-    <div class="individual-category-grid-v2">
-      ${individualProgressModeCategory(state.progressStudent?.id)}
-      ${individualCategory("Live Sessions", "Teacher-led learning", categories.quizzes, true, "/assets/icons/dashboard/join-live-session.png", "quizzes")}
-      ${individualCategory("Homework", "Assigned learning", categories.homework, false, "/assets/icons/dashboard/homework.png", "homework")}
     </div>
   `;
+  detail.querySelector("[data-element-breakdown-close]")?.addEventListener("click", () => {
+    els.teacherElementBreakdownDialog.close();
+  });
+  els.teacherElementBreakdownDialog.showModal();
+}
+
+function renderStudentProgress(progress) {
+  state.studentProgressPayload = progress;
+  const totals = teacherElementTotals(progress);
+  const areaKeys = ["melody", "texture", "harmony", "instrumentation", "rhythm", "context"];
+
+  els.studentProgressContent.innerHTML = `
+    <section class="teacher-element-progress-view-v10">
+      <div class="teacher-element-progress-grid-v10">
+        ${areaKeys.map((areaKey) => {
+          const area = totals.get(areaKey) || {};
+          const questions = Number(area.maximumScore || area.questions || 0);
+          const correct = Number(area.score || 0);
+          const percentage = questions ? Math.round((correct / questions) * 100) : 0;
+          const level = percentage >= 85 ? "Mastering" : percentage >= 70 ? "Securing" : percentage >= 50 ? "Developing" : "Foundation";
+          return `
+            <button type="button" class="teacher-element-progress-card-v10 ${scoreClass(percentage, questions)}" data-element-progress="${areaKey}" aria-label="View ${TEACHER_ELEMENT_LABELS[areaKey]} sub-app breakdown">
+              <div class="teacher-element-progress-card-heading-v10">
+                <span class="teacher-element-progress-icon-v10"><img src="${TEACHER_ELEMENT_ICONS[areaKey]}" alt="" /></span>
+                <h4>${TEACHER_ELEMENT_LABELS[areaKey]}</h4>
+              </div>
+              <strong class="teacher-element-progress-percentage-v10">${questions ? `${percentage}%` : "—"}</strong>
+              <div class="teacher-element-progress-bar-v10" aria-hidden="true"><span style="width:${questions ? percentage : 0}%"></span></div>
+              <span class="teacher-element-progress-level-v10">${escapeHtml(level)}</span>
+              <small>${questions ? `${correct} / ${questions} marks` : "No evidence yet"}</small>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+
+  els.studentProgressContent.querySelectorAll("[data-element-progress]").forEach((card) => {
+    card.addEventListener("click", () => {
+      renderTeacherElementBreakdown(card.dataset.elementProgress, totals);
+    });
+  });
 }
 
 async function openStudentProgress(student) {
@@ -1260,6 +1769,7 @@ function clearStudentProgressRefresh() {
 
 function closeStudentProgressDialog() {
   clearStudentProgressRefresh();
+  if (els.teacherElementBreakdownDialog?.open) els.teacherElementBreakdownDialog.close();
   state.progressStudent = null;
   els.studentProgressDialog.close();
 }
@@ -1576,8 +2086,15 @@ els.teacherLaunchDialog.addEventListener("click", (event) => {
 els.teacherLaunchApp.addEventListener("change", () => {
   if (els.teacherLaunchSource.value !== "app") return;
   setTeacherLaunchValue(els.teacherLaunchModule, els.teacherLaunchApp.value);
+  invalidateTeacherLaunchPreview();
   updateTeacherLaunchHelper();
 });
+els.teacherLaunchClass.addEventListener("change", invalidateTeacherLaunchPreview);
+els.teacherLaunchElement.addEventListener("change", invalidateTeacherLaunchPreview);
+els.teacherLaunchSkill.addEventListener("change", invalidateTeacherLaunchPreview);
+els.teacherLaunchAvoidRecent.addEventListener("change", invalidateTeacherLaunchPreview);
+els.teacherLaunchLeaderboard.addEventListener("change", invalidateTeacherLaunchPreview);
+els.previewTeacherLaunch?.addEventListener("click", previewTeacherQuestionSet);
 els.teacherLaunchForm.addEventListener("submit", submitTeacherLaunch);
 
 els.closeCategoryDetail.addEventListener("click", () => els.categoryDetailDialog.close());
@@ -1599,6 +2116,9 @@ els.studentProgressDialog.addEventListener("click", (event) => {
 els.studentProgressDialog.addEventListener("close", () => {
   clearStudentProgressRefresh();
   state.progressStudent = null;
+});
+els.teacherElementBreakdownDialog.addEventListener("click", (event) => {
+  if (event.target === els.teacherElementBreakdownDialog) els.teacherElementBreakdownDialog.close();
 });
 window.addEventListener("focus", () => {
   refreshOpenStudentProgress(true);

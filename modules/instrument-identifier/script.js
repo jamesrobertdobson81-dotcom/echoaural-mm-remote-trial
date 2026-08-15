@@ -18,6 +18,11 @@ let eaLastRoundSave = Promise.resolve({ saved: false, reason: "not-started" });
 let roundFeedbackOverlay = null;
 let playMode = "play";
 let hasSubmitted = false;
+// True once a Live Session host has loaded its first question through the
+// contract (see loadQuestionById below) — distinguishes "boot the round"
+// from "load another question into an already-running round" without a
+// second, duplicated setup path.
+let contractSessionStarted = false;
 let awardedSoFar = 0;
 let possibleSoFar = 0;
 
@@ -100,7 +105,7 @@ const INSTRUMENT_ICON_MAP = {
   "acoustic guitar": "acoustic-guitar.png",
   "classical guitar": "guitar.svg",
   "electric guitar": "electric-guitar.png",
-  "bass guitar": "bass-guitar.svg",
+  "bass guitar": "bass-guitar.png",
   "harp": "harp.svg",
 
   "bandoneon": "bandoneon.png",
@@ -114,6 +119,7 @@ const INSTRUMENT_ICON_MAP = {
   "erhu": "erhu.png",
   "guiro": "guiro.png",
   "guzheng": "guzheng.png",
+  "guqin": "guqin.png",
   "maracas": "maracas.png",
   "nay": "nay.png",
   "oud": "oud.png",
@@ -131,6 +137,18 @@ const INSTRUMENT_ICON_MAP = {
   "steel pans": "steel-pan-drums.png",
   "steel drums": "steel-pan-drums.png",
   "electronic synth": "synthesiser.png",
+  "chip synthesiser": "chip-synthesiser.png",
+  "chip synthesizer": "chip-synthesiser.png",
+  "gamelan": "gamelan.png",
+  "koto": "koto.png",
+  "panpipes": "panpipes.png",
+  "pan pipes": "panpipes.png",
+  "agogo": "agogo.png",
+  "agogo bells": "agogo.png",
+  "rebab": "rebab.png",
+  "shakuhachi": "shakuhachi.png",
+  "acoustic orchestra": "acoustic-orchestra.png",
+  "orchestra": "acoustic-orchestra.png",
 
   "timpani": "timpani.svg",
   "kettle drums": "timpani.svg",
@@ -799,6 +817,11 @@ function loadQuestion() {
     return;
   }
 
+  window.EAProgressEmbed?.questionReady({
+    id: getField(currentClip, ["id", "ID", "clipId"]),
+    level: getField(currentClip, ["difficulty"])
+  });
+
   setQuestionPrompt(getClipQuestion(currentClip), 1);
 
   if (audio) {
@@ -920,6 +943,16 @@ function checkAnswer(selectedInstrument, selectedButton) {
   });
 
   showAnswerCard(wasCorrect);
+  window.EAProgressEmbed?.answerComplete({
+    questionId: getField(currentClip, ["id", "ID", "clipId"]),
+    score: wasCorrect ? 1 : 0,
+    maximumScore: 1,
+    correct: wasCorrect,
+    responseType: "multiple-choice",
+    answerData: selectedInstrument,
+    modelAnswer: correctInstrument,
+    feedback: feedback.textContent
+  });
   if (trackInfo) {
     trackInfo.innerHTML = buildTrackInfoHTML(currentClip);
     trackInfo.removeAttribute("aria-hidden");
@@ -1071,6 +1104,16 @@ function checkTypedAnswer() {
   if (iiStudentAnswer) iiStudentAnswer.disabled = true;
 
   showAnswerCard(result.wasCorrect);
+  window.EAProgressEmbed?.answerComplete({
+    questionId: getField(currentClip, ["id", "ID", "clipId"]),
+    score: result.awardedMarks,
+    maximumScore: result.maxMarks,
+    correct: result.wasCorrect,
+    responseType: "typed",
+    answerData: rawAnswer,
+    modelAnswer: correctInstrument,
+    feedback: feedback.textContent
+  });
   if (trackInfo) {
     trackInfo.innerHTML = buildTrackInfoHTML(currentClip);
     trackInfo.removeAttribute("aria-hidden");
@@ -1380,7 +1423,7 @@ function getEnsembleRecognitionLaunchUrl() {
   return `../ensemble-recognition/index.html?${params.toString()}`;
 }
 
-function startGame() {
+function startGame(options = {}) {
   if (getSelectedIiSkill() === "ensembles") {
     window.location.href = getEnsembleRecognitionLaunchUrl();
     return;
@@ -1398,6 +1441,15 @@ function startGame() {
     setSetupSettingsLocked(false);
     setupMessage.textContent = "No clips match those settings. Try Mixed difficulty.";
     return;
+  }
+
+  // Live Session host handed us a specific clip via the contract (see
+  // loadQuestionById below) — pin it to the front of the freshly-built deck
+  // so the existing getNextClip()/loadQuestion() flow picks it up
+  // completely unchanged, rather than the usual random deck draw.
+  if (options.forcedClip) {
+    questionDeck = questionDeck.filter(clip => clip !== options.forcedClip);
+    questionDeck.unshift(options.forcedClip);
   }
 
   setAdvancedSettingsOpen(false);
@@ -1459,6 +1511,41 @@ function restartGame() {
     restartButton.style.display = "none";
   });
 }
+
+// Live Sessions entry point: a teacher (via the classroom server) has
+// picked an exact clip and the host wants this exact question rendered,
+// not whatever getNextClip() would have drawn next. Reuses startGame()/
+// loadQuestion() completely unchanged — see the forcedClip handling added
+// to startGame() above — so this app's real UI, audio and scoring are
+// exactly what a student sees in normal practice, just pointed at a
+// specific clip instead of a random deck draw. Level/skill/family filters
+// are still whatever the host already configured via the same DOM controls
+// Progress Mode's own driver uses (see modules/progress-mode/
+// app-drivers.js's configure() for this source) — this function only adds
+// "load this exact question," nothing about how settings are chosen.
+function loadQuestionById(rawId) {
+  const id = String(rawId || "").trim();
+  if (!id) return false;
+  const clip = clipData.find(candidate => String(getField(candidate, ["id", "ID", "clipId"]) || "").trim() === id);
+  if (!clip) {
+    window.EAProgressEmbed?.poolEmpty({ reason: "unknown-question-id", questionId: id });
+    return false;
+  }
+
+  if (!contractSessionStarted) {
+    contractSessionStarted = true;
+    startGame({ forcedClip: clip });
+  } else {
+    questionDeck = questionDeck.filter(candidate => candidate !== clip);
+    questionDeck.unshift(clip);
+    loadQuestion();
+  }
+  return true;
+}
+
+window.EAProgressEmbed?.registerQuestionHandler(payload => {
+  loadQuestionById(payload && (payload.questionId || payload.id));
+});
 
 function setAdvancedSettingsOpen(isOpen) {
   advancedSettings.style.display = isOpen ? "block" : "none";

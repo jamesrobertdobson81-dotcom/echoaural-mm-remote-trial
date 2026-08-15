@@ -16,6 +16,7 @@ let gameOver = false;
 let answerLocked = true;
 let roundHistory = [];
 let roundFeedbackOverlay = null;
+let pendingHostedQuestion = null;
 // Content-review overlay (drops/levels/option overrides) loaded alongside
 // the shared clip catalogue — see loadCatalogue(). Null until loaded, or if
 // unavailable, in which case Era Explorer falls back to the fully
@@ -41,10 +42,10 @@ const COMPOSER_ICON_MAP = Object.freeze({
   "alexander borodin": "alexander_borodin.png",
   "antonio vivaldi": "antonio_vivaldi.png",
   "antonin dvorak": "antonin_dvorak.png",
-  "bottesini": "bottesini.png",
+  "giovanni bottesini": "bottesini.png",
   "carl philipp emanuel bach": "carl_philipp_emanuel_bach.png",
   "claude debussy": "claude_debussy.png",
-  "dushkin": "dushkin.png",
+  "samuel dushkin": "dushkin.png",
   "edvard grieg": "edvard_grieg.png",
   "edward elgar": "edward_elgar.png",
   "felix mendelssohn": "felix_mendelssohn.png",
@@ -53,24 +54,24 @@ const COMPOSER_ICON_MAP = Object.freeze({
   "gabriel faure": "gabriel_faure.png",
   "georg philipp telemann": "georg_philipp_telemann.png",
   "george frideric handel": "george_frideric_handel.png",
-  "glazunov": "glazunov.png",
+  "alexander glazunov": "glazunov.png",
   "igor stravinsky": "igor_stravinsky.png",
   "johann sebastian bach": "johann_sebastian_bach.png",
   "johann strauss ii": "johann_strauss_ii.png",
   "johannes brahms": "johannes_brahms.png",
   "josef suk": "josef_suk.png",
   "joseph haydn": "joseph_haydn.png",
-  "kuhlau": "kuhlau.png",
+  "friedrich kuhlau": "kuhlau.png",
   "ludwig van beethoven": "ludwig_van_beethoven.png",
   "modest mussorgsky": "modest_mussorgsky.png",
-  "mouret": "mouret.png",
+  "jean joseph mouret": "mouret.png",
   "muzio clementi": "muzio_clementi.png",
   "nikolai rimsky korsakov": "nikolai_rimsky_korsakov.png",
   "pyotr ilyich tchaikovsky": "pyotr_ilyich_tchaikovsky.png",
   "robert schumann": "robert_schumann.png",
   "sergei rachmaninoff": "sergei_rachmaninoff.png",
   "tomaso albinoni": "tomaso_albinoni.png",
-  "von weber": "von_weber.png",
+  "carl maria von weber": "von_weber.png",
   "wolfgang amadeus mozart": "wolfgang_amadeus_mozart.png"
 });
 const core = window.EraExplorer;
@@ -428,6 +429,8 @@ function loadQuestion() {
     return;
   }
 
+  window.EAProgressEmbed?.questionReady({ id: currentQuestion.id, level: currentQuestion.level });
+
   setQuizVisualState("active");
   answerLocked = false;
   setQuestionPrompt(currentQuestion.prompt, 1);
@@ -543,6 +546,16 @@ function checkAnswer(selectedAnswer, selectedButton) {
   });
 
   showAnswerCard(wasCorrect, selectedAnswer);
+  window.EAProgressEmbed?.answerComplete({
+    questionId: currentQuestion.id,
+    score: wasCorrect ? 1 : 0,
+    maximumScore: 1,
+    correct: wasCorrect,
+    responseType: "multiple-choice",
+    answerData: selectedAnswer,
+    modelAnswer: currentQuestion.correctAnswer,
+    feedback: feedback.textContent
+  });
   if (trackInfo) {
     trackInfo.innerHTML = buildTrackInfoHTML(currentQuestion.clip);
     trackInfo.removeAttribute("aria-hidden");
@@ -800,6 +813,130 @@ function startGame() {
   loadQuestion();
 }
 
+// Live Sessions entry point: a teacher (via the classroom server) has
+// picked a deterministic seed and wants every student's app instance to
+// render the SAME ContextCoach question from it. Unlike most other apps,
+// core.buildRoundQuestions() already takes its random-number source as an
+// explicit parameter (see startGame() above passing plain Math.random) —
+// so this needs no global Math.random monkey-patching at all, just a
+// seeded function passed the same way. Builds a genuine 1-question round
+// via the app's own real question-building logic, then renders it through
+// the unmodified loadQuestion() — real UI, audio and scoring, just a
+// seeded pick instead of Math.random().
+function hashSeed(value) {
+  let hash = 2166136261;
+  const text = String(value || "echoaural");
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function seededRandom(seed) {
+  let randState = hashSeed(seed);
+  return () => {
+    randState += 0x6D2B79F5;
+    let result = randState;
+    result = Math.imul(result ^ (result >>> 15), result | 1);
+    result ^= result + Math.imul(result ^ (result >>> 7), result | 61);
+    return ((result ^ (result >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const HOST_LEVEL_INPUT_MAP = Object.freeze({
+  foundation: "foundation",
+  developing: "developing",
+  secure: "secure",
+  securing: "secure",
+  exam: "exam",
+  mastering: "exam"
+});
+
+function applyHostedSelection(payload = {}) {
+  const sourceKey = String(payload.sourceKey || window.EAProgressEmbed?.sourceKey || "");
+  const requestedType = payload.questionType === "period" || sourceKey === "context-coach-period"
+    ? "period"
+    : payload.questionType === "composer" || sourceKey === "context-coach-composer"
+      ? "composer"
+      : readSkill();
+  const levelKey = String(payload.level || "").trim().toLowerCase();
+  const levelInputValue = HOST_LEVEL_INPUT_MAP[levelKey] || "";
+
+  document.querySelectorAll('input[name="ccSkill"]').forEach((input) => {
+    input.checked = input.value === requestedType;
+  });
+  if (levelInputValue) {
+    document.querySelectorAll('input[name="ccLevel"]').forEach((input) => {
+      input.checked = input.value === levelInputValue;
+    });
+  }
+
+  return {
+    questionType: requestedType,
+    level: levelInputValue ? CC_LEVEL_MAP[levelInputValue] : readLevel()
+  };
+}
+
+function loadQuestionBySeed(seed, selection = {}) {
+  if (seed === undefined || seed === null || seed === "") return false;
+  if (!clipPool.length) {
+    // progress-embed-contract.js announces app-ready on DOMContentLoaded,
+    // while this app's catalogue/curation fetches complete asynchronously.
+    // Keep the exact host request until both shared inputs are ready instead
+    // of reporting a permanent pool error for an ordinary loading race.
+    pendingHostedQuestion = { seed: String(seed), selection: { ...selection } };
+    return false;
+  }
+
+  const skill = selection.questionType === "period" || selection.questionType === "composer"
+    ? selection.questionType
+    : readSkill();
+  const level = selection.level || readLevel();
+  const rng = seededRandom(seed);
+  const tryBuildRound = (roundOptions) => {
+    try {
+      return core.buildRoundQuestions(clipPool, 1, rng, roundOptions);
+    } catch (error) {
+      console.warn("[Era Explorer] Could not build the seeded question:", error);
+      return null;
+    }
+  };
+
+  let built = tryBuildRound({ questionType: skill, curation: contentCuration, level });
+  if (!built && level) built = tryBuildRound({ questionType: skill, curation: contentCuration });
+  if (!built || !built.length) {
+    window.EAProgressEmbed?.poolEmpty({ reason: "unable-to-build-question", questionId: String(seed) });
+    return false;
+  }
+
+  closeRoundFeedbackWindow();
+  setAdvancedSettingsOpen(false);
+  setQuizVisualState("active");
+  setupMessage.textContent = "";
+  roundQuestions = built;
+  totalQuestions = 1;
+  score = 0;
+  questionsAnswered = 0;
+  currentQuestionIndex = 0;
+  streak = 0;
+  xp = 0;
+  roundHistory = [];
+  gameOver = false;
+  answerLocked = false;
+  restartButton.style.display = "none";
+  startButton.style.display = "none";
+  playButton.style.display = "inline-flex";
+  setQuestionPrompt("Loading question...", 0);
+  loadQuestion();
+  return true;
+}
+
+window.EAProgressEmbed?.registerQuestionHandler((payload) => {
+  const seed = payload && (payload.seed !== undefined ? payload.seed : payload.questionId);
+  loadQuestionBySeed(seed, applyHostedSelection(payload));
+});
+
 function restartGame() {
   stopAudio();
   audioToken += 1;
@@ -907,6 +1044,14 @@ async function loadCatalogue() {
     // The curation overlay (content-review drops/levels/option overrides) is
     // additive — if it's ever missing/unreachable, fall back to the fully
     // algorithmic, uncurated pool rather than failing the whole app.
+    // Standalone/Progress Mode keeps its existing algorithmic fallback when
+    // the optional review overlay is unavailable. A hosted Live Session must
+    // not take that fallback: the server adapter scores against this exact
+    // reviewed file, so using uncurated inputs in only the iframe would make
+    // otherwise-identical seeds produce different questions.
+    if (!curationResponse.ok && window.EAProgressEmbed?.enabled) {
+      throw new Error(`ContextCoach curation request failed (${curationResponse.status}).`);
+    }
     contentCuration = curationResponse.ok ? await curationResponse.json() : null;
     const audit = core.auditEraExplorerClips(catalogue, contentCuration);
     clipPool = audit.valid;
@@ -929,12 +1074,24 @@ async function loadCatalogue() {
     catalogueReady = true;
     startButton.textContent = "Start Learning";
     updateStartAvailability();
+    if (pendingHostedQuestion) {
+      const request = pendingHostedQuestion;
+      pendingHostedQuestion = null;
+      loadQuestionBySeed(request.seed, request.selection);
+    }
   } catch (error) {
     console.warn("[Era Explorer] Catalogue unavailable:", error);
     setupMessage.textContent = "ContextCoach is temporarily unavailable.";
     catalogueReady = false;
     startButton.textContent = "Clips Unavailable";
     updateStartAvailability();
+    if (pendingHostedQuestion) {
+      window.EAProgressEmbed?.poolEmpty({
+        reason: "catalogue-unavailable",
+        questionId: pendingHostedQuestion.seed
+      });
+      pendingHostedQuestion = null;
+    }
   }
 }
 

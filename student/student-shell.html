@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mixed Live Classroom | EchoAural</title>
-  <link rel="stylesheet" href="/student/student.css?v=mixed-ui-20260720a" />
+  <link rel="stylesheet" href="/student/student.css?v=pm-shared-live-20260814-3" />
+  <link rel="stylesheet" href="/modules/instrument-identifier/style.css?v=pm-layout-20260814" />
+  <link rel="stylesheet" href="/modules/progress-mode/style.css?v=pm-layout-20260814" />
   <link rel="stylesheet" href="../shared/css/ea-brand-logos.css" />
 </head>
 <body class="mixed-classroom-student" data-module="mixed">
@@ -36,20 +38,20 @@
       <section class="panel setup-panel">
         <div class="panel-section-heading">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Live Class</span></h2>
+          <h2><span>Settings</span></h2>
         </div>
 
-        <div class="panel-hero mixed-panel-hero">
-          <p class="eyebrow">ECHOAURAL LIVE SESSION</p>
-          <div class="mixed-hero-lockup">
-            <span class="mixed-hero-icon" aria-hidden="true">
-              <img id="sideModuleIcon" src="/assets/icons/dashboard/progress-mode.png" alt="" />
+        <div class="panel-hero ii-panel-hero mixed-panel-hero">
+          <p class="eyebrow ii-brand-eyebrow">ECHOAURAL LIVE SESSION</p>
+          <div class="ii-hero-lockup mixed-hero-lockup">
+            <span class="ii-hero-icon mixed-hero-icon" aria-hidden="true">
+              <img id="sideModuleIcon" src="/assets/icons/dashboard/join-live-session.png" alt="Live Sessions" />
             </span>
-            <div class="mixed-title-lockup" aria-hidden="true">
-              <span class="mixed-title-wave"><span></span><span></span><span></span><span></span><span></span></span>
-              <span class="mixed-title-text">
-                <span id="sideModuleMain" class="mixed-title-main">Mixed</span>
-                <span id="sideModuleGradient" class="mixed-title-gradient">Apps</span>
+            <div class="ii-title-lockup mixed-title-lockup" aria-hidden="true">
+              <span class="ii-title-wave mixed-title-wave"><span></span><span></span><span></span><span></span><span></span></span>
+              <span class="ii-title-text mixed-title-text">
+                <span id="sideModuleMain" class="mixed-title-main">Live</span>
+                <span id="sideModuleGradient" class="mixed-title-gradient">Sessions</span>
               </span>
             </div>
           </div>
@@ -69,7 +71,7 @@
       <section class="panel quiz-panel is-ready">
         <div class="panel-section-heading panel-section-heading-centre">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Quiz</span></h2>
+          <h2><span>Progress Mode</span></h2>
         </div>
 
         <div class="quiz-header">
@@ -121,12 +123,27 @@
             <button id="submitButton" class="primary-button mixed-submit-button" type="button" disabled>Submit answer</button>
           </div>
         </div>
+
+        <!-- Live Session iframe host: for any PM source whose script.js
+             accepts a host-selected question by exact id (see
+             shared/js/pm-registry.js's rendererBridgeCapability/
+             questionSelectionMode), the real unmodified app renders here
+             instead of the bespoke #questionPanel UI above. Reuses
+             Progress Mode's own iframe-loading/focus-mode-CSS convention
+             (modules/progress-mode/script.js's loadCurrentSlotFrame +
+             app-drivers.js's applyFocusMode) rather than reinventing it. -->
+        <div id="liveAppPanel" class="live-app-panel hidden">
+          <div class="live-app-frame-wrap">
+            <iframe id="liveAppFrame" class="live-app-frame" title="Live question" allow="autoplay"></iframe>
+            <div id="liveAppFrameLoading" class="live-app-frame-loading">Loading question…</div>
+          </div>
+        </div>
       </section>
 
       <aside class="panel info-panel">
         <div class="panel-section-heading">
           <span class="panel-heading-wave" aria-hidden="true"><span></span><span></span><span></span></span>
-          <h2><span>Answer</span></h2>
+          <h2><span>My Progress</span></h2>
         </div>
 
         <div class="mixed-answer-card">
@@ -214,6 +231,8 @@
   <audio id="studentAudio" preload="auto"></audio>
   <script src="/shared/js/classroom-client.js"></script>
   <script src="/modules/melodic-intervals/interval-data.js"></script>
-  <script src="/student/student.js?v=mixed-ui-20260720a"></script>
+  <script src="/shared/js/pm-registry.js"></script>
+  <script src="/modules/progress-mode/app-drivers.js?v=live-teacher-controls-20260814-cadence-fit-transport-v2"></script>
+  <script src="/student/student.js?v=pm-shared-live-20260814"></script>
 </body>
 </html>

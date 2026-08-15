@@ -268,6 +268,7 @@ function createQuestion(config, markPoints) {
     answerOptions: Array.isArray(config.answerOptions) ? config.answerOptions : [],
     answerChoices: Array.isArray(config.answerChoices) ? config.answerChoices : [],
     correctChoice: config.correctChoice || "",
+    lockAnswerOptions: Boolean(config.lockAnswerOptions),
     acceptedWrittenAnswers: Array.isArray(config.acceptedWrittenAnswers) ? config.acceptedWrittenAnswers : [],
     preferredAnswer: config.preferredAnswer || "",
     requiredConcepts: Array.isArray(config.requiredConcepts) ? config.requiredConcepts : [],
@@ -4474,6 +4475,69 @@ window.textureQuestions.push(createQuestion({
   point("Texture", MONOPHONIC_ACCEPTED, MONOPHONIC_PARTIAL)
 ]));
 
+window.textureQuestions.push(createQuestion({
+  id: "TT168",
+  title: "Inverted Pedal — Borodin (In the Steppes of Central Asia)",
+  audio: "audio/TT168.mp3",
+  prompt: "Identify the textural device used in this extract.",
+  maxMarks: 1,
+  level: "Securing",
+  responseType: "multiple-choice",
+  correctChoice: "Inverted Pedal",
+  specificTextureTerm: "Inverted Pedal",
+  broadTextureCategory: "Texture feature",
+  answerOptions: ["Inverted Pedal", "Drone", "Ground Bass", "Pedal note"],
+  lockAnswerOptions: true,
+  modelAnswer: "Inverted pedal: a sustained note is held while the harmony above/below it changes.",
+  feedbackCorrect: "Correct. A sustained note is held under/over the melody while the harmony moves.",
+  feedbackPartial: "Good. You noticed the sustained held note.",
+  feedbackIncorrect: "Not quite. Listen for the sustained note that stays fixed while the harmony changes around it.",
+  vocabularyTip: "Use inverted pedal when a sustained note is held while the harmony moves around it.",
+  target: "Inverted Pedal",
+  textureFocus: "Inverted Pedal",
+  rationale: "Source brief documents this as a sustained tonic/dominant pedal opening the piece (programme-note literature); labelled here as an inverted pedal per brief — worth a quick listening check to confirm register before shipping.",
+  work: "In the Steppes of Central Asia",
+  composer: "Alexander Borodin",
+  performer: "Czech National Symphony Orchestra (Musopen Kickstarter Collection)",
+  collection: "archive.org",
+  licence: "Public Domain Mark 1.0 (Musopen Kickstarter Collection, archive.org)",
+  sourceUrl: "https://archive.org/download/MusopenCollectionAsFlac/Borodin_InTheSteppesOfCentralAsia/AlexanderBorodin-InTheSteppesOfCentralAsia.mp3",
+  clipStart: 0,
+  audioDurationSeconds: 20,
+}, [
+  point("Textural device", ["inverted pedal"], ["sustained note", "sustained tone", "held note"])
+]));
+
+window.textureQuestions.push(createQuestion({
+  id: "TT169",
+  title: "Alberti Bass — Mozart (Piano Sonata K.545)",
+  audio: "audio/TT169.mp3",
+  prompt: "Identify the textural device used in this extract.",
+  maxMarks: 1,
+  level: "Securing",
+  responseType: "multiple-choice",
+  correctChoice: "Alberti Bass",
+  answerOptions: ["Alberti Bass", "Ground Bass", "Drone", "Pedal"],
+  lockAnswerOptions: true,
+  modelAnswer: "Alberti bass: the left hand plays a continuous broken-chord accompaniment beneath the melody.",
+  feedbackCorrect: "Correct. The left hand plays a continuous broken-chord (Alberti bass) accompaniment.",
+  feedbackPartial: "Good. You noticed the broken-chord left-hand accompaniment.",
+  feedbackIncorrect: "Not quite. Listen for the left hand playing a continuous broken-chord pattern beneath the melody.",
+  vocabularyTip: "Use Alberti bass when the left hand plays a continuous broken-chord accompaniment pattern.",
+  target: "Alberti Bass",
+  textureFocus: "Alberti Bass",
+  work: "Piano Sonata No. 16 in C major 'Sonata facile', K. 545 (I. Allegro, opening)",
+  composer: "Wolfgang Amadeus Mozart",
+  performer: "Robin Alciatore, piano (Musopen)",
+  collection: "Wikimedia Commons",
+  licence: "Public Domain Mark 1.0 (Musopen recording hosted on Wikimedia Commons)",
+  sourceUrl: "https://commons.wikimedia.org/wiki/File:Wolfgang_Amadeus_Mozart_-_sonata_no._16_in_c_major,_k.545_'sonata_facile'_-_i._allegro.ogg",
+  clipStart: 0,
+  audioDurationSeconds: 20,
+}, [
+  point("Textural device", ["alberti bass", "broken chord accompaniment", "broken chord bass"], ["broken chords", "arpeggiated accompaniment"])
+]));
+
 const TT_REVIEW_APPROVED_IDS = new Set([
   "TT001",
   "TT007",
@@ -4594,7 +4658,9 @@ const TT_REVIEW_APPROVED_IDS = new Set([
   "TT149",
   "TT150",
   "TT151",
-  "TT152"
+  "TT152",
+  "TT168",
+  "TT169"
 ]);
 
 const TT_REVIEW_DROPPED_IDS = new Set([

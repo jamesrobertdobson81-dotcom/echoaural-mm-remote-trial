@@ -104,6 +104,18 @@
   }
 
   /**
+   * Overwrites `key`'s current cycle with exactly `ids` (dedupes, ignores
+   * anything falsy). Unlike markShown (additive), this replaces the whole
+   * set — for a caller reconciling a server-synced seen-set back into local
+   * storage, where the merged result should be adopted wholesale rather
+   * than unioned into whatever local already had a second time.
+   */
+  function setSeenIds(key, ids, storage) {
+    const cleaned = new Set((Array.isArray(ids) ? ids : []).filter((id) => id !== undefined && id !== null && id !== ""));
+    safeSetSeen(String(key || ""), cleaned, storage);
+  }
+
+  /**
    * Reorders `items` (already ordered, e.g. by orderByLeastRecentlyShown)
    * so that as many of the first `roundLength` entries as possible have a
    * distinct signature from getSignature(item) — i.e. the same answer
@@ -140,5 +152,5 @@
     return [...picked, ...deferred];
   }
 
-  return Object.freeze({ orderByLeastRecentlyShown, markShown, resetCycle, getSeenIds, dedupeByAnswer });
+  return Object.freeze({ orderByLeastRecentlyShown, markShown, resetCycle, getSeenIds, setSeenIds, dedupeByAnswer });
 });
