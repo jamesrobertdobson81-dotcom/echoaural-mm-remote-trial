@@ -122,3 +122,61 @@ test("byConcept: modules with no extractor configured produce no entry at all", 
   const summary = buildProgressSummary(rounds, attempts);
   assert.equal(summary.byConcept["melody-master"], undefined);
 });
+
+// Regression coverage for a real bug: a multi-mark attempt (e.g. a 6-mark
+// melody-master dictation question) must never count for more than a single
+// attempt in bySourceKey/byConcept/moduleSummaries — these blend directly
+// with Progress Mode's own flat "1 per attempt" pool downstream
+// (student-home.js's getCombinedSourceStats/getCombinedConceptStats), so a
+// marks-weighted count here would silently let one multi-mark question
+// outweigh several single-mark ones, and cross reliability thresholds
+// (modules/progress-mode/feedback.js's FEEDBACK_MIN_QUESTIONS) on far fewer
+// real attempts than intended. Every fixture above happens to use
+// maximum_score:1, which is exactly why this bug shipped undetected.
+test("bySourceKey: a partially-correct multi-mark attempt counts as ONE question, not correct", () => {
+  const rounds = [round("r1", "melody-master", 4, 6, 1)];
+  const attempts = [attempt("melody-master", "r1", 4, 6, { sourceKey: "melody-master-dictation" })];
+  const summary = buildProgressSummary(rounds, attempts);
+  const source = summary.bySourceKey["melody-master-dictation"];
+
+  assert.equal(source.questions, 1, "one attempt, regardless of how many marks it was worth");
+  assert.equal(source.correct, 0, "4 of 6 marks is not a fully-correct attempt");
+});
+
+test("bySourceKey: a fully-correct multi-mark attempt still only counts as ONE correct question", () => {
+  const rounds = [round("r1", "melody-master", 6, 6, 1)];
+  const attempts = [attempt("melody-master", "r1", 6, 6, { sourceKey: "melody-master-dictation" })];
+  const summary = buildProgressSummary(rounds, attempts);
+  const source = summary.bySourceKey["melody-master-dictation"];
+
+  assert.equal(source.questions, 1);
+  assert.equal(source.correct, 1, "not 6 — a fully-correct attempt is worth exactly one correct question");
+});
+
+test("byConcept: a multi-mark attempt pools the same flat per-attempt way as bySourceKey", () => {
+  const rounds = [round("r1", "chord-identifier", 2, 2, 1)];
+  const attempts = [
+    attempt("chord-identifier", "r1", 1, 2, { inversionLabel: "first inversion", quality: "dominant9" })
+  ];
+  const summary = buildProgressSummary(rounds, attempts);
+  const concepts = summary.byConcept["chord-identifier"];
+
+  assert.equal(concepts["first inversion"].questions, 1);
+  assert.equal(concepts["first inversion"].correct, 0, "1 of 2 marks is not fully correct");
+  assert.equal(concepts["Extended chords"].questions, 1);
+});
+
+test("moduleSummaries: correctQuestionCount is a flat attempt-count, not a marks sum", () => {
+  const rounds = [round("r1", "melody-master", 10, 12, 2)];
+  const attempts = [
+    attempt("melody-master", "r1", 6, 6, {}),  // fully correct, 6 marks
+    attempt("melody-master", "r1", 4, 6, {})   // partially correct, 6 marks
+  ];
+  const summary = buildProgressSummary(rounds, attempts);
+  const melodyMaster = summary.modules.find((entry) => entry.moduleId === "melody-master");
+
+  assert.equal(melodyMaster.questions, 2, "two attempts");
+  assert.equal(melodyMaster.correctQuestionCount, 1, "only one of the two was fully correct, despite 10 of 12 marks overall");
+  assert.equal(melodyMaster.score, 10, "score/maximumScore stay marks-based, unaffected by this fix");
+  assert.equal(melodyMaster.maximumScore, 12);
+});

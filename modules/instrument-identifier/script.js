@@ -948,10 +948,17 @@ function checkAnswer(selectedInstrument, selectedButton) {
     score: wasCorrect ? 1 : 0,
     maximumScore: 1,
     correct: wasCorrect,
-    responseType: "multiple-choice",
+    // mc-custom clips also reach this call site (same button UI as
+    // standard multiple-choice, see usesGeneratedInstrumentChoices/the
+    // else-branch above) — hardcoding "multiple-choice" here previously
+    // mislabelled all 22 mc-custom clips.
+    responseType: currentClip.responseType === "mc-custom" ? "mc-custom" : "multiple-choice",
     answerData: selectedInstrument,
     modelAnswer: correctInstrument,
-    feedback: feedback.textContent
+    feedback: feedback.textContent,
+    family: getField(currentClip, ["family"]),
+    type: getField(currentClip, ["type"]),
+    instrument: getField(currentClip, ["instrument"])
   });
   if (trackInfo) {
     trackInfo.innerHTML = buildTrackInfoHTML(currentClip);
@@ -1112,7 +1119,10 @@ function checkTypedAnswer() {
     responseType: "typed",
     answerData: rawAnswer,
     modelAnswer: correctInstrument,
-    feedback: feedback.textContent
+    feedback: feedback.textContent,
+    family: getField(currentClip, ["family"]),
+    type: getField(currentClip, ["type"]),
+    instrument: getField(currentClip, ["instrument"])
   });
   if (trackInfo) {
     trackInfo.innerHTML = buildTrackInfoHTML(currentClip);

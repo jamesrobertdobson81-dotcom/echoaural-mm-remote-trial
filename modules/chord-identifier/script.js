@@ -333,7 +333,12 @@
       responseType: els.typedForm.hidden === false ? 'typed' : 'multiple-choice',
       answerData: givenValue,
       modelAnswer: correctValue,
-      feedback: feedbackText(question, correct)
+      feedback: feedbackText(question, correct),
+      inversionLabel: question.inversionLabel,
+      quality: question.quality,
+      recognitionType: question.recognitionType,
+      category: question.category,
+      keyMode: question.key.mode
     });
   }
 

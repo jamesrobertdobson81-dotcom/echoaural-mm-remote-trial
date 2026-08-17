@@ -721,7 +721,10 @@ function submitCurrentAnswer(providedAnswer = null) {
     responseType: currentQuestion.responseType,
     answerData: rawAnswer,
     modelAnswer: currentQuestion.preferredAnswer || currentQuestion.correctChoice || "",
-    feedback: result.feedback || ""
+    feedback: result.feedback || "",
+    textureFocus: currentQuestion.textureFocus || currentQuestion.broadTextureCategory || "",
+    specificTextureTerm: currentQuestion.specificTextureTerm || "",
+    target: currentQuestion.target || ""
   });
   updateStats();
 

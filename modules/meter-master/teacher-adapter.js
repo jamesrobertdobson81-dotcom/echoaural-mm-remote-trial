@@ -106,7 +106,9 @@ module.exports = function createMeterMasterTeacherAdapter(context = {}) {
           skillName: question.skillName,
           musicalElement: 'Meter and rhythm',
           timeSignature: question.time_signature,
-          metreFamily: question.metre_family
+          metreFamily: question.metre_family,
+          mode: question.mode,
+          requiresScore: question.requires_score
         }
       };
     }

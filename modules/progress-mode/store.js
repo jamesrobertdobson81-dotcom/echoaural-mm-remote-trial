@@ -74,7 +74,7 @@
   }
 
   function defaultProfile() {
-    return { sources: {}, areas: {}, roundsCompleted: 0, createdAt: Date.now(), streaks: defaultStreakState(), roundHistory: [], questionHistory: [] };
+    return { sources: {}, areas: {}, conceptStats: {}, roundsCompleted: 0, createdAt: Date.now(), streaks: defaultStreakState(), roundHistory: [], questionHistory: [] };
   }
 
   // Gamification state — a sibling of sources/areas, never read by either.
@@ -357,6 +357,34 @@
       return sources;
     },
 
+    // Cumulative (all-time) correct/questions per CONCEPT value within one
+    // moduleId — e.g. chord-identifier's "first inversion"/"Extended
+    // chords". Client-side counterpart to accounts/account-server.js's
+    // server-side byConcept (Live Session/Homework evidence); the two are
+    // combined by account/student-home/student-home.js's
+    // getCombinedConceptStats, the same way getCumulativeStats above is
+    // already combined with server source stats. Concept values themselves
+    // come from shared/js/concept-extractors.js's extractConceptValues,
+    // called by script.js — store.js just accumulates whatever value
+    // strings it's given, same as it does for sourceKeys.
+    getConceptStats: function (studentId, moduleId) {
+      var profile = getProfile(studentId);
+      if (!profile.conceptStats) profile.conceptStats = {};
+      var moduleStats = profile.conceptStats[moduleId] || {};
+      var result = {};
+      Object.keys(moduleStats).forEach(function (conceptValue) {
+        var entry = moduleStats[conceptValue];
+        var questions = entry.questions || 0;
+        var correct = entry.correct || 0;
+        result[conceptValue] = {
+          correct: correct,
+          questions: questions,
+          percentage: questions > 0 ? Math.round((correct / questions) * 100) : 0
+        };
+      });
+      return result;
+    },
+
     // Read-only lookup of a single signature's current scheduling state
     // (null if it's never been answered on this device). Mirrors the shape
     // recordQuestionOutcome/applyIncomingReviews both write.
@@ -430,6 +458,30 @@
         responseTimeMs: typeof responseTimeMs === "number" && responseTimeMs >= 0 ? Math.round(responseTimeMs) : null,
         completedAt: reviewedAt
       };
+    },
+
+    // Records one answered question's concept-value evidence — separate
+    // from recordQuestionOutcome above (which handles SM-2 scheduling by
+    // signature) since a single question can contribute zero, one, or two
+    // concept values (e.g. chord-identifier's inversion AND extension tier
+    // from the same answer both land in this module's one flat pool,
+    // mirroring the server's byConcept). conceptValues with no entries is a
+    // no-op — most modules and many individual answers (e.g. a question
+    // whose field didn't match any whitelist/bucket) contribute nothing.
+    recordConceptOutcome: function (studentId, moduleId, conceptValues, wasCorrect) {
+      if (!moduleId || !Array.isArray(conceptValues) || !conceptValues.length) return;
+      var profile = getProfile(studentId);
+      if (!profile.conceptStats) profile.conceptStats = {};
+      if (!profile.conceptStats[moduleId]) profile.conceptStats[moduleId] = {};
+      var moduleStats = profile.conceptStats[moduleId];
+      var wasCorrectBool = Boolean(wasCorrect);
+      conceptValues.forEach(function (conceptValue) {
+        if (!conceptValue) return;
+        if (!moduleStats[conceptValue]) moduleStats[conceptValue] = { correct: 0, questions: 0 };
+        moduleStats[conceptValue].questions += 1;
+        if (wasCorrectBool) moduleStats[conceptValue].correct += 1;
+      });
+      saveProfile(studentId, profile);
     },
 
     // True only while a signature is still within its scheduled cooldown —

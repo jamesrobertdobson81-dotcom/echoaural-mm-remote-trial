@@ -1000,6 +1000,24 @@ function progressModeClassSummaryMarkup() {
   `;
 }
 
+// Level first, percentage as the tiebreaker — sorting by raw percentage
+// alone ranked a student stuck at Foundation on a lucky small sample above
+// one who had already reached Mastering (which requires clearing an 80%+
+// bar at every level along the way — a hard early climb can easily average
+// out lower lifetime than a shallower, more recent run of correct
+// answers), while the badge shown right next to their name still displayed
+// the real, higher level — a visible contradiction in a teacher-facing,
+// whole-class view. Same reasoning as account/student-home/student-home.js's
+// weakestArea/strongestAreas. A named, standalone comparator (not inlined
+// into the .sort() call below) so it can be unit-tested directly — see
+// account/teacher-dashboard/tests/roster-ranking.test.js.
+function compareProgressModeRosterRows(a, b) {
+  const levelA = PROGRESSION_LEVEL_LABELS.indexOf(a.overallLevelLabel);
+  const levelB = PROGRESSION_LEVEL_LABELS.indexOf(b.overallLevelLabel);
+  if (levelA !== levelB) return levelB - levelA;
+  return progressModePercentage(b) - progressModePercentage(a);
+}
+
 // Class-wide Progress Mode detail dialog — a per-student roster breakdown,
 // since (unlike quizzes/homework) there's no single shared "modules" list
 // to show here; each student's own level/marks is the meaningful unit.
@@ -1011,7 +1029,7 @@ function progressModeClassDetailMarkup() {
 
   const rows = data.rows
     .slice()
-    .sort((a, b) => progressModePercentage(b) - progressModePercentage(a))
+    .sort(compareProgressModeRosterRows)
     .map((row) => {
       const student = state.students.find((candidate) => String(candidate.id) === String(row.studentId));
       const name = student ? student.displayName : (row.displayName || row.username || "Student");

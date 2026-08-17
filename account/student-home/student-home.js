@@ -112,8 +112,12 @@ const MULTI_SOURCE_MODULE_IDS = (() => {
 // sub-app source — the shared calculation behind both the top-level area
 // grid (getProgressModeSnapshot) and the per-element popup
 // (elementDetailMarkup), so the two never disagree about a sub-app's
-// current numbers.
-function getCombinedSourceStats(sourceKey) {
+// current numbers. `scope` narrows which source(s) contribute: "overall"
+// (default) blends all three, matching the original behaviour exactly;
+// "progress"/"quizzes"/"homework" isolate just that one, for the
+// per-tab split (each tab should show only its own evidence, not
+// everything pooled together).
+function getCombinedSourceStats(sourceKey, scope = "overall") {
   const Store = window.EAProgressModeStore;
   const studentId = state.student?.id;
   const pmStats = (studentId && typeof Store?.getCumulativeStats === "function")
@@ -128,20 +132,44 @@ function getCombinedSourceStats(sourceKey) {
   const quizModule = serverModuleId ? quizModules.find((entry) => entry.moduleId === serverModuleId) : null;
   const homeworkModule = serverModuleId ? homeworkModules.find((entry) => entry.moduleId === serverModuleId) : null;
 
-  let lsCorrect = 0;
-  let lsQuestions = 0;
+  let quizCorrect = 0;
+  let quizQuestions = 0;
+  let homeworkCorrect = 0;
+  let homeworkQuestions = 0;
   if (serverModuleId && MULTI_SOURCE_MODULE_IDS.has(serverModuleId)) {
     const quizBySourceKey = state.progress?.categories?.quizzes?.bySourceKey || {};
     const homeworkBySourceKey = state.progress?.categories?.homework?.bySourceKey || {};
-    lsCorrect = Number(quizBySourceKey[sourceKey]?.correct || 0) + Number(homeworkBySourceKey[sourceKey]?.correct || 0);
-    lsQuestions = Number(quizBySourceKey[sourceKey]?.questions || 0) + Number(homeworkBySourceKey[sourceKey]?.questions || 0);
+    quizCorrect = Number(quizBySourceKey[sourceKey]?.correct || 0);
+    quizQuestions = Number(quizBySourceKey[sourceKey]?.questions || 0);
+    homeworkCorrect = Number(homeworkBySourceKey[sourceKey]?.correct || 0);
+    homeworkQuestions = Number(homeworkBySourceKey[sourceKey]?.questions || 0);
   } else {
-    lsCorrect = Number(quizModule?.score || 0) + Number(homeworkModule?.score || 0);
-    lsQuestions = Number(quizModule?.maximumScore || 0) + Number(homeworkModule?.maximumScore || 0);
+    // correctQuestionCount/questions (both flat per-attempt counts, see
+    // account-server.js's moduleSummaries) — not score/maximumScore, which
+    // are marks sums and would let a multi-mark question outweigh a
+    // single-mark one once blended with Progress Mode's own flat pool below.
+    quizCorrect = Number(quizModule?.correctQuestionCount || 0);
+    quizQuestions = Number(quizModule?.questions || 0);
+    homeworkCorrect = Number(homeworkModule?.correctQuestionCount || 0);
+    homeworkQuestions = Number(homeworkModule?.questions || 0);
   }
 
-  const correct = pmCorrect + lsCorrect;
-  const questions = pmQuestions + lsQuestions;
+  let correct;
+  let questions;
+  if (scope === "progress") {
+    correct = pmCorrect;
+    questions = pmQuestions;
+  } else if (scope === "quizzes") {
+    correct = quizCorrect;
+    questions = quizQuestions;
+  } else if (scope === "homework") {
+    correct = homeworkCorrect;
+    questions = homeworkQuestions;
+  } else {
+    correct = pmCorrect + quizCorrect + homeworkCorrect;
+    questions = pmQuestions + quizQuestions + homeworkQuestions;
+  }
+
   return {
     correct,
     questions,
@@ -151,18 +179,32 @@ function getCombinedSourceStats(sourceKey) {
   };
 }
 
-// Concept-level counterpart to getCombinedSourceStats above — merges Live
-// Session + Homework byConcept breakdowns (accounts/account-server.js's
-// buildProgressSummary) for one server moduleId. Progress Mode has no
-// concept-level tracking of its own yet (see the concept-feedback plan's
-// scope boundary), so this is Live-Session/Homework only, unlike the
-// PM+LS+Homework blend above.
-function getCombinedConceptStats(moduleId) {
+// Concept-level counterpart to getCombinedSourceStats above — merges
+// Progress Mode + Live Session + Homework byConcept breakdowns for one
+// server moduleId. PM's half comes from modules/progress-mode/store.js's
+// own local conceptStats (window.EAProgressModeStore.getConceptStats),
+// populated via shared/js/concept-extractors.js the same way
+// accounts/account-server.js's buildProgressSummary populates the
+// LS/Homework half — same source of truth, two places it's read from,
+// exactly like getCombinedSourceStats already does one level up. Same
+// `scope` convention as getCombinedSourceStats: "overall" merges all
+// three (unchanged default), a named source isolates just that one.
+function getCombinedConceptStats(moduleId, scope = "overall") {
   if (!moduleId) return {};
-  const quizByConcept = state.progress?.categories?.quizzes?.byConcept?.[moduleId] || {};
-  const homeworkByConcept = state.progress?.categories?.homework?.byConcept?.[moduleId] || {};
+  const Store = window.EAProgressModeStore;
+  const studentId = state.student?.id;
+  const pmByConcept = (scope === "overall" || scope === "progress")
+    && studentId && typeof Store?.getConceptStats === "function"
+    ? Store.getConceptStats(studentId, moduleId)
+    : {};
+  const quizByConcept = (scope === "overall" || scope === "quizzes")
+    ? (state.progress?.categories?.quizzes?.byConcept?.[moduleId] || {})
+    : {};
+  const homeworkByConcept = (scope === "overall" || scope === "homework")
+    ? (state.progress?.categories?.homework?.byConcept?.[moduleId] || {})
+    : {};
   const merged = {};
-  [quizByConcept, homeworkByConcept].forEach((source) => {
+  [pmByConcept, quizByConcept, homeworkByConcept].forEach((source) => {
     Object.keys(source).forEach((conceptValue) => {
       if (!merged[conceptValue]) merged[conceptValue] = { correct: 0, questions: 0 };
       merged[conceptValue].correct += Number(source[conceptValue]?.correct || 0);
@@ -213,6 +255,22 @@ const SUB_APP_SHORT_LABEL = {
 };
 
 const CATEGORY_CONFIG = {
+  // Added so the "Overall" tab's area cards can open a detail popup at all
+  // — DASHBOARD_ICONS/DASHBOARD_VIEWS already had an "overall" entry, but
+  // CATEGORY_CONFIG (consulted by openCategoryDetail) never did; every area
+  // card used to be hardcoded to categoryKey="progress" regardless of which
+  // tab rendered it, which silently papered over this gap until that
+  // hardcoding was fixed (see renderEahomeModulesGrid).
+  overall: {
+    title: "Overall Progress",
+    icon: DASHBOARD_ICONS.progress,
+    eyebrow: "All your learning",
+    subtitle: "Progress Mode, Live Sessions and Homework combined.",
+    detailSubtitle: "Your combined levels and personalised feedback, by musical area.",
+    emptyFeedback: "Complete a round in Progress Mode, a Live Session or Homework to begin your record.",
+    actionLabel: "Start Progress Mode",
+    actionHref: "/modules/progress-mode/index.html"
+  },
   progress: {
     title: "Progress Mode",
     icon: DASHBOARD_ICONS.progress,
@@ -344,93 +402,6 @@ function emptyCategory(message) {
   return `<div class="category-empty-v2"><span class="category-empty-wave-v2" aria-hidden="true"><i></i><i></i><i></i></span><p>${escapeHtml(message)}</p></div>`;
 }
 
-const PROGRESSION_LEVEL_LABELS = ["Foundation", "Developing", "Securing", "Mastering"];
-
-function progressionLevelIndexFromLabel(label) {
-  const normalised = String(label || "").trim().toLowerCase();
-  return PROGRESSION_LEVEL_LABELS.findIndex((item) => item.toLowerCase() === normalised);
-}
-
-function localProgressionLevelIndex(moduleId) {
-  const state = window.EAProgressionStore?.getModule?.(moduleId);
-  const level = Number(state?.unlockedLevel);
-  if (!Number.isFinite(level)) return null;
-  return Math.max(0, Math.min(PROGRESSION_LEVEL_LABELS.length - 1, level));
-}
-
-function progressionLevelLabel(module) {
-  const stage = module?.progressionStage || {};
-  const serverLevel = Number.isFinite(Number(stage.currentLevel))
-    ? Number(stage.currentLevel)
-    : progressionLevelIndexFromLabel(stage.label);
-  const localLevel = localProgressionLevelIndex(module?.moduleId);
-  const levelIndex = Math.max(
-    0,
-    Number.isFinite(serverLevel) ? serverLevel : 0,
-    Number.isFinite(localLevel) ? localLevel : 0
-  );
-  return PROGRESSION_LEVEL_LABELS[Math.max(0, Math.min(PROGRESSION_LEVEL_LABELS.length - 1, levelIndex))] || "Foundation";
-}
-
-function renderCategoryModules(categoryKey, modules = []) {
-  return `
-    <div class="category-module-list-v2 student-detail-module-list-v3">
-      ${modules.map((module) => {
-        const href = moduleLinks[module.moduleId] || "/#apps";
-        const progressionLabel = categoryKey === "progress" ? progressionLevelLabel(module) : "";
-        const moduleMeta = module.questions
-          ? `${module.questions} questions · ${module.rounds} rounds`
-          : "Not started";
-        return `
-          <a class="category-module-row-v2 ${scoreClass(module.percentage, module.questions)}" href="${href}">
-            <span class="category-module-icon-v2"><img src="${escapeHtml(module.icon)}" alt="" /></span>
-            <span class="category-module-copy-v2">
-              <span>${escapeHtml(module.title)}</span>
-              <small>${escapeHtml(moduleMeta)}</small>
-              ${progressionLabel ? `<em class="student-module-level-tile-v3">${escapeHtml(progressionLabel)}</em>` : ""}
-            </span>
-            <strong>${module.questions ? `${module.percentage}%` : "—"}</strong>
-            <span class="category-module-bar-v2" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, module.percentage || 0))}%"></i></span>
-            <p>${escapeHtml(module.questions ? module.nextStep : "Complete a first round to begin.")}</p>
-          </a>
-        `;
-      }).join("")}
-    </div>
-  `;
-}
-
-function renderRoundList(rounds = []) {
-  if (!rounds.length) return emptyCategory("No completed rounds in this section yet.");
-  return `<div class="category-history-list-v2">${rounds.map((round) => `
-    <div class="category-history-row-v2">
-      <div>
-        <strong>${escapeHtml(round.title)}</strong>
-        <small>${escapeHtml(formatDateTime(round.completedAt))} · ${round.questions} questions</small>
-      </div>
-      <span class="round-score-badge ${scoreClass(round.percentage, round.questions)}">${formatMark(round.score)}/${formatMark(round.maximumScore)} · ${round.percentage}%</span>
-      ${round.feedback ? `<p>${escapeHtml(round.feedback)}</p>` : ""}
-    </div>
-  `).join("")}</div>`;
-}
-
-function renderQuestionList(questions = []) {
-  if (!questions.length) return emptyCategory("Question feedback will appear after a completed round.");
-  return `<div class="category-history-list-v2 question-history-v2">${questions.map((question) => {
-    const detail = question.answerData?.title || question.answerData?.correctInstrument || question.answerData?.correctAnswer || question.questionId || "Question";
-    const full = Number(question.score) >= Number(question.maximumScore) && Number(question.maximumScore) > 0;
-    return `
-      <div class="category-history-row-v2">
-        <div>
-          <strong>${escapeHtml(question.moduleTitle)}</strong>
-          <small>${escapeHtml(detail)} · ${escapeHtml(formatDateTime(question.completedAt))}</small>
-        </div>
-        <span class="question-mark ${full ? "is-full" : "is-review"}">${formatMark(question.score)}/${formatMark(question.maximumScore)}</span>
-        <p>${escapeHtml(question.feedback || (full ? "Secure response." : "Review this question and try it again."))}</p>
-      </div>
-    `;
-  }).join("")}</div>`;
-}
-
 function emptyLearningCategory() {
   return { overall: {}, modules: [], recentRounds: [], recentQuestions: [] };
 }
@@ -450,7 +421,13 @@ function normaliseProgressData(progress) {
 // those used to duplicate this computation independently (see git history);
 // pulling it into one place means every surface always agrees with the
 // others, and there is exactly one spot to read when checking what's real.
-function getProgressModeSnapshot() {
+// `scope`: "overall" (default) blends Progress Mode + Live Session +
+// Homework, matching the original, single-audience behaviour of this
+// function exactly. "progress"/"quizzes"/"homework" narrow every number
+// (and the written-feedback sentences built from them) to just that one
+// source, for the per-tab split — each tab should show only its own
+// evidence, not everything pooled together.
+function getProgressModeSnapshot(scope = "overall") {
   const Store = window.EAProgressModeStore;
   const Drivers = window.EAProgressModeDrivers;
   const AreaOrder = window.EAProgressModeAreaOrder;
@@ -483,7 +460,7 @@ function getProgressModeSnapshot() {
     let correct = 0;
     let questions = 0;
     sources.forEach((sourceKey) => {
-      const combined = getCombinedSourceStats(sourceKey);
+      const combined = getCombinedSourceStats(sourceKey, scope);
       combinedStats[sourceKey] = combined;
       correct += combined.correct;
       questions += combined.questions;
@@ -529,13 +506,27 @@ function getProgressModeSnapshot() {
     : empty.streakSnapshot;
   const roundsThisWeek = typeof Store.getRoundsThisWeek === "function" ? Store.getRoundsThisWeek(studentId) : 0;
 
+  // "Rounds completed" — snapshot.roundsCompleted is Progress Mode's own
+  // local round count (from Store.getSnapshot), correct for scope
+  // "progress" but not a stand-in for Live Session/Homework rounds, which
+  // live server-side instead. Real bug this replaces: previously this
+  // field was ALWAYS PM-only, even for what's meant to be the fully-blended
+  // "overall" scope.
+  const quizRounds = Number(state.progress?.categories?.quizzes?.overall?.rounds || 0);
+  const homeworkRounds = Number(state.progress?.categories?.homework?.overall?.rounds || 0);
+  let rounds;
+  if (scope === "quizzes") rounds = quizRounds;
+  else if (scope === "homework") rounds = homeworkRounds;
+  else if (scope === "progress") rounds = snapshot.roundsCompleted;
+  else rounds = snapshot.roundsCompleted + quizRounds + homeworkRounds;
+
   return {
     ready: true,
     hasEvidence,
     percentage: hasEvidence ? Math.round((totalCorrect / totalQuestions) * 100) : 0,
     correct: totalCorrect,
     questions: totalQuestions,
-    rounds: snapshot.roundsCompleted,
+    rounds,
     areasStarted,
     levelLabel: snapshot.overallLevelLabel,
     dailyStreak: streakSnapshot.dailyCurrent || 0,
@@ -553,18 +544,44 @@ function getProgressModeSnapshot() {
 // clearing the accuracy bar. That student needs more reps in that area,
 // not necessarily "worse" performance elsewhere — level captures that,
 // percentage alone doesn't.
-function weakestArea(areas) {
+//
+// `useLevel` (default true): area.level/levelLabel/overallProgress are
+// ALWAYS Progress Mode's own real, gated level — getProgressModeSnapshot
+// reads them unscoped from Store.getSnapshot() regardless of which scope
+// was requested (see its own comment) — only correct/questions/percentage/
+// feedbackText are actually narrowed to the requested scope. So on the
+// Quizzes/Homework tabs, sorting by level would pick "weakest"/"strongest"
+// using a PM-only signal that has nothing to do with quiz or homework
+// performance, contradicting the correctly-scoped percentage shown right
+// next to it. Callers already compute this exact distinction under other
+// names (showLevelBadge/showLevelChrome/showPmChrome — true only for
+// "overall"/"progress" scope) — pass that same boolean through here so the
+// AREA PICKED, not just the copy describing it, respects scope.
+function weakestArea(areas, useLevel = true) {
   const started = areas.filter((area) => area.questions > 0);
   if (!started.length) return null;
   return started.slice().sort((a, b) => {
-    if (a.level !== b.level) return a.level - b.level;
+    if (useLevel && a.level !== b.level) return a.level - b.level;
     return a.percentage - b.percentage;
   })[0];
 }
 
-function strongestAreas(areas, count = 2) {
+// Level first, percentage as the tiebreaker — same reasoning as
+// weakestArea above, mirrored rather than inverted-and-forgotten. Missing
+// this let a real case through: an area can be sitting on a strong raw
+// accuracy while a DIFFERENT area has already reached a higher level
+// (Mastering requires clearing an 80%+ bar at every level along the way,
+// not just today's cumulative average — a hard climb from Foundation can
+// easily average out lower lifetime than a shallower area's easier, more
+// recent run of correct answers). Sorting on percentage alone could call
+// a Securing-level area "strongest" over one already at Mastering.
+// `useLevel` — see weakestArea's own comment; same scope-awareness need.
+function strongestAreas(areas, count = 2, useLevel = true) {
   const started = areas.filter((area) => area.questions > 0);
-  return started.slice().sort((a, b) => b.percentage - a.percentage).slice(0, count);
+  return started.slice().sort((a, b) => {
+    if (useLevel && a.level !== b.level) return b.level - a.level;
+    return b.percentage - a.percentage;
+  }).slice(0, count);
 }
 
 function categoryActionHref(categoryKey, config) {
@@ -606,85 +623,64 @@ function focusRoundHref(area) {
 // and the same server-side `progress` object loadProgress already fetches.
 // ----------
 
-function levelFromAccuracy(percentage, questions) {
-  if (!Number(questions || 0)) return { level: 0, levelLabel: "Foundation" };
-  if (percentage >= 85) return { level: 3, levelLabel: "Mastering" };
-  if (percentage >= 70) return { level: 2, levelLabel: "Securing" };
-  if (percentage >= 50) return { level: 1, levelLabel: "Developing" };
-  return { level: 0, levelLabel: "Foundation" };
-}
-
-function getCategoryDashboardSnapshot(categoryKey) {
-  const category = state.progress?.categories?.[categoryKey] || {};
-  const overall = category.overall || {};
-  const appModules = category.modules || [];
-  const areaOrder = window.EAProgressModeAreaOrder || ["melody", "texture", "harmony", "instrumentation", "rhythm", "context"];
-  const areaLabels = window.EAProgressModeAreaLabels || {};
-  const areaIcons = window.EAProgressModeAreaIcons || {};
-  const areas = areaOrder.map((areaKey) => {
-    const modules = appModules.filter((module) => SERVER_MODULE_ELEMENTS[module.moduleId] === areaKey);
-    const questions = modules.reduce((sum, module) => sum + Number(module.questions || 0), 0);
-    const score = modules.reduce((sum, module) => sum + Number(module.score || 0), 0);
-    const maximumScore = modules.reduce((sum, module) => sum + Number(module.maximumScore || 0), 0);
-    const percentage = maximumScore > 0 ? Math.round((score / maximumScore) * 100) : 0;
-    const level = levelFromAccuracy(percentage, questions);
-    const focusModule = modules
-      .filter((module) => Number(module.questions || 0) > 0)
-      .sort((a, b) => Number(a.percentage || 0) - Number(b.percentage || 0))[0];
-    return {
-      areaKey,
-      label: areaLabels[areaKey] || historyElementLabel(areaKey),
-      icon: areaIcons[areaKey] || DASHBOARD_VIEWS[categoryKey].icon,
-      questions,
-      correct: score,
-      percentage,
-      level: level.level,
-      levelLabel: level.levelLabel,
-      feedbackText: focusModule?.feedback || focusModule?.nextStep || ""
-    };
-  });
-  const questions = Number(overall.questions || 0);
-  const percentage = Number(overall.percentage || 0);
-  const level = levelFromAccuracy(percentage, questions);
-  return {
-    ready: true,
-    hasEvidence: questions > 0,
-    percentage,
-    correct: Number(overall.score || 0),
-    questions,
-    rounds: Number(overall.rounds || 0),
-    areasStarted: Number(overall.modulesStarted || appModules.filter((module) => Number(module.questions || 0) > 0).length),
-    level: level.level,
-    levelLabel: level.levelLabel,
-    dailyStreak: 0,
-    areas,
-    feedbackText: overall.compiledFeedback || CATEGORY_CONFIG[categoryKey].emptyFeedback
-  };
-}
-
 function renderEahomeHero(pm, viewKey = "overall") {
-  const weak = weakestArea(pm.areas);
+  // The Foundation/Developing/Securing/Mastering level badge is inherently
+  // Progress-Mode-only (see getProgressModeSnapshot's own comment on
+  // level/overallProgress) — showing it on the Live Sessions/Homework tabs
+  // would misrepresent a PM-only concept as if those sources tracked it too.
+  // Computed before weakestArea/strongestAreas below (not just after, as it
+  // used to be) because it now also gates the SORT itself, not only the
+  // copy — see weakestArea's own comment on why level must never decide
+  // "weakest"/"strongest" outside the scopes where it actually means
+  // anything.
+  const showLevelBadge = viewKey === "overall" || viewKey === "progress";
+  const weak = weakestArea(pm.areas, showLevelBadge);
+  const strongest = strongestAreas(pm.areas, 1, showLevelBadge)[0];
   const pct = pm.hasEvidence ? pm.percentage : 0;
-  const isProgressView = viewKey === "overall" || viewKey === "progress";
-  const subtext = isProgressView
-    ? (!pm.hasEvidence
-        ? "Complete your first Progress Mode round to start building your listening record."
-        : weak
-          ? `Solid progress across your completed listening work. Focus on ${escapeHtml(weak.label)} next.`
-          : "Solid progress across your completed listening work.")
-    : (!pm.hasEvidence
-        ? escapeHtml(CATEGORY_CONFIG[viewKey].emptyFeedback)
-        : escapeHtml(pm.feedbackText));
-
+  // Every scope now produces the same `pm.areas`/`weakestArea` shape (see
+  // getProgressModeSnapshot's `scope` parameter), so the weakest-area
+  // framing below works identically for any tab — no more special-casing
+  // Progress Mode against a differently-shaped quizzes/homework snapshot.
+  const emptyText = viewKey === "overall"
+    ? "Complete a round in Progress Mode, a Live Session or Homework to start building your record."
+    : CATEGORY_CONFIG[viewKey].emptyFeedback;
+  // A real, specific summary drawn from every musical element area, not a
+  // bare area name — weak.feedbackText is already the same
+  // Feedback.buildAreaFeedback paragraph (strength/weakness/developing,
+  // with its own "how to improve" tip) the per-area detail popup and
+  // snapshotDetailMarkup's own "Focus next" callout already show, just
+  // reused here instead of a second, generic hero-only template. Only
+  // prefixed with a strongest-area callout when that's a genuinely
+  // different area — naming the same area as both strongest and weakest
+  // would read as contradictory.
+  const weakSummary = weak
+    ? (weak.feedbackText || `Your ${weak.label} accuracy is ${weak.percentage}%. A focused round here will help most.`)
+    : "";
+  // strongestAreas now picks by level first (see its own comment) — the
+  // number shown alongside it needs to be the SAME metric, or "Strongest in
+  // Texture (69%)" would still visibly contradict that area's own Mastering
+  // badge/progress bar elsewhere, which both read overallProgress (92%
+  // here), not raw all-time accuracy. Only meaningful on the PM-relevant
+  // scopes; quizzes/homework have no level concept, so they keep showing
+  // plain accuracy.
+  const strongestPct = strongest ? (showLevelBadge ? strongest.overallProgress : strongest.percentage) : 0;
+  const subtext = !pm.hasEvidence
+    ? emptyText
+    : weak
+      ? (strongest && strongest.areaKey !== weak.areaKey
+          ? `Strongest in ${escapeHtml(strongest.label)} (${strongestPct}%). ${escapeHtml(weakSummary)}`
+          : escapeHtml(weakSummary))
+      : "Solid progress across your completed work.";
   const levelIcon = LEVEL_ICONS[pm.levelLabel] || LEVEL_ICONS.Foundation;
 
   return `
     <div class="eahome-hero-copy">
       <div class="eahome-hero-feedback">
+        ${showLevelBadge ? `
         <div class="eahome-hero-level">
           <span class="eahome-hero-feedback-icon" aria-hidden="true"><img src="${levelIcon}" alt="" /></span>
           <strong class="eahome-hero-level-label">${escapeHtml(pm.levelLabel || "Foundation")}</strong>
-        </div>
+        </div>` : ""}
         <p>${subtext}</p>
       </div>
       <div class="eahome-hero-actions">
@@ -712,42 +708,32 @@ function renderEahomeHero(pm, viewKey = "overall") {
   `;
 }
 
-function renderCategoryModulesGrid(categoryKey, snapshot) {
-  if (!snapshot.areas.length) return emptyCategory(CATEGORY_CONFIG[categoryKey].emptyFeedback);
-  return snapshot.areas.map((module) => {
-    const badge = moduleStatusBadge(module);
-    return `
-      <button class="eahome-module-card ${badge.cls}" type="button" data-category-detail="${escapeHtml(categoryKey)}">
-        <span class="eahome-module-header">
-          <span class="eahome-module-icon" aria-hidden="true"><img src="${escapeHtml(module.icon)}" alt="" /></span>
-          <span class="eahome-module-title">${escapeHtml(module.label)}</span>
-        </span>
-        <strong class="eahome-module-pct">${module.questions ? `${module.percentage}%` : "—"}</strong>
-        <span class="eahome-module-bar" aria-hidden="true"><i style="width:${module.questions ? module.percentage : 0}%"></i></span>
-        <span class="eahome-module-badge">${badge.label}</span>
-      </button>
-    `;
-  }).join("");
-}
-
 function moduleStatusBadge(area) {
   const label = area.levelLabel || "Foundation";
   return { cls: "is-level-" + label.toLowerCase(), label };
 }
 
-function renderEahomeModulesGrid(pm) {
-  if (!pm.areas.length) return emptyCategory(CATEGORY_CONFIG.progress.emptyFeedback);
+// Shared area-card grid for all 4 tabs (`viewKey`: "overall"/"progress"/
+// "quizzes"/"homework"). Progress Mode's mastery-progress bar (level-based,
+// see getProgressModeSnapshot's own comment on why it's Progress-Mode-only)
+// only makes sense for "overall"/"progress" — Live Sessions/Homework show
+// their own scoped accuracy instead, with no level badge (there's no
+// Live-Session/Homework notion of "level" to attach one to).
+function renderEahomeModulesGrid(pm, viewKey = "overall") {
+  if (!pm.areas.length) return emptyCategory(viewKey === "overall" ? "Complete a round to begin your record." : CATEGORY_CONFIG[viewKey].emptyFeedback);
+  const showMastery = viewKey === "overall" || viewKey === "progress";
   return pm.areas.map((area) => {
-    const badge = moduleStatusBadge(area);
+    const pct = showMastery ? area.overallProgress : area.percentage;
+    const badge = showMastery ? moduleStatusBadge(area) : null;
     return `
-      <button class="eahome-module-card ${badge.cls}" type="button" data-category-detail="progress" data-area="${escapeHtml(area.areaKey)}">
+      <button class="eahome-module-card ${badge ? badge.cls : ""}" type="button" data-category-detail="${escapeHtml(viewKey)}" data-area="${escapeHtml(area.areaKey)}">
         <span class="eahome-module-header">
           <span class="eahome-module-icon" aria-hidden="true"><img src="${escapeHtml(area.icon)}" alt="" /></span>
           <span class="eahome-module-title">${escapeHtml(area.label)}</span>
         </span>
-        <strong class="eahome-module-pct">${area.questions ? `${area.percentage}%` : "—"}</strong>
-        <span class="eahome-module-bar" aria-hidden="true"><i style="width:${area.questions ? area.percentage : 0}%"></i></span>
-        <span class="eahome-module-badge">${badge.label}</span>
+        <strong class="eahome-module-pct">${area.questions ? `${pct}%` : "—"}</strong>
+        <span class="eahome-module-bar" aria-hidden="true"><i style="width:${area.questions ? pct : 0}%"></i></span>
+        ${badge ? `<span class="eahome-module-badge">${badge.label}</span>` : ""}
       </button>
     `;
   }).join("");
@@ -810,16 +796,29 @@ function renderEahomeRecentActivity(progress, viewKey = "overall") {
     .slice(0, 10);
 
   const listHtml = rounds.length
-    ? rounds.map((round) => `
+    ? rounds.map((round) => {
+        // Live Session rounds carry the room's configured length alongside
+        // how many questions the student actually has entries for (see
+        // account-server.js's recentRounds) — a teacher-paced room can end
+        // with a student having answered fewer than configured (see the
+        // Live Session question-count fix). Surfacing "9 of 10" here
+        // instead of a bare "9" keeps that visible in this list too, not
+        // just the old, now-retired detail view that used to show it.
+        const configured = Number(round.configuredQuestions || 0);
+        const questionsLabel = round.questions
+          ? (configured > round.questions ? `${round.questions} of ${configured} questions` : `${Number(round.questions)} questions`)
+          : "";
+        return `
         <button class="eahome-activity-row" type="button" data-category-detail="${round.source}">
           <span class="eahome-activity-check" aria-hidden="true">✓</span>
           <span class="eahome-activity-copy">
             <strong>${escapeHtml(sourceLabel(round.source))}${round.title ? ` · ${escapeHtml(round.title)}` : ""}</strong>
-            <small>${escapeHtml(formatRelativeTime(round.completedAt))}${round.questions ? ` · ${Number(round.questions)} questions` : ""}</small>
+            <small>${escapeHtml(formatRelativeTime(round.completedAt))}${questionsLabel ? ` · ${questionsLabel}` : ""}</small>
           </span>
           <em class="${scoreClass(round.percentage, round.questions || 1)}">${Number(round.percentage || 0)}%</em>
         </button>
-      `).join("")
+      `;
+      }).join("")
     : '<div class="student-memory-empty-v3">Your completed rounds will appear here.</div>';
 
   return `
@@ -987,11 +986,25 @@ const LEVEL_STUCK_ACCURACY_THRESHOLD = 70;
 const MASTERING_LEVEL_INDEX = 3;
 
 function renderEahomeRightColumn(pm, progress, viewKey = "overall") {
-  const weak = weakestArea(pm.areas);
+  // "Stuck at a level" framing is a Progress-Mode-only concept (level
+  // advancement isn't tracked for Live Sessions/Homework at all — see
+  // getProgressModeSnapshot's own comment) — only apply it for the
+  // overall/progress scopes, where `weak.level`/`weak.levelLabel` actually
+  // correspond to the percentage being shown alongside them. Computed
+  // before weakestArea below so it can also gate the SELECTION itself, not
+  // just this function's downstream copy choice — see weakestArea's own
+  // comment.
+  const showLevelChrome = viewKey === "overall" || viewKey === "progress";
+  const weak = weakestArea(pm.areas, showLevelChrome);
   const nextStepTitle = weak ? `Revisit ${escapeHtml(weak.label)}` : "Get started";
-  const isLevelStuck = weak && weak.level < MASTERING_LEVEL_INDEX && weak.percentage >= LEVEL_STUCK_ACCURACY_THRESHOLD;
+  const isLevelStuck = showLevelChrome && weak && weak.level < MASTERING_LEVEL_INDEX && weak.percentage >= LEVEL_STUCK_ACCURACY_THRESHOLD;
+  const emptyStepBody = viewKey === "overall"
+    ? "Complete a round in Progress Mode, a Live Session or Homework to see a personalised focus area here."
+    : viewKey === "progress"
+      ? "Complete a Progress Mode round to see a personalised focus area here."
+      : CATEGORY_CONFIG[viewKey].emptyFeedback;
   const nextStepBody = !pm.hasEvidence
-    ? "Complete a Progress Mode round to see a personalised focus area here."
+    ? emptyStepBody
     : weak
       ? (isLevelStuck
           ? `${escapeHtml(weak.label)} is still at ${escapeHtml(weak.levelLabel)} despite ${weak.percentage}% accuracy — a focused round here banks the reps needed to level up.`
@@ -1013,6 +1026,7 @@ function renderEahomeRightColumn(pm, progress, viewKey = "overall") {
       </a>
     </section>
 
+    ${viewKey === "homework" ? renderHomeworkTasks(progress) : ""}
     <section class="eahome-side-card">
       ${renderEahomeRecentActivity(progress, viewKey)}
     </section>
@@ -1056,15 +1070,6 @@ function renderHomeworkTasks(progress) {
   `;
 }
 
-function renderCategoryRightColumn(categoryKey, progress) {
-  return `
-    ${categoryKey === "homework" ? renderHomeworkTasks(progress) : ""}
-    <section class="eahome-side-card">
-      ${renderEahomeRecentActivity(progress, categoryKey)}
-    </section>
-  `;
-}
-
 function updateDashboardChrome(viewKey) {
   const view = DASHBOARD_VIEWS[viewKey];
   state.activeView = viewKey;
@@ -1080,83 +1085,22 @@ function updateDashboardChrome(viewKey) {
   });
 }
 
+// All 4 tabs share one rendering path now — the only thing that varies is
+// `viewKey`, which getProgressModeSnapshot/renderEahomeModulesGrid/etc use
+// to scope which source(s) of evidence to show (see their own comments).
+// "overall" blends Progress Mode + Live Session + Homework; "progress",
+// "quizzes" and "homework" each isolate just their own evidence.
 function renderEahomeDashboard(progress) {
   const viewKey = DASHBOARD_VIEWS[state.activeView] ? state.activeView : "overall";
-  const snapshot = viewKey === "overall" || viewKey === "progress"
-    ? getProgressModeSnapshot()
-    : getCategoryDashboardSnapshot(viewKey);
+  const snapshot = getProgressModeSnapshot(viewKey);
   updateDashboardChrome(viewKey);
   els.eahomeHero.innerHTML = renderEahomeHero(snapshot, viewKey);
-  els.eahomeModulesGrid.innerHTML = viewKey === "overall" || viewKey === "progress"
-    ? renderEahomeModulesGrid(snapshot)
-    : renderCategoryModulesGrid(viewKey, snapshot);
+  els.eahomeModulesGrid.innerHTML = renderEahomeModulesGrid(snapshot, viewKey);
   els.eahomeStatsRow.innerHTML = renderEahomeStatsRow(snapshot, viewKey);
-  els.eahomeRightColumn.innerHTML = viewKey === "overall" || viewKey === "progress"
-    ? renderEahomeRightColumn(snapshot, progress, viewKey)
-    : renderCategoryRightColumn(viewKey, progress);
+  els.eahomeRightColumn.innerHTML = renderEahomeRightColumn(snapshot, progress, viewKey);
 }
 
 // ---------- Detailed feedback dialog ----------
-
-function detailedCategoryMarkup(categoryKey, category) {
-  const config = CATEGORY_CONFIG[categoryKey];
-  const overall = category?.overall || {};
-  const hasEvidence = Number(overall.questions || 0) > 0;
-  const feedbackText = hasEvidence ? overall.compiledFeedback : config.emptyFeedback;
-
-  if (categoryKey === "homework") {
-    return `
-      <div class="homework-detail-placeholder-v5">
-        <span class="homework-status-pill-v3">Coming next</span>
-        <h3>No homework assigned</h3>
-        <p>Teacher-set activities, deadlines, submitted scores and homework feedback will appear here when the homework system is added.</p>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="category-detail-overview-v5 student-category-detail-overview-v3">
-      <div class="category-detail-score-v5 ${scoreClass(overall.percentage, overall.questions)}">
-        <span>${escapeHtml(overall.level || "Not started")}</span>
-        <strong>${hasEvidence ? `${Number(overall.percentage || 0)}%` : "—"}</strong>
-        <small>${formatMark(overall.score)} / ${formatMark(overall.maximumScore)} marks</small>
-      </div>
-
-      <div class="category-detail-metrics-v5">
-        <div><span>Questions</span><strong>${Number(overall.questions || 0)}</strong></div>
-        <div><span>Rounds</span><strong>${Number(overall.rounds || 0)}</strong></div>
-        <div><span>Apps started</span><strong>${Number(overall.modulesStarted || 0)} / 6</strong></div>
-        <div><span>Learning area</span><strong>${escapeHtml(config.title)}</strong></div>
-      </div>
-    </div>
-
-    <div class="category-detail-feedback-v5">
-      <span>Compiled feedback</span>
-      <p>${escapeHtml(feedbackText)}</p>
-    </div>
-
-    <section class="student-detail-section-v3">
-      <div class="category-detail-section-heading-v5">
-        <div><p class="card-eyebrow">All applications</p><h3>Scores and next steps</h3></div>
-        ${config.actionHref ? `<a class="secondary-button student-detail-action-v3" href="${categoryActionHref(categoryKey, config)}">${escapeHtml(config.actionLabel)}</a>` : ""}
-      </div>
-      ${renderCategoryModules(categoryKey, category?.modules || [])}
-    </section>
-
-    <section class="student-detail-section-v3">
-      <div class="category-detail-section-heading-v5">
-        <div><p class="card-eyebrow">Learning memory</p><h3>Recent rounds</h3></div>
-        <span>${escapeHtml(config.title)}</span>
-      </div>
-      ${renderRoundList(category?.recentRounds || [])}
-    </section>
-
-    <details class="category-details-v2 student-detail-questions-v3" open>
-      <summary>Recent question feedback</summary>
-      ${renderQuestionList(category?.recentQuestions || [])}
-    </details>
-  `;
-}
 
 // Progress Mode (modules/progress-mode/) is a self-contained, localStorage-
 // only feature — its rounds never reach the server-side progress API this
@@ -1179,10 +1123,13 @@ function detailedCategoryMarkup(categoryKey, category) {
 // One musical element's real apps, each blending Progress Mode + Live
 // Session + Homework marks into a single per-app score — reuses the same
 // .pm-panel/.pm-area-row visual language as the "Performance by listening
-// area" list in progressModeDetailMarkup() below, just scoped to one
+// area" list in snapshotDetailMarkup() below, just scoped to one
 // element's own apps instead of all six areas.
-function elementDetailMarkup(areaKey) {
-  const pm = getProgressModeSnapshot();
+// `scope`: same convention as getProgressModeSnapshot/getCombinedSourceStats
+// — "overall" (default) blends all three sources, "progress"/"quizzes"/
+// "homework" isolate just that one tab's own evidence.
+function elementDetailMarkup(areaKey, scope = "overall") {
+  const pm = getProgressModeSnapshot(scope);
   const area = pm.areas.find((entry) => entry.areaKey === areaKey);
   if (!area) return emptyCategory("No evidence for this element yet.");
 
@@ -1194,8 +1141,8 @@ function elementDetailMarkup(areaKey) {
   const vocab = VOCAB_SUB_APPS[areaKey];
 
   const subApps = subAppKeys.map((sourceKey) => {
-    const combined = getCombinedSourceStats(sourceKey);
-    const { correct, questions, percentage, quizModule } = combined;
+    const combined = getCombinedSourceStats(sourceKey, scope);
+    const { correct, questions, percentage, quizModule, homeworkModule } = combined;
     // Primary sentence, most-specific-available first:
     // 1. Concept-level (e.g. "you recognise first inversion chords well,
     //    but need to focus on extended chords") — only exists for the 5
@@ -1205,19 +1152,25 @@ function elementDetailMarkup(areaKey) {
     //    available, names the actual skill rather than a bare percentage.
     // 3. Generic percentage fallback, for a sub-app with too little sample
     //    for either phrase bank yet.
-    // When the Live Session server also has its own hand-authored,
+    // When the Live Session/Homework server also has its own hand-authored,
     // data-derived sentence for this module (e.g. melody-master's
     // pitch-vs-contour analysis), append it as a second sentence rather
-    // than discarding one or the other.
+    // than discarding one or the other — scoped to whichever source(s) this
+    // tab is actually showing, not always quizModule regardless of scope
+    // (a real bug: homeworkModule's own feedback was never reachable here).
     const serverModuleId = PM_REGISTRY?.get(sourceKey)?.moduleId || null;
-    const conceptStats = serverModuleId ? getCombinedConceptStats(serverModuleId) : {};
+    const conceptStats = serverModuleId ? getCombinedConceptStats(serverModuleId, scope) : {};
     const conceptFeedback = serverModuleId ? Feedback?.buildConceptFeedback(serverModuleId, conceptStats) : null;
     const primary = conceptFeedback
       || Feedback?.buildSourceFeedback(sourceKey, correct, questions)
       || (questions
         ? `${percentage}% accuracy across ${questions} mark${questions === 1 ? "" : "s"} so far.`
         : "No attempts yet — complete a round to start building feedback here.");
-    const secondary = quizModule?.questions && quizModule.feedback ? ` ${quizModule.feedback}` : "";
+    const secondaryModule = scope === "homework" ? homeworkModule
+      : scope === "quizzes" ? quizModule
+      : scope === "progress" ? null
+      : (quizModule || homeworkModule);
+    const secondary = secondaryModule?.questions && secondaryModule.feedback ? ` ${secondaryModule.feedback}` : "";
     const feedbackText = primary + secondary;
     return {
       sourceKey,
@@ -1238,10 +1191,22 @@ function elementDetailMarkup(areaKey) {
   // question with its specific topic instead of only the shared
   // "musical-language" moduleId.
   if (vocab) {
-    const vocabStats = vocab.sourceKeys.map((key) => getCombinedSourceStats(key));
-    const vocabCorrect = vocabStats.reduce((sum, entry) => sum + entry.correct, 0);
-    const vocabQuestions = vocabStats.reduce((sum, entry) => sum + entry.questions, 0);
+    // Real, pre-existing gap fixed here: this row previously always showed
+    // a bare "X% accuracy across Y marks" string, regardless of how good
+    // or bad that score was — it never called the feedback system at all,
+    // unlike every other row above. Fixed by reusing buildAreaFeedback,
+    // which already knows how to turn a {sourceKey: stats} map into a real
+    // sentence (pairing a strength/weakness across 1-2 sources, or a solo
+    // sentence when there's only one) — exactly this row's own shape, just
+    // with 1-2 musical-language sourceKeys instead of a full area's worth.
+    const vocabCombinedStats = {};
+    vocab.sourceKeys.forEach((key) => { vocabCombinedStats[key] = getCombinedSourceStats(key, scope); });
+    const vocabCorrect = vocab.sourceKeys.reduce((sum, key) => sum + vocabCombinedStats[key].correct, 0);
+    const vocabQuestions = vocab.sourceKeys.reduce((sum, key) => sum + vocabCombinedStats[key].questions, 0);
     const vocabPercentage = vocabQuestions ? Math.round((vocabCorrect / vocabQuestions) * 100) : 0;
+    const vocabFeedback = vocabQuestions && Feedback
+      ? Feedback.buildAreaFeedback(vocabCombinedStats, vocab.sourceKeys, "Vocabulary")
+      : "";
     subApps.push({
       sourceKey: "vocab-" + areaKey,
       icon: VOCAB_ICON,
@@ -1251,9 +1216,10 @@ function elementDetailMarkup(areaKey) {
       correct: vocabCorrect,
       questions: vocabQuestions,
       percentage: vocabPercentage,
-      feedbackText: vocabQuestions
-        ? `${vocabPercentage}% accuracy across ${vocabQuestions} mark${vocabQuestions === 1 ? "" : "s"} so far.`
-        : "No attempts yet — complete a round to start building feedback here."
+      feedbackText: vocabFeedback
+        || (vocabQuestions
+          ? `${vocabPercentage}% accuracy across ${vocabQuestions} mark${vocabQuestions === 1 ? "" : "s"} so far.`
+          : "No attempts yet — complete a round to start building feedback here.")
     });
   }
 
@@ -1284,11 +1250,14 @@ function elementDetailMarkup(areaKey) {
       }).join("")
     : `<p class="pm-callout-empty">No apps found for ${escapeHtml(area.label)}.</p>`;
 
-  // The header's summary line is Progress Mode's own tracked level for
-  // this area (the real, levelled metric) — distinct from the per-app
-  // blended scores below, which pull from all three modes.
+  // The header's summary line includes Progress Mode's own tracked level
+  // for this area only when a level is actually meaningful for the active
+  // scope — Live Sessions/Homework have no notion of "level" (see
+  // getProgressModeSnapshot's own comment on level/overallProgress being
+  // Progress-Mode-only), so showing that badge there would misrepresent it.
+  const showLevel = scope === "overall" || scope === "progress";
   const toolbarMeta = area.questions
-    ? `${area.percentage}% overall · ${escapeHtml(area.levelLabel)}`
+    ? `${area.percentage}% overall${showLevel ? ` · ${escapeHtml(area.levelLabel)}` : ""}`
     : "No evidence yet";
 
   return `
@@ -1310,32 +1279,57 @@ function elementDetailMarkup(areaKey) {
   `;
 }
 
-function progressModeDetailMarkup() {
+// Generalized from a Progress-Mode-only detail view into the "no specific
+// area clicked" landing view for ANY tab (`scope`: "overall" default,
+// "progress"/"quizzes"/"homework" for the per-tab split). Progress-Mode-
+// specific pieces (level badge, streak stats) only render when scope is
+// "overall"/"progress" — Live Sessions/Homework have no equivalent concept
+// for either (see getProgressModeSnapshot's own comments).
+function snapshotDetailMarkup(scope = "overall") {
   const Store = window.EAProgressModeStore;
   const AreaOrder = window.EAProgressModeAreaOrder;
+  const emptyText = scope === "overall"
+    ? "Complete a round in Progress Mode, a Live Session or Homework to start building your record."
+    : CATEGORY_CONFIG[scope]?.emptyFeedback || "No evidence yet.";
 
   if (!Store || !AreaOrder || !state.student) {
-    return emptyCategory(CATEGORY_CONFIG.progress.emptyFeedback);
+    return emptyCategory(emptyText);
   }
 
-  const pm = getProgressModeSnapshot();
-  if (!pm.hasEvidence) {
-    return emptyCategory(CATEGORY_CONFIG.progress.emptyFeedback);
+  const pm = getProgressModeSnapshot(scope);
+  // Exam Lab has no musical area/sourceKey (it's a cross-skill assessment
+  // type, not a PM sub-app — see PM_REGISTRY), so it never contributes to
+  // pm.hasEvidence/pm.areas at all. Checked separately here, scoped to the
+  // Live Sessions tab specifically (where it already lived before this
+  // change), so a student with real Exam Lab rounds but nothing else isn't
+  // wrongly shown the empty state.
+  const examLabModule = scope === "quizzes"
+    ? (state.progress?.categories?.quizzes?.modules || []).find((entry) => entry.moduleId === "exam-lab")
+    : null;
+  const hasExamLabEvidence = Boolean(examLabModule?.questions);
+  if (!pm.hasEvidence && !hasExamLabEvidence) {
+    return emptyCategory(emptyText);
   }
 
-  const studentId = state.student.id;
+  const showPmChrome = scope === "overall" || scope === "progress";
   const overallLevelIcon = PM_DETAIL_LEVEL_ICONS[pm.levelLabel] || PM_DETAIL_LEVEL_ICONS.Foundation;
 
-  const areaRows = pm.areas.map((area) => `
+  // Progress/Overall scope keeps showing mastery-progress (level-based,
+  // Progress-Mode-only); Live Sessions/Homework show their own scoped
+  // accuracy instead, since they have no notion of "level" to display.
+  const areaRows = pm.areas.map((area) => {
+    const pct = showPmChrome ? area.overallProgress : area.percentage;
+    return `
     <div class="pm-area-row" data-area="${escapeHtml(area.areaKey)}">
       <span class="pm-area-row-icon" aria-hidden="true"><img src="${escapeHtml(area.icon)}" alt="" /></span>
       <span class="pm-area-row-label">${escapeHtml(area.label)}</span>
-      <span class="pm-area-row-bar"><i style="width:${area.questions ? area.percentage : 0}%"></i></span>
-      <strong class="pm-area-row-pct">${area.questions ? `${area.percentage}%` : "—"}</strong>
+      <span class="pm-area-row-bar"><i style="width:${area.questions ? pct : 0}%"></i></span>
+      <strong class="pm-area-row-pct">${area.questions ? `${pct}%` : "—"}</strong>
     </div>
-  `).join("");
+  `;
+  }).join("");
 
-  const doingWell = strongestAreas(pm.areas, 2).filter((area) => area.percentage >= 60);
+  const doingWell = strongestAreas(pm.areas, 2, showPmChrome).filter((area) => area.percentage >= 60);
   const doingWellHtml = doingWell.length
     ? doingWell.map((area) => `
         <div class="pm-callout-item">
@@ -1348,7 +1342,7 @@ function progressModeDetailMarkup() {
       `).join("")
     : `<p class="pm-callout-empty">Keep going — your strongest areas will show up here.</p>`;
 
-  const weak = weakestArea(pm.areas);
+  const weak = weakestArea(pm.areas, showPmChrome);
   const focusNextHtml = weak
     ? `
       <div class="pm-callout-item">
@@ -1361,36 +1355,48 @@ function progressModeDetailMarkup() {
     `
     : `<p class="pm-callout-empty">Complete a round in every area to see a recommendation here.</p>`;
 
-  const Drivers = window.EAProgressModeDrivers;
-  const recentHistory = typeof Store.getRecentHistory === "function"
-    ? Store.getRecentHistory(studentId, Object.keys(Drivers || {}), 6)
-    : [];
-  const recentHtml = recentHistory.length
-    ? recentHistory.map((entry) => `
-        <div class="pm-evidence-row">
-          <span class="pm-evidence-icon" aria-hidden="true">▶</span>
-          <div class="pm-evidence-copy">
-            <strong>Progress Mode · ${escapeHtml(Drivers?.[entry.sourceKey]?.label || entry.sourceKey)}</strong>
-            <small>${escapeHtml(formatRelativeTime(entry.timestamp))}</small>
+  // Reuses the same scope-filtered activity list the main dashboard already
+  // shows (Progress Mode + Live Session + Homework rounds, correctly
+  // narrowed by scope) rather than a second, Progress-Mode-only recent-
+  // history computation.
+  const recentActivityHtml = renderEahomeRecentActivity(state.progress || {}, scope);
+
+  // Exam Lab supplementary card — account-server.js already computes a
+  // real, data-derived feedback/nextStep sentence for it (moduleSummaries'
+  // own exam-lab branch), reused here rather than inventing a second one.
+  const examLabHtml = examLabModule
+    ? `
+      <section class="pm-panel">
+        <div class="pm-section-heading"><h3>Exam Lab</h3></div>
+        <div class="pm-subapp-row">
+          <span class="pm-subapp-row-icon"><img src="${escapeHtml(examLabModule.icon || "/assets/icons/modules/exam-lab.png")}" alt="" /></span>
+          <div class="pm-subapp-row-body">
+            <div class="pm-subapp-row-main">
+              <span class="pm-subapp-row-label">Exam Lab</span>
+              <span class="pm-subapp-row-bar"><i style="width:${examLabModule.questions ? examLabModule.percentage : 0}%"></i></span>
+              <strong class="pm-subapp-row-pct">${examLabModule.questions ? `${examLabModule.percentage}%` : "—"}</strong>
+            </div>
+            <p class="pm-subapp-row-feedback">${escapeHtml(examLabModule.feedback || examLabModule.nextStep || "")}</p>
           </div>
-          <strong class="pm-evidence-pct">${entry.percentage}%</strong>
         </div>
-      `).join("")
-    : `<p class="pm-callout-empty">Your recent rounds will appear here.</p>`;
+      </section>
+    `
+    : "";
 
   return `
     <div class="pm-detail">
       <header class="pm-detail-toolbar">
         <div class="pm-toolbar-left">
           <div class="pm-toolbar-segment pm-toolbar-level">
-            <span class="pm-toolbar-icon" aria-hidden="true"><img src="${escapeHtml(overallLevelIcon)}" alt="" /></span>
+            ${showPmChrome ? `<span class="pm-toolbar-icon" aria-hidden="true"><img src="${escapeHtml(overallLevelIcon)}" alt="" /></span>` : ""}
             <div class="pm-toolbar-copy">
-              <strong class="pm-toolbar-level-label">${escapeHtml(pm.levelLabel)}</strong>
+              ${showPmChrome ? `<strong class="pm-toolbar-level-label">${escapeHtml(pm.levelLabel)}</strong>` : ""}
               <span class="pm-toolbar-meta">${pm.rounds} round${pm.rounds === 1 ? "" : "s"} · ${pm.correct}/${pm.questions} marks · ${pm.areasStarted}/${AreaOrder.length} areas</span>
             </div>
           </div>
         </div>
 
+        ${showPmChrome ? `
         <span class="pm-toolbar-divider" aria-hidden="true"></span>
 
         <div class="pm-toolbar-right">
@@ -1417,7 +1423,7 @@ function progressModeDetailMarkup() {
               </div>
             </div>
           </div>
-        </div>
+        </div>` : ""}
       </header>
 
       <div class="pm-detail-columns">
@@ -1427,11 +1433,10 @@ function progressModeDetailMarkup() {
             <div class="pm-area-list">${areaRows}</div>
           </section>
 
+          ${examLabHtml}
+
           <section class="pm-panel">
-            <div class="pm-section-heading">
-              <h3>Recent evidence</h3>
-            </div>
-            <div class="pm-evidence-list">${recentHtml}</div>
+            ${recentActivityHtml}
           </section>
         </div>
 
@@ -1452,22 +1457,24 @@ function progressModeDetailMarkup() {
   `;
 }
 
+// categoryKey doubles as `scope` now — "overall"/"progress"/"quizzes"/
+// "homework", the same vocabulary getProgressModeSnapshot and friends use
+// (see their own comments). Every category now renders through the same
+// rich elementDetailMarkup/snapshotDetailMarkup pair, just scoped
+// differently, so this function no longer branches on categoryKey to pick
+// between a "rich" path and a separate, coarser one.
 function openCategoryDetail(categoryKey, areaKey) {
   const config = CATEGORY_CONFIG[categoryKey];
   if (!config || !state.progress) return;
 
+  const scope = categoryKey;
   // Clicking a "Your learning modules" card passes its area — that scopes
-  // the popup down to one musical element's evidence across all three
-  // modes, instead of the full multi-area Progress Mode breakdown.
-  const isElementDetail = categoryKey === "progress" && Boolean(areaKey);
+  // the popup down to one musical element's evidence, instead of the full
+  // multi-area breakdown. Fires for any tab now, not just Progress Mode.
+  const isElementDetail = Boolean(areaKey);
   const isProgressDetail = categoryKey === "progress";
 
-  const categories = state.progress.categories || {};
-  const category = categoryKey === "homework"
-    ? (categories.homework || { overall: {} })
-    : (categories[categoryKey] || { overall: {}, modules: [], recentRounds: [], recentQuestions: [] });
-
-  els.categoryDialog.classList.toggle("is-pm-detail", isProgressDetail);
+  els.categoryDialog.classList.toggle("is-pm-detail", true);
   els.categoryDialog.classList.toggle("is-element-detail", isElementDetail);
   els.categoryDetailEyebrow.textContent = config.eyebrow;
   els.categoryDetailTitle.textContent = config.title;
@@ -1478,7 +1485,9 @@ function openCategoryDetail(categoryKey, areaKey) {
   // inside the panel below. For a single element, that identity now lives
   // in the merged .pm-element-header panel instead, so the heading strip
   // above it stays empty — just the close button. Cleared for every other
-  // category too, where the generic title-wrap above already covers it.
+  // category too (this is Progress Mode's own product branding — showing
+  // it while looking at Live Sessions/Homework would be wrong branding,
+  // not just a layout detail).
   if (els.pmHeadingBrand) {
     els.pmHeadingBrand.innerHTML = isProgressDetail && !isElementDetail
       ? `<span class="pm-heading-brand-icon" aria-hidden="true"><img src="${escapeHtml(config.icon)}" alt="" /></span>
@@ -1486,10 +1495,8 @@ function openCategoryDetail(categoryKey, areaKey) {
       : "";
   }
   els.categoryDetailContent.innerHTML = isElementDetail
-    ? elementDetailMarkup(areaKey)
-    : isProgressDetail
-      ? progressModeDetailMarkup()
-      : detailedCategoryMarkup(categoryKey, category);
+    ? elementDetailMarkup(areaKey, scope)
+    : snapshotDetailMarkup(scope);
   els.categoryDialog.showModal();
 }
 

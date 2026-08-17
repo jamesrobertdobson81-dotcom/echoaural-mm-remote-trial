@@ -212,7 +212,10 @@
         pointResults: result.pointResults || [],
         preferredAnswer: normalisedQuestion.preferredAnswer || '',
         responseType: normalisedQuestion.responseType || '',
-        missingConcepts: result.missingConcepts || []
+        missingConcepts: result.missingConcepts || [],
+        textureFocus: normalisedQuestion.textureFocus || '',
+        specificTextureTerm: normalisedQuestion.specificTextureTerm || '',
+        target: normalisedQuestion.target || ''
       }
     };
   }

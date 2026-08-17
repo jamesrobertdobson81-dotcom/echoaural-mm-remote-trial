@@ -318,3 +318,46 @@ test("getSnapshot averages level across areas and reports rounds completed", () 
   assert.equal(snapshot.areas.texture.level, 0);
   assert.equal(snapshot.overallLevelIndex, 0.5);
 });
+
+test("recordConceptOutcome pools multiple concept values from one answer into the same module", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+
+  // Mirrors chord-identifier: a single answer carries both an inversion
+  // label and an extension-tier value, and both land in the same flat
+  // per-module pool (matching the server-side byConcept accumulation).
+  Store.recordConceptOutcome(sid, "chord-identifier", ["first inversion", "Extended chords"], true);
+  Store.recordConceptOutcome(sid, "chord-identifier", ["first inversion"], false);
+
+  const stats = Store.getConceptStats(sid, "chord-identifier");
+  assert.deepEqual(stats["first inversion"], { correct: 1, questions: 2, percentage: 50 });
+  assert.deepEqual(stats["Extended chords"], { correct: 1, questions: 1, percentage: 100 });
+});
+
+test("recordConceptOutcome keeps separate modules' concept stats isolated", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+
+  Store.recordConceptOutcome(sid, "chord-identifier", ["first inversion"], true);
+  Store.recordConceptOutcome(sid, "instrument-identifier", ["Brass"], true);
+
+  assert.deepEqual(Object.keys(Store.getConceptStats(sid, "chord-identifier")), ["first inversion"]);
+  assert.deepEqual(Object.keys(Store.getConceptStats(sid, "instrument-identifier")), ["Brass"]);
+});
+
+test("recordConceptOutcome is a no-op for empty/missing inputs and never throws", () => {
+  const Store = freshStore();
+  const sid = "student-1";
+
+  Store.recordConceptOutcome(sid, "chord-identifier", [], true);
+  Store.recordConceptOutcome(sid, null, ["first inversion"], true);
+  Store.recordConceptOutcome(sid, "chord-identifier", null, true);
+  Store.recordConceptOutcome(sid, "chord-identifier", undefined, true);
+
+  assert.deepEqual(Store.getConceptStats(sid, "chord-identifier"), {});
+});
+
+test("getConceptStats returns an empty object for a student/module with no recorded concepts", () => {
+  const Store = freshStore();
+  assert.deepEqual(Store.getConceptStats("never-played", "chord-identifier"), {});
+});

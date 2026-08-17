@@ -354,8 +354,7 @@
         correct += cumulative[sourceKey].correct;
         questions += cumulative[sourceKey].questions;
       });
-      var tracksConcepts = sources.some(function (sourceKey) { return !!Drivers[sourceKey].getSignature; });
-      var progressPercentage = Store.getAreaOverallProgressPercentage(state.studentId, areaKey, tracksConcepts);
+      var progressPercentage = Store.getAreaOverallProgressPercentage(state.studentId, areaKey, areaTracksConcepts(areaKey));
 
       rows +=
         "<div class=\"pm-element-row\" data-area=\"" + areaKey + "\">" +
@@ -390,25 +389,47 @@
     return arr;
   }
 
+  function hasAdjacentRepeat(arr) {
+    for (var i = 1; i < arr.length; i++) {
+      if (arr[i] === arr[i - 1]) return true;
+    }
+    return false;
+  }
+
   // Same as shuffle(), but repairs any adjacent duplicate left by chance —
-  // needed once AREA_CYCLE_DECK below has repeated entries (a plain
+  // needed once buildAreaCycleDeck() below has repeated entries (a plain
   // shuffle of 6 always-distinct areas could never land two of the same
   // side by side, but a weighted deck with e.g. two "melody" entries
-  // occasionally can). No area appears more than twice in the deck, so a
-  // single forward swap always has somewhere valid to go.
+  // occasionally can). A single forward-swap pass normally fixes this, but
+  // it can fail outright if every copy of a repeated area happens to land
+  // clustered at the very end of the shuffle (no differing element left
+  // to swap in) — a real possibility now that an area's adaptive bonus
+  // (see ADAPTIVE_WEIGHT_BONUS_CAP) can push its deck count above the old
+  // "never more than twice" ceiling the single-pass version relied on. So
+  // this retries the shuffle+repair a bounded number of times whenever a
+  // repair pass still leaves an adjacent duplicate, falling back to its
+  // best attempt if genuinely unlucky every time — matching the deck
+  // model's own "no long unlucky droughts" spirit rather than ever
+  // silently shipping a run of back-to-back same-area questions.
+  var SHUFFLE_REPAIR_ATTEMPTS = 10;
   function shuffleNoAdjacentRepeats(arr) {
-    var result = shuffle(arr.slice());
-    for (var i = 1; i < result.length; i++) {
-      if (result[i] === result[i - 1]) {
-        for (var j = i + 1; j < result.length; j++) {
-          if (result[j] !== result[i - 1]) {
-            var tmp = result[i]; result[i] = result[j]; result[j] = tmp;
-            break;
+    var best = null;
+    for (var attempt = 0; attempt < SHUFFLE_REPAIR_ATTEMPTS; attempt++) {
+      var result = shuffle(arr.slice());
+      for (var i = 1; i < result.length; i++) {
+        if (result[i] === result[i - 1]) {
+          for (var j = i + 1; j < result.length; j++) {
+            if (result[j] !== result[i - 1]) {
+              var tmp = result[i]; result[i] = result[j]; result[j] = tmp;
+              break;
+            }
           }
         }
       }
+      if (!hasAdjacentRepeat(result)) return result;
+      best = best || result;
     }
-    return result;
+    return best;
   }
 
   // Real CIE exam weighting: Context is a minor bolt-on (typically a
@@ -423,14 +444,49 @@
   // 2:1 for the five main areas vs. Context lands Context at 1/11 ≈ 9% of
   // all slots — a deliberate choice (not a bug), matching Context's real
   // exam weighting rather than the other five's.
-  var AREA_CYCLE_DECK = (function () {
+  // Rebuilt fresh on every buildRoundQueue() call (below) rather than a
+  // load-time constant, so an area's slot share can respond to how the
+  // student is actually doing — not just sit at a fixed exam-weighting
+  // ratio forever regardless of a struggling area never catching up. Base
+  // weights are exactly the ones above (context=1, others=2) and still
+  // reflect the real CIE exam weighting; adaptiveBonus is added on top,
+  // driven by how far this area's own overall progress sits below the
+  // student's own average across all their areas — never a fixed target,
+  // so a student who's uniformly behind everywhere gets no bonus anywhere,
+  // only a RELATIVELY lagging area does — capped so no single area can
+  // crowd out the others' base share. Self-correcting: as a lagging area's
+  // progress rises toward the average, its gap (and bonus) shrinks back
+  // toward 0 on its own, no manual reset needed. A brand-new student has
+  // every area at 0% progress (gap = 0 everywhere), so their very first
+  // deck is byte-identical to the old fixed ratio — this only kicks in
+  // once there's real evidence of an imbalance to correct.
+  var ADAPTIVE_WEIGHT_BONUS_CAP = 2;
+  function areaTracksConcepts(areaKey) {
+    return AREA_TO_SOURCES[areaKey].some(function (sourceKey) { return !!Drivers[sourceKey].getSignature; });
+  }
+  function buildAreaCycleDeck() {
+    var progress = {};
+    var sum = 0;
+    AREA_ORDER.forEach(function (areaKey) {
+      var percentage = Store.getAreaOverallProgressPercentage(state.studentId, areaKey, areaTracksConcepts(areaKey));
+      progress[areaKey] = percentage;
+      sum += percentage;
+    });
+    var average = sum / AREA_ORDER.length;
+
     var deck = [];
     AREA_ORDER.forEach(function (areaKey) {
-      var weight = areaKey === "context" ? 1 : 2;
+      var baseWeight = areaKey === "context" ? 1 : 2;
+      var gap = Math.max(0, average - progress[areaKey]);
+      // 25 points is "one level" on Store's own progress scale (see
+      // getAreaOverallProgressPercentage) — reusing that unit rather than
+      // inventing a new arbitrary one.
+      var bonus = Math.min(ADAPTIVE_WEIGHT_BONUS_CAP, Math.round(gap / 25));
+      var weight = baseWeight + bonus;
       for (var i = 0; i < weight; i++) deck.push(areaKey);
     });
     return deck;
-  })();
+  }
 
   // Which source within an app group actually fills a slot when that
   // group's turn comes up — favours whichever of the group's sources sits
@@ -457,6 +513,27 @@
       sources = sources.filter(function (sourceKey) { return Drivers[sourceKey].area === requiredAreaKey; });
     }
     if (sources.length === 1) return sources[0];
+
+    // Exploration floor: weakestSourceInArea only ever trusts a source once
+    // it clears ADAPTIVE_MIN_QUESTIONS, so a sibling still below that bar
+    // can never be compared on percentage — without this check, the FIRST
+    // sibling to cross the bar becomes the group's only "reliable" source
+    // and so trivially wins "weakest" by elimination forever, permanently
+    // locking out any sibling that never gets picked again to earn its own
+    // sample (confirmed against real data: context-coach-composer reaching
+    // 5 questions before context-coach-period left period essentially
+    // unplayed for good). Forcing the least-sampled unproven sibling here
+    // is bounded and self-terminating — it only fires while at least one
+    // sibling is short of the bar, and never fires again once every
+    // sibling has cleared it, so it can't turn into a permanent forced
+    // 50/50 split once real performance data exists for both.
+    var cumulative = Store.getCumulativeStats(state.studentId, sources);
+    var unproven = sources.filter(function (sourceKey) { return cumulative[sourceKey].questions < ADAPTIVE_MIN_QUESTIONS; });
+    if (unproven.length) {
+      var minQuestions = Math.min.apply(null, unproven.map(function (sourceKey) { return cumulative[sourceKey].questions; }));
+      var leastSampled = unproven.filter(function (sourceKey) { return cumulative[sourceKey].questions === minQuestions; });
+      return leastSampled[Math.floor(Math.random() * leastSampled.length)];
+    }
 
     var candidate = null;
     var candidatePercentage = Infinity;
@@ -521,8 +598,8 @@
   }
 
   // Round-robin through a freshly-shuffled pass of `areaDeck` (normally
-  // AREA_CYCLE_DECK — see its own comment for why Context is deliberately
-  // under-weighted there, and appGroupKeysForArea/buildQueueFromGroups for
+  // buildAreaCycleDeck()'s output — see its own comment for why Context is
+  // deliberately under-weighted there, and appGroupKeysForArea/buildQueueFromGroups for
   // the focused-round path, which stays a plain single-area cycle since
   // area-fairness isn't a question when only one area is in play). Cycling
   // by AREA first, then picking one of that area's own groups via
@@ -583,10 +660,10 @@
     if (focusGroups && focusGroups.length) {
       queue = buildQueueFromGroups(focusGroups, roundLength, focusAreaKey);
       for (var idx = FOCUS_BREADTH_INTERVAL - 1; idx < queue.length; idx += FOCUS_BREADTH_INTERVAL) {
-        queue[idx] = buildQueueFromAreas(AREA_CYCLE_DECK, 1)[0];
+        queue[idx] = buildQueueFromAreas(buildAreaCycleDeck(), 1)[0];
       }
     } else {
-      queue = buildQueueFromAreas(AREA_CYCLE_DECK, roundLength);
+      queue = buildQueueFromAreas(buildAreaCycleDeck(), roundLength);
     }
 
     // Reserve one slot for deliberate long-interval review once at least one
@@ -701,7 +778,7 @@
       if (!state.framePrepared) state.contractPendingQuestion = message;
       else acceptContractQuestion(message);
     } else if (message.type === "answer-complete" && state.contractQuestionAccepted) {
-      advanceSlot(Boolean(message.payload && message.payload.correct), false);
+      advanceSlot(Boolean(message.payload && message.payload.correct), false, message.payload);
     } else if (message.type === "pool-empty" && !state.contractQuestionAccepted) {
       retryAtHigherLevelOrSkip(Drivers[state.queue[state.position]], state.currentSlotLevelIndex);
     }
@@ -1162,13 +1239,32 @@
     }, 90000);
   }
 
-  function advanceSlot(wasCorrect, wasSkipped) {
+  function advanceSlot(wasCorrect, wasSkipped, payload) {
     if (state.slotResolved) return;
     state.slotResolved = true;
     clearTimers();
     var sourceKey = state.queue[state.position];
 
     if (!wasSkipped) {
+      // Concept-level evidence (e.g. chord-identifier's inversion/extension
+      // tier), when the app proactively reported it in its answer-complete
+      // payload — the DOM-polling fallback path (beginAnsweredPolling) has
+      // no payload at all, so this is simply skipped there, same as it
+      // already skips score/feedback capture today. Guarded defensively:
+      // an app not yet sending concept fields, or a sourceKey with no
+      // PM_REGISTRY entry or no configured extractor, just yields an empty
+      // array and records nothing — never blocks the round from advancing.
+      try {
+        var conceptModuleId = window.EchoAuralPMRegistry && window.EchoAuralPMRegistry.get(sourceKey) && window.EchoAuralPMRegistry.get(sourceKey).moduleId;
+        var conceptValues = (conceptModuleId && payload && window.EchoAuralConceptExtractors)
+          ? window.EchoAuralConceptExtractors.extractConceptValues(conceptModuleId, payload)
+          : [];
+        if (conceptValues.length) {
+          Store.recordConceptOutcome(state.studentId, conceptModuleId, conceptValues, wasCorrect);
+        }
+      } catch (err) {
+        /* never let concept-capture break round advancement */
+      }
       var slotLevelKey = state.currentSlotLevelIndex;
       if (!state.perSourceTally[sourceKey][slotLevelKey]) state.perSourceTally[sourceKey][slotLevelKey] = { correct: 0, total: 0 };
       state.perSourceTally[sourceKey][slotLevelKey].total += 1;
@@ -1228,6 +1324,7 @@
     var roundAreaStats = {};
     AREA_ORDER.forEach(function (areaKey) { roundAreaStats[areaKey] = { correct: 0, total: 0 }; });
     var leveledUpAreas = [];
+    var sourcesPlayedThisRound = [];
 
     SOURCE_ORDER.forEach(function (sourceKey) {
       var driver = Drivers[sourceKey];
@@ -1243,6 +1340,7 @@
           );
           roundAreaStats[driver.area].correct += tally.correct;
           roundAreaStats[driver.area].total += tally.total;
+          if (sourcesPlayedThisRound.indexOf(sourceKey) === -1) sourcesPlayedThisRound.push(sourceKey);
           if (result && result.advanced && leveledUpAreas.indexOf(driver.area) === -1) {
             leveledUpAreas.push(driver.area);
           }
@@ -1280,7 +1378,7 @@
     els.readyState.hidden = false;
 
     renderSummary();
-    showRoundCompletePopup(roundAreaStats, leveledUpAreas, streakSnapshot);
+    showRoundCompletePopup(roundAreaStats, leveledUpAreas, streakSnapshot, sourcesPlayedThisRound);
   }
 
   // ---------- Server-sync (spaced-repetition continuity across devices) ----------
@@ -1548,6 +1646,43 @@
     return sentence;
   }
 
+  // Cumulative, phrase-bank-driven coaching — deliberately separate from
+  // buildRoundFeedbackText above, which only ever looks at this one round.
+  // This looks at all-time evidence for whichever sources were actually
+  // played this round, via feedback.js's own builders (the same
+  // concept-first-then-source fallback chain account/student-home/
+  // student-home.js already uses), so a student sees a real, specific
+  // coaching sentence — not just a percentage — as soon as a source or
+  // concept clears feedback.js's own EARLY_SIGNAL_MIN_QUESTIONS bar (3),
+  // not just PM's own multi-question rounds. Picks the single lowest-
+  // percentage source among those played, mirroring buildRoundFeedbackText's
+  // own "worst" logic one level more specific. Returns "" (nothing shown)
+  // whenever every source played this round is still below that bar, or
+  // feedback.js failed to load for any reason — never a forced or
+  // placeholder-feeling tile.
+  function buildCoachingFeedbackText(sourcesPlayedThisRound) {
+    var Feedback = window.EAProgressModeFeedback;
+    if (!Feedback) return "";
+    var best = null;
+    var bestPercentage = Infinity;
+    sourcesPlayedThisRound.forEach(function (sourceKey) {
+      var driver = Drivers[sourceKey];
+      var cumulative = Store.getCumulativeStats(state.studentId, [sourceKey])[sourceKey];
+      var registryEntry = window.EchoAuralPMRegistry && window.EchoAuralPMRegistry.get(sourceKey);
+      var moduleId = registryEntry && registryEntry.moduleId;
+      var text = (driver.getSignature && moduleId)
+        ? Feedback.buildConceptFeedback(moduleId, Store.getConceptStats(state.studentId, moduleId))
+        : null;
+      text = text || Feedback.buildSourceFeedback(sourceKey, cumulative.correct, cumulative.questions);
+      if (!text || /complete a few more/i.test(text)) return;
+      if (cumulative.percentage !== null && cumulative.percentage < bestPercentage) {
+        bestPercentage = cumulative.percentage;
+        best = text;
+      }
+    });
+    return best || "";
+  }
+
   // Level-up badge (Phase 2 gamification, mechanic #5 in the plan) — a
   // visually distinct celebration ALONGSIDE the existing inline "🎉 You've
   // moved up a level…" sentence in buildRoundFeedbackText below, not a
@@ -1595,8 +1730,15 @@
     return lines;
   }
 
-  function renderRoundCompletePanel(roundAreaStats, leveledUpAreas, streakSnapshot) {
+  function renderRoundCompletePanel(roundAreaStats, leveledUpAreas, streakSnapshot, sourcesPlayedThisRound) {
     var percentage = roundLength ? Math.round((state.correctTotal / roundLength) * 100) : 0;
+    var coachingText = buildCoachingFeedbackText(sourcesPlayedThisRound || []);
+    var coachingTileHTML = coachingText
+      ? "<div class=\"diagnostic-card diagnostic-feedback-tile mm-compiled-feedback-tile\">" +
+        "<span>Coaching tip</span>" +
+        "<strong>" + escapeHtml(coachingText) + "</strong>" +
+        "</div>"
+      : "";
 
     var areaRows = AREA_ORDER.map(function (areaKey) {
       var stat = roundAreaStats[areaKey];
@@ -1630,6 +1772,7 @@
       "<span>Feedback</span>" +
       "<strong>" + escapeHtml(buildRoundFeedbackText(roundAreaStats, leveledUpAreas)) + "</strong>" +
       "</div>" +
+      coachingTileHTML +
       "<button id=\"roundCompleteContinueButton\" class=\"primary-button mm-final-finish-button\" type=\"button\">Continue</button>" +
       "</div>"
     );
@@ -1647,7 +1790,7 @@
     }
   }
 
-  function showRoundCompletePopup(roundAreaStats, leveledUpAreas, streakSnapshot) {
+  function showRoundCompletePopup(roundAreaStats, leveledUpAreas, streakSnapshot, sourcesPlayedThisRound) {
     closeRoundCompletePopup();
     document.body.classList.add("ii-round-review-open");
     document.querySelector(".app-shell")?.classList.add("is-round-feedback-open");
@@ -1658,7 +1801,7 @@
     roundCompleteOverlay.setAttribute("role", "dialog");
     roundCompleteOverlay.setAttribute("aria-modal", "true");
     roundCompleteOverlay.setAttribute("aria-label", "Progress Mode round feedback");
-    roundCompleteOverlay.innerHTML = renderRoundCompletePanel(roundAreaStats, leveledUpAreas, streakSnapshot);
+    roundCompleteOverlay.innerHTML = renderRoundCompletePanel(roundAreaStats, leveledUpAreas, streakSnapshot, sourcesPlayedThisRound);
     document.body.appendChild(roundCompleteOverlay);
 
     document.getElementById("roundCompleteContinueButton").addEventListener("click", closeRoundCompletePopup);

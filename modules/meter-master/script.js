@@ -784,7 +784,11 @@ function submitAnswer() {
     responseType: "multiple-choice",
     answerData: result.studentAnswer,
     modelAnswer: currentQuestion.correctChoice,
-    feedback: result.feedback
+    feedback: result.feedback,
+    metreFamily: currentQuestion.metre_family,
+    mode: currentQuestion.mode,
+    requiresScore: currentQuestion.requires_score,
+    timeSignature: currentQuestion.time_signature
   });
   updateStats();
 }

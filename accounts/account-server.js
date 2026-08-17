@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { getPool } = require('../db/pool');
 const { getQuestionSkillMetadata, enrichAnswerData } = require('../shared/js/skill-metadata');
+const { extractConceptValues } = require('../shared/js/concept-extractors');
 
 const TEACHER_COOKIE = 'ea_teacher_session';
 const STUDENT_COOKIE = 'ea_student_session';
@@ -390,61 +391,6 @@ const PROGRESS_MODULE_ORDER = [
 // function (derive a coarser concept, or null to exclude). Checked against
 // the actual distinct values present in each module's data before writing
 // this, not assumed.
-function chordExtensionTier(quality) {
-  const q = String(quality || '').toLowerCase();
-  if (!q) return null;
-  if (q.includes('9') || q.includes('sus')) return 'Extended chords';
-  if (q.includes('7')) return 'Seventh chords';
-  if (['major', 'minor', 'diminished', 'augmented'].includes(q)) return 'Triads';
-  return null;
-}
-function accidentalCountTier(count) {
-  const n = Math.abs(Number(count));
-  if (!Number.isFinite(n)) return null;
-  return n <= 2 ? 'Few accidentals (0-2)' : n <= 4 ? 'Moderate accidentals (3-4)' : 'Many accidentals (5-7)';
-}
-function simpleCompoundTier(metreFamily) {
-  const value = String(metreFamily || '');
-  if (value.startsWith('Simple')) return 'Simple time';
-  if (value.startsWith('Compound')) return 'Compound time';
-  return null;
-}
-const CONCEPT_EXTRACTORS_BY_MODULE = {
-  'chord-identifier': [
-    { field: 'inversionLabel', whitelist: new Set(['root position', 'first inversion', 'second inversion', 'third inversion']) },
-    { field: 'quality', bucket: chordExtensionTier }
-  ],
-  'key-signature-sprint': [
-    { field: 'accidentalType', whitelist: new Set(['sharp', 'flat', 'natural']) },
-    { field: 'accidentalCount', bucket: accidentalCountTier }
-  ],
-  'meter-master': [
-    { field: 'metreFamily', whitelist: new Set(['Simple duple', 'Simple triple', 'Simple quadruple', 'Compound duple', 'Compound quadruple', 'Irregular quintuple', 'Variable/mixed']) },
-    { field: 'metreFamily', bucket: simpleCompoundTier }
-  ],
-  'instrument-identifier': [
-    { field: 'family', whitelist: new Set(['strings', 'woodwind', 'brass', 'percussion', 'keyboard', 'guitar', 'voice', 'world/ensemble']), caseInsensitive: true },
-    // "World/Ensemble" deliberately excluded here (kept only in `family`
-    // above) — both fields can independently carry that exact string, and
-    // since both dimensions feed the same flat per-module concept pool,
-    // keeping it in both would silently merge two different meanings
-    // (family vs performance context) into one bucket.
-    { field: 'type', whitelist: new Set(['Orchestral', 'Solo', 'Piano Accomp.', 'Organ Accomp.', 'Harpsichord']) }
-  ],
-  'texture-trainer': [
-    { field: 'textureFocus', whitelist: new Set(['Monophonic', 'Homophonic', 'Polyphonic', 'Heterophonic', 'Fugal imitation', 'Fugal polyphony', 'Fugue', 'Canon', 'Alberti Bass', 'Inverted Pedal', 'Pedal / drone', 'Advanced polyphonic', 'Simple polyphonic', 'Melody and accompaniment']) }
-  ]
-};
-// Canonical display casing for whitelisted values matched case-insensitively
-// (instrument-identifier's `family` values are inconsistently cased in the
-// source data, e.g. "BRASS" vs "Brass") — the whitelist above is lowercase
-// for matching; this maps back to how it should actually be displayed/used
-// as a CONCEPT_PHRASES key.
-const CONCEPT_DISPLAY_CASE = {
-  strings: 'Strings', woodwind: 'Woodwind', brass: 'Brass', percussion: 'Percussion',
-  keyboard: 'Keyboard', guitar: 'Guitar', voice: 'Voice', 'world/ensemble': 'World/Ensemble'
-};
-
 const PROGRESSION_LEVEL_LABELS = ['Foundation', 'Developing', 'Securing', 'Mastering'];
 const PROGRESSION_PASS_MARKS = {
   'melody-master': [100, 100, 100, 100],
@@ -755,6 +701,13 @@ function buildProgressSummary(allRounds, allAttempts, includeQuestionHistory = f
       percentage: accuracy,
       rounds: rounds.length,
       questions: questionCount,
+      // Genuine count of fully-correct attempts (not a marks sum) — lets
+      // student-home.js's getCombinedSourceStats blend this module's LS/
+      // Homework evidence with Progress Mode's own flat per-attempt pool
+      // without a multi-mark question silently outweighing a single-mark
+      // one. Same boundary check already used above for texture-trainer's
+      // fullMarks display.
+      correctQuestionCount: attempts.filter((attempt) => progressNumber(attempt.score) >= progressNumber(attempt.maximum_score)).length,
       level: progressLevel(accuracy, questionCount),
       strength,
       nextStep,
@@ -781,8 +734,14 @@ function buildProgressSummary(allRounds, allAttempts, includeQuestionHistory = f
     const sourceKey = attempt.answer_data?.sourceKey;
     if (!sourceKey) return;
     if (!bySourceKey[sourceKey]) bySourceKey[sourceKey] = { correct: 0, questions: 0 };
-    bySourceKey[sourceKey].correct += progressNumber(attempt.score);
-    bySourceKey[sourceKey].questions += progressNumber(attempt.maximum_score);
+    // Flat per-attempt counting (1 if fully correct, else 0 / +1 question),
+    // matching Progress Mode's own explicit "flat 0 or 1 regardless of mark
+    // scheme" convention (modules/progress-mode/store.js) — this data blends
+    // directly with PM's pool downstream (student-home.js's
+    // getCombinedSourceStats), so a multi-mark question here must not count
+    // for more than a single-mark one does there.
+    bySourceKey[sourceKey].correct += progressNumber(attempt.score) >= progressNumber(attempt.maximum_score) ? 1 : 0;
+    bySourceKey[sourceKey].questions += 1;
   });
   Object.keys(bySourceKey).forEach((sourceKey) => {
     bySourceKey[sourceKey].percentage = progressPercentage(bySourceKey[sourceKey].correct, bySourceKey[sourceKey].questions);
@@ -798,25 +757,14 @@ function buildProgressSummary(allRounds, allAttempts, includeQuestionHistory = f
   // dimension it came from.
   const byConcept = {};
   allAttempts.forEach((attempt) => {
-    const extractors = CONCEPT_EXTRACTORS_BY_MODULE[attempt.module_id];
-    if (!extractors) return;
-    const data = attempt.answer_data || {};
-    extractors.forEach((extractor) => {
-      const raw = data[extractor.field];
-      let conceptValue = null;
-      if (extractor.bucket) {
-        conceptValue = extractor.bucket(raw);
-      } else if (extractor.whitelist) {
-        const key = extractor.caseInsensitive ? String(raw || '').toLowerCase() : raw;
-        if (extractor.whitelist.has(key)) {
-          conceptValue = extractor.caseInsensitive ? (CONCEPT_DISPLAY_CASE[key] || raw) : raw;
-        }
-      }
-      if (!conceptValue) return;
+    const conceptValues = extractConceptValues(attempt.module_id, attempt.answer_data || {});
+    conceptValues.forEach((conceptValue) => {
       if (!byConcept[attempt.module_id]) byConcept[attempt.module_id] = {};
       if (!byConcept[attempt.module_id][conceptValue]) byConcept[attempt.module_id][conceptValue] = { correct: 0, questions: 0 };
-      byConcept[attempt.module_id][conceptValue].correct += progressNumber(attempt.score);
-      byConcept[attempt.module_id][conceptValue].questions += progressNumber(attempt.maximum_score);
+      // Same flat per-attempt convention as bySourceKey above — see its
+      // comment for why.
+      byConcept[attempt.module_id][conceptValue].correct += progressNumber(attempt.score) >= progressNumber(attempt.maximum_score) ? 1 : 0;
+      byConcept[attempt.module_id][conceptValue].questions += 1;
     });
   });
   Object.keys(byConcept).forEach((moduleId) => {
@@ -898,6 +846,11 @@ function buildProgressSummary(allRounds, allAttempts, includeQuestionHistory = f
       maximumScore: progressNumber(round.maximum_score),
       percentage: progressPercentage(progressNumber(round.score), progressNumber(round.maximum_score)),
       questions: Number(round.question_count || 0),
+      // The round's configured length, when known (see progress-recorder.js's
+      // configuredQuestionCount) — falls back to question_count itself for
+      // rounds saved before this field existed, so old history still renders
+      // as a plain count rather than a false "X of X".
+      configuredQuestions: Number((round.metadata || {}).configuredQuestionCount || round.question_count || 0),
       feedback: round.round_feedback || '',
       source: progressSource(round),
       completedAt: round.completed_at

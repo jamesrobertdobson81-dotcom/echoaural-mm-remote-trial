@@ -370,7 +370,7 @@ check(/Audio plays from the teacher.s device/.test(studentHtml), 'Student live m
 check(/Play Extract/.test(teacherJs) && /Lock Submissions/.test(teacherJs) && /Finish Session/.test(teacherJs), 'Teacher controls should use Exam Lab session wording.');
 check(/moduleId:\s*DASHBOARD_LAUNCH_MODULE_IDS\.has\(requestedLaunchModuleId\)\s*\?\s*requestedLaunchModuleId\s*:\s*''/.test(teacherJs), 'Teacher Mode should validate and retain the Dashboard-selected app type.');
 check(/dashboardLaunch\.enabled\s*&&\s*dashboardLaunch\.moduleId[\s\S]*return dashboardLaunch\.moduleId;/.test(teacherJs), 'Dashboard-launched rooms should keep their selected app type through room creation and start.');
-check(/numberFromParam\('quizLength',\s*3,\s*\[1,\s*3,\s*5,\s*10,\s*15\]\)/.test(teacherJs), 'Teacher Mode should retain the one-question ExamLab launch setting.');
+check(/numberFromParam\('quizLength',\s*3,\s*\[1,\s*3,\s*5,\s*10,\s*15,\s*20\]\)/.test(teacherJs), 'Teacher Mode should retain the one-question ExamLab launch setting and the dashboard\'s 20-question long-round option.');
 check(!/id="openExamLabLaunchDialog"/.test(dashboardHtml), 'Teacher Dashboard should not show a separate Start Exam Lab button.');
 check((dashboardHtml.match(/data-launch-source=/g) || []).length === 3, 'Start Live Session should offer exactly three question-source choices.');
 check(/data-launch-source="app"/.test(dashboardHtml) && /data-launch-source="mixed"/.test(dashboardHtml) && /data-launch-source="exam-lab"/.test(dashboardHtml), 'Question Source should offer App, Mixed Apps and ExamLab.');

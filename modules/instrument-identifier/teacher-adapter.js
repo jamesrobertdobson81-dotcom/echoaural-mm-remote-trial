@@ -212,7 +212,21 @@
       matchType: isCorrect ? 'correct' : 'incorrect',
       feedback: isCorrect ? 'Correct.' : `Not quite. The answer was ${correct}.`,
       shortComment: isCorrect ? 'Correct.' : `Answer: ${correct}`,
-      modelAnswer: correct
+      modelAnswer: correct,
+      // Captured for concept-level feedback (shared/js/concept-extractors.js).
+      // family/type/difficulty are also re-supplied for Live Session rounds
+      // by classroom/progress-recorder.js's buildAnswerData override (same
+      // values, from rawQuestion instead) — harmless duplication, and the
+      // source of truth for any other caller of checkAnswer() directly.
+      // instrument/responseType are untouched by that override, so they
+      // need to originate here.
+      answerData: {
+        instrument: getRawCorrectInstrument(question),
+        family: question.family || '',
+        type: question.type || '',
+        difficulty: question.difficulty || '',
+        responseType: question.responseType || ''
+      }
     };
   }
 

@@ -220,7 +220,13 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
         className: cleanText(room.className, 120),
         submitted,
         teacherMode: true,
-        feedbackReleased: Boolean(room.quizEnded)
+        feedbackReleased: Boolean(room.quizEnded),
+        // Exam Lab's `questions` array already always covers the full
+        // extract (unanswered questions are padded above as explicit
+        // zero-score entries), so this always equals questions.length here
+        // — present for a consistent field shape with the general path
+        // below, where it can genuinely differ from questions.length.
+        configuredQuestionCount: questions.length
       },
       clientRoundId: `teacher-mode:${room.code}:${Number(room.roundId || 1)}:${participant.accountStudentId}`
     };
@@ -271,7 +277,17 @@ function buildTeacherModeRoundPayload(room, roomManager, participant) {
       questionSetStrategy: cleanText(room.questionSetSpec?.strategy, 80),
       questionSetSeed: cleanText(room.questionSetSpec?.seed, 160),
       classId: cleanText(room.classId, 120),
-      className: cleanText(room.className, 120)
+      className: cleanText(room.className, 120),
+      // The room's configured round length — distinct from questions.length
+      // above, which only ever contains entries a student actually
+      // submitted (see classroom/scoring.js's buildCumulativeResults). In a
+      // teacher-paced room a student who's still working when the teacher
+      // advances legitimately has fewer submissions than this. Kept here in
+      // metadata rather than changing questions/score/maximumScore, so
+      // accuracy stays based only on what a student actually attempted —
+      // this is purely for the dashboard to show "9 of 10 questions"
+      // instead of silently showing "9 questions".
+      configuredQuestionCount: Number(room.quizTotal || questions.length)
     },
     clientRoundId: `teacher-mode:${room.code}:${Number(room.roundId || 1)}:${participant.accountStudentId}`
   };

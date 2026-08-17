@@ -171,7 +171,7 @@
           <div class="meta-row"><span>Remember</span><strong>${escapeHTML(ruleFor(q.signature))}</strong></div>
         </div>
       </div>`;
-    window.EAProgressEmbed?.answerComplete({questionId:`key-signature:${q.clef}:${q.signature.type}:${q.signature.count}:${q.target}`,score:correct?1:0,maximumScore:1,correct,responseType:q.typed?'typed':'multiple-choice',answerData:answer,modelAnswer:q.answer,feedback:els.feedback.textContent});
+    window.EAProgressEmbed?.answerComplete({questionId:`key-signature:${q.clef}:${q.signature.type}:${q.signature.count}:${q.target}`,score:correct?1:0,maximumScore:1,correct,responseType:q.typed?'typed':'multiple-choice',answerData:answer,modelAnswer:q.answer,feedback:els.feedback.textContent,accidentalType:q.signature.type,accidentalCount:q.signature.count,type:q.type,clef:q.clef});
   }
 
   // Live Sessions and the server adapter both call the same isomorphic

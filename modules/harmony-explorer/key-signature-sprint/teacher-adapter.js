@@ -78,7 +78,9 @@ module.exports = function createKeySignatureTeacherAdapter(context = {}) {
           musicalElement: 'Harmony and tonality',
           level: generated.level,
           accidentalType: generated.signature.type,
-          accidentalCount: generated.signature.count
+          accidentalCount: generated.signature.count,
+          type: generated.type,
+          clef: generated.clef
         }
       };
     }

@@ -118,7 +118,8 @@ module.exports = function createChordIdentifierTeacherAdapter() {
           generatedQuestionId: ChordIdentifier.questionId(generated),
           key: generated.key.label,
           recognitionType: generated.recognitionType,
-          chordCategory: generated.category,
+          category: generated.category,
+          keyMode: generated.key.mode,
           // Captured for concept-level feedback (accounts/account-server.js's
           // buildProgressSummary byConcept pass) — previously computed here
           // and discarded once the question was scored.
