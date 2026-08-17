@@ -713,6 +713,24 @@ function moduleStatusBadge(area) {
   return { cls: "is-level-" + label.toLowerCase(), label };
 }
 
+// This page is deliberately viewport-height-scoped (see --eh-vhs: the
+// module cards' own min-height already scales off 100vh) — the whole point
+// is that "Your elements" fits in one screen with no scrolling. A full
+// buildAreaFeedback paragraph can run to 1-3 sentences and 200+ characters
+// once it's pairing a strength against a weakness, which is fine in the
+// hero/callouts/detail popup (each shows at most one or two at a time) but
+// breaks that budget once all 6 areas show their full text at once here.
+// Cuts at the last whole word within the limit — never mid-word — and only
+// appends "…" when something was actually cut, so a sentence that already
+// fits is never touched.
+var MODULE_CARD_SUMMARY_MAX_LENGTH = 110;
+function shortenAreaSummary(text, maxLength = MODULE_CARD_SUMMARY_MAX_LENGTH) {
+  if (!text || text.length <= maxLength) return text;
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(" ");
+  return (lastSpace > maxLength * 0.5 ? truncated.slice(0, lastSpace) : truncated).trim() + "…";
+}
+
 // Shared area-card grid for all 4 tabs (`viewKey`: "overall"/"progress"/
 // "quizzes"/"homework"). Progress Mode's mastery-progress bar (level-based,
 // see getProgressModeSnapshot's own comment on why it's Progress-Mode-only)
@@ -725,6 +743,17 @@ function renderEahomeModulesGrid(pm, viewKey = "overall") {
   return pm.areas.map((area) => {
     const pct = showMastery ? area.overallProgress : area.percentage;
     const badge = showMastery ? moduleStatusBadge(area) : null;
+    // Real per-area summary, not a bare percentage — area.feedbackText is
+    // already the same Feedback.buildAreaFeedback text (strength/weakness/
+    // developing, with its own "how to improve" tip) used elsewhere on this
+    // page (the hero, the "Focus next"/"Strong in X" callouts); this is the
+    // first place ALL SIX areas get it shown at once, not just the
+    // weakest/strongest few — shortened here (see shortenAreaSummary above)
+    // so 6 of these at once never pushes the page into scrolling; the
+    // detail popup one click away still shows the full, un-shortened text.
+    const summary = area.questions
+      ? shortenAreaSummary(area.feedbackText || `${pct}% so far — keep going to unlock personalised feedback here.`)
+      : "Complete a round to start building feedback here.";
     return `
       <button class="eahome-module-card ${badge ? badge.cls : ""}" type="button" data-category-detail="${escapeHtml(viewKey)}" data-area="${escapeHtml(area.areaKey)}">
         <span class="eahome-module-header">
@@ -733,6 +762,7 @@ function renderEahomeModulesGrid(pm, viewKey = "overall") {
         </span>
         <strong class="eahome-module-pct">${area.questions ? `${pct}%` : "—"}</strong>
         <span class="eahome-module-bar" aria-hidden="true"><i style="width:${area.questions ? pct : 0}%"></i></span>
+        <p class="eahome-module-feedback">${escapeHtml(summary)}</p>
         ${badge ? `<span class="eahome-module-badge">${badge.label}</span>` : ""}
       </button>
     `;

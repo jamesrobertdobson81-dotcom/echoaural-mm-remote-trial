@@ -63,7 +63,10 @@ module.exports = function createCadenceCoachTeacherAdapter(context = {}) {
           skillName: 'Cadence',
           musicalElement: 'Harmony and tonality',
           level: question.level,
-          key: question.key
+          key: question.key,
+          // Captured for concept-level feedback (shared/js/concept-extractors.js).
+          cadenceType: question.answer,
+          keyMode: question.mode
         }
       };
     }

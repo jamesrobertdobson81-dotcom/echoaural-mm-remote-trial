@@ -116,7 +116,17 @@
         ? `Correct — this was a ${correct}.`
         : `Not quite. The answer was ${correct}.`,
       shortComment: isCorrect ? 'Correct interval.' : `Answer: ${correct}`,
-      modelAnswer: correct
+      modelAnswer: correct,
+      // Captured for concept-level feedback (shared/js/concept-extractors.js).
+      answerData: {
+        skillCode: 'MEL.INTERVAL',
+        skillName: 'Melodic intervals',
+        musicalElement: 'Melody',
+        intervalLabel: question.intervalLabel,
+        intervalQuality: question.intervalQuality,
+        direction: question.direction,
+        keySignatureAccidentals: question.keySignatureAccidentals
+      }
     };
   }
 

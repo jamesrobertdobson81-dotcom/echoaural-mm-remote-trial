@@ -394,3 +394,152 @@ test("buildAreaFeedback: pairSentence's strong side is unchanged (no second tip)
   assert.equal(tipCount, 0, "pairSentence reuses its existing gap/focus clause, not the new tip wrapper");
   assert.match(text, /but you need to work on/i);
 });
+
+// --- era-explorer (composer + period share one moduleId/pool) ------------
+
+test("buildConceptFeedback: era-explorer pairs a period against a composer across the shared composer/period pool", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({
+    "Baroque": [9, 10],
+    "Claude Debussy": [2, 10]
+  });
+  const text = Feedback.buildConceptFeedback("era-explorer", conceptStats);
+  assert.match(text, /baroque.*but you need to work on.*debussy/i);
+});
+
+test("buildConceptFeedback: era-explorer pairs two composers", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({
+    "Antonio Vivaldi": [9, 10],
+    "Ludwig van Beethoven": [2, 10]
+  });
+  const text = Feedback.buildConceptFeedback("era-explorer", conceptStats);
+  assert.match(text, /vivaldi.*but you need to work on.*beethoven/i);
+});
+
+test("buildConceptFeedback: era-explorer's 20th-century period entry produces real feedback", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({ "20th Century": [2, 10] });
+  const text = Feedback.buildConceptFeedback("era-explorer", conceptStats);
+  const phrase = Feedback.CONCEPT_PHRASES["era-explorer"]["20th Century"];
+  assert.equal(text, "You need to work on " + phrase.gap + " — " + phrase.focus + " (" + phrase.label + ").");
+});
+
+// --- musical-language (all 4 ScoreDecoder topics share one moduleId/pool) -
+
+test("buildConceptFeedback: musical-language pairs across two different topics (ornamentation vs dynamics)", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({
+    "Turning ornaments": [9, 10],
+    "Dynamic changes": [2, 10]
+  });
+  const text = Feedback.buildConceptFeedback("musical-language", conceptStats);
+  assert.match(text, /turning ornaments.*but you need to work on.*dynamic changes/i);
+});
+
+test("buildConceptFeedback: musical-language's tempo-word/tempo-change split produces real feedback", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({ "Tempo changes": [2, 10] });
+  const text = Feedback.buildConceptFeedback("musical-language", conceptStats);
+  const phrase = Feedback.CONCEPT_PHRASES["musical-language"]["Tempo changes"];
+  assert.equal(text, "You need to work on " + phrase.gap + " — " + phrase.focus + " (" + phrase.label + ").");
+});
+
+// --- cadence-coach ---------------------------------------------------------
+
+test("buildConceptFeedback: cadence-coach pairs cadence type against key mode", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({
+    "Perfect": [9, 10],
+    "Interrupted": [2, 10]
+  });
+  const text = Feedback.buildConceptFeedback("cadence-coach", conceptStats);
+  assert.match(text, /perfect cadences.*but you need to work on.*interrupted cadences/i);
+});
+
+test("buildConceptFeedback: cadence-coach's key-mode dimension produces real feedback", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({ "Major keys": [2, 10] });
+  const text = Feedback.buildConceptFeedback("cadence-coach", conceptStats);
+  const phrase = Feedback.CONCEPT_PHRASES["cadence-coach"]["Major keys"];
+  assert.equal(text, "You need to work on " + phrase.gap + " — " + phrase.focus + " (" + phrase.label + ").");
+});
+
+test("buildConceptFeedback: cadence-coach's Plagal/Interrupted entries exist even though the live bank has no real questions for them yet", () => {
+  const Feedback = loadFeedback();
+  assert.ok(Feedback.CONCEPT_PHRASES["cadence-coach"]["Plagal"]);
+  assert.ok(Feedback.CONCEPT_PHRASES["cadence-coach"]["Interrupted"]);
+});
+
+// --- melody-master (devices + dictation share one moduleId/pool) ---------
+
+test("buildConceptFeedback: melody-master pairs a devices category against a dictation difficulty tier", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({
+    "Ornament": [9, 10],
+    "hard": [2, 10]
+  });
+  const text = Feedback.buildConceptFeedback("melody-master", conceptStats);
+  assert.match(text, /melodic ornaments.*but you need to work on.*harder dictations/i);
+});
+
+test("buildConceptFeedback: melody-master's Mode/Scale category produces real feedback", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({ "Mode/Scale": [2, 10] });
+  const text = Feedback.buildConceptFeedback("melody-master", conceptStats);
+  const phrase = Feedback.CONCEPT_PHRASES["melody-master"]["Mode/Scale"];
+  assert.equal(text, "You need to work on " + phrase.gap + " — " + phrase.focus + " (" + phrase.label + ").");
+});
+
+// --- melodic-intervals (label + quality + direction + accidental tier) ---
+
+test("buildConceptFeedback: melodic-intervals pairs an interval label against a quality", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({
+    "5th": [9, 10],
+    "Augmented": [2, 10]
+  });
+  const text = Feedback.buildConceptFeedback("melodic-intervals", conceptStats);
+  assert.match(text, /5ths.*but you need to work on.*augmented intervals/i);
+});
+
+test("buildConceptFeedback: melodic-intervals direction dimension produces real feedback", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({ "descending": [2, 10] });
+  const text = Feedback.buildConceptFeedback("melodic-intervals", conceptStats);
+  const phrase = Feedback.CONCEPT_PHRASES["melodic-intervals"]["descending"];
+  assert.equal(text, "You need to work on " + phrase.gap + " — " + phrase.focus + " (" + phrase.label + ").");
+});
+
+test("buildConceptFeedback: melodic-intervals reuses key-signature-sprint's accidentalCountTier bucket, with its own content", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({ "Many accidentals (5-7)": [2, 10] });
+  const text = Feedback.buildConceptFeedback("melodic-intervals", conceptStats);
+  // Same bucket label as key-signature-sprint, but genuinely different
+  // (module-specific) coaching content — not literally the same entry.
+  assert.notEqual(
+    Feedback.CONCEPT_PHRASES["melodic-intervals"]["Many accidentals (5-7)"].focus,
+    Feedback.CONCEPT_PHRASES["key-signature-sprint"]["Many accidentals (5-7)"].focus
+  );
+  assert.match(text, /complex key signatures/i);
+});
+
+// --- ensemble-recognition (category + a hand-authored size bucket) -------
+
+test("buildConceptFeedback: ensemble-recognition pairs a category against a size tier", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({
+    "Large ensembles": [9, 10],
+    "Ensemble Origin": [2, 10]
+  });
+  const text = Feedback.buildConceptFeedback("ensemble-recognition", conceptStats);
+  assert.match(text, /large ensembles.*but you need to work on.*ensemble origin recognition/i);
+});
+
+test("buildConceptFeedback: ensemble-recognition's world/non-Western tier produces real feedback", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({ "World and non-Western ensembles": [2, 10] });
+  const text = Feedback.buildConceptFeedback("ensemble-recognition", conceptStats);
+  const phrase = Feedback.CONCEPT_PHRASES["ensemble-recognition"]["World and non-Western ensembles"];
+  assert.equal(text, "You need to work on " + phrase.gap + " — " + phrase.focus + " (" + phrase.label + ").");
+});

@@ -7,6 +7,7 @@ window.EchoAuralCadenceQuestions = [
     audioStart: 0,
     answer: "Perfect",
     key: "F major",
+    mode: "major",
     choices: ["Perfect", "Imperfect", "Plagal", "Interrupted"]
   },
   {
@@ -18,6 +19,7 @@ window.EchoAuralCadenceQuestions = [
     audioStart: 0,
     answer: "Perfect",
     key: "G major",
+    mode: "major",
     choices: ["Perfect", "Imperfect", "Plagal", "Interrupted"]
   },
   {
@@ -29,6 +31,7 @@ window.EchoAuralCadenceQuestions = [
     audioStart: 0,
     answer: "Perfect",
     key: "F minor",
+    mode: "minor",
     choices: ["Perfect", "Imperfect", "Plagal", "Interrupted"]
   },
   {
@@ -40,6 +43,7 @@ window.EchoAuralCadenceQuestions = [
     audioStart: 0,
     answer: "Imperfect",
     key: "A minor",
+    mode: "minor",
     choices: ["Perfect", "Imperfect", "Plagal", "Interrupted"]
   },
   {
@@ -51,6 +55,7 @@ window.EchoAuralCadenceQuestions = [
     audioStart: 0,
     answer: "Imperfect",
     key: "G major",
+    mode: "major",
     choices: ["Perfect", "Imperfect", "Plagal", "Interrupted"]
   },
   {
@@ -62,6 +67,7 @@ window.EchoAuralCadenceQuestions = [
     audioStart: 0,
     answer: "Perfect",
     key: "E-flat major",
+    mode: "major",
     choices: ["Perfect", "Imperfect", "Plagal", "Interrupted"]
   },
   {
@@ -73,6 +79,7 @@ window.EchoAuralCadenceQuestions = [
     audioStart: 0,
     answer: "Perfect",
     key: "G minor",
+    mode: "minor",
     choices: ["Perfect", "Imperfect", "Plagal", "Interrupted"]
   }
 ];

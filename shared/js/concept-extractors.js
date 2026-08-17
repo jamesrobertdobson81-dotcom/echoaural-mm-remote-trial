@@ -85,6 +85,61 @@
     return METER_MODE_WHITELIST.has(mode) ? mode : null;
   }
 
+  // Individual ScoreDecoder ornament/articulation terms only have 2-3
+  // questions each in the real bank (nowhere near enough to clear
+  // FEEDBACK_MIN_QUESTIONS without heavy repeat draws), so these bucket
+  // into a coarser, well-populated pair per topic instead of a per-term
+  // whitelist — same "exclude the sparse long tail" discipline as
+  // METER_MODE_WHITELIST above, just resolved by grouping rather than
+  // exclusion since every term is real and worth keeping some signal for.
+  function ornamentTypeTier(term) {
+    var value = String(term || "").toLowerCase();
+    if (value === "appoggiatura" || value === "acciaccatura") return "Grace-note ornaments";
+    if (value === "trill" || value === "mordent" || value === "turn") return "Turning ornaments";
+    return null;
+  }
+
+  function articulationTypeTier(term) {
+    var value = String(term || "").toLowerCase();
+    if (value === "legato" || value === "staccato" || value === "tenuto") return "Continuity marks";
+    if (value === "accent" || value === "sforzando" || value === "marcato") return "Emphasis marks";
+    return null;
+  }
+
+  // Dynamics/tempo don't need a hand-authored bucket at all — the CSV's own
+  // `term_type` column already makes exactly this static/change split
+  // (dynamic_mark/dynamic_change, tempo_word/tempo_change), and it's a
+  // real, well-populated distinction (SOURCE_PHRASES already names it:
+  // "not just static levels" for dynamics).
+  function dynamicChangeTier(termType) {
+    if (termType === "dynamic_mark") return "Static dynamic markings";
+    if (termType === "dynamic_change") return "Dynamic changes";
+    return null;
+  }
+
+  function tempoChangeTier(termType) {
+    if (termType === "tempo_word") return "Tempo words";
+    if (termType === "tempo_change") return "Tempo changes";
+    return null;
+  }
+
+  // Individual ensembleLabel values are too thin to whitelist directly
+  // (String Quartet/Orchestra aside, most have 1-3 questions each in the
+  // real 49-question bank) — bucketed by real performing-forces size
+  // instead. "Jazz Band" groups with the small ensembles (a combo, not a
+  // large classical force) rather than with "world/non-Western", which it
+  // isn't.
+  var ENSEMBLE_SIZE_SMALL = new Set(["String Quartet", "Duet", "Trio", "Chamber Ensemble", "Jazz Band"]);
+  var ENSEMBLE_SIZE_LARGE = new Set(["Orchestra", "Pit Orchestra", "SATB Choir"]);
+  var ENSEMBLE_SIZE_WORLD = new Set(["Gamelan", "Arab Takht", "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)"]);
+  function ensembleSizeTier(ensembleLabel) {
+    var value = String(ensembleLabel || "");
+    if (ENSEMBLE_SIZE_SMALL.has(value)) return "Small ensembles";
+    if (ENSEMBLE_SIZE_LARGE.has(value)) return "Large ensembles";
+    if (ENSEMBLE_SIZE_WORLD.has(value)) return "World and non-Western ensembles";
+    return null;
+  }
+
   function requiresScoreTier(value) {
     if (value === true || value === "true") return "Score-reading questions";
     if (value === false || value === "false") return "Listening-only questions";
@@ -201,6 +256,76 @@
     "texture-trainer": [
       { fieldsBucket: textureConceptValue },
       { field: "responseType", whitelist: new Set(["multiple-choice", "short-text", "extended-text"]) }
+    ],
+    "ensemble-recognition": [
+      { field: "category", whitelist: new Set(["Ensemble", "Ensemble Origin"]) },
+      { field: "ensembleLabel", bucket: ensembleSizeTier }
+    ],
+    "melodic-intervals": [
+      { field: "intervalLabel", whitelist: new Set(["Unison", "2nd", "3rd", "4th", "5th", "6th", "7th", "Octave"]) },
+      { field: "intervalQuality", whitelist: new Set(["Perfect", "Major", "Minor", "Augmented", "Diminished"]) },
+      { field: "direction", whitelist: new Set(["ascending", "descending"]) },
+      // Reuses the existing key-signature-sprint bucket function as-is —
+      // busier key signatures make an interval harder to read off a score,
+      // the same real difficulty accidentalCountTier already captures
+      // there.
+      { field: "keySignatureAccidentals", bucket: accidentalCountTier }
+    ],
+    // melody-master-devices and melody-master-dictation share this one
+    // moduleId, so both skills' dimensions pool together — field names
+    // (category vs difficulty) don't collide, same as elsewhere.
+    "melody-master": [
+      // Excludes "Melody" (1 question) and "Expression" (2 questions) —
+      // too thin in the real 75-question bank, same discipline as
+      // METER_MODE_WHITELIST.
+      { field: "category", whitelist: new Set(["Melodic device", "Ornament", "Mode/Scale", "Word-setting"]) },
+      { field: "difficulty", whitelist: new Set(["easy", "medium", "hard"]) }
+    ],
+    "cadence-coach": [
+      // Whitelist, not exclusion by rarity: only Perfect/Imperfect currently
+      // have real questions in the 7-question bank, but Plagal/Interrupted
+      // are kept whitelisted (they simply won't surface a sentence until
+      // real questions exist) rather than special-cased away — the same
+      // "let the sample size gate itself" approach METER_MODE_WHITELIST
+      // documents, just via natural absence instead of manual exclusion.
+      { field: "cadenceType", whitelist: new Set(["Perfect", "Imperfect", "Plagal", "Interrupted"]) },
+      { field: "keyMode", bucket: chordKeyModeTier }
+    ],
+    // All 4 musical-language-* PM sources share this one moduleId, so all
+    // 4 topics' dimensions pool together here — each question only ever
+    // carries one topic's own term/termType values, so there's no cross-
+    // topic collision risk (verified: no term string or term_type value is
+    // shared between Tempo/Dynamics/Articulation/Ornamentation).
+    "musical-language": [
+      { field: "term", bucket: ornamentTypeTier },
+      { field: "term", bucket: articulationTypeTier },
+      { field: "termType", bucket: dynamicChangeTier },
+      { field: "termType", bucket: tempoChangeTier }
+    ],
+    // Both context-coach-composer and context-coach-period share this one
+    // moduleId (era-explorer), so composer and period pool together here —
+    // a composer question still contributes composer evidence, a period
+    // question still contributes period evidence, same "flat pool, multiple
+    // dimensions per answer" shape chord-identifier already uses.
+    "era-explorer": [
+      // Hand-curated against the real, live-audited clip pool (core.
+      // auditEraExplorerClips) — "Renaissance" is a valid period constant
+      // but currently has zero live clips, so it's excluded (would author
+      // unreachable copy); "20th Century" is kept despite being the
+      // thinnest (7 clips) since it's still a real, present period.
+      { field: "period", whitelist: new Set(["Baroque", "Classical", "Romantic", "20th Century"]) },
+      // Every composer with 3+ live clips. Below that (Handel, Mussorgsky,
+      // Mouret, Albinoni, Rimsky-Korsakov — each 1-2 clips) excluded for
+      // the same reason as period's Renaissance exclusion.
+      {
+        field: "composer",
+        whitelist: new Set([
+          "Wolfgang Amadeus Mozart", "Ludwig van Beethoven", "Johann Sebastian Bach", "Joseph Haydn",
+          "Johannes Brahms", "Frédéric Chopin", "Georg Philipp Telemann", "Felix Mendelssohn",
+          "Claude Debussy", "Edvard Grieg", "Antonio Vivaldi", "Robert Schumann",
+          "Pyotr Ilyich Tchaikovsky", "Alexander Borodin", "Antonín Dvořák"
+        ])
+      }
     ]
   };
 

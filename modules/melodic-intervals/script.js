@@ -1350,7 +1350,14 @@
       responseType: currentQuestion.mode === 'construction' ? 'construction' : (isWrittenInputQuestion(currentQuestion) ? 'typed' : 'multiple-choice'),
       answerData: selectedInterval,
       modelAnswer: currentQuestion.correctAnswer,
-      feedback: message
+      feedback: message,
+      // Captured for concept-level feedback (shared/js/concept-extractors.js)
+      // — same field names saveIntervalProgress() already uses for its own
+      // native progress-tracking payload, just now also forwarded here.
+      intervalLabel: currentQuestion.intervalLabel,
+      intervalQuality: currentQuestion.intervalQuality,
+      direction: currentQuestion.direction,
+      keySignatureAccidentals: currentQuestion.keySignatureAccidentals
     });
     updateReplayButton();
   }

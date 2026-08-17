@@ -377,7 +377,10 @@
       responseType: "multiple-choice",
       answerData: choice,
       modelAnswer: currentQuestion.correctAnswer,
-      feedback: result.shortComment || ""
+      feedback: result.shortComment || "",
+      // Captured for concept-level feedback (shared/js/concept-extractors.js).
+      category: currentQuestion.category,
+      ensembleLabel: currentQuestion.ensembleLabel
     });
     if (trackInfo) {
       trackInfo.innerHTML = buildTrackInfoHTML(currentQuestion);
@@ -521,7 +524,10 @@
       responseType: "typed",
       answerData: rawAnswer,
       modelAnswer: currentQuestion.correctAnswer,
-      feedback: result.shortComment || ""
+      feedback: result.shortComment || "",
+      // Captured for concept-level feedback (shared/js/concept-extractors.js).
+      category: currentQuestion.category,
+      ensembleLabel: currentQuestion.ensembleLabel
     });
     if (trackInfo) {
       trackInfo.innerHTML = buildTrackInfoHTML(currentQuestion);

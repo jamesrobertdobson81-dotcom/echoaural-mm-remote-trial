@@ -60,7 +60,9 @@ module.exports = function createEnsembleRecognitionTeacherAdapter(context = {}) 
           skillName: 'Ensemble and performing forces',
           musicalElement: 'Instrumentation',
           level: question.level,
-          ensemble: question.ensembleLabel
+          // Captured for concept-level feedback (shared/js/concept-extractors.js).
+          ensembleLabel: question.ensembleLabel,
+          category: question.category
         }
       };
     }

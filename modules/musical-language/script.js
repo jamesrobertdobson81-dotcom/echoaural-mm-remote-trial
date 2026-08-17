@@ -118,16 +118,17 @@
     accelerando: 283, accent: 823, acciaccatura: 777, adagio: 276,
     allegretto: 238, allegro: 294, andante: 194, appoggiatura: 770,
     bpm: 432, crescendo: 258, diminuendo: 237, forte: 777,
-    fortissimo: 669, largo: 332, legato: 373, "mezzo-forte": 596,
-    "mezzo-piano": 406, moderato: 175, mordent: 784, pianissimo: 408,
+    fortissimo: 669, grave: 214, largo: 332, legato: 373, lento: 210,
+    marcato: 822, "mezzo-forte": 596,
+    "mezzo-piano": 406, moderato: 175, mordent: 784, pause: 822, pianissimo: 408,
     piano: 675, prestissimo: 163, presto: 233, rallentando: 350,
     rubato: 220, sforzando: 785, slur: 551, staccato: 784,
-    "terraced-dynamics": 465, trill: 798, turn: 784, vivace: 230
+    "terraced-dynamics": 465, tenuto: 698, trill: 798, turn: 784, vivace: 230
   };
 
   const WRITTEN_TERM_CONTENT_WIDTH = {
     accelerando: 767, adagio: 778, allegretto: 787, allegro: 776,
-    andante: 792, largo: 765, moderato: 830, prestissimo: 827,
+    andante: 792, grave: 754, largo: 765, lento: 741, moderato: 830, prestissimo: 827,
     presto: 775, rallentando: 744, rubato: 788, vivace: 770
   };
 
@@ -308,7 +309,11 @@
       responseType: question.question_type.startsWith("multiple_choice") ? "multiple-choice" : "typed",
       answerData: response,
       modelAnswer: question.correct_answer,
-      feedback: question.feedback || question.meaning || ""
+      feedback: question.feedback || question.meaning || "",
+      // Captured for concept-level feedback (shared/js/concept-extractors.js).
+      term: question.term,
+      termType: question.term_type,
+      musicalElement: question.element
     });
     elements.next.focus();
   }

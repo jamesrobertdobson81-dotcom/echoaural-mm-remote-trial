@@ -234,7 +234,10 @@
       responseType: useTypedAnswer() ? "typed" : "multiple-choice",
       answerData: value,
       modelAnswer: question.answer,
-      feedback: els.feedback.textContent
+      feedback: els.feedback.textContent,
+      // Captured for concept-level feedback (shared/js/concept-extractors.js).
+      cadenceType: question.answer,
+      keyMode: question.mode
     });
     els.replay.focus();
   }

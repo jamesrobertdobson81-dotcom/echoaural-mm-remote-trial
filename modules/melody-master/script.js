@@ -1980,7 +1980,9 @@ function submitMelodicDeviceAnswer(choice = "") {
     responseType: currentDeviceQuestion.responseType === "Written response" ? "typed" : "multiple-choice",
     answerData: selectedDeviceAnswer,
     modelAnswer: currentDeviceQuestion.correctAnswer,
-    feedback: result.shortComment
+    feedback: result.shortComment,
+    // Captured for concept-level feedback (shared/js/concept-extractors.js).
+    category: currentDeviceQuestion.category
   });
 }
 
@@ -2347,7 +2349,12 @@ function checkAnswer() {
       responseType: "dictation",
       answerData: dictationSlots.map((slot) => slot.selectedPitch || null),
       modelAnswer: dictationSlots.map((slot) => slot.pitch),
-      feedback: gcseMarking.shortComment || ""
+      feedback: gcseMarking.shortComment || "",
+      // Captured for concept-level feedback (shared/js/concept-extractors.js)
+      // — read from MM001_SOURCE (the full raw clip), not MM001 (the
+      // narrowed object buildQuestionData() produces for rendering), since
+      // difficulty is stripped out of the narrowed shape.
+      difficulty: MM001_SOURCE.difficulty
     });
   }
 }

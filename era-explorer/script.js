@@ -554,7 +554,13 @@ function checkAnswer(selectedAnswer, selectedButton) {
     responseType: "multiple-choice",
     answerData: selectedAnswer,
     modelAnswer: currentQuestion.correctAnswer,
-    feedback: feedback.textContent
+    feedback: feedback.textContent,
+    // Captured for concept-level feedback (shared/js/concept-extractors.js)
+    // — already read above for roundHistory, just not forwarded to the PM
+    // host until now. teacher-adapter.js's checkAnswer() already sends both
+    // in its own answerData for Live Session/Homework.
+    composer: currentQuestion.clip.composer,
+    period: currentQuestion.clip.period
   });
   if (trackInfo) {
     trackInfo.innerHTML = buildTrackInfoHTML(currentQuestion.clip);

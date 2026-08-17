@@ -815,6 +815,27 @@
   background: var(--eh-area, var(--eh-gradient));
 }
 
+/* Real per-area coaching text — shortened at the source in JS
+   (renderEahomeModulesGrid's shortenAreaSummary) to a length that keeps
+   this whole page within one viewport with all 6 cards showing at once, so
+   this shouldn't normally need to clip anything. The max-height + clamp
+   here is a pure safety net (e.g. a future content change producing an
+   unexpectedly long word that doesn't wrap where expected), not the
+   primary truncation mechanism — the string is already short by the time
+   it reaches this element. */
+.eahome-module-feedback {
+  margin: 0;
+  font-size: calc(.68rem * var(--eh-vhs));
+  line-height: 1.35;
+  color: var(--eh-muted);
+  overflow-wrap: break-word;
+  max-height: calc(3 * 1.35 * .68rem * var(--eh-vhs));
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .eahome-module-badge {
   width: fit-content;
   padding: calc(2px * var(--eh-vhs)) calc(8px * var(--eh-vhs));

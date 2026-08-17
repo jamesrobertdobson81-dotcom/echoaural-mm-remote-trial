@@ -255,7 +255,20 @@
   function checkAnswer(question = {}, studentAnswer = [], context = {}) {
     if (isDeviceQuestion(question)) {
       const result = scoreDeviceAnswer(question, Array.isArray(studentAnswer) ? studentAnswer.join(' ') : studentAnswer);
-      return { ...result, total: result.total, correct: result.score >= result.total, modelAnswer: question.correctAnswer, feedback: question.feedback || '' };
+      return {
+        ...result,
+        total: result.total,
+        correct: result.score >= result.total,
+        modelAnswer: question.correctAnswer,
+        feedback: question.feedback || '',
+        // Captured for concept-level feedback (shared/js/concept-extractors.js).
+        answerData: {
+          skillCode: 'MEL.DEVICE',
+          skillName: 'Melodic device',
+          musicalElement: 'Melody',
+          category: question.category
+        }
+      };
     }
     const answers = Array.isArray(studentAnswer) ? studentAnswer : Array.isArray(context.answers) ? context.answers : [];
     const fallback = scorePitchList(question, answers);
@@ -268,7 +281,17 @@
       pitchMarksAvailable: Number(clientScoring.pitchMarksAvailable ?? fallback.total),
       shortComment: clientScoring.shortComment || '',
       correct: Number(clientScoring.awardedMarks ?? fallback.score) >= Number(clientScoring.maxMarks ?? fallback.total),
-      matchType: 'melody-dictation'
+      matchType: 'melody-dictation',
+      // Captured for concept-level feedback (shared/js/concept-extractors.js)
+      // — `question` here is the raw clip object (see getQuestions()), the
+      // same shape MM001_SOURCE has client-side, so `difficulty` is
+      // directly available without any narrowing.
+      answerData: {
+        skillCode: 'MEL.DICTATION.PITCH',
+        skillName: 'Melodic dictation',
+        musicalElement: 'Melody',
+        difficulty: question.difficulty
+      }
     };
   }
 

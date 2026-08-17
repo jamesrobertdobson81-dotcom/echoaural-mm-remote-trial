@@ -742,6 +742,412 @@
         focus: "name the texture, then explain in your own words what each part or voice is doing",
         label: "extended written texture answers"
       }
+    },
+    // Both context-coach-composer and context-coach-period share this one
+    // pool (see shared/js/concept-extractors.js's own comment on why) —
+    // period entries cover the 4 stylistic periods with real live clips
+    // (Renaissance excluded, currently no live clips); composer entries
+    // cover every composer with 3+ live clips in the real curated pool.
+    "era-explorer": {
+      "Baroque": {
+        strength: "recognise Baroque style confidently",
+        gap: "telling Baroque's continuous, spun-out lines apart from the Classical style that followed it",
+        focus: "listen for a steady, unbroken pulse, stepped rather than gradual dynamics, and several melodic lines interweaving together",
+        label: "Baroque style"
+      },
+      "Classical": {
+        strength: "recognise Classical style confidently",
+        gap: "telling Classical's clear, balanced phrasing apart from the Baroque and Romantic styles either side of it",
+        focus: "listen for neat, symmetrical phrases, a lighter texture, and dynamics that build and fade gradually rather than in blocks",
+        label: "Classical style"
+      },
+      "Romantic": {
+        strength: "recognise Romantic style confidently",
+        gap: "telling Romantic music's personal, expressive style apart from the more restrained Classical era before it",
+        focus: "listen for richer harmony, tempo that stretches and relaxes expressively, and a wider emotional range in the dynamics",
+        label: "Romantic style"
+      },
+      "20th Century": {
+        strength: "recognise 20th-century style confidently",
+        gap: "telling 20th-century style apart from the Romantic era it grew out of",
+        focus: "listen for harmony that doesn't resolve the way earlier eras would, and colours or textures that feel less anchored to one home key",
+        label: "20th-century style"
+      },
+      "Wolfgang Amadeus Mozart": {
+        strength: "identify Mozart's music confidently",
+        gap: "telling Mozart's smooth, singable phrasing apart from Haydn's wit",
+        focus: "listen for elegant, balanced phrases and a light, clear texture built around a tuneful, singable melody",
+        label: "Mozart"
+      },
+      "Ludwig van Beethoven": {
+        strength: "identify Beethoven's music confidently",
+        gap: "telling Beethoven's dramatic drive apart from the more restrained Classical style of Mozart and Haydn",
+        focus: "listen for a short rhythmic idea repeated and developed, and sudden, dramatic swings in dynamics",
+        label: "Beethoven"
+      },
+      "Johann Sebastian Bach": {
+        strength: "identify Bach's music confidently",
+        gap: "telling Bach's dense, interweaving lines apart from Telemann's lighter Baroque style",
+        focus: "listen for several independent melodic lines woven together, all moving with a steady, continuous pulse",
+        label: "Bach"
+      },
+      "Joseph Haydn": {
+        strength: "identify Haydn's music confidently",
+        gap: "telling Haydn's playful wit apart from Mozart's smoother lyricism",
+        focus: "listen for neat, symmetrical phrases with a small surprise — an unexpected pause or sudden dynamic jolt used almost as a joke",
+        label: "Haydn"
+      },
+      "Johannes Brahms": {
+        strength: "identify Brahms's music confidently",
+        gap: "telling Brahms's tightly-structured Romanticism apart from freer, more sweeping Romantic composers like Tchaikovsky",
+        focus: "listen for a warm, thick texture and rhythms that pull against the main beat, held inside a clearly Classical-influenced structure",
+        label: "Brahms"
+      },
+      "Frédéric Chopin": {
+        strength: "identify Chopin's music confidently",
+        gap: "telling Chopin's flowing piano writing apart from Schumann's more intimate, song-like piano style",
+        focus: "listen for a singing melody over a flowing, arpeggiated accompaniment, with tempo that stretches and relaxes expressively",
+        label: "Chopin"
+      },
+      "Georg Philipp Telemann": {
+        strength: "identify Telemann's music confidently",
+        gap: "telling Telemann's lighter, more dance-like Baroque style apart from Bach's denser counterpoint",
+        focus: "listen for one clear, tuneful melodic line and dance-like rhythms, lighter than Bach's interweaving lines",
+        label: "Telemann"
+      },
+      "Felix Mendelssohn": {
+        strength: "identify Mendelssohn's music confidently",
+        gap: "telling Mendelssohn's light, elegant Romanticism apart from heavier Romantic composers like Brahms",
+        focus: "listen for a light, buoyant texture and clear melodic lines — Romantic warmth without a dense, heavy sound",
+        label: "Mendelssohn"
+      },
+      "Claude Debussy": {
+        strength: "identify Debussy's music confidently",
+        gap: "telling Debussy's hazy, colour-focused style apart from the clearer melodies of the Romantic era before him",
+        focus: "listen for blurred, floating harmony and shifting colour rather than one strong, clear tune",
+        label: "Debussy"
+      },
+      "Edvard Grieg": {
+        strength: "identify Grieg's music confidently",
+        gap: "telling Grieg's Nordic folk flavour apart from other folk-influenced Romantic composers like Dvořák",
+        focus: "listen for a simple, song-like melody with a folk flavour and an open, Nordic sound to the harmony",
+        label: "Grieg"
+      },
+      "Antonio Vivaldi": {
+        strength: "identify Vivaldi's music confidently",
+        gap: "telling Vivaldi's driving, soloist-led Baroque style apart from Bach's denser ensemble counterpoint",
+        focus: "listen for an energetic, driving rhythm and a soloist standing out clearly against the rest of the group",
+        label: "Vivaldi"
+      },
+      "Robert Schumann": {
+        strength: "identify Schumann's music confidently",
+        gap: "telling Schumann's intimate, shifting moods apart from Chopin's more continuously flowing piano lines",
+        focus: "listen for an intimate, song-like character that shifts mood suddenly from one short section to the next",
+        label: "Schumann"
+      },
+      "Pyotr Ilyich Tchaikovsky": {
+        strength: "identify Tchaikovsky's music confidently",
+        gap: "telling Tchaikovsky's sweeping, emotional melody apart from Brahms's more tightly-structured Romanticism",
+        focus: "listen for one big, sweeping melody carried by a rich, full sound with strong emotional contrasts",
+        label: "Tchaikovsky"
+      },
+      "Alexander Borodin": {
+        strength: "identify Borodin's music confidently",
+        gap: "telling Borodin's richly-coloured Russian style apart from other folk-influenced Romantic composers like Dvořák",
+        focus: "listen for lush, colourful harmony and a melody with a Russian or exotic folk flavour",
+        label: "Borodin"
+      },
+      "Antonín Dvořák": {
+        strength: "identify Dvořák's music confidently",
+        gap: "telling Dvořák's Slavonic folk lilt apart from other folk-influenced Romantic composers like Grieg",
+        focus: "listen for a warm, lyrical melody with a folk or dance flavour and a Slavonic rhythmic lilt",
+        label: "Dvořák"
+      }
+    },
+    // All 4 ScoreDecoder topics share this one pool. Individual ornament/
+    // articulation terms (trill, staccato, etc.) are too thin in the real
+    // bank (2-3 questions each) for their own entries, so these are the
+    // coarser, well-populated groupings shared/js/concept-extractors.js's
+    // ornamentTypeTier/articulationTypeTier buckets into; dynamics/tempo
+    // reuse the CSV's own term_type split directly (dynamic_mark/
+    // dynamic_change, tempo_word/tempo_change).
+    "musical-language": {
+      "Grace-note ornaments": {
+        strength: "recognise grace-note ornaments confidently",
+        gap: "telling an acciaccatura's brief, crushed note apart from an appoggiatura's more sustained one",
+        focus: "listen for how long the extra note is held before resolving — a quick crush is an acciaccatura, a fuller, more melodic lean is an appoggiatura",
+        label: "grace-note ornaments"
+      },
+      "Turning ornaments": {
+        strength: "recognise turning ornaments confidently",
+        gap: "telling a quick single alternation apart from a sustained rapid one or a four-note turn",
+        focus: "count how many times the note alternates and for how long — one quick flick is a mordent, sustained rapid alternation is a trill, and a smooth four-note shape around the main note is a turn",
+        label: "turning ornaments"
+      },
+      "Continuity marks": {
+        strength: "recognise continuity marks confidently",
+        gap: "telling smoothly connected notes apart from short, detached ones",
+        focus: "listen for whether each note flows straight into the next with no gap (legato) or is cut noticeably short (staccato)",
+        label: "continuity marks"
+      },
+      "Emphasis marks": {
+        strength: "recognise emphasis marks confidently",
+        gap: "telling a single accented note apart from a sudden, forced sforzando",
+        focus: "listen for whether just one note is pushed slightly louder (accent) or suddenly forced much louder, cutting across the surrounding dynamic (sforzando)",
+        label: "emphasis marks"
+      },
+      "Static dynamic markings": {
+        strength: "recognise static dynamic levels confidently",
+        gap: "judging an absolute dynamic level rather than comparing it to what came just before",
+        focus: "judge the loudness on its own terms rather than only comparing it to the previous passage",
+        label: "static dynamic markings"
+      },
+      "Dynamic changes": {
+        strength: "recognise dynamic changes confidently",
+        gap: "catching dynamics changing gradually across a passage, not just a single loud or quiet moment",
+        focus: "listen across the whole passage for the volume gradually building or fading, not just its starting or ending level",
+        label: "dynamic changes"
+      },
+      "Tempo words": {
+        strength: "recognise tempo words confidently",
+        gap: "telling apart tempo words that sit close together in speed",
+        focus: "compare the beat's actual speed against a mental benchmark, such as a walking pace, rather than judging it in isolation",
+        label: "tempo words"
+      },
+      "Tempo changes": {
+        strength: "recognise tempo changes confidently",
+        gap: "catching the tempo shifting gradually across a passage, rather than hearing it as one fixed speed",
+        focus: "listen across the whole passage for the pulse speeding up, slowing down, or flexing, not just its starting speed",
+        label: "tempo changes"
+      }
+    },
+    "cadence-coach": {
+      "Perfect": {
+        strength: "recognise perfect cadences confidently",
+        gap: "telling a fully resolved perfect cadence apart from one that only sounds resolved",
+        focus: "listen for the bass moving down to (or up a 4th to) the key note, landing on a solid, complete-sounding final chord",
+        label: "perfect cadences"
+      },
+      "Imperfect": {
+        strength: "recognise imperfect cadences confidently",
+        gap: "hearing that a phrase has stopped without really finishing",
+        focus: "listen for the music landing on the dominant chord, leaving a questioning, unfinished feeling rather than a settled ending",
+        label: "imperfect cadences"
+      },
+      "Plagal": {
+        strength: "recognise plagal cadences confidently",
+        gap: "telling the softer 'Amen' cadence apart from a perfect cadence",
+        focus: "listen for the bass moving straight from the 4th degree to the key note — the classic 'Amen' sound, gentler than a perfect cadence's stronger pull",
+        label: "plagal cadences"
+      },
+      "Interrupted": {
+        strength: "recognise interrupted cadences confidently",
+        gap: "catching the moment a cadence is set up to resolve normally but lands somewhere unexpected instead",
+        focus: "listen for the harmony building toward an expected resolution, then landing on a different, unexpected chord instead of the key note",
+        label: "interrupted cadences"
+      },
+      "Major keys": {
+        strength: "recognise cadences in major keys confidently",
+        gap: "telling a major-key cadence's brighter close apart from a minor-key one",
+        focus: "listen for the bright, settled quality a major final chord has, distinct from a minor key's darker close",
+        label: "cadences in major keys"
+      },
+      "Minor keys": {
+        strength: "recognise cadences in minor keys confidently",
+        gap: "telling a minor-key cadence's darker close apart from a major-key one",
+        focus: "listen for the darker, more unresolved quality a minor final chord can have, distinct from a major key's brighter close",
+        label: "cadences in minor keys"
+      }
+    },
+    // melody-master-devices and melody-master-dictation share this one
+    // pool. Category entries exclude "Melody"/"Expression" (too thin in
+    // the real 75-question bank — see concept-extractors.js's own
+    // comment); difficulty entries cover dictation's easy/medium/hard tier.
+    "melody-master": {
+      "Melodic device": {
+        strength: "identify melodic devices confidently",
+        gap: "naming the specific way a melody moves — by step, leap, sequence or repetition",
+        focus: "trace the melody's shape carefully: is it built from a repeated pattern, a broken chord, or simple stepwise or leaping movement?",
+        label: "melodic movement"
+      },
+      "Ornament": {
+        strength: "identify melodic ornaments confidently",
+        gap: "naming the specific ornament decorating a melody",
+        focus: "listen for how the ornament decorates the main note — a rapid alternation, a turn around it, or a sliding, bending inflection",
+        label: "melodic ornaments"
+      },
+      "Mode/Scale": {
+        strength: "identify the scale or mode a melody is built on confidently",
+        gap: "telling apart the different scale systems a melody might be built on",
+        focus: "count how many different notes the melody actually uses and how they're spaced, rather than assuming a standard major or minor scale",
+        label: "scale and mode identification"
+      },
+      "Word-setting": {
+        strength: "identify word-setting confidently",
+        gap: "judging how many notes are set to each syllable of text",
+        focus: "count the notes sung to each syllable — one note per syllable is syllabic, several notes per syllable is melismatic",
+        label: "word-setting"
+      },
+      "easy": {
+        strength: "handle easy melodic dictations confidently",
+        gap: "keeping full accuracy even on more straightforward dictations",
+        focus: "don't rush a simple-sounding passage — check every pitch against the one before it before moving on",
+        label: "easier dictations"
+      },
+      "medium": {
+        strength: "handle medium-difficulty melodic dictations confidently",
+        gap: "keeping accuracy once a dictation mixes steps and leaps",
+        focus: "map out the melody's overall shape first, then fill in the individual pitches for the trickier leaps",
+        label: "medium-difficulty dictations"
+      },
+      "hard": {
+        strength: "handle hard melodic dictations confidently",
+        gap: "keeping accuracy on the most demanding dictations",
+        focus: "break the passage into short chunks and check each chunk separately rather than trying to hear the whole thing at once",
+        label: "harder dictations"
+      }
+    },
+    "melodic-intervals": {
+      "Unison": {
+        strength: "recognise unisons confidently",
+        gap: "confirming two notes are genuinely identical, not just very close together",
+        focus: "listen for the two notes locking together with zero difference in pitch, rather than a very close but distinct 2nd",
+        label: "unisons"
+      },
+      "2nd": {
+        strength: "recognise 2nds confidently",
+        gap: "telling a 2nd apart from a unison or a 3rd",
+        focus: "listen for two clearly adjacent, slightly clashing notes — wider than a unison, narrower than a 3rd",
+        label: "2nds"
+      },
+      "3rd": {
+        strength: "recognise 3rds confidently",
+        gap: "telling a 3rd apart from a 2nd or a 4th",
+        focus: "listen for the classic, consonant 'thirds' sound used to build most chords — wider than a 2nd, narrower than a 4th",
+        label: "3rds"
+      },
+      "4th": {
+        strength: "recognise 4ths confidently",
+        gap: "telling a 4th apart from a 3rd or a 5th",
+        focus: "listen for an open, slightly hollow sound — wider than a 3rd, not as wide open as a 5th",
+        label: "4ths"
+      },
+      "5th": {
+        strength: "recognise 5ths confidently",
+        gap: "telling a 5th apart from a 4th or a 6th",
+        focus: "listen for a very open, hollow sound with almost no tension — the classic 'power chord' interval",
+        label: "5ths"
+      },
+      "6th": {
+        strength: "recognise 6ths confidently",
+        gap: "telling a 6th apart from a 5th or a 7th",
+        focus: "listen for a wide but sweet, consonant leap — bigger than a 5th, without a 7th's tension",
+        label: "6ths"
+      },
+      "7th": {
+        strength: "recognise 7ths confidently",
+        gap: "telling a 7th apart from a 6th or an octave",
+        focus: "listen for a wide, tense gap that's almost but not quite an octave, and wants to resolve inward",
+        label: "7ths"
+      },
+      "Octave": {
+        strength: "recognise octaves confidently",
+        gap: "confirming two notes really are an octave apart, not just a wide 7th",
+        focus: "listen for the two notes sounding like the 'same' note at a different height, with none of a 7th's leftover tension",
+        label: "octaves"
+      },
+      "Perfect": {
+        strength: "recognise perfect intervals confidently",
+        gap: "telling a perfect interval apart from its augmented or diminished version",
+        focus: "listen for the stable, open quality perfect unisons, 4ths, 5ths and octaves share, with no major or minor variant to confuse it with",
+        label: "perfect intervals"
+      },
+      "Major": {
+        strength: "recognise major intervals confidently",
+        gap: "telling a major interval apart from its minor version",
+        focus: "listen for the brighter, slightly wider version of the interval compared to its minor counterpart",
+        label: "major intervals"
+      },
+      "Minor": {
+        strength: "recognise minor intervals confidently",
+        gap: "telling a minor interval apart from its major version",
+        focus: "listen for the darker, slightly narrower version of the interval compared to its major counterpart",
+        label: "minor intervals"
+      },
+      "Augmented": {
+        strength: "recognise augmented intervals confidently",
+        gap: "telling an augmented interval apart from its perfect or major starting point",
+        focus: "listen for an interval that sounds stretched a semitone wider than you'd expect",
+        label: "augmented intervals"
+      },
+      "Diminished": {
+        strength: "recognise diminished intervals confidently",
+        gap: "telling a diminished interval apart from its perfect or minor starting point",
+        focus: "listen for an interval that sounds squeezed a semitone narrower than you'd expect",
+        label: "diminished intervals"
+      },
+      "ascending": {
+        strength: "recognise ascending intervals confidently",
+        gap: "keeping accuracy when the second note goes up rather than down",
+        focus: "track the pitch rising in your head as you listen, so you're not caught out expecting it to fall",
+        label: "ascending intervals"
+      },
+      "descending": {
+        strength: "recognise descending intervals confidently",
+        gap: "keeping accuracy when the second note goes down rather than up",
+        focus: "track the pitch falling in your head as you listen — descending intervals are commonly harder to judge than ascending ones",
+        label: "descending intervals"
+      },
+      "Few accidentals (0-2)": {
+        strength: "read intervals in simple key signatures confidently",
+        gap: "keeping full accuracy even when a key signature is this simple",
+        focus: "don't let a simple key signature tempt you into rushing — check the actual notes, not just the general shape",
+        label: "intervals in simple key signatures"
+      },
+      "Moderate accidentals (3-4)": {
+        strength: "read intervals with a moderate number of accidentals confidently",
+        gap: "tracking which notes are affected once a key signature has several sharps or flats",
+        focus: "check each note against the key signature individually before judging the interval between them",
+        label: "intervals with moderate key signatures"
+      },
+      "Many accidentals (5-7)": {
+        strength: "read intervals in heavily-accidental key signatures confidently",
+        gap: "keeping track of every altered note once a key signature is this busy",
+        focus: "work out the key signature's pattern first, then apply it note by note rather than trying to remember each accidental separately",
+        label: "intervals in complex key signatures"
+      }
+    },
+    "ensemble-recognition": {
+      "Ensemble": {
+        strength: "identify an ensemble's sound confidently",
+        gap: "telling similarly-sized or similarly-scored ensembles apart by their overall sound",
+        focus: "listen for the number and blend of distinct timbres — how many different instrument colours you can pick out, and how they combine",
+        label: "ensemble sound recognition"
+      },
+      "Ensemble Origin": {
+        strength: "identify an ensemble's cultural origin confidently",
+        gap: "placing an unfamiliar ensemble's sound within the right musical tradition",
+        focus: "listen for instrument timbres, tuning or rhythmic patterns that don't belong to the Western classical tradition, and consider where they might come from",
+        label: "ensemble origin recognition"
+      },
+      "Small ensembles": {
+        strength: "identify small ensembles confidently",
+        gap: "telling a small handful of individually audible instruments apart from a larger group",
+        focus: "count how many distinct, individually traceable lines you can follow — a small ensemble keeps each player audible on their own",
+        label: "small ensembles"
+      },
+      "Large ensembles": {
+        strength: "identify large ensembles confidently",
+        gap: "telling a full, blended large ensemble apart from a smaller group",
+        focus: "listen for a full, blended wall of sound where individual performers merge together, rather than staying separately traceable",
+        label: "large ensembles"
+      },
+      "World and non-Western ensembles": {
+        strength: "identify world and non-Western ensembles confidently",
+        gap: "recognising instrument timbres and tuning systems from outside the Western classical tradition",
+        focus: "listen for instrument colours, scales or rhythmic patterns that sound unfamiliar against Western classical norms, and consider which tradition they belong to",
+        label: "world and non-Western ensembles"
+      }
     }
   };
 

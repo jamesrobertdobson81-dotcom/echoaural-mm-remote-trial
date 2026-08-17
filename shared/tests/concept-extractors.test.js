@@ -174,6 +174,90 @@ test('extractConceptValues: missing/empty fields object yields no values, never 
   assert.deepEqual(CE.extractConceptValues('chord-identifier', undefined), []);
 });
 
+test('extractConceptValues: era-explorer pools composer and period from one answer, shared across both PM sources', () => {
+  const values = CE.extractConceptValues('era-explorer', { composer: 'Wolfgang Amadeus Mozart', period: 'Classical' });
+  assert.deepEqual(values, ['Classical', 'Wolfgang Amadeus Mozart']);
+});
+
+test('extractConceptValues: era-explorer excludes a period with no live clips (Renaissance) and a thin-sample composer', () => {
+  const values = CE.extractConceptValues('era-explorer', { composer: 'Tomaso Albinoni', period: 'Renaissance' });
+  assert.deepEqual(values, []);
+});
+
+test('extractConceptValues: era-explorer still returns whichever field is whitelisted when the other is not', () => {
+  const values = CE.extractConceptValues('era-explorer', { composer: 'Wolfgang Amadeus Mozart', period: 'Renaissance' });
+  assert.deepEqual(values, ['Wolfgang Amadeus Mozart']);
+});
+
+test('extractConceptValues: musical-language buckets ornamentation terms into grace-note vs turning ornaments', () => {
+  assert.deepEqual(CE.extractConceptValues('musical-language', { term: 'acciaccatura', termType: 'ornament' }), ['Grace-note ornaments']);
+  assert.deepEqual(CE.extractConceptValues('musical-language', { term: 'trill', termType: 'ornament' }), ['Turning ornaments']);
+});
+
+test('extractConceptValues: musical-language buckets articulation terms into continuity vs emphasis marks', () => {
+  assert.deepEqual(CE.extractConceptValues('musical-language', { term: 'staccato', termType: 'articulation' }), ['Continuity marks']);
+  assert.deepEqual(CE.extractConceptValues('musical-language', { term: 'sforzando', termType: 'articulation' }), ['Emphasis marks']);
+});
+
+test('extractConceptValues: musical-language reads dynamics/tempo term_type directly, not via a hand-authored bucket', () => {
+  assert.deepEqual(CE.extractConceptValues('musical-language', { term: 'forte', termType: 'dynamic_mark' }), ['Static dynamic markings']);
+  assert.deepEqual(CE.extractConceptValues('musical-language', { term: 'crescendo', termType: 'dynamic_change' }), ['Dynamic changes']);
+  assert.deepEqual(CE.extractConceptValues('musical-language', { term: 'andante', termType: 'tempo_word' }), ['Tempo words']);
+  assert.deepEqual(CE.extractConceptValues('musical-language', { term: 'rallentando', termType: 'tempo_change' }), ['Tempo changes']);
+});
+
+test('extractConceptValues: musical-language never double-counts across topics for one answer', () => {
+  // A dynamics answer's term ("forte") never accidentally matches the
+  // ornament/articulation bucket functions.
+  const values = CE.extractConceptValues('musical-language', { term: 'forte', termType: 'dynamic_mark' });
+  assert.deepEqual(values, ['Static dynamic markings']);
+});
+
+test('extractConceptValues: cadence-coach pools cadenceType and keyMode from one answer', () => {
+  const values = CE.extractConceptValues('cadence-coach', { cadenceType: 'Perfect', keyMode: 'major' });
+  assert.deepEqual(values, ['Perfect', 'Major keys']);
+});
+
+test('extractConceptValues: cadence-coach whitelists all 4 cadence types, not just the ones with live questions today', () => {
+  assert.deepEqual(CE.extractConceptValues('cadence-coach', { cadenceType: 'Plagal' }), ['Plagal']);
+  assert.deepEqual(CE.extractConceptValues('cadence-coach', { cadenceType: 'Interrupted' }), ['Interrupted']);
+});
+
+test('extractConceptValues: melody-master pools devices category and dictation difficulty from the shared pool', () => {
+  const values = CE.extractConceptValues('melody-master', { category: 'Mode/Scale', difficulty: 'medium' });
+  assert.deepEqual(values, ['Mode/Scale', 'medium']);
+});
+
+test('extractConceptValues: melody-master excludes the thin "Melody"/"Expression" categories', () => {
+  assert.deepEqual(CE.extractConceptValues('melody-master', { category: 'Melody' }), []);
+  assert.deepEqual(CE.extractConceptValues('melody-master', { category: 'Expression' }), []);
+});
+
+test('extractConceptValues: melodic-intervals pools label, quality, direction and a reused accidental-count bucket', () => {
+  const values = CE.extractConceptValues('melodic-intervals', {
+    intervalLabel: '5th', intervalQuality: 'Perfect', direction: 'ascending', keySignatureAccidentals: 1
+  });
+  assert.deepEqual(values, ['5th', 'Perfect', 'ascending', 'Few accidentals (0-2)']);
+});
+
+test('extractConceptValues: melodic-intervals rejects an unrecognised interval label/quality', () => {
+  assert.deepEqual(CE.extractConceptValues('melodic-intervals', { intervalLabel: '9th', intervalQuality: 'Weird' }), []);
+});
+
+test('extractConceptValues: ensemble-recognition pools category and a size-bucketed ensembleLabel', () => {
+  const values = CE.extractConceptValues('ensemble-recognition', { category: 'Ensemble', ensembleLabel: 'Orchestra' });
+  assert.deepEqual(values, ['Ensemble', 'Large ensembles']);
+});
+
+test('extractConceptValues: ensemble-recognition buckets Jazz Band with small ensembles, not world/non-Western', () => {
+  const values = CE.extractConceptValues('ensemble-recognition', { ensembleLabel: 'Jazz Band' });
+  assert.deepEqual(values, ['Small ensembles']);
+});
+
+test('extractConceptValues: ensemble-recognition returns nothing for an unmapped ensembleLabel', () => {
+  assert.deepEqual(CE.extractConceptValues('ensemble-recognition', { ensembleLabel: 'Marching Band' }), []);
+});
+
 test('loads as a plain browser global too, not just via require()', () => {
   const vm = require('node:vm');
   const fs = require('node:fs');

@@ -130,7 +130,8 @@ module.exports = function createMusicalLanguageTeacherAdapter(context = {}) {
           skillName: question.skillName,
           musicalElement: question.element,
           level: question.level,
-          term: question.term
+          term: question.term,
+          termType: question.term_type
         }
       };
     }
