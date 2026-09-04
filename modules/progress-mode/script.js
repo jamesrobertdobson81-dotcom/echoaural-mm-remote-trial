@@ -24,6 +24,26 @@
   });
   var APP_GROUP_KEYS = Object.keys(APP_GROUPS);
 
+  // Reverse of the grouping above, at the app-group (page) level rather
+  // than the source level, keyed by area rather than group — built from
+  // APP_GROUPS so a group shared across several areas (Musical Language's
+  // 4 topics span melody/texture/rhythm) legitimately appears in more than
+  // one area's list, rather than being "owned" by just one. This is what
+  // buildQueueFromAreas below cycles through, instead of raw app groups —
+  // see its own comment for why that distinction matters.
+  var AREA_TO_GROUPS = {};
+  AREA_ORDER.forEach(function (areaKey) { AREA_TO_GROUPS[areaKey] = []; });
+  APP_GROUP_KEYS.forEach(function (groupKey) {
+    var areasSeen = {};
+    APP_GROUPS[groupKey].forEach(function (sourceKey) {
+      var areaKey = Drivers[sourceKey].area;
+      if (!areasSeen[areaKey]) {
+        areasSeen[areaKey] = true;
+        AREA_TO_GROUPS[areaKey].push(groupKey);
+      }
+    });
+  });
+
   // Detailed per-area written feedback (strongest/weakest contributing
   // source) now lives only on the student dashboard's "Detailed feedback"
   // dialog for Progress Mode, which reads this folder's own store.js/
@@ -165,14 +185,38 @@
     slotLevelOverride: null,
     // The signature checkSignatureThenPoll accepted for the slot currently
     // being answered, so advanceSlot can record its right/wrong outcome
-    // against the missed-question queue once it resolves.
+    // against that signature's schedule once it resolves.
     currentSlotSignature: null,
+    // Date.now() stamped in rememberSlotSignature, the moment this slot's
+    // question was actually revealed to the student — advanceSlot subtracts
+    // this from its own Date.now() to get responseTimeMs (captured only,
+    // like Anki's revlog.time; not used in the scheduling formula). Null
+    // outside an active, revealed slot.
+    currentSlotRevealedAt: null,
+    // This round's answered-question events, collected as they happen
+    // (each carrying the resulting ease/interval/repetitions from
+    // Store.recordQuestionOutcome) and POSTed as a batch at finishRound —
+    // see postReviewsToServer.
+    pendingReviews: [],
     // The level actually used to configure the current slot (area's current
     // level, or slotLevelOverride if this slot was escalated) — stashed here
     // so advanceSlot/finishRound can bank this question's outcome against
     // the level it was really asked at, not assumed to be the area's current
     // one. Set once per slot in loadCurrentSlotFrame, before any reroll.
-    currentSlotLevelIndex: null
+    currentSlotLevelIndex: null,
+    // How many times the current slot's SOURCE has been swapped out for a
+    // different one after failing to ever produce a visible question (see
+    // replaceCurrentSlotAndRetry) — capped so a genuinely broken app can't
+    // hang the round forever. Reset to 0 for every new slot.
+    emptySlotReplacements: 0,
+    // The versioned iframe contract is the primary readiness/result path.
+    // These fields isolate every navigation so late messages from a
+    // discarded iframe cannot resolve the current slot.
+    currentSlotId: "",
+    contractQuestionAccepted: false,
+    contractPendingQuestion: null,
+    framePrepared: false,
+    slotResolved: false
   };
 
   function slugify(name) {
@@ -226,6 +270,7 @@
     els.setupMessage.textContent = "";
 
     renderDashboard();
+    syncStateFromServer();
   }
 
   function showLoginState() {
@@ -250,6 +295,53 @@
     "<p class=\"pm-dashboard-link\">See your levels and personalised feedback on your " +
     "<a href=\"/account/student-home/\">dashboard</a>.</p>";
 
+  // Gamification: correct-answer streak + daily play streak (Phase 1 of the
+  // Progress Mode gamification plan). Rendered as part of renderAreaBarsHTML
+  // so it appears on both the idle dashboard and the round-summary view via
+  // one shared path; also given stable child ids so advanceSlot can update
+  // just the correct-streak numbers live, every question, without having to
+  // re-render the whole RHS panel mid-round (the one place a live-updating
+  // counter is safe to build — see updateStreakChipLive below).
+  function renderStreakChipHTML() {
+    var snapshot = Store.getStreakSnapshot(state.studentId);
+    return (
+      "<div class=\"pm-streak-chip\" id=\"pmStreakChip\">" +
+      "<div class=\"pm-streak-chip-item\">" +
+      "<span class=\"pm-streak-chip-icon\" aria-hidden=\"true\"><img src=\"../../assets/icons/progress-mode/streak.png\" alt=\"\"></span>" +
+      "<span class=\"pm-streak-chip-text\">" +
+      "<span class=\"pm-streak-chip-label\">Streak</span>" +
+      "<strong id=\"pmStreakCorrectCurrent\">" + snapshot.correctCurrent + "</strong>" +
+      "<span class=\"pm-streak-chip-best\">best <span id=\"pmStreakCorrectBest\">" + snapshot.correctBest + "</span></span>" +
+      "</span>" +
+      "</div>" +
+      "<div class=\"pm-streak-chip-item\">" +
+      "<span class=\"pm-streak-chip-icon\" aria-hidden=\"true\"><img src=\"../../assets/icons/progress-mode/daily-streak.png\" alt=\"\"></span>" +
+      "<span class=\"pm-streak-chip-text\">" +
+      "<span class=\"pm-streak-chip-label\">Day streak</span>" +
+      "<strong id=\"pmStreakDailyCurrent\">" + snapshot.dailyCurrent + "</strong>" +
+      "<span class=\"pm-streak-chip-best\">best <span id=\"pmStreakDailyBest\">" + snapshot.dailyBest + "</span></span>" +
+      "</span>" +
+      "</div>" +
+      "</div>"
+    );
+  }
+
+  // Called after every answered question (see advanceSlot). Targets the
+  // chip's own numbers directly rather than re-rendering renderAreaBarsHTML
+  // wholesale — the RHS panel's per-area bars are deliberately round-scoped
+  // (only updated via renderSummary at round end), and this must not
+  // disturb that. A no-op if the chip isn't mounted yet (e.g. the very first
+  // slot of a student's first-ever round, before renderDashboard has run —
+  // in practice setIdentity always runs first, so this is just a safety
+  // guard, not an expected path).
+  function updateStreakChipLive() {
+    var correctCurrentEl = document.getElementById("pmStreakCorrectCurrent");
+    if (!correctCurrentEl) return;
+    var snapshot = Store.getStreakSnapshot(state.studentId);
+    correctCurrentEl.textContent = snapshot.correctCurrent;
+    document.getElementById("pmStreakCorrectBest").textContent = snapshot.correctBest;
+  }
+
   function renderAreaBarsHTML() {
     var cumulative = Store.getCumulativeStats(state.studentId, SOURCE_ORDER);
     var rows = "";
@@ -262,8 +354,7 @@
         correct += cumulative[sourceKey].correct;
         questions += cumulative[sourceKey].questions;
       });
-      var tracksConcepts = sources.some(function (sourceKey) { return !!Drivers[sourceKey].getSignature; });
-      var progressPercentage = Store.getAreaOverallProgressPercentage(state.studentId, areaKey, tracksConcepts);
+      var progressPercentage = Store.getAreaOverallProgressPercentage(state.studentId, areaKey, areaTracksConcepts(areaKey));
 
       rows +=
         "<div class=\"pm-element-row\" data-area=\"" + areaKey + "\">" +
@@ -274,6 +365,7 @@
     });
 
     return (
+      renderStreakChipHTML() +
       "<div class=\"pm-element-chart-block\">" +
       "<h3>Your progress by area</h3>" +
       "<p class=\"pm-element-chart-sub\">How far you are through Foundation → Mastering in each area, and marks earned out of marks attempted.</p>" +
@@ -297,14 +389,151 @@
     return arr;
   }
 
+  function hasAdjacentRepeat(arr) {
+    for (var i = 1; i < arr.length; i++) {
+      if (arr[i] === arr[i - 1]) return true;
+    }
+    return false;
+  }
+
+  // Same as shuffle(), but repairs any adjacent duplicate left by chance —
+  // needed once buildAreaCycleDeck() below has repeated entries (a plain
+  // shuffle of 6 always-distinct areas could never land two of the same
+  // side by side, but a weighted deck with e.g. two "melody" entries
+  // occasionally can). A single forward-swap pass normally fixes this, but
+  // it can fail outright if every copy of a repeated area happens to land
+  // clustered at the very end of the shuffle (no differing element left
+  // to swap in) — a real possibility now that an area's adaptive bonus
+  // (see ADAPTIVE_WEIGHT_BONUS_CAP) can push its deck count above the old
+  // "never more than twice" ceiling the single-pass version relied on. So
+  // this retries the shuffle+repair a bounded number of times whenever a
+  // repair pass still leaves an adjacent duplicate, falling back to its
+  // best attempt if genuinely unlucky every time — matching the deck
+  // model's own "no long unlucky droughts" spirit rather than ever
+  // silently shipping a run of back-to-back same-area questions.
+  var SHUFFLE_REPAIR_ATTEMPTS = 10;
+  function shuffleNoAdjacentRepeats(arr) {
+    var best = null;
+    for (var attempt = 0; attempt < SHUFFLE_REPAIR_ATTEMPTS; attempt++) {
+      var result = shuffle(arr.slice());
+      for (var i = 1; i < result.length; i++) {
+        if (result[i] === result[i - 1]) {
+          for (var j = i + 1; j < result.length; j++) {
+            if (result[j] !== result[i - 1]) {
+              var tmp = result[i]; result[i] = result[j]; result[j] = tmp;
+              break;
+            }
+          }
+        }
+      }
+      if (!hasAdjacentRepeat(result)) return result;
+      best = best || result;
+    }
+    return best;
+  }
+
+  // Real CIE exam weighting: Context is a minor bolt-on (typically a
+  // single 1-mark question at the end of an extract) rather than a full
+  // skill area on par with Melody/Texture/Harmony/Instrumentation/Rhythm
+  // — so it shouldn't get an equal share of round slots the way those five
+  // do among themselves. Represented as a weighted multiset ("deck")
+  // rather than a per-slot probability, so the existing shuffle-and-cycle
+  // machinery (guaranteed even coverage per cycle, no long unlucky
+  // droughts) keeps working unchanged — buildQueueFromAreas just cycles
+  // through this expanded list instead of the plain 6-item AREA_ORDER.
+  // 2:1 for the five main areas vs. Context lands Context at 1/11 ≈ 9% of
+  // all slots — a deliberate choice (not a bug), matching Context's real
+  // exam weighting rather than the other five's.
+  // Rebuilt fresh on every buildRoundQueue() call (below) rather than a
+  // load-time constant, so an area's slot share can respond to how the
+  // student is actually doing — not just sit at a fixed exam-weighting
+  // ratio forever regardless of a struggling area never catching up. Base
+  // weights are exactly the ones above (context=1, others=2) and still
+  // reflect the real CIE exam weighting; adaptiveBonus is added on top,
+  // driven by how far this area's own overall progress sits below the
+  // student's own average across all their areas — never a fixed target,
+  // so a student who's uniformly behind everywhere gets no bonus anywhere,
+  // only a RELATIVELY lagging area does — capped so no single area can
+  // crowd out the others' base share. Self-correcting: as a lagging area's
+  // progress rises toward the average, its gap (and bonus) shrinks back
+  // toward 0 on its own, no manual reset needed. A brand-new student has
+  // every area at 0% progress (gap = 0 everywhere), so their very first
+  // deck is byte-identical to the old fixed ratio — this only kicks in
+  // once there's real evidence of an imbalance to correct.
+  var ADAPTIVE_WEIGHT_BONUS_CAP = 2;
+  function areaTracksConcepts(areaKey) {
+    return AREA_TO_SOURCES[areaKey].some(function (sourceKey) { return !!Drivers[sourceKey].getSignature; });
+  }
+  function buildAreaCycleDeck() {
+    var progress = {};
+    var sum = 0;
+    AREA_ORDER.forEach(function (areaKey) {
+      var percentage = Store.getAreaOverallProgressPercentage(state.studentId, areaKey, areaTracksConcepts(areaKey));
+      progress[areaKey] = percentage;
+      sum += percentage;
+    });
+    var average = sum / AREA_ORDER.length;
+
+    var deck = [];
+    AREA_ORDER.forEach(function (areaKey) {
+      var baseWeight = areaKey === "context" ? 1 : 2;
+      var gap = Math.max(0, average - progress[areaKey]);
+      // 25 points is "one level" on Store's own progress scale (see
+      // getAreaOverallProgressPercentage) — reusing that unit rather than
+      // inventing a new arbitrary one.
+      var bonus = Math.min(ADAPTIVE_WEIGHT_BONUS_CAP, Math.round(gap / 25));
+      var weight = baseWeight + bonus;
+      for (var i = 0; i < weight; i++) deck.push(areaKey);
+    });
+    return deck;
+  }
+
   // Which source within an app group actually fills a slot when that
   // group's turn comes up — favours whichever of the group's sources sits
   // in the area currently flagged weakest (the "progress dependent" part),
   // else picks randomly so a multi-topic app like ScoreDecoder still varies
   // across rounds even with no data yet.
-  function pickSourceForGroup(groupKey) {
+  //
+  // `requiredAreaKey` (optional) constrains the choice to only that group's
+  // sources belonging to that one area — essential whenever a specific
+  // area's turn/focus is already decided (buildQueueFromAreas, and a
+  // focused round in buildRoundQueue), since some groups genuinely serve
+  // several areas at once (Musical Language's 4 topics span melody/
+  // texture/rhythm). Without this filter, "rhythm's turn" landing on that
+  // shared group could silently hand back a melody or texture question 3
+  // times out of 4 — which would both break area-fair round-building and
+  // mean a student who deliberately picks "Focus: Rhythm" could still get
+  // served melody/texture questions from that same shared app. Left
+  // undefined (the pre-existing call site in buildQueueFromGroups' generic
+  // form) it behaves exactly as before — any source in the group is fair
+  // game.
+  function pickSourceForGroup(groupKey, requiredAreaKey) {
     var sources = APP_GROUPS[groupKey];
+    if (requiredAreaKey) {
+      sources = sources.filter(function (sourceKey) { return Drivers[sourceKey].area === requiredAreaKey; });
+    }
     if (sources.length === 1) return sources[0];
+
+    // Exploration floor: weakestSourceInArea only ever trusts a source once
+    // it clears ADAPTIVE_MIN_QUESTIONS, so a sibling still below that bar
+    // can never be compared on percentage — without this check, the FIRST
+    // sibling to cross the bar becomes the group's only "reliable" source
+    // and so trivially wins "weakest" by elimination forever, permanently
+    // locking out any sibling that never gets picked again to earn its own
+    // sample (confirmed against real data: context-coach-composer reaching
+    // 5 questions before context-coach-period left period essentially
+    // unplayed for good). Forcing the least-sampled unproven sibling here
+    // is bounded and self-terminating — it only fires while at least one
+    // sibling is short of the bar, and never fires again once every
+    // sibling has cleared it, so it can't turn into a permanent forced
+    // 50/50 split once real performance data exists for both.
+    var cumulative = Store.getCumulativeStats(state.studentId, sources);
+    var unproven = sources.filter(function (sourceKey) { return cumulative[sourceKey].questions < ADAPTIVE_MIN_QUESTIONS; });
+    if (unproven.length) {
+      var minQuestions = Math.min.apply(null, unproven.map(function (sourceKey) { return cumulative[sourceKey].questions; }));
+      var leastSampled = unproven.filter(function (sourceKey) { return cumulative[sourceKey].questions === minQuestions; });
+      return leastSampled[Math.floor(Math.random() * leastSampled.length)];
+    }
 
     var candidate = null;
     var candidatePercentage = Infinity;
@@ -329,8 +558,12 @@
   // evenly into `length`, this pulls from as many distinct apps as possible
   // and only repeats one once every app has had a turn. Factored out of
   // buildRoundQueue so a "focus area" round (see below) can run the exact
-  // same logic over a narrowed-down set of groups.
-  function buildQueueFromGroups(groupKeys, length) {
+  // same logic over a narrowed-down set of groups. `requiredAreaKey`
+  // (optional) is threaded straight through to pickSourceForGroup — a
+  // focused round passes its one focus area here, so a shared group
+  // (Musical Language) drawn during a "Focus: Rhythm" round can only ever
+  // hand back rhythm's own topic (tempo), never melody's or texture's.
+  function buildQueueFromGroups(groupKeys, length, requiredAreaKey) {
     var queue = [];
     var lastGroupKey = null;
     var cycle = shuffle(groupKeys.slice());
@@ -348,8 +581,54 @@
         i = 0;
       }
       var groupKey = cycle[i];
-      queue.push(pickSourceForGroup(groupKey));
+      queue.push(pickSourceForGroup(groupKey, requiredAreaKey));
       lastGroupKey = groupKey;
+      i++;
+    }
+    return queue;
+  }
+
+  // Which of an area's own app groups fills a slot when that area's turn
+  // comes up in buildQueueFromAreas — picked uniformly among the area's
+  // groups (pickSourceForGroup already applies the adaptive weakest-source
+  // bias one level down, once a specific group's turn is chosen here).
+  function pickGroupForArea(areaKey) {
+    var groups = AREA_TO_GROUPS[areaKey];
+    return groups.length === 1 ? groups[0] : groups[Math.floor(Math.random() * groups.length)];
+  }
+
+  // Round-robin through a freshly-shuffled pass of `areaDeck` (normally
+  // buildAreaCycleDeck()'s output — see its own comment for why Context is
+  // deliberately under-weighted there, and appGroupKeysForArea/buildQueueFromGroups for
+  // the focused-round path, which stays a plain single-area cycle since
+  // area-fairness isn't a question when only one area is in play). Cycling
+  // by AREA first, then picking one of that area's own groups via
+  // pickGroupForArea, is what fixed areas served by only one app page
+  // (Context Coach, entirely on era-explorer) being structurally starved
+  // under the old pure group-level round-robin: Harmony has 3 app groups
+  // feeding it, Context has exactly 1, so cycling by raw group gave
+  // Harmony 3x Context's turn frequency by pure accident of how many pages
+  // happen to serve each area, regardless of whatever weighting was
+  // actually intended. Uses shuffleNoAdjacentRepeats rather than plain
+  // shuffle because a weighted deck can contain the same area twice.
+  function buildQueueFromAreas(areaDeck, length) {
+    var queue = [];
+    var lastAreaKey = null;
+    var cycle = shuffleNoAdjacentRepeats(areaDeck);
+    var i = 0;
+    while (queue.length < length) {
+      if (i >= cycle.length) {
+        var next = shuffleNoAdjacentRepeats(areaDeck);
+        if (lastAreaKey && next[0] === lastAreaKey && next.length > 1) {
+          var swapWith = 1 + Math.floor(Math.random() * (next.length - 1));
+          var tmp = next[0]; next[0] = next[swapWith]; next[swapWith] = tmp;
+        }
+        cycle = next;
+        i = 0;
+      }
+      var areaKey = cycle[i];
+      queue.push(pickSourceForGroup(pickGroupForArea(areaKey), areaKey));
+      lastAreaKey = areaKey;
       i++;
     }
     return queue;
@@ -379,12 +658,12 @@
 
     var queue;
     if (focusGroups && focusGroups.length) {
-      queue = buildQueueFromGroups(focusGroups, roundLength);
+      queue = buildQueueFromGroups(focusGroups, roundLength, focusAreaKey);
       for (var idx = FOCUS_BREADTH_INTERVAL - 1; idx < queue.length; idx += FOCUS_BREADTH_INTERVAL) {
-        queue[idx] = buildQueueFromGroups(APP_GROUP_KEYS, 1)[0];
+        queue[idx] = buildQueueFromAreas(buildAreaCycleDeck(), 1)[0];
       }
     } else {
-      queue = buildQueueFromGroups(APP_GROUP_KEYS, roundLength);
+      queue = buildQueueFromAreas(buildAreaCycleDeck(), roundLength);
     }
 
     // Reserve one slot for deliberate long-interval review once at least one
@@ -401,7 +680,7 @@
   }
 
   function startRound() {
-    if (!state.studentId) return;
+    if (!state.studentId || els.startRoundButton.disabled) return;
 
     var checkedCount = document.querySelector('input[name="pmQuestionCount"]:checked');
     roundLength = checkedCount ? parseInt(checkedCount.value, 10) : 10;
@@ -409,6 +688,7 @@
     state.queue = buildRoundQueue();
     state.position = 0;
     state.correctTotal = 0;
+    state.pendingReviews = [];
     // Both keyed by sourceKey, then by the level a question was actually
     // asked at (see currentSlotLevelIndex) — usually just one level per
     // source in a round, but a level-escalated retry mid-round can add a
@@ -438,10 +718,81 @@
     if (state.autoStartTimer) { clearInterval(state.autoStartTimer); state.autoStartTimer = null; }
   }
 
+  function rememberSlotSignature(signature) {
+    if (!signature) return;
+    var sourceKey = state.queue[state.position];
+    var SR = window.EchoAuralSpacedRepetition;
+    var seenKey = spacedRepKey(sourceKey);
+    var slotLevelKey = state.currentSlotLevelIndex;
+    if (SR) SR.markShown([signature], { key: seenKey, idOf: function (value) { return value; } });
+    state.currentSlotSignature = signature;
+    state.currentSlotRevealedAt = Date.now();
+    if (!state.perSourceSignatures[sourceKey][slotLevelKey]) state.perSourceSignatures[sourceKey][slotLevelKey] = [];
+    state.perSourceSignatures[sourceKey][slotLevelKey].push(signature);
+  }
+
+  function shouldRerollSignature(signature) {
+    if (!signature) return false;
+    var sourceKey = state.queue[state.position];
+    var SR = window.EchoAuralSpacedRepetition;
+    var seenKey = spacedRepKey(sourceKey);
+    var alreadySeen = SR ? SR.getSeenIds(seenKey).indexOf(signature) !== -1 : false;
+    var coolingDown = Store.isSignatureCoolingDown(state.studentId, sourceKey, signature);
+
+    if ((alreadySeen || coolingDown) && state.rerollsThisSlot < MAX_DUPLICATE_REROLLS) {
+      state.rerollsThisSlot += 1;
+      return true;
+    }
+    if (alreadySeen && SR) SR.resetCycle(seenKey);
+    return false;
+  }
+
+  function acceptContractQuestion(message) {
+    if (state.contractQuestionAccepted || state.slotResolved) return;
+    var payload = message.payload || {};
+    var signature = String(payload.signature || payload.id || "").trim() || null;
+    pauseFrameMedia(els.appFrame.contentDocument);
+    if (shouldRerollSignature(signature)) {
+      loadCurrentSlotFrame();
+      return;
+    }
+
+    clearTimers();
+    state.contractQuestionAccepted = true;
+    state.contractPendingQuestion = null;
+    rememberSlotSignature(signature);
+    revealQuestion();
+    resumeFrameMedia(els.appFrame.contentDocument);
+    // This is only a recovery guard. Normal completion arrives immediately
+    // from the app's answer-complete event rather than a DOM polling loop.
+    state.safetyTimer = setTimeout(function () { advanceSlot(false, true); }, 90000);
+  }
+
+  function handleContractMessage(event) {
+    if (event.origin !== window.location.origin || event.source !== els.appFrame.contentWindow) return;
+    var message = event.data || {};
+    if (message.namespace !== "echoaural-progress" || message.version !== 1) return;
+    if (message.slotId !== state.currentSlotId || message.sourceKey !== state.queue[state.position]) return;
+
+    if (message.type === "question-ready") {
+      if (!state.framePrepared) state.contractPendingQuestion = message;
+      else acceptContractQuestion(message);
+    } else if (message.type === "answer-complete" && state.contractQuestionAccepted) {
+      advanceSlot(Boolean(message.payload && message.payload.correct), false, message.payload);
+    } else if (message.type === "pool-empty" && !state.contractQuestionAccepted) {
+      retryAtHigherLevelOrSkip(Drivers[state.queue[state.position]], state.currentSlotLevelIndex);
+    }
+  }
+
+  window.addEventListener("message", handleContractMessage);
+
   function loadSlot() {
     state.rerollsThisSlot = 0;
     state.slotLevelOverride = null;
     state.currentSlotSignature = null;
+    state.currentSlotRevealedAt = null;
+    state.emptySlotReplacements = 0;
+    state.slotResolved = false;
     els.frameTransition.hidden = false;
     els.frameTransitionText.textContent = "Loading your next question…";
     loadCurrentSlotFrame();
@@ -525,6 +876,11 @@
       ? state.slotLevelOverride
       : Store.getAreaLevel(state.studentId, driver.area);
     state.currentSlotLevelIndex = levelIndex;
+    state.currentSlotId = String(state.studentId) + ":" + state.position + ":" + mmScoreGeneration;
+    state.contractQuestionAccepted = false;
+    state.contractPendingQuestion = null;
+    state.framePrepared = false;
+    state.slotResolved = false;
 
     var frame = els.appFrame;
     var loadGeneration = mmScoreGeneration;
@@ -535,15 +891,25 @@
       var doc = frame.contentDocument;
       if (!doc) return;
       window.EAProgressModeApplyFocusMode(doc);
+      state.framePrepared = true;
+      if (state.contractPendingQuestion) {
+        acceptContractQuestion(state.contractPendingQuestion);
+        return;
+      }
       if (driver.autoStarts) {
         waitForAutoStartedQuestion(doc, driver);
       } else {
         waitForReady(doc, driver, levelIndex);
       }
     };
-    frame.src = driver.buildUrl
-      ? driver.buildUrl(levelIndex) + "&_pm=" + Date.now()
-      : driver.path + "?_pm=" + Date.now();
+    var baseUrl = driver.buildUrl ? driver.buildUrl(levelIndex) : driver.path;
+    var separator = baseUrl.indexOf("?") === -1 ? "?" : "&";
+    frame.src = baseUrl + separator + new URLSearchParams({
+      _pm: Date.now(),
+      eaProgressHost: "1",
+      eaProgressSlot: state.currentSlotId,
+      eaProgressSource: sourceKey
+    }).toString();
   }
 
   function waitForReady(doc, driver, levelIndex) {
@@ -565,7 +931,7 @@
         if (attempts > 120) {
           clearInterval(state.readyTimer);
           state.readyTimer = null;
-          advanceSlot(false, true);
+          replaceCurrentSlotAndRetry(state.queue[state.position]);
         }
         return;
       }
@@ -593,7 +959,7 @@
       } else if (attempts > 120) {
         clearInterval(state.readyTimer);
         state.readyTimer = null;
-        advanceSlot(false, true);
+        replaceCurrentSlotAndRetry(state.queue[state.position]);
       }
     }, 50);
   }
@@ -659,13 +1025,59 @@
     }, 50);
   }
 
+  // Swaps the current slot's source for a different one and retries the
+  // SAME position, rather than accepting a skip that never showed the
+  // student a question at all. Called only from the three failure points
+  // that can be reached before revealQuestion() ever runs for this slot
+  // (waitForReady's two bail branches, waitForAutoStartedQuestion's bail,
+  // and retryAtHigherLevelOrSkip's final give-up once every level has been
+  // tried) — i.e. exactly the cases where "give up" would otherwise consume
+  // one of the round's N slots without ever giving the student a real
+  // question. This is what makes "a round always has exactly N questions"
+  // true in practice, not just in the initially-built queue: a 10-question
+  // round always ends with 10 questions actually SHOWN, even if one or two
+  // sources along the way turned out to have nothing available. The
+  // post-reveal skip paths in beginAnsweredPolling (signature mismatch, 90s
+  // safety timeout) are deliberately left alone — a question WAS already
+  // shown there, so that slot has already delivered on the "N questions
+  // given" promise even though it isn't scored.
+  //
+  // Capped at MAX_EMPTY_SLOT_REPLACEMENTS per slot so a catastrophically
+  // broken app roster can't hang a round forever — past the cap this falls
+  // back to a genuine skip, same as the old behaviour, rather than looping.
+  var MAX_EMPTY_SLOT_REPLACEMENTS = 4;
+
+  function replaceCurrentSlotAndRetry(excludeSourceKey) {
+    state.emptySlotReplacements = (state.emptySlotReplacements || 0) + 1;
+    if (state.emptySlotReplacements > MAX_EMPTY_SLOT_REPLACEMENTS) {
+      advanceSlot(false, true);
+      return;
+    }
+
+    var focusAreaKey = getFocusAreaKey();
+    var candidateGroupKeys = focusAreaKey ? appGroupKeysForArea(focusAreaKey) : APP_GROUP_KEYS;
+    if (!candidateGroupKeys.length) candidateGroupKeys = APP_GROUP_KEYS;
+
+    var replacement = null;
+    for (var attempt = 0; attempt < 8 && !replacement; attempt++) {
+      var candidate = buildQueueFromGroups(candidateGroupKeys, 1)[0];
+      if (candidate !== excludeSourceKey) replacement = candidate;
+    }
+    if (!replacement) replacement = buildQueueFromGroups(APP_GROUP_KEYS, 1)[0];
+
+    state.queue[state.position] = replacement;
+    state.slotLevelOverride = null;
+    loadCurrentSlotFrame();
+  }
+
   // An empty pool at this level doesn't mean the source has nothing for
   // this student — content only ever gets richer at higher levels, never
   // sparser (a topic can be locked UNTIL a level, never locked ABOVE one).
   // So rather than abandon the slot to a completely different app, retry
   // the same source one level up, escalating as far as Mastering before
-  // finally giving up and moving on. An escalated question is answered at a
-  // higher level than the area's own current level, and its result is
+  // finally handing off to a different source entirely (see
+  // replaceCurrentSlotAndRetry above). An escalated question is answered at
+  // a higher level than the area's own current level, and its result is
   // banked at THAT higher level (see currentSlotLevelIndex / Store.
   // recordSourceResult's levelIndex param) — never counted toward the
   // area's current-level pass bar, so a harder escalated question can never
@@ -677,7 +1089,7 @@
       state.slotLevelOverride = failedLevelIndex + 1;
       loadCurrentSlotFrame();
     } else {
-      advanceSlot(false, true);
+      replaceCurrentSlotAndRetry(state.queue[state.position]);
     }
   }
 
@@ -706,7 +1118,7 @@
       } else if (attempts > 120) {
         clearInterval(state.autoStartTimer);
         state.autoStartTimer = null;
-        advanceSlot(false, true);
+        replaceCurrentSlotAndRetry(state.queue[state.position]);
       }
     }, 50);
   }
@@ -725,7 +1137,7 @@
   // just earlier in this round, but in any past round too, so "cycle
   // through all available questions before repeating" holds across
   // sessions, not just within one — OR if it's a previously-missed question
-  // still within its retry cooldown (Store.isMissCoolingDown). Caps at
+  // still within its scheduled cooldown (Store.isSignatureCoolingDown). Caps at
   // MAX_DUPLICATE_REROLLS; if every reroll still lands on something to
   // avoid, either the pool is fully cycled (reset it) or the cooldown just
   // hasn't cleared yet (left alone — it'll clear on its own schedule), and
@@ -740,29 +1152,11 @@
     var signature = null;
     try { signature = driver.getSignature ? driver.getSignature(doc) : null; } catch (err) { signature = null; }
 
-    var sourceKey = state.queue[state.position];
-    var SR = window.EchoAuralSpacedRepetition;
-    var seenKey = spacedRepKey(sourceKey);
-
-    if (signature) {
-      var alreadySeen = SR ? SR.getSeenIds(seenKey).indexOf(signature) !== -1 : false;
-      var coolingDown = Store.isMissCoolingDown(state.studentId, sourceKey, signature);
-
-      if ((alreadySeen || coolingDown) && state.rerollsThisSlot < MAX_DUPLICATE_REROLLS) {
-        state.rerollsThisSlot++;
-        loadCurrentSlotFrame();
-        return;
-      }
-      if (alreadySeen && SR) SR.resetCycle(seenKey);
-      if (SR) SR.markShown([signature], { key: seenKey, idOf: function (s) { return s; } });
+    if (shouldRerollSignature(signature)) {
+      loadCurrentSlotFrame();
+      return;
     }
-
-    if (signature) {
-      state.currentSlotSignature = signature;
-      var slotLevelKey = state.currentSlotLevelIndex;
-      if (!state.perSourceSignatures[sourceKey][slotLevelKey]) state.perSourceSignatures[sourceKey][slotLevelKey] = [];
-      state.perSourceSignatures[sourceKey][slotLevelKey].push(signature);
-    }
+    rememberSlotSignature(signature);
     revealQuestion();
     resumeFrameMedia(doc);
     beginAnsweredPolling(doc, driver);
@@ -845,11 +1239,32 @@
     }, 90000);
   }
 
-  function advanceSlot(wasCorrect, wasSkipped) {
+  function advanceSlot(wasCorrect, wasSkipped, payload) {
+    if (state.slotResolved) return;
+    state.slotResolved = true;
     clearTimers();
     var sourceKey = state.queue[state.position];
 
     if (!wasSkipped) {
+      // Concept-level evidence (e.g. chord-identifier's inversion/extension
+      // tier), when the app proactively reported it in its answer-complete
+      // payload — the DOM-polling fallback path (beginAnsweredPolling) has
+      // no payload at all, so this is simply skipped there, same as it
+      // already skips score/feedback capture today. Guarded defensively:
+      // an app not yet sending concept fields, or a sourceKey with no
+      // PM_REGISTRY entry or no configured extractor, just yields an empty
+      // array and records nothing — never blocks the round from advancing.
+      try {
+        var conceptModuleId = window.EchoAuralPMRegistry && window.EchoAuralPMRegistry.get(sourceKey) && window.EchoAuralPMRegistry.get(sourceKey).moduleId;
+        var conceptValues = (conceptModuleId && payload && window.EchoAuralConceptExtractors)
+          ? window.EchoAuralConceptExtractors.extractConceptValues(conceptModuleId, payload)
+          : [];
+        if (conceptValues.length) {
+          Store.recordConceptOutcome(state.studentId, conceptModuleId, conceptValues, wasCorrect);
+        }
+      } catch (err) {
+        /* never let concept-capture break round advancement */
+      }
       var slotLevelKey = state.currentSlotLevelIndex;
       if (!state.perSourceTally[sourceKey][slotLevelKey]) state.perSourceTally[sourceKey][slotLevelKey] = { correct: 0, total: 0 };
       state.perSourceTally[sourceKey][slotLevelKey].total += 1;
@@ -858,8 +1273,33 @@
         state.correctTotal += 1;
       }
       if (state.currentSlotSignature) {
-        Store.recordQuestionOutcome(state.studentId, sourceKey, state.currentSlotSignature, wasCorrect);
+        var responseTimeMs = typeof state.currentSlotRevealedAt === "number"
+          ? Date.now() - state.currentSlotRevealedAt
+          : null;
+        var reviewResult = Store.recordQuestionOutcome(
+          state.studentId, sourceKey, state.currentSlotSignature, wasCorrect, responseTimeMs
+        );
+        if (reviewResult) {
+          state.pendingReviews.push({
+            clientReviewId: createClientReviewId(),
+            sourceKey: sourceKey,
+            questionSignature: state.currentSlotSignature,
+            correct: Boolean(wasCorrect),
+            levelIndex: state.currentSlotLevelIndex || 0,
+            easeFactor: reviewResult.easeFactor,
+            intervalDraws: reviewResult.intervalDraws,
+            repetitions: reviewResult.repetitions,
+            responseTimeMs: reviewResult.responseTimeMs,
+            completedAt: reviewResult.completedAt
+          });
+        }
       }
+      // Sibling of the recordQuestionOutcome call above, not nested inside
+      // its signature check — the correct-answer streak only needs
+      // wasCorrect, not a signature (some drivers can't fingerprint
+      // questions at all, and the streak should still count for those).
+      Store.recordStreakOutcome(state.studentId, wasCorrect);
+      updateStreakChipLive();
     }
 
     state.position += 1;
@@ -884,6 +1324,7 @@
     var roundAreaStats = {};
     AREA_ORDER.forEach(function (areaKey) { roundAreaStats[areaKey] = { correct: 0, total: 0 }; });
     var leveledUpAreas = [];
+    var sourcesPlayedThisRound = [];
 
     SOURCE_ORDER.forEach(function (sourceKey) {
       var driver = Drivers[sourceKey];
@@ -899,14 +1340,31 @@
           );
           roundAreaStats[driver.area].correct += tally.correct;
           roundAreaStats[driver.area].total += tally.total;
+          if (sourcesPlayedThisRound.indexOf(sourceKey) === -1) sourcesPlayedThisRound.push(sourceKey);
           if (result && result.advanced && leveledUpAreas.indexOf(driver.area) === -1) {
             leveledUpAreas.push(driver.area);
           }
         }
       });
     });
-    Store.recordRoundComplete(state.studentId);
+
+    var roundTotalCorrect = 0;
+    var roundTotalQuestions = 0;
+    AREA_ORDER.forEach(function (areaKey) {
+      roundTotalCorrect += roundAreaStats[areaKey].correct;
+      roundTotalQuestions += roundAreaStats[areaKey].total;
+    });
+    var roundPercentage = roundTotalQuestions > 0 ? Math.round((roundTotalCorrect / roundTotalQuestions) * 100) : null;
+
+    Store.recordRoundComplete(state.studentId, roundPercentage === null ? undefined : roundPercentage);
+    // Read fresh, AFTER recordRoundComplete, so the daily-streak number the
+    // popup celebrates reflects today's round (recordRoundComplete is what
+    // actually advances it) — the correct-answer streak was already kept
+    // current throughout via advanceSlot's own recordStreakOutcome calls.
+    var streakSnapshot = Store.getStreakSnapshot(state.studentId);
     postProgressSummaryBestEffort();
+    postStateToServer();
+    postReviewsToServer();
 
     // Hiding roundActiveWrap only hides the iframe visually — it doesn't
     // stop anything still playing inside it (the final question's audio
@@ -920,7 +1378,148 @@
     els.readyState.hidden = false;
 
     renderSummary();
-    showRoundCompletePopup(roundAreaStats, leveledUpAreas);
+    showRoundCompletePopup(roundAreaStats, leveledUpAreas, streakSnapshot, sourcesPlayedThisRound);
+  }
+
+  // ---------- Server-sync (spaced-repetition continuity across devices) ----------
+  //
+  // A SEPARATE, purely internal mechanism from postProgressSummaryBestEffort
+  // below. Three independent pieces:
+  // - Per-area level/level-progress, via accounts/account-server.js's
+  //   /api/student/progress-mode-state (merge-on-sync, unchanged).
+  // - Per-question scheduling, via the new
+  //   /api/student/progress-mode-reviews — an append-only log of answered
+  //   questions (db/progress-mode-reviews-schema.sql), each event already
+  //   carrying its own resulting ease/interval/repetitions, so merging is
+  //   just "keep whichever of local/incoming is newer, per signature" (see
+  //   Store.applyIncomingReviews). SR "seen this cycle" continuity is
+  //   derived straight from the fetched reviews themselves (every
+  //   sourceKey/questionSignature pair in the log has, by definition, been
+  //   seen) rather than synced as a separate field.
+  // - Cumulative per-source correct/questions, via
+  //   /api/student/progress-mode-summary (the same table a teacher's
+  //   dashboard reads, now also read back here — see
+  //   Store.mergeIncomingSummary), so level-advancement and adaptive
+  //   next-round weighting don't reset to zero on a new device.
+  //
+  // localStorage remains authoritative for gameplay throughout; all three
+  // are synced at the two natural checkpoints: once on identity resolution
+  // (GET + merge, gating round-start so a round can never begin on stale
+  // pre-merge data) and once per finished round (POST, right alongside the
+  // existing summary mirror).
+  function syncStateFromServer() {
+    els.startRoundButton.disabled = true;
+    var settled = false;
+    function finish() {
+      if (settled) return;
+      settled = true;
+      els.startRoundButton.disabled = false;
+    }
+    // Never let a slow/failed sync leave Progress Mode unusable — same
+    // best-effort philosophy as postProgressSummaryBestEffort below.
+    setTimeout(finish, 4000);
+
+    try {
+      Promise.all([
+        fetch("/api/student/progress-mode-state", { credentials: "same-origin" })
+          .then(function (response) { return response.ok ? response.json() : null; })
+          .catch(function () { return null; }),
+        fetch("/api/student/progress-mode-reviews", { credentials: "same-origin" })
+          .then(function (response) { return response.ok ? response.json() : null; })
+          .catch(function () { return null; }),
+        fetch("/api/student/progress-mode-summary", { credentials: "same-origin" })
+          .then(function (response) { return response.ok ? response.json() : null; })
+          .catch(function () { return null; })
+      ])
+        .then(function (results) {
+          var statePayload = results[0];
+          var reviewsPayload = results[1];
+          var summaryPayload = results[2];
+          var SR = window.EchoAuralSpacedRepetition;
+
+          if (statePayload && statePayload.ok) {
+            var areas = statePayload.areas || {};
+            Object.keys(areas).forEach(function (areaKey) {
+              Store.mergeIncomingAreaState(state.studentId, areaKey, areas[areaKey]);
+            });
+          }
+
+          if (summaryPayload && summaryPayload.ok) {
+            Store.mergeIncomingSummary(state.studentId, summaryPayload);
+          }
+
+          if (reviewsPayload && reviewsPayload.ok && Array.isArray(reviewsPayload.reviews) && reviewsPayload.reviews.length) {
+            Store.applyIncomingReviews(state.studentId, reviewsPayload.reviews);
+            if (SR) {
+              var seenBySource = {};
+              reviewsPayload.reviews.forEach(function (review) {
+                if (!review || !review.sourceKey || !review.questionSignature) return;
+                if (!seenBySource[review.sourceKey]) seenBySource[review.sourceKey] = [];
+                seenBySource[review.sourceKey].push(review.questionSignature);
+              });
+              Object.keys(seenBySource).forEach(function (sourceKey) {
+                var seenKey = spacedRepKey(sourceKey);
+                SR.setSeenIds(seenKey, SR.getSeenIds(seenKey).concat(seenBySource[sourceKey]));
+              });
+            }
+          }
+
+          renderDashboard();
+        })
+        .then(finish);
+    } catch (err) {
+      finish();
+    }
+  }
+
+  // Fire-and-forget mirror of this round's per-area level state to the
+  // server. Never awaited, any failure is silently ignored — same
+  // rationale as postProgressSummaryBestEffort below: localStorage already
+  // has this round's outcome regardless of whether this POST succeeds.
+  function postStateToServer() {
+    try {
+      var areas = {};
+      AREA_ORDER.forEach(function (areaKey) {
+        areas[areaKey] = Store.getAreaSyncState(state.studentId, areaKey);
+      });
+
+      fetch("/api/student/progress-mode-state", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ areas: areas })
+      }).catch(function () { /* offline or no session — ignored on purpose */ });
+    } catch (err) {
+      /* never let a sync-side failure here break finishing the round */
+    }
+  }
+
+  function createClientReviewId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return "pm-review-" + window.crypto.randomUUID();
+    }
+    return "pm-review-" + Date.now() + "-" + Math.random().toString(36).slice(2, 12);
+  }
+
+  // Fire-and-forget batch POST of this round's answered-question events
+  // (collected in state.pendingReviews by advanceSlot) to the append-only
+  // review log — read back by syncStateFromServer above on a future
+  // device. Each event's clientReviewId makes the insert idempotent
+  // server-side, so a retried/duplicate POST is harmless. Never awaited;
+  // localStorage already has every one of these outcomes regardless of
+  // whether this POST succeeds.
+  function postReviewsToServer() {
+    try {
+      if (!state.pendingReviews.length) return;
+      fetch("/api/student/progress-mode-reviews", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews: state.pendingReviews })
+      }).catch(function () { /* offline or no session — ignored on purpose */ });
+    } catch (err) {
+      /* never let a sync-side failure here break finishing the round */
+    }
   }
 
   // Best-effort mirror of this round's result to the server, so a teacher
@@ -958,6 +1557,18 @@
         };
       });
 
+      var sources = SOURCE_ORDER.map(function (sourceKey) {
+        var driver = Drivers[sourceKey] || {};
+        var sourceStats = cumulative[sourceKey] || { correct: 0, questions: 0 };
+        return {
+          sourceKey: sourceKey,
+          areaKey: driver.area || "",
+          label: driver.label || sourceKey,
+          correct: sourceStats.correct,
+          questions: sourceStats.questions
+        };
+      });
+
       fetch("/api/student/progress-mode-summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -966,7 +1577,8 @@
           roundsCompleted: snapshot.roundsCompleted,
           totalCorrect: totalCorrect,
           totalQuestions: totalQuestions,
-          areas: areas
+          areas: areas,
+          sources: sources
         })
       }).catch(function () { /* offline or no session — ignored on purpose */ });
     } catch (err) {
@@ -1047,8 +1659,99 @@
     return sentence;
   }
 
-  function renderRoundCompletePanel(roundAreaStats, leveledUpAreas) {
+  // Cumulative, phrase-bank-driven coaching — deliberately separate from
+  // buildRoundFeedbackText above, which only ever looks at this one round.
+  // This looks at all-time evidence for whichever sources were actually
+  // played this round, via feedback.js's own builders (the same
+  // concept-first-then-source fallback chain account/student-home/
+  // student-home.js already uses), so a student sees a real, specific
+  // coaching sentence — not just a percentage — as soon as a source or
+  // concept clears feedback.js's own EARLY_SIGNAL_MIN_QUESTIONS bar (3),
+  // not just PM's own multi-question rounds. Picks the single lowest-
+  // percentage source among those played, mirroring buildRoundFeedbackText's
+  // own "worst" logic one level more specific. Returns "" (nothing shown)
+  // whenever every source played this round is still below that bar, or
+  // feedback.js failed to load for any reason — never a forced or
+  // placeholder-feeling tile.
+  function buildCoachingFeedbackText(sourcesPlayedThisRound) {
+    var Feedback = window.EAProgressModeFeedback;
+    if (!Feedback) return "";
+    var best = null;
+    var bestPercentage = Infinity;
+    sourcesPlayedThisRound.forEach(function (sourceKey) {
+      var driver = Drivers[sourceKey];
+      var cumulative = Store.getCumulativeStats(state.studentId, [sourceKey])[sourceKey];
+      var registryEntry = window.EchoAuralPMRegistry && window.EchoAuralPMRegistry.get(sourceKey);
+      var moduleId = registryEntry && registryEntry.moduleId;
+      var text = (driver.getSignature && moduleId)
+        ? Feedback.buildConceptFeedback(moduleId, Store.getConceptStats(state.studentId, moduleId))
+        : null;
+      text = text || Feedback.buildSourceFeedback(sourceKey, cumulative.correct, cumulative.questions);
+      if (!text || /complete a few more/i.test(text)) return;
+      if (cumulative.percentage !== null && cumulative.percentage < bestPercentage) {
+        bestPercentage = cumulative.percentage;
+        best = text;
+      }
+    });
+    return best || "";
+  }
+
+  // Level-up badge (Phase 2 gamification, mechanic #5 in the plan) — a
+  // visually distinct celebration ALONGSIDE the existing inline "🎉 You've
+  // moved up a level…" sentence in buildRoundFeedbackText below, not a
+  // replacement for it. Deliberately the lowest-risk gamification surface:
+  // leveledUpAreas can only be non-empty once Store.recordSourceResult's
+  // existing volume/accuracy/variety/floor gates have already cleared, so
+  // this badge is downstream of anti-guessing checks that were already
+  // there — it adds no new incentive of its own.
+  function renderLevelUpBadgeHTML(leveledUpAreas) {
+    if (!leveledUpAreas.length) return "";
+    var body;
+    if (leveledUpAreas.length === 1) {
+      var areaKey = leveledUpAreas[0];
+      var newLevelLabel = Store.LEVEL_LABELS[Store.getAreaLevel(state.studentId, areaKey)];
+      body = "<strong>" + escapeHtml(AREA_LABELS[areaKey]) + "</strong> is now <strong>" + escapeHtml(newLevelLabel) + "</strong>";
+    } else {
+      var labels = leveledUpAreas.map(function (key) { return "<strong>" + escapeHtml(AREA_LABELS[key]) + "</strong>"; });
+      body = joinList(labels) + " moved up a level";
+    }
+    return (
+      "<div class=\"pm-levelup-badge\">" +
+      "<span class=\"pm-levelup-badge-icon\" aria-hidden=\"true\">🎉</span>" +
+      "<span class=\"pm-levelup-badge-text\">Level up! " + body + "</span>" +
+      "</div>"
+    );
+  }
+
+  // Streak milestone line(s) — only shown for a run genuinely worth
+  // celebrating (not every single correct answer or every single day),
+  // and always positively framed: a broken streak simply shows nothing
+  // here rather than a loss-framed message, per the gamification plan's
+  // explicit "framing over punishment" rule.
+  var CORRECT_STREAK_MILESTONE_MIN = 3;
+  var DAILY_STREAK_MILESTONE_MIN = 2;
+
+  function renderStreakMilestoneHTML(streakSnapshot) {
+    if (!streakSnapshot) return "";
+    var lines = "";
+    if (streakSnapshot.correctCurrent >= CORRECT_STREAK_MILESTONE_MIN) {
+      lines += "<div class=\"pm-milestone-line\"><img class=\"pm-milestone-icon\" src=\"../../assets/icons/progress-mode/streak.png\" alt=\"\">" + streakSnapshot.correctCurrent + " correct in a row!</div>";
+    }
+    if (streakSnapshot.dailyCurrent >= DAILY_STREAK_MILESTONE_MIN) {
+      lines += "<div class=\"pm-milestone-line\"><img class=\"pm-milestone-icon\" src=\"../../assets/icons/progress-mode/daily-streak.png\" alt=\"\">" + streakSnapshot.dailyCurrent + "-day streak — nice consistency!</div>";
+    }
+    return lines;
+  }
+
+  function renderRoundCompletePanel(roundAreaStats, leveledUpAreas, streakSnapshot, sourcesPlayedThisRound) {
     var percentage = roundLength ? Math.round((state.correctTotal / roundLength) * 100) : 0;
+    var coachingText = buildCoachingFeedbackText(sourcesPlayedThisRound || []);
+    var coachingTileHTML = coachingText
+      ? "<div class=\"diagnostic-card diagnostic-feedback-tile mm-compiled-feedback-tile\">" +
+        "<span>Coaching tip</span>" +
+        "<strong>" + escapeHtml(coachingText) + "</strong>" +
+        "</div>"
+      : "";
 
     var areaRows = AREA_ORDER.map(function (areaKey) {
       var stat = roundAreaStats[areaKey];
@@ -1071,6 +1774,8 @@
       "<strong>" + state.correctTotal + "/" + roundLength + "</strong>" +
       "<small>" + percentage + "% correct</small>" +
       "</div>" +
+      renderLevelUpBadgeHTML(leveledUpAreas) +
+      renderStreakMilestoneHTML(streakSnapshot) +
       "<div class=\"pm-element-chart-block\">" +
       "<h3>Coverage this round</h3>" +
       "<p class=\"pm-element-chart-sub\">Marks earned out of marks attempted, by area — just this round.</p>" +
@@ -1080,6 +1785,7 @@
       "<span>Feedback</span>" +
       "<strong>" + escapeHtml(buildRoundFeedbackText(roundAreaStats, leveledUpAreas)) + "</strong>" +
       "</div>" +
+      coachingTileHTML +
       "<button id=\"roundCompleteContinueButton\" class=\"primary-button mm-final-finish-button\" type=\"button\">Continue</button>" +
       "</div>"
     );
@@ -1097,7 +1803,7 @@
     }
   }
 
-  function showRoundCompletePopup(roundAreaStats, leveledUpAreas) {
+  function showRoundCompletePopup(roundAreaStats, leveledUpAreas, streakSnapshot, sourcesPlayedThisRound) {
     closeRoundCompletePopup();
     document.body.classList.add("ii-round-review-open");
     document.querySelector(".app-shell")?.classList.add("is-round-feedback-open");
@@ -1108,7 +1814,7 @@
     roundCompleteOverlay.setAttribute("role", "dialog");
     roundCompleteOverlay.setAttribute("aria-modal", "true");
     roundCompleteOverlay.setAttribute("aria-label", "Progress Mode round feedback");
-    roundCompleteOverlay.innerHTML = renderRoundCompletePanel(roundAreaStats, leveledUpAreas);
+    roundCompleteOverlay.innerHTML = renderRoundCompletePanel(roundAreaStats, leveledUpAreas, streakSnapshot, sourcesPlayedThisRound);
     document.body.appendChild(roundCompleteOverlay);
 
     document.getElementById("roundCompleteContinueButton").addEventListener("click", closeRoundCompletePopup);
@@ -1141,10 +1847,46 @@
     }
   });
 
+  // Pre-selects the focus-area/question-count pills from URL params (see
+  // account/student-home/student-home.js's focusRoundHref, which the
+  // dashboard's "Start Focus Round"/"Start recommended round" buttons
+  // build) so a student arriving that way lands here with their weakest
+  // area and a 10-question round already queued up — one click (Start
+  // Progressing) away, instead of having to open Advanced Settings and
+  // pick it manually. Deliberately still requires that click rather than
+  // auto-starting: matches how every other launch into this page already
+  // works, and opening the settings popover here lets the student actually
+  // see what got pre-selected before committing to it.
+  function applyLaunchFocusParams(launchParams) {
+    var focusArea = launchParams.get("focusArea");
+    var appliedFocusArea = false;
+    if (focusArea && AREA_ORDER.indexOf(focusArea) !== -1) {
+      var areaRadio = document.querySelector('input[name="pmFocusArea"][value="' + focusArea + '"]');
+      if (areaRadio) {
+        areaRadio.checked = true;
+        appliedFocusArea = true;
+      }
+    }
+
+    var questions = launchParams.get("questions");
+    var appliedQuestions = false;
+    if (questions) {
+      var countRadio = document.querySelector('input[name="pmQuestionCount"][value="' + questions + '"]');
+      if (countRadio) {
+        countRadio.checked = true;
+        appliedQuestions = true;
+      }
+    }
+
+    if (appliedFocusArea || appliedQuestions) setAdvancedSettingsOpen(true);
+  }
+
   // ---------- Init ----------
 
   (function init() {
     var launchParams = new URLSearchParams(window.location.search);
+    applyLaunchFocusParams(launchParams);
+
     var launchStudentId = launchParams.get("studentId");
     if (launchStudentId) {
       setIdentity(launchStudentId, launchParams.get("studentName") || launchStudentId);

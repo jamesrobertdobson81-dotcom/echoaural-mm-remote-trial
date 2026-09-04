@@ -47,6 +47,15 @@
   var FLOOR_MIN_QUESTIONS = 8;
   var FLOOR_THRESHOLD = 60;
 
+  // Weekly rounds goal (Phase 2 of the gamification plan) — a rolling
+  // 7-day window ending now, not a Monday-start calendar week, so the goal
+  // always reads "rounds in your last 7 days" regardless of what day a
+  // student happens to check it. Rewards consistency of practice, not
+  // performance: guessing fast doesn't finish a round any faster or more
+  // than once, so this stays un-gameable the same way the daily streak is.
+  var WEEKLY_ROUNDS_GOAL = 5;
+  var ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
   function readAll() {
     try {
       var raw = global.localStorage.getItem(STORAGE_KEY);
@@ -65,7 +74,60 @@
   }
 
   function defaultProfile() {
-    return { sources: {}, areas: {}, roundsCompleted: 0, createdAt: Date.now() };
+    return { sources: {}, areas: {}, conceptStats: {}, roundsCompleted: 0, createdAt: Date.now(), streaks: defaultStreakState(), roundHistory: [], questionHistory: [] };
+  }
+
+  // Gamification state — a sibling of sources/areas, never read by either.
+  // See store.js's own module header discussion in the gamification plan:
+  // this key must never be passed into recordSourceResult/buildRoundQueue,
+  // so a streak can never influence which question is asked or whether a
+  // level advances. correctCurrent/correctBest track consecutive correct
+  // answers (any source, any area — a genuine "current streak", not a
+  // per-round counter). dailyCurrent/dailyBest track consecutive CALENDAR
+  // DAYS on which at least one round was completed (gated on completion
+  // only, never accuracy — see recordRoundComplete). roundLog is a capped
+  // history of round-completion timestamps, kept for a future "rounds this
+  // week" readout (not used by anything in Phase 1 yet).
+  function defaultStreakState() {
+    return {
+      correctCurrent: 0,
+      correctBest: 0,
+      dailyCurrent: 0,
+      dailyBest: 0,
+      lastPlayedDateKey: null,
+      roundLog: []
+    };
+  }
+
+  var MAX_ROUND_LOG = 60;
+  var MAX_ROUND_HISTORY = 20;
+  var MAX_QUESTION_HISTORY = 2000;
+
+  function pad2(n) {
+    return n < 10 ? "0" + n : String(n);
+  }
+
+  // Local-calendar-day key ("YYYY-MM-DD"), not a UTC one — a student playing
+  // late at night should have "today" match their own clock, not UTC's.
+  function dateKeyFromTimestamp(ts) {
+    var d = new Date(ts);
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+
+  // Whole-day difference between two "YYYY-MM-DD" keys, via local midnights
+  // (not raw timestamp subtraction) so a DST transition can't shift the
+  // count by an hour and misjudge same-day/next-day/gap.
+  function daysBetweenDateKeys(fromKey, toKey) {
+    var a = fromKey.split("-").map(Number);
+    var b = toKey.split("-").map(Number);
+    var da = new Date(a[0], a[1] - 1, a[2]);
+    var db = new Date(b[0], b[1] - 1, b[2]);
+    return Math.round((db - da) / 86400000);
+  }
+
+  function getStreakState(profile) {
+    if (!profile.streaks) profile.streaks = defaultStreakState();
+    return profile.streaks;
   }
 
   function defaultSourceState() {
@@ -77,47 +139,86 @@
       cumulativeCorrect: 0,
       cumulativeQuestions: 0,
       // How many questions have been drawn from this source, ever — the
-      // clock a missed question's cooldown counts down against (see
-      // recordQuestionOutcome/isMissCoolingDown). Rounds, not real time:
-      // "a reasonable spaced interval in the deck" is naturally a deck
-      // position here, not a calendar one.
+      // clock a signature's cooldown counts down against (see
+      // recordQuestionOutcome/isSignatureCoolingDown). Rounds, not real
+      // time: "a reasonable spaced interval in the deck" is naturally a
+      // deck position here, not a calendar one. Deliberately per-DEVICE
+      // (each device increments its own copy), not synced — see
+      // applyIncomingReviews's comment on why an incoming intervalDraws is
+      // re-anchored to this device's own drawCount on merge, not carried
+      // over as an absolute value from another device's clock.
       drawCount: 0,
       // When this source last actually showed a question to the student
       // (Date.now(), stamped in recordQuestionOutcome) — null if never.
       // Used by getReviewCandidate to find the most-overdue-for-review
       // source once its area has reached Mastering; unrelated to drawCount/
-      // the missed-question cooldown above.
+      // the per-signature cooldown above.
       lastDrawnAt: null,
-      // Questions answered wrong, not yet answered correctly again:
-      // [{ signature, missCount, dueAtDraw }]. A signature reappearing
-      // before drawCount reaches dueAtDraw is actively avoided (like an
-      // already-seen question); once due, it's simply no longer avoided —
-      // Progress Mode can't force the embedded app to show a specific
-      // question, only accept/reject whichever one it produces, so this
-      // raises the odds of a timely resurface rather than guaranteeing one.
-      missedQueue: []
+      // Per-question-signature scheduling state, SM-2-adapted: { [signature]:
+      // { easeFactor, repetitions, intervalDraws, dueAtDraw, dueAtTime,
+      // lastReviewedAt } }. Every signature ever answered gets an entry
+      // (not just missed ones, unlike the old fixed-Leitner missedQueue this
+      // replaced) — see computeNextSchedule/recordQuestionOutcome. Also the
+      // server-sync unit here (see accounts/account-server.js's
+      // /api/student/progress-mode-reviews and applyIncomingReviews below):
+      // each answered question is separately POSTed as an immutable review
+      // event, and this map is simply the locally-cached "most recent
+      // review per signature" — the same relationship Anki's `cards` table
+      // has to its `revlog`.
+      schedule: {},
+      // Stamped (Date.now()) at every write below — informational only now
+      // (no longer compared by a merge function; that per-source merge was
+      // replaced by the per-signature applyIncomingReviews below), kept for
+      // any future need to know "when did this source's aggregate stats
+      // last change locally."
+      updatedAt: null
     };
   }
 
-  // Draws-to-wait before a missed question is eligible again, indexed by
-  // (missCount - 1) and held at the last value beyond that — missing the
-  // same question repeatedly backs off further each time, same idea as a
-  // Leitner box. Draw-count alone collapses to almost no real spacing if a
-  // student grinds several rounds back-to-back in one sitting (that source
-  // could easily be drawn 8 times within 20-30 minutes) — MISS_RETRY_MIN_MINUTES
-  // (same indexing) adds a wall-clock floor alongside it, so a genuinely
-  // short single-sitting practice session can't fully collapse the intended
-  // spacing effect. A question is eligible again only once BOTH the draw
-  // count and the wall-clock minimum have elapsed.
-  var MISS_RETRY_INTERVALS = [2, 4, 8];
-  var MISS_RETRY_MIN_MINUTES = [3, 10, 30];
-  var MAX_MISSED_QUEUE_PER_SOURCE = 50;
+  // SM-2-adapted per-signature ease/interval model (binary correct/
+  // incorrect, not SM-2's original 0-5 quality scale — a standard
+  // simplification for binary-graded systems), in "draws" rather than
+  // "days" (matching drawCount above, since Progress Mode has no fixed
+  // daily cadence). A correct answer grows the interval (2 draws on the
+  // first correct rep, 6 on the second, then interval x ease factor
+  // beyond that) and nudges ease factor up a little (capped, so it can't
+  // run away); an incorrect answer resets the repetition streak, drops the
+  // interval back to a short relearn gap, and nudges ease factor down
+  // (floored, so a hard question can't be scheduled arbitrarily far out).
+  var DEFAULT_EASE_FACTOR = 2.5;
+  var MIN_EASE_FACTOR = 1.3;
+  var MAX_EASE_FACTOR = 2.8;
+  var EASE_FACTOR_CORRECT_DELTA = 0.1;
+  var EASE_FACTOR_INCORRECT_DELTA = 0.2;
 
-  function findMissedEntry(missedQueue, signature) {
-    for (var i = 0; i < missedQueue.length; i++) {
-      if (missedQueue[i].signature === signature) return i;
+  function computeNextSchedule(existing, wasCorrect) {
+    var easeFactor = existing && typeof existing.easeFactor === "number" ? existing.easeFactor : DEFAULT_EASE_FACTOR;
+    var repetitions = existing && typeof existing.repetitions === "number" ? existing.repetitions : 0;
+    var intervalDraws;
+
+    if (wasCorrect) {
+      repetitions += 1;
+      if (repetitions === 1) intervalDraws = 2;
+      else if (repetitions === 2) intervalDraws = 6;
+      else intervalDraws = Math.round((existing && existing.intervalDraws ? existing.intervalDraws : 6) * easeFactor);
+      easeFactor = Math.min(MAX_EASE_FACTOR, easeFactor + EASE_FACTOR_CORRECT_DELTA);
+    } else {
+      repetitions = 0;
+      intervalDraws = 1;
+      easeFactor = Math.max(MIN_EASE_FACTOR, easeFactor - EASE_FACTOR_INCORRECT_DELTA);
     }
-    return -1;
+
+    return { easeFactor: easeFactor, repetitions: repetitions, intervalDraws: intervalDraws };
+  }
+
+  // Wall-clock floor alongside the draw-count-based interval above, same
+  // reasoning the old fixed [3,10,30]-minute table existed for: draw-count
+  // alone collapses to almost no real spacing if a student grinds several
+  // rounds back-to-back in one sitting. Scales with the computed interval
+  // instead of a fixed lookup table, capped at an hour; a miss always gets
+  // a short, fixed relearn floor regardless of its (now-reset) interval.
+  function computeMinMinutes(wasCorrect, intervalDraws) {
+    return wasCorrect ? Math.min(60, intervalDraws * 3) : 3;
   }
 
   // True if any source in `sourcesInArea` has enough of its OWN cumulative
@@ -181,6 +282,7 @@
     LEVEL_IDS: LEVEL_IDS,
     LEVEL_LABELS: LEVEL_LABELS,
     PASS_PERCENTAGE: PASS_PERCENTAGE,
+    WEEKLY_ROUNDS_GOAL: WEEKLY_ROUNDS_GOAL,
 
     getAreaLevel: function (studentId, areaKey) {
       var profile = getProfile(studentId);
@@ -255,64 +357,147 @@
       return sources;
     },
 
-    // Records the outcome of a single answered question (called once per
-    // question, immediately, separately from the once-per-round
-    // recordSourceResult below — a wrong answer needs to update the missed
-    // queue right away, not wait for the round to finish). A signature
-    // answered correctly clears any pending miss for it, back into normal
-    // rotation; a wrong answer schedules — or reschedules, with a longer
-    // wait if this isn't its first miss — its next eligible draw.
-    recordQuestionOutcome: function (studentId, sourceKey, signature, wasCorrect) {
-      if (!signature) return;
+    // Cumulative (all-time) correct/questions per CONCEPT value within one
+    // moduleId — e.g. chord-identifier's "first inversion"/"Extended
+    // chords". Client-side counterpart to accounts/account-server.js's
+    // server-side byConcept (Live Session/Homework evidence); the two are
+    // combined by account/student-home/student-home.js's
+    // getCombinedConceptStats, the same way getCumulativeStats above is
+    // already combined with server source stats. Concept values themselves
+    // come from shared/js/concept-extractors.js's extractConceptValues,
+    // called by script.js — store.js just accumulates whatever value
+    // strings it's given, same as it does for sourceKeys.
+    getConceptStats: function (studentId, moduleId) {
+      var profile = getProfile(studentId);
+      if (!profile.conceptStats) profile.conceptStats = {};
+      var moduleStats = profile.conceptStats[moduleId] || {};
+      var result = {};
+      Object.keys(moduleStats).forEach(function (conceptValue) {
+        var entry = moduleStats[conceptValue];
+        var questions = entry.questions || 0;
+        var correct = entry.correct || 0;
+        result[conceptValue] = {
+          correct: correct,
+          questions: questions,
+          percentage: questions > 0 ? Math.round((correct / questions) * 100) : 0
+        };
+      });
+      return result;
+    },
+
+    // Read-only lookup of a single signature's current scheduling state
+    // (null if it's never been answered on this device). Mirrors the shape
+    // recordQuestionOutcome/applyIncomingReviews both write.
+    getSignatureSchedule: function (studentId, sourceKey, signature) {
       var profile = getProfile(studentId);
       var sourceState = getSourceState(profile, sourceKey);
-      sourceState.drawCount = (sourceState.drawCount || 0) + 1;
-      sourceState.lastDrawnAt = Date.now();
-      if (!sourceState.missedQueue) sourceState.missedQueue = [];
+      return (sourceState.schedule && sourceState.schedule[signature]) || null;
+    },
 
-      var index = findMissedEntry(sourceState.missedQueue, signature);
-      if (wasCorrect) {
-        if (index !== -1) sourceState.missedQueue.splice(index, 1);
-      } else {
-        var missCount = index !== -1 ? sourceState.missedQueue[index].missCount + 1 : 1;
-        var intervalIndex = Math.min(missCount, MISS_RETRY_INTERVALS.length) - 1;
-        var interval = MISS_RETRY_INTERVALS[intervalIndex];
-        var minMinutes = MISS_RETRY_MIN_MINUTES[intervalIndex];
-        var entry = {
-          signature: signature,
-          missCount: missCount,
-          dueAtDraw: sourceState.drawCount + interval,
-          missedAt: Date.now(),
-          dueAtTime: Date.now() + minMinutes * 60000
-        };
-        if (index !== -1) {
-          sourceState.missedQueue[index] = entry;
-        } else {
-          sourceState.missedQueue.push(entry);
-          if (sourceState.missedQueue.length > MAX_MISSED_QUEUE_PER_SOURCE) sourceState.missedQueue.shift();
-        }
+    // Full per-area state needed to build a server-sync POST payload —
+    // getAreaLevel above only exposes the level, not levelProgress (which
+    // the sync payload also needs for concept/variety continuity). Read-only.
+    getAreaSyncState: function (studentId, areaKey) {
+      var profile = getProfile(studentId);
+      var state = getAreaState(profile, areaKey);
+      return { level: state.level, levelProgress: state.levelProgress };
+    },
+
+    // Records the outcome of a single answered question (called once per
+    // question, immediately, separately from the once-per-round
+    // recordSourceResult below — the per-signature schedule needs to update
+    // right away, not wait for the round to finish). Computes this
+    // signature's new ease/interval/repetitions via computeNextSchedule
+    // above and returns them (plus responseTimeMs passed through, and the
+    // review's own timestamp) so the caller can log this as a review event
+    // to the server (see accounts/account-server.js's
+    // /api/student/progress-mode-reviews) — responseTimeMs is captured only
+    // (like Anki's revlog.time), not used in the ease/interval formula
+    // itself. Returns null if signature is falsy (nothing to schedule).
+    recordQuestionOutcome: function (studentId, sourceKey, signature, wasCorrect, responseTimeMs) {
+      if (!signature) return null;
+      var profile = getProfile(studentId);
+      var sourceState = getSourceState(profile, sourceKey);
+      if (!profile.questionHistory) profile.questionHistory = [];
+      profile.questionHistory.push({
+        sourceKey: sourceKey,
+        questionId: signature,
+        correct: Boolean(wasCorrect),
+        score: wasCorrect ? 1 : 0,
+        maximumScore: 1,
+        timestamp: Date.now()
+      });
+      if (profile.questionHistory.length > MAX_QUESTION_HISTORY) {
+        profile.questionHistory = profile.questionHistory.slice(-MAX_QUESTION_HISTORY);
       }
 
+      sourceState.drawCount = (sourceState.drawCount || 0) + 1;
+      sourceState.lastDrawnAt = Date.now();
+      sourceState.updatedAt = Date.now();
+      if (!sourceState.schedule) sourceState.schedule = {};
+
+      var wasCorrectBool = Boolean(wasCorrect);
+      var next = computeNextSchedule(sourceState.schedule[signature], wasCorrectBool);
+      var reviewedAt = Date.now();
+      var minMinutes = computeMinMinutes(wasCorrectBool, next.intervalDraws);
+      sourceState.schedule[signature] = {
+        easeFactor: next.easeFactor,
+        repetitions: next.repetitions,
+        intervalDraws: next.intervalDraws,
+        dueAtDraw: sourceState.drawCount + next.intervalDraws,
+        dueAtTime: reviewedAt + minMinutes * 60000,
+        lastReviewedAt: reviewedAt
+      };
+
+      saveProfile(studentId, profile);
+
+      return {
+        easeFactor: next.easeFactor,
+        intervalDraws: next.intervalDraws,
+        repetitions: next.repetitions,
+        responseTimeMs: typeof responseTimeMs === "number" && responseTimeMs >= 0 ? Math.round(responseTimeMs) : null,
+        completedAt: reviewedAt
+      };
+    },
+
+    // Records one answered question's concept-value evidence — separate
+    // from recordQuestionOutcome above (which handles SM-2 scheduling by
+    // signature) since a single question can contribute zero, one, or two
+    // concept values (e.g. chord-identifier's inversion AND extension tier
+    // from the same answer both land in this module's one flat pool,
+    // mirroring the server's byConcept). conceptValues with no entries is a
+    // no-op — most modules and many individual answers (e.g. a question
+    // whose field didn't match any whitelist/bucket) contribute nothing.
+    recordConceptOutcome: function (studentId, moduleId, conceptValues, wasCorrect) {
+      if (!moduleId || !Array.isArray(conceptValues) || !conceptValues.length) return;
+      var profile = getProfile(studentId);
+      if (!profile.conceptStats) profile.conceptStats = {};
+      if (!profile.conceptStats[moduleId]) profile.conceptStats[moduleId] = {};
+      var moduleStats = profile.conceptStats[moduleId];
+      var wasCorrectBool = Boolean(wasCorrect);
+      conceptValues.forEach(function (conceptValue) {
+        if (!conceptValue) return;
+        if (!moduleStats[conceptValue]) moduleStats[conceptValue] = { correct: 0, questions: 0 };
+        moduleStats[conceptValue].questions += 1;
+        if (wasCorrectBool) moduleStats[conceptValue].correct += 1;
+      });
       saveProfile(studentId, profile);
     },
 
-    // True only while a missed question is still within its cooldown —
+    // True only while a signature is still within its scheduled cooldown —
     // i.e. it should currently be actively avoided, the same as an
     // already-seen one. Cools down only once BOTH the draw-count AND the
-    // wall-clock minimum have been met (see MISS_RETRY_MIN_MINUTES above) —
+    // wall-clock minimum have been met (see computeMinMinutes above) —
     // whichever takes longer for this student's actual play pattern. Once
     // due, this returns false (not "yes, show it" — Progress Mode has no way
-    // to force that, only to stop avoiding it). Entries recorded before this
-    // wall-clock gate existed have no `dueAtTime`, so treat it as already
-    // satisfied for them rather than tripping every miss into extra cooldown
-    // retroactively.
-    isMissCoolingDown: function (studentId, sourceKey, signature) {
+    // to force that, only to stop avoiding it). A signature with no schedule
+    // entry yet (never answered) has nothing to cool down from.
+    isSignatureCoolingDown: function (studentId, sourceKey, signature) {
       if (!signature) return false;
       var profile = getProfile(studentId);
       var sourceState = getSourceState(profile, sourceKey);
-      var index = findMissedEntry(sourceState.missedQueue || [], signature);
-      if (index === -1) return false;
-      var entry = sourceState.missedQueue[index];
+      var entry = (sourceState.schedule || {})[signature];
+      if (!entry) return false;
       var drawReady = (sourceState.drawCount || 0) >= entry.dueAtDraw;
       var timeReady = !entry.dueAtTime || Date.now() >= entry.dueAtTime;
       return !(drawReady && timeReady);
@@ -354,6 +539,7 @@
       sourceState.bestPercentage = Math.max(sourceState.bestPercentage, roundPercentage);
       sourceState.cumulativeCorrect = (sourceState.cumulativeCorrect || 0) + correctCount;
       sourceState.cumulativeQuestions = (sourceState.cumulativeQuestions || 0) + totalCount;
+      sourceState.updatedAt = Date.now();
       sourceState.history.push({ percentage: roundPercentage, timestamp: Date.now() });
       if (sourceState.history.length > 20) sourceState.history = sourceState.history.slice(-20);
 
@@ -425,16 +611,276 @@
       return Math.round(Math.min(100, percentage));
     },
 
-    recordRoundComplete: function (studentId) {
+    // Called once per answered question (same call site, same `!wasSkipped`
+    // guard as recordQuestionOutcome — a technical skip is neither a hit nor
+    // a miss, so it must not touch the streak either way). Correctness is
+    // the ONLY input: no timing signal exists or is wanted here (see the
+    // gamification plan's "explicitly not recommended" section) — rewarding
+    // speed is exactly the rushing/guessing incentive this must avoid.
+    recordStreakOutcome: function (studentId, wasCorrect) {
+      var profile = getProfile(studentId);
+      var streaks = getStreakState(profile);
+      if (wasCorrect) {
+        streaks.correctCurrent = (streaks.correctCurrent || 0) + 1;
+        streaks.correctBest = Math.max(streaks.correctBest || 0, streaks.correctCurrent);
+      } else {
+        streaks.correctCurrent = 0;
+      }
+      saveProfile(studentId, profile);
+      return { correctCurrent: streaks.correctCurrent, correctBest: streaks.correctBest };
+    },
+
+    // Read-only snapshot for the RHS chip / dashboard tile — mirrors
+    // getSnapshot/getCumulativeStats's existing pattern (never mutates).
+    getStreakSnapshot: function (studentId) {
+      var profile = getProfile(studentId);
+      var streaks = getStreakState(profile);
+      return {
+        correctCurrent: streaks.correctCurrent || 0,
+        correctBest: streaks.correctBest || 0,
+        dailyCurrent: streaks.dailyCurrent || 0,
+        dailyBest: streaks.dailyBest || 0
+      };
+    },
+
+    // `roundPercentage` (optional) is the WHOLE round's correct/total
+    // across every source it touched — distinct from a source's own
+    // history entries (recordSourceResult, one per source PER round), which
+    // only cover that source's slice of the round's questions. Kept on
+    // profile.roundHistory (capped, most-recent-last) so the dashboard's
+    // "Recent activity" can show one row per round at that round's real
+    // overall score, not one row per sub-app touched within it. Omitting
+    // roundPercentage (existing tests) simply skips this bookkeeping —
+    // the daily-streak logic below is unaffected either way.
+    recordRoundComplete: function (studentId, roundPercentage) {
       var profile = getProfile(studentId);
       profile.roundsCompleted = (profile.roundsCompleted || 0) + 1;
+
+      if (typeof roundPercentage === "number" && !isNaN(roundPercentage)) {
+        profile.roundHistory = profile.roundHistory || [];
+        profile.roundHistory.push({ percentage: roundPercentage, timestamp: Date.now() });
+        if (profile.roundHistory.length > MAX_ROUND_HISTORY) profile.roundHistory = profile.roundHistory.slice(-MAX_ROUND_HISTORY);
+      }
+
+      // Daily play streak — gated purely on "a round was completed today",
+      // never on accuracy. Gating this on performance would recreate the
+      // exact rushing-to-protect-a-streak pressure the whole gamification
+      // plan is designed to avoid; showing up is the only thing rewarded
+      // here, and it's un-gameable by construction (finishing a round early
+      // or badly doesn't finish it any faster or more than once).
+      var streaks = getStreakState(profile);
+      var todayKey = dateKeyFromTimestamp(Date.now());
+      if (!streaks.lastPlayedDateKey) {
+        streaks.dailyCurrent = 1;
+      } else if (streaks.lastPlayedDateKey !== todayKey) {
+        var dayGap = daysBetweenDateKeys(streaks.lastPlayedDateKey, todayKey);
+        streaks.dailyCurrent = (dayGap === 1) ? (streaks.dailyCurrent || 0) + 1 : 1;
+      }
+      // Same-day repeat: dailyCurrent is left exactly as-is — a second round
+      // in one day doesn't add a second day to the streak.
+      streaks.dailyBest = Math.max(streaks.dailyBest || 0, streaks.dailyCurrent);
+      streaks.lastPlayedDateKey = todayKey;
+
+      streaks.roundLog = streaks.roundLog || [];
+      streaks.roundLog.push(Date.now());
+      if (streaks.roundLog.length > MAX_ROUND_LOG) streaks.roundLog = streaks.roundLog.slice(-MAX_ROUND_LOG);
+
       saveProfile(studentId, profile);
+      return { dailyCurrent: streaks.dailyCurrent, dailyBest: streaks.dailyBest };
+    },
+
+    // Count of rounds completed within the trailing 7 days (read-only,
+    // derived from roundLog — no separate storage). Never gated on
+    // accuracy, same reasoning as the daily streak above.
+    getRoundsThisWeek: function (studentId) {
+      var profile = getProfile(studentId);
+      var streaks = getStreakState(profile);
+      var cutoff = Date.now() - ONE_WEEK_MS;
+      return (streaks.roundLog || []).filter(function (ts) { return ts >= cutoff; }).length;
+    },
+
+    // Recent per-source history entries merged and sorted most-recent-first
+    // — powers the student dashboard's "Recent evidence" list. Read-only,
+    // derived entirely from data recordSourceResult already stores
+    // (sourceState.history), same pattern as getCumulativeStats above —
+    // just flattened across sources and time-sorted instead of summed.
+    getRecentHistory: function (studentId, sourceKeys, limit) {
+      var profile = getProfile(studentId);
+      var entries = [];
+      sourceKeys.forEach(function (sourceKey) {
+        var sourceState = getSourceState(profile, sourceKey);
+        (sourceState.history || []).forEach(function (entry) {
+          entries.push({ sourceKey: sourceKey, percentage: entry.percentage, timestamp: entry.timestamp });
+        });
+      });
+      entries.sort(function (a, b) { return b.timestamp - a.timestamp; });
+      return typeof limit === "number" ? entries.slice(0, limit) : entries;
+    },
+
+    // Recent WHOLE-round completions, most-recent-first — powers the main
+    // student dashboard's "Recent activity" list (one row per round, at
+    // that round's overall percentage), as opposed to getRecentHistory
+    // above (one row per sub-app touched within a round). Read-only,
+    // derived from profile.roundHistory (recordRoundComplete's optional
+    // roundPercentage argument).
+    getRecentRounds: function (studentId, limit) {
+      var profile = getProfile(studentId);
+      var entries = (profile.roundHistory || []).slice().sort(function (a, b) { return b.timestamp - a.timestamp; });
+      return typeof limit === "number" ? entries.slice(0, limit) : entries;
+    },
+
+    // Individual answered-question records for the student dashboard's
+    // searchable history dialog. Kept separate from scoring/progression and
+    // returned newest-first without mutating the stored profile.
+    getQuestionHistory: function (studentId) {
+      var profile = getProfile(studentId);
+      return (profile.questionHistory || []).slice().sort(function (a, b) {
+        return (b.timestamp || 0) - (a.timestamp || 0);
+      });
     },
 
     reset: function (studentId) {
       var all = readAll();
       delete all[studentId];
       writeAll(all);
+    },
+
+    // ---- Server-sync reconciliation (see script.js's syncStateFromServer,
+    // called once on identity resolution before any round can start) ----
+    //
+    // Merges server-fetched review events (accounts/account-server.js's
+    // GET /api/student/progress-mode-reviews — this student's full log)
+    // into the local per-signature schedule. Each event already carries the
+    // RESULTING ease/interval/repetitions from whenever it was recorded (by
+    // this device or another one), so merging is just "keep whichever of
+    // local/incoming is more recent, independently PER SIGNATURE" — no
+    // field-by-field reconciliation needed, since a review event is a
+    // complete, self-contained snapshot rather than a partial update. This
+    // is deliberately finer-grained than the old per-SOURCE merge it
+    // replaced (a stale server review for one question can no longer
+    // clobber fresher local progress on a different question in the same
+    // source).
+    //
+    // intervalDraws/easeFactor/repetitions are portable across devices (a
+    // property of how well this student knows this specific question), but
+    // dueAtDraw is NOT — it was computed against whichever device's
+    // drawCount was current at the time. So when an incoming event wins,
+    // dueAtDraw is re-anchored to THIS device's own current drawCount for
+    // the source, using the incoming intervalDraws as the (portable)
+    // spacing distance; dueAtTime (wall-clock, device-independent) is
+    // simply recomputed from the incoming event's own completedAt.
+    applyIncomingReviews: function (studentId, reviews) {
+      if (!Array.isArray(reviews) || !reviews.length) return;
+      var profile = getProfile(studentId);
+
+      reviews.forEach(function (review) {
+        if (!review || !review.sourceKey || !review.questionSignature) return;
+        var sourceState = getSourceState(profile, review.sourceKey);
+        if (!sourceState.schedule) sourceState.schedule = {};
+
+        var incomingReviewedAt = typeof review.completedAt === "number" ? review.completedAt : 0;
+        var existing = sourceState.schedule[review.questionSignature];
+        var existingReviewedAt = existing && typeof existing.lastReviewedAt === "number" ? existing.lastReviewedAt : 0;
+        if (existing && existingReviewedAt >= incomingReviewedAt) return;
+
+        var intervalDraws = typeof review.intervalDraws === "number" ? review.intervalDraws : 0;
+        var minMinutes = computeMinMinutes(Boolean(review.correct), intervalDraws);
+        sourceState.schedule[review.questionSignature] = {
+          easeFactor: typeof review.easeFactor === "number" ? review.easeFactor : DEFAULT_EASE_FACTOR,
+          repetitions: typeof review.repetitions === "number" ? review.repetitions : 0,
+          intervalDraws: intervalDraws,
+          dueAtDraw: (sourceState.drawCount || 0) + intervalDraws,
+          dueAtTime: incomingReviewedAt + minMinutes * 60000,
+          lastReviewedAt: incomingReviewedAt
+        };
+      });
+
+      saveProfile(studentId, profile);
+    },
+
+    // Reconciles one area's server-synced level/levelProgress into the
+    // local profile. Levels only ever advance in this app (see
+    // recordSourceResult), so the merge is simply "never regress": local's
+    // level can only move up to match a higher incoming level, never down.
+    // At whatever level results, the two sides' levelProgress entries FOR
+    // THAT LEVEL INDEX are merged: concept maps are unioned (the distinct-
+    // question-variety bar), and correct/total each take the max of the
+    // two sides rather than summing, so overlapping activity recorded on
+    // both devices isn't double-counted (a documented simplification —
+    // trades away crediting genuinely-disjoint simultaneous practice on
+    // two devices at once, which isn't a realistic classroom scenario).
+    mergeIncomingAreaState: function (studentId, areaKey, incoming) {
+      if (!incoming) return;
+      var profile = getProfile(studentId);
+      var local = getAreaState(profile, areaKey);
+      var incomingLevel = typeof incoming.level === "number" ? incoming.level : 0;
+      local.level = Math.max(local.level, incomingLevel);
+
+      var mergedLevelKey = String(local.level);
+      var localEntry = getAreaLevelProgress(local, local.level);
+      var incomingEntry = (incoming.levelProgress && incoming.levelProgress[mergedLevelKey]) || null;
+      if (incomingEntry) {
+        var mergedConcepts = {};
+        Object.keys(localEntry.concepts || {}).forEach(function (key) { mergedConcepts[key] = true; });
+        Object.keys(incomingEntry.concepts || {}).forEach(function (key) { mergedConcepts[key] = true; });
+        localEntry.concepts = mergedConcepts;
+        localEntry.correct = Math.max(localEntry.correct || 0, incomingEntry.correct || 0);
+        localEntry.total = Math.max(localEntry.total || 0, incomingEntry.total || 0);
+      }
+
+      saveProfile(studentId, profile);
+    },
+
+    // Reconciles the server-mirrored cumulative summary (progress_mode_summaries,
+    // posted by script.js's postProgressSummaryBestEffort, read back via
+    // GET /api/student/progress-mode-summary) into the local profile. Lets a
+    // student's own dashboard (account/student-home/student-home.js) and
+    // this app's own cross-device continuity (see script.js's
+    // syncStateFromServer) show accurate cumulative stats regardless of
+    // which device most recently played a round — the gap that used to mean
+    // a student's own dashboard could show "no evidence" for scores the
+    // teacher dashboard already had. Same "max, not sum" philosophy as
+    // mergeIncomingAreaState above and for the same reason: avoids double-
+    // counting activity already reflected on both sides, at the cost of not
+    // crediting genuinely-disjoint simultaneous practice on two devices at
+    // once (not a realistic classroom scenario).
+    //
+    // Also adopts each area's `level` from incoming.areas (the summary
+    // carries its own per-area level/levelLabel snapshot, taken at POST
+    // time — see postProgressSummaryBestEffort) — never regressed, same as
+    // mergeIncomingAreaState's own level handling. This matters for a
+    // student who has a progress_mode_summaries row but no
+    // progress_mode_sync_state row at all (e.g. imported/seeded history
+    // rather than played through this app's own sync checkpoints): without
+    // this, their dashboard would show real correct/questions counts next
+    // to a stuck-at-Foundation level badge, which reads as more wrong than
+    // showing nothing. levelProgress (the finer within-level volume/
+    // accuracy/variety breakdown getAreaOverallProgressPercentage needs)
+    // has no equivalent in the summary's aggregate shape and is
+    // deliberately NOT approximated from it — that would risk overstating
+    // how close a student is to advancing from data that doesn't actually
+    // say. It fills in correctly once real play resumes on any device
+    // (either sync checkpoint).
+    mergeIncomingSummary: function (studentId, incoming) {
+      if (!incoming) return;
+      var profile = getProfile(studentId);
+      profile.roundsCompleted = Math.max(profile.roundsCompleted || 0, incoming.roundsCompleted || 0);
+
+      (Array.isArray(incoming.sources) ? incoming.sources : []).forEach(function (source) {
+        if (!source || !source.sourceKey) return;
+        var sourceState = getSourceState(profile, source.sourceKey);
+        sourceState.cumulativeCorrect = Math.max(sourceState.cumulativeCorrect || 0, source.correct || 0);
+        sourceState.cumulativeQuestions = Math.max(sourceState.cumulativeQuestions || 0, source.questions || 0);
+      });
+
+      (Array.isArray(incoming.areas) ? incoming.areas : []).forEach(function (area) {
+        if (!area || !area.areaKey) return;
+        var areaState = getAreaState(profile, area.areaKey);
+        var incomingLevel = typeof area.level === "number" ? area.level : 0;
+        areaState.level = Math.max(areaState.level, incomingLevel);
+      });
+
+      saveProfile(studentId, profile);
     }
   };
 

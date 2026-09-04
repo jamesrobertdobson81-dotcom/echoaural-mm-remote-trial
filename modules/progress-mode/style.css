@@ -281,6 +281,141 @@ body.pm-mm-score-expanded .pm-frame {
    Progress Mode "Detailed feedback" dialog (account/student-home/) — this
    panel shows only the bars below, plus a link to that dialog. --- */
 
+/* --- Gamification: round-complete level-up badge + streak milestone lines.
+   Sit inside the round-complete popup (see renderLevelUpBadgeHTML/
+   renderStreakMilestoneHTML in script.js), between the score hero and the
+   coverage chart — reuses the popup's own dark-tile visual language
+   (matching .diagnostic-metric/.mm-compiled-feedback-tile in
+   instrument-identifier/style.css: rgba(255,255,255,.045) fill, soft
+   border) with a warm gold accent for the celebratory badge specifically,
+   consistent with this app's existing amber module accent (Meter Master's
+   #FFAA2B in shared/css/brand.css) rather than inventing a new hue. --- */
+
+.pm-levelup-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 170, 43, .38);
+  background:
+    radial-gradient(circle at 12% 20%, rgba(255, 170, 43, .16), transparent 55%),
+    rgba(255, 255, 255, .045);
+}
+
+.pm-levelup-badge-icon {
+  flex: 0 0 auto;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.pm-levelup-badge-text {
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pm-levelup-badge-text strong {
+  color: #ffd18a;
+}
+
+.pm-milestone-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  background: rgba(255, 255, 255, .045);
+  color: var(--text);
+  font-size: .86rem;
+  font-weight: 700;
+}
+
+.pm-milestone-icon {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+/* --- Gamification: correct-answer streak + daily play streak chip.
+   Sits above the per-area bars (see renderStreakChipHTML/renderAreaBarsHTML
+   in script.js). Matches this panel's own existing visual language — same
+   translucent bordered tile as .pm-signed-in-as, same --text/--muted/--blue
+   tokens as the rest of the app shell (instrument-identifier/style.css),
+   not the marketing homepage's hero styling, which this in-app screen never
+   uses. --- */
+
+.pm-streak-chip {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.pm-streak-chip-item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, .04);
+}
+
+.pm-streak-chip-icon {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+}
+
+.pm-streak-chip-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pm-streak-chip-text {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 6px;
+  row-gap: 0;
+}
+
+.pm-streak-chip-label {
+  flex: 0 0 100%;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.pm-streak-chip-item strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.pm-streak-chip-best {
+  font-size: .72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .pm-streak-chip {
+    flex-direction: column;
+  }
+}
+
 .pm-element-chart-block { margin-top: 4px; }
 .pm-element-chart-block h3 { margin: 0 0 4px; font-size: .92rem; color: var(--text); }
 .pm-element-chart-sub { font-size: .76rem; color: var(--muted); margin: 0 0 14px; }
