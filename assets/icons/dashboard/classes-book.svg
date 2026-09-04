@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title-classes-book" fill="none">
+  <title id="title-classes-book">Classes</title>
+  <path d="M16 24c0-6.6 5.4-12 12-12h30v92H28c-6.6 0-12-5.4-12-12z" fill="currentColor" opacity=".72"/>
+  <path d="M112 24c0-6.6-5.4-12-12-12H70v92h30c6.6 0 12-5.4 12-12z" fill="currentColor"/>
+</svg>

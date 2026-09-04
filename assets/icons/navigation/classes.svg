@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title-classes" fill="none">
+  <title id="title-classes">Classes</title>
+  <circle cx="46" cy="38" r="18" fill="currentColor"/>
+  <circle cx="88" cy="46" r="14" fill="currentColor" opacity=".72"/>
+  <path d="M14 108c0-22.6 14.3-38 32-38s32 15.4 32 38v4H14z" fill="currentColor"/>
+  <path d="M74 74c15.8 1.6 26 15.6 26 34v4H92v-4c0-14-4.6-24.8-13.4-31.3z" fill="currentColor" opacity=".72"/>
+</svg>

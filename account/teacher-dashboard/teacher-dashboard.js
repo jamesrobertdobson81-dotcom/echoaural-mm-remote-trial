@@ -6,6 +6,7 @@ const state = {
   students: [],
   classProgress: null,
   classes: [],
+  homeworkAssignments: [],
   classMeta: {
     classLimit: 3,
     activeClasses: 0,
@@ -17,19 +18,38 @@ const state = {
   draftStudents: [],
   generatedCredentials: null,
   resetStudent: null,
-  progressStudent: null,
-  studentProgressRefreshTimer: null,
-  studentProgressRefreshInFlight: false,
   expandedClassIds: new Set(),
   // Real modules/progress-mode/ data, keyed by studentId — see
   // accounts/account-server.js's /api/teacher/progress-mode-summary route.
   // Separate from classProgress/categories.progress, which used to be an
   // unrelated, differently-labelled legacy system (now retired).
-  progressModeSummaries: new Map()
+  progressModeSummaries: new Map(),
+  // The middle "Class learning" column's current filter state — mode is
+  // one of "all"/"progress"/"quizzes"/"homework"; classId/studentId are
+  // "" for "no filter" (whole account / whichever class is selected).
+  // Empty studentId means the tiles show class-wide numbers only; setting
+  // it swaps in that one student's own totals plus written feedback in the
+  // element breakdown popup.
+  middleColumn: { mode: "all", classId: "", studentId: "" },
+  middleColumnProgress: null,
+  middleColumnProgressMode: null,
+  middleColumnTotals: null,
+  // Cache of the class-scoped /api/teacher/progress/class?classId=... fetch,
+  // so switching mode filters (which doesn't need fresh data) never
+  // re-fetches, but switching to a different class does.
+  classScopedProgress: null,
+  classScopedProgressClassId: null,
+  middleColumnRefreshTimer: null,
+  middleColumnRefreshInFlight: false,
+  // {studentId, studentName, classId, areaKey, percentage} | null — the
+  // weakest attempted element for whichever student is currently selected
+  // in the middle column, surfaced as a one-click launch suggestion in the
+  // right-hand action console.
+  suggestedIntervention: null
 };
 
 const PROGRESSION_LEVEL_LABELS = ["Foundation", "Developing", "Securing", "Mastering"];
-const STUDENT_PROGRESS_REFRESH_MS = 12000;
+const MIDDLE_COLUMN_REFRESH_MS = 12000;
 
 const els = {
   heroTeacherName: document.getElementById("heroTeacherName"),
@@ -44,10 +64,20 @@ const els = {
   studentDialogMessage: document.getElementById("studentDialogMessage"),
   studentDialog: document.getElementById("studentDialog"),
   studentClassId: document.getElementById("studentClassId"),
+  addStudentAction: document.getElementById("addStudentAction"),
   openStudentDialog: document.getElementById("openStudentDialog"),
   cancelStudentButton: document.getElementById("cancelStudentButton"),
   studentList: document.getElementById("studentList"),
   logoutButton: document.getElementById("logoutButton"),
+  navClassesButton: document.getElementById("navClassesButton"),
+  navReportsButton: document.getElementById("navReportsButton"),
+  openReportsPlaceholder: document.getElementById("openReportsPlaceholder"),
+  openAssessmentsPlaceholder: document.getElementById("openAssessmentsPlaceholder"),
+  teacherToolPlaceholderMessage: document.getElementById("teacherToolPlaceholderMessage"),
+  studentAccountsConsole: document.querySelector(".student-accounts-console-v3"),
+  glanceClassCount: document.getElementById("glanceClassCount"),
+  glanceStudentCount: document.getElementById("glanceStudentCount"),
+  glanceHomeworkCount: document.getElementById("glanceHomeworkCount"),
   passwordDialog: document.getElementById("passwordDialog"),
   openPasswordDialog: document.getElementById("openPasswordDialog"),
   cancelPasswordButton: document.getElementById("cancelPasswordButton"),
@@ -59,16 +89,13 @@ const els = {
   pinMessage: document.getElementById("pinMessage"),
   cancelPinButton: document.getElementById("cancelPinButton"),
   refreshClassProgress: document.getElementById("refreshClassProgress"),
-  classLevel: document.getElementById("classLevel"),
-  classPercentage: document.getElementById("classPercentage"),
-  classScore: document.getElementById("classScore"),
-  classQuestions: document.getElementById("classQuestions"),
-  classRounds: document.getElementById("classRounds"),
-  classStudents: document.getElementById("classStudents"),
-  classParticipation: document.getElementById("classParticipation"),
-  classFeedback: document.getElementById("classFeedback"),
   classProgressStatus: document.getElementById("classProgressStatus"),
   learningSummaryList: document.getElementById("learningSummaryList"),
+  learningModeFilter: document.getElementById("learningModeFilter"),
+  learningClassFilterSelect: document.getElementById("learningClassFilterSelect"),
+  learningStudentFilterSelect: document.getElementById("learningStudentFilterSelect"),
+  learningFullBreakdownLink: document.getElementById("learningFullBreakdownLink"),
+  classElementGrid: document.getElementById("classElementGrid"),
   categoryDetailDialog: document.getElementById("categoryDetailDialog"),
   closeCategoryDetail: document.getElementById("closeCategoryDetail"),
   categoryDetailEyebrow: document.getElementById("categoryDetailEyebrow"),
@@ -76,11 +103,13 @@ const els = {
   categoryDetailSubtitle: document.getElementById("categoryDetailSubtitle"),
   categoryDetailIcon: document.getElementById("categoryDetailIcon"),
   categoryDetailContent: document.getElementById("categoryDetailContent"),
-  studentProgressDialog: document.getElementById("studentProgressDialog"),
-  closeStudentProgress: document.getElementById("closeStudentProgress"),
-  progressStudentName: document.getElementById("progressStudentName"),
-  progressStudentMeta: document.getElementById("progressStudentMeta"),
-  studentProgressContent: document.getElementById("studentProgressContent"),
+  teacherElementBreakdownDialog: document.getElementById("teacherElementBreakdownDialog"),
+  teacherElementBreakdownContent: document.getElementById("teacherElementBreakdownContent"),
+  closeTeacherElementBreakdown: document.getElementById("closeTeacherElementBreakdown"),
+  interventionSuggestion: document.getElementById("interventionSuggestion"),
+  interventionSuggestionBody: document.getElementById("interventionSuggestionBody"),
+  interventionEmptyState: document.getElementById("interventionEmptyState"),
+  setInterventionButton: document.getElementById("setInterventionButton"),
   classCountMetric: document.getElementById("classCountMetric"),
   classSeatSummary: document.getElementById("classSeatSummary"),
   openClassDialog: document.getElementById("openClassDialog"),
@@ -126,6 +155,17 @@ const els = {
   teacherLaunchQuestionCount: document.getElementById("teacherLaunchQuestionCount"),
   teacherLaunchPlayCount: document.getElementById("teacherLaunchPlayCount"),
   teacherLaunchLevel: document.getElementById("teacherLaunchLevel"),
+  teacherLaunchPurpose: document.getElementById("teacherLaunchPurpose"),
+  teacherLaunchStrategy: document.getElementById("teacherLaunchStrategy"),
+  teacherLaunchPurposeSection: document.getElementById("teacherLaunchPurposeSection"),
+  teacherLaunchStrategySection: document.getElementById("teacherLaunchStrategySection"),
+  teacherLaunchFilterSection: document.getElementById("teacherLaunchFilterSection"),
+  teacherLaunchElement: document.getElementById("teacherLaunchElement"),
+  teacherLaunchSkill: document.getElementById("teacherLaunchSkill"),
+  teacherLaunchAvoidRecent: document.getElementById("teacherLaunchAvoidRecent"),
+  teacherLaunchLeaderboard: document.getElementById("teacherLaunchLeaderboard"),
+  teacherLaunchPreview: document.getElementById("teacherLaunchPreview"),
+  previewTeacherLaunch: document.getElementById("previewTeacherLaunch"),
   teacherLaunchHelper: document.getElementById("teacherLaunchHelper"),
   teacherLaunchMessage: document.getElementById("teacherLaunchMessage"),
   teacherLaunchSubmit: document.getElementById("teacherLaunchSubmit"),
@@ -135,7 +175,13 @@ const els = {
   teacherLaunchPlaySection: document.getElementById("teacherLaunchPlaySection"),
   teacherLaunchLevelSection: document.getElementById("teacherLaunchLevelSection"),
   teacherLaunchClassSection: document.getElementById("teacherLaunchClassSection"),
-  teacherLaunchClass: document.getElementById("teacherLaunchClass")
+  teacherLaunchClass: document.getElementById("teacherLaunchClass"),
+  teacherLaunchHomeworkDetailsSection: document.getElementById("teacherLaunchHomeworkDetailsSection"),
+  teacherLaunchHomeworkTitle: document.getElementById("teacherLaunchHomeworkTitle"),
+  teacherLaunchHomeworkDueAt: document.getElementById("teacherLaunchHomeworkDueAt"),
+  teacherLaunchSelectedSection: document.getElementById("teacherLaunchSelectedSection"),
+  teacherLaunchSelectedApp: document.getElementById("teacherLaunchSelectedApp"),
+  teacherLaunchConceptList: document.getElementById("teacherLaunchConceptList")
 };
 
 const TEACHER_LAUNCH_COPY = {
@@ -150,9 +196,9 @@ const TEACHER_LAUNCH_COPY = {
   homework: {
     eyebrow: "Homework setup",
     title: "Set homework",
-    subtitle: "Choose the app and question count. This opens the same question engine preconfigured while homework publishing is added.",
-    helper: "Homework assignment storage is the next layer; this keeps the question setup and existing Teacher Mode runtime stable.",
-    submit: "Prepare homework set",
+    subtitle: "Choose how questions are selected, then assign it to a class. Students complete it at their own pace from their dashboard.",
+    helper: "This app will supply every question in this homework round.",
+    submit: "Assign homework",
     autoCreate: "0"
   }
 };
@@ -160,14 +206,52 @@ const TEACHER_LAUNCH_COPY = {
 let teacherLaunchMode = "live";
 let teacherLaunchStandardQuestionCount = "5";
 let teacherLaunchStandardLevel = "all";
+let teacherLaunchDraft = null;
+let teacherLaunchCatalogueLoaded = false;
+let teacherLaunchPreset = null;
+// { [moduleId]: [{ value, label, count }] } — cached per dialog open so
+// switching back to an already-loaded app in the Selected concept picker
+// doesn't refetch. Cleared in openTeacherLaunchDialog.
+let teacherLaunchConceptCache = {};
+// { [moduleId]: Set(conceptValue) } — the teacher's ticked concepts,
+// preserved across app switches within one dialog session so flipping
+// between apps to review choices doesn't lose earlier picks.
+let teacherLaunchSelectedConcepts = {};
+
+// The middle column's 6 element keys don't map 1:1 onto the launch dialog's
+// 9-option musical-element filter (a few, e.g. Dynamics/Notation, have no
+// corresponding element-tile), but all 6 do have a real match.
+const TEACHER_LAUNCH_ELEMENT_LABELS = {
+  melody: "Melody",
+  texture: "Texture",
+  harmony: "Harmony and tonality",
+  instrumentation: "Instrumentation",
+  rhythm: "Meter and rhythm",
+  context: "Context and genre"
+};
+
+const TEACHER_PURPOSE_PRESETS = {
+  starter: { questionCount: "5", strategy: "balanced", plays: "4" },
+  main: { questionCount: "10", strategy: "class-priorities", plays: "3" },
+  plenary: { questionCount: "5", strategy: "skill-focus", plays: "2" },
+  diagnostic: { questionCount: "10", strategy: "balanced", plays: "2" },
+  custom: { questionCount: "5", strategy: "random", plays: "4" }
+};
 
 function formatMark(value) {
   const number = Number(value || 0);
   return Number.isInteger(number) ? String(number) : number.toFixed(1).replace(/\.0$/, "");
 }
 
-function openTeacherLaunchDialog(mode = "live") {
+// preset (optional): { classId, areaKey, note } — used by the right
+// column's "Set intervention" action to pre-fill a class + musical-element
+// filter and explain why, on top of the normal reset below. There's no
+// per-student targeting in the classroom system today (rooms are
+// class-scoped only), so a preset still launches a class-wide session —
+// see updateSuggestedIntervention()/the Set Intervention handler.
+function openTeacherLaunchDialog(mode = "live", preset = null) {
   teacherLaunchMode = TEACHER_LAUNCH_COPY[mode] ? mode : "live";
+  teacherLaunchPreset = preset;
   const copy = TEACHER_LAUNCH_COPY[teacherLaunchMode];
 
   els.teacherLaunchForm.reset();
@@ -176,21 +260,64 @@ function openTeacherLaunchDialog(mode = "live") {
   setTeacherLaunchValue(els.teacherLaunchQuestionCount, "5");
   setTeacherLaunchValue(els.teacherLaunchPlayCount, "4");
   setTeacherLaunchValue(els.teacherLaunchLevel, teacherLaunchMode === "live" ? "all" : "foundation");
+  setTeacherLaunchValue(els.teacherLaunchPurpose, "starter");
+  setTeacherLaunchValue(els.teacherLaunchStrategy, "balanced");
+  els.teacherLaunchElement.value = preset?.areaKey ? (TEACHER_LAUNCH_ELEMENT_LABELS[preset.areaKey] || "") : "";
+  els.teacherLaunchSkill.value = "";
+  els.teacherLaunchAvoidRecent.checked = true;
+  els.teacherLaunchLeaderboard.checked = true;
+  els.teacherLaunchHomeworkTitle.value = "";
+  els.teacherLaunchHomeworkDueAt.value = "";
+  els.teacherLaunchSelectedApp.value = "meter-master";
+  teacherLaunchConceptCache = {};
+  teacherLaunchSelectedConcepts = {};
+  els.teacherLaunchConceptList.innerHTML = "";
+  invalidateTeacherLaunchPreview();
   teacherLaunchStandardQuestionCount = "5";
   teacherLaunchStandardLevel = teacherLaunchMode === "live" ? "all" : "foundation";
-  setTeacherLaunchSource("app");
+  setTeacherLaunchSource(teacherLaunchMode === "live" ? "mixed" : "app");
   els.teacherLaunchForm.querySelectorAll("[data-live-only]").forEach((button) => {
     button.disabled = teacherLaunchMode !== "live";
     button.classList.toggle("is-disabled", teacherLaunchMode !== "live");
   });
+  els.teacherLaunchForm.querySelectorAll("[data-homework-only]").forEach((button) => {
+    button.hidden = teacherLaunchMode !== "homework";
+  });
   els.teacherLaunchEyebrow.textContent = copy.eyebrow;
   els.teacherLaunchTitle.textContent = copy.title;
   els.teacherLaunchSubtitle.textContent = copy.subtitle;
-  els.teacherLaunchSubmit.textContent = copy.submit;
+  const submitIcon = teacherLaunchMode === "homework"
+    ? "/assets/icons/dashboard/homework.png"
+    : "/assets/icons/dashboard/join-live-session.png";
+  els.teacherLaunchSubmit.innerHTML = `<span class="teacher-button-icon" aria-hidden="true"><img src="${submitIcon}" alt="" /></span><span>${escapeHtml(copy.submit)}</span>`;
   updateTeacherLaunchHelper();
-  setMessage(els.teacherLaunchMessage);
+  loadTeacherLaunchCatalogue();
+  if (preset?.note) setMessage(els.teacherLaunchMessage, preset.note, "success");
+  else setMessage(els.teacherLaunchMessage);
   els.teacherLaunchDialog.showModal();
   window.setTimeout(() => els.teacherLaunchDialog.querySelector("[data-launch-source]:not(:disabled), [data-launch-option]:not(:disabled)")?.focus(), 0);
+}
+
+function invalidateTeacherLaunchPreview() {
+  teacherLaunchDraft = null;
+  els.teacherLaunchPreview.hidden = true;
+  els.teacherLaunchPreview.innerHTML = "";
+}
+
+async function loadTeacherLaunchCatalogue() {
+  if (teacherLaunchCatalogueLoaded) return;
+  try {
+    const result = await api("/api/classroom/modules");
+    const skills = Array.from(new Map((result.modules || [])
+      .flatMap((module) => module.skills || [])
+      .map((skill) => [skill.code, skill])).values())
+      .sort((left, right) => left.name.localeCompare(right.name));
+    els.teacherLaunchSkill.innerHTML = '<option value="">All available skills</option>'
+      + skills.map((skill) => `<option value="${escapeHtml(skill.code)}">${escapeHtml(skill.name)}</option>`).join("");
+    teacherLaunchCatalogueLoaded = true;
+  } catch (_error) {
+    // The existing live launcher remains usable if the classroom service is offline.
+  }
 }
 
 function closeTeacherLaunchDialog() {
@@ -207,7 +334,7 @@ function setTeacherLaunchValue(input, value) {
 }
 
 function setTeacherLaunchSource(source) {
-  const nextSource = ["app", "mixed", "exam-lab"].includes(source) ? source : "app";
+  const nextSource = ["app", "mixed", "targeted", "exam-lab", "selected"].includes(source) ? source : "mixed";
   const previousSource = els.teacherLaunchSource.value;
   if (nextSource === "exam-lab" && previousSource !== "exam-lab") {
     teacherLaunchStandardQuestionCount = els.teacherLaunchQuestionCount.value || "5";
@@ -222,9 +349,11 @@ function setTeacherLaunchSource(source) {
     button.classList.toggle("is-selected", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
-  const moduleId = nextSource === "app" ? (els.teacherLaunchApp.value || "instrument-identifier") : nextSource;
+  const moduleId = nextSource === "app" ? (els.teacherLaunchApp.value || "instrument-identifier") : nextSource === "targeted" ? "mixed" : nextSource;
   setTeacherLaunchValue(els.teacherLaunchModule, moduleId);
+  invalidateTeacherLaunchPreview();
   updateTeacherLaunchHelper();
+  if (nextSource === "selected") loadConceptPicker(els.teacherLaunchSelectedApp.value);
 }
 
 function updateTeacherLaunchHelper() {
@@ -232,24 +361,54 @@ function updateTeacherLaunchHelper() {
   const selectedModule = els.teacherLaunchModule.value;
   const selectedSource = els.teacherLaunchSource.value;
   const examLab = selectedModule === "exam-lab";
-  const showsStandardChoices = selectedSource === "app" || selectedSource === "mixed";
-  const supportsLevelFilters = ["instrument-identifier", "melody-master", "melodic-intervals", "mixed"].includes(selectedModule);
+  const isSelected = selectedSource === "selected";
+  const isHomework = teacherLaunchMode === "homework";
+  // Targeted rounds still let the teacher choose round length and playback;
+  // only the level control is inapplicable because the class evidence sets it.
+  const showsStandardChoices = selectedSource === "app" || selectedSource === "mixed" || selectedSource === "targeted" || isSelected;
+  const supportsLevelFilters = !examLab && selectedSource !== "targeted" && !isSelected;
   els.teacherLaunchHelper.textContent = examLab
     ? "ExamLab sets one server-selected exam extract for the whole class. The teacher controls all playback."
-    : selectedSource === "mixed"
-      ? "Mixed Apps creates a varied set of questions selected from the supported EchoAural apps."
-      : `${els.teacherLaunchApp.options[els.teacherLaunchApp.selectedIndex]?.text || "The selected app"} will supply every question in this session. ${copy.helper}`;
+    : isSelected
+      ? "Pick an app above, then tick the concepts this homework should target."
+      : selectedSource === "targeted"
+        ? "Targeted rounds use class weaknesses while preserving variety across question types and apps."
+        : selectedSource === "mixed"
+          ? "Mixed creates a random varied set of questions selected from the supported EchoAural apps."
+        : `${els.teacherLaunchApp.options[els.teacherLaunchApp.selectedIndex]?.text || "The selected app"} will supply every question in this session. ${copy.helper}`;
 
-  els.teacherLaunchAppSection.hidden = selectedSource !== "app";
+  els.teacherLaunchAppSection.hidden = isSelected;
+  els.teacherLaunchAppSection.classList.toggle("is-inactive", selectedSource !== "app");
+  els.teacherLaunchApp.disabled = selectedSource !== "app";
+  els.teacherLaunchSelectedSection.hidden = !isSelected;
+  els.teacherLaunchHomeworkDetailsSection.hidden = !isHomework;
   els.teacherLaunchQuestionSection.hidden = !showsStandardChoices;
-  els.teacherLaunchPlaySection.hidden = !showsStandardChoices;
-  els.teacherLaunchLevelSection.hidden = !showsStandardChoices;
-  els.teacherLaunchClassSection.hidden = !examLab;
-  if (examLab) {
+  // Homework has no teacher-enforced listen cap (students replay audio as
+  // many times as they like from the module's own standalone play button,
+  // same as normal solo practice) — the Plays control only means something
+  // for a teacher-paced Live Session room.
+  els.teacherLaunchPlaySection.hidden = isHomework || !showsStandardChoices;
+  els.teacherLaunchLevelSection.hidden = isSelected;
+  els.teacherLaunchLevelSection.classList.toggle("is-inactive", !showsStandardChoices);
+  els.teacherLaunchPurposeSection.hidden = true;
+  els.teacherLaunchStrategySection.hidden = true;
+  // The live-session launcher intentionally keeps the four core choices
+  // focused; legacy element/skill filters remain available to other launch
+  // flows without cluttering this popup. A Set Intervention preset forces
+  // the filter section visible so the pre-filled musical element is
+  // actually shown to the teacher, not silently applied.
+  els.teacherLaunchFilterSection.hidden = teacherLaunchPreset ? false : (teacherLaunchMode === "live" || examLab || isHomework);
+  if (els.previewTeacherLaunch) els.previewTeacherLaunch.hidden = true;
+  els.teacherLaunchHelper.hidden = true;
+  // Homework always targets a real class (there's no "all account
+  // students" concept for an assignment); Live Session's class picker stays
+  // opt-in, shown only for a Set Intervention preset.
+  els.teacherLaunchClassSection.hidden = !(teacherLaunchPreset || isHomework);
+  if (!els.teacherLaunchClassSection.hidden) {
     const active = activeClasses();
-    els.teacherLaunchClass.innerHTML = active.length
-      ? active.map((classItem) => `<option value="${escapeHtml(classItem.id)}">${escapeHtml(classItem.className)}</option>`).join("")
-      : '<option value="">All account students</option>';
+    els.teacherLaunchClass.innerHTML = (isHomework ? "" : '<option value="">All account students</option>')
+      + active.map((classItem) => `<option value="${escapeHtml(classItem.id)}">${escapeHtml(classItem.className)}</option>`).join("");
+    if (teacherLaunchPreset?.classId) els.teacherLaunchClass.value = teacherLaunchPreset.classId;
   }
   if (examLab) {
     setTeacherLaunchValue(els.teacherLaunchQuestionCount, "1");
@@ -261,7 +420,41 @@ function updateTeacherLaunchHelper() {
     button.classList.toggle("is-disabled", !supportsLevelFilters);
   });
 
-  if (!supportsLevelFilters) setTeacherLaunchValue(els.teacherLaunchLevel, "all");
+  if (!supportsLevelFilters || selectedSource === "targeted") setTeacherLaunchValue(els.teacherLaunchLevel, "all");
+}
+
+// Homework's "Selected" mode picker — lets a teacher tick specific concept
+// values (e.g. "6/8", "Fugal imitation") rather than raw individual
+// questions, reusing this app's own concept-tagging vocabulary
+// (shared/js/concept-extractors.js / modules/progress-mode/feedback.js's
+// CONCEPT_PHRASES) via GET /api/classroom/concepts.
+function renderConceptList(moduleId, concepts) {
+  const picked = teacherLaunchSelectedConcepts[moduleId] || new Set();
+  if (!concepts.length) {
+    els.teacherLaunchConceptList.innerHTML = '<p class="teacher-launch-concept-empty-v1">No tagged concepts are available for this app yet.</p>';
+    return;
+  }
+  els.teacherLaunchConceptList.innerHTML = concepts.map((concept) => `
+    <label class="teacher-launch-concept-option-v1">
+      <span><input type="checkbox" data-concept-value="${escapeHtml(concept.value)}" ${picked.has(concept.value) ? "checked" : ""} /> ${escapeHtml(concept.label)}</span>
+      <span class="concept-count">${concept.count} question${concept.count === 1 ? "" : "s"}</span>
+    </label>
+  `).join("");
+}
+
+async function loadConceptPicker(moduleId) {
+  if (teacherLaunchConceptCache[moduleId]) {
+    renderConceptList(moduleId, teacherLaunchConceptCache[moduleId]);
+    return;
+  }
+  els.teacherLaunchConceptList.innerHTML = '<p class="teacher-launch-concept-empty-v1">Loading concepts…</p>';
+  try {
+    const result = await api(`/api/classroom/concepts?moduleId=${encodeURIComponent(moduleId)}`);
+    teacherLaunchConceptCache[moduleId] = result.concepts || [];
+    if (els.teacherLaunchSelectedApp.value === moduleId) renderConceptList(moduleId, teacherLaunchConceptCache[moduleId]);
+  } catch (_error) {
+    els.teacherLaunchConceptList.innerHTML = '<p class="teacher-launch-concept-empty-v1">Could not load concepts for this app.</p>';
+  }
 }
 
 function selectTeacherLaunchOption(button) {
@@ -269,30 +462,188 @@ function selectTeacherLaunchOption(button) {
   const input = document.getElementById(button.dataset.target);
   if (!input) return;
   setTeacherLaunchValue(input, button.dataset.value);
+  invalidateTeacherLaunchPreview();
+  if (input === els.teacherLaunchPurpose) {
+    const preset = TEACHER_PURPOSE_PRESETS[input.value] || TEACHER_PURPOSE_PRESETS.custom;
+    setTeacherLaunchValue(els.teacherLaunchQuestionCount, preset.questionCount);
+    setTeacherLaunchValue(els.teacherLaunchPlayCount, preset.plays);
+    setTeacherLaunchValue(els.teacherLaunchStrategy, preset.strategy);
+  }
   if (els.teacherLaunchSource.value !== "exam-lab" && input === els.teacherLaunchQuestionCount) teacherLaunchStandardQuestionCount = input.value;
   if (els.teacherLaunchSource.value !== "exam-lab" && input === els.teacherLaunchLevel) teacherLaunchStandardLevel = input.value;
   if (input === els.teacherLaunchModule) updateTeacherLaunchHelper();
 }
 
-function submitTeacherLaunch(event) {
+function selectedQuestionSetModules() {
+  if (els.teacherLaunchSource.value === "app") {
+    const selected = els.teacherLaunchApp.value || "instrument-identifier";
+    const source = window.EchoAuralPMRegistry?.get(selected);
+    return [source?.moduleId || selected];
+  }
+  return ["instrument-identifier", "ensemble-recognition", "melodic-intervals", "texture-trainer", "meter-master", "cadence-coach", "musical-language", "structure-spotter", "key-signature-sprint", "chord-identifier", "era-explorer", "melody-master"];
+}
+
+function selectedQuestionSetSources() {
+  if (els.teacherLaunchSource.value !== "app") return [];
+  const source = window.EchoAuralPMRegistry?.get(els.teacherLaunchApp.value || "");
+  return source ? [source.sourceKey] : [];
+}
+
+function buildTeacherQuestionSetSpec() {
+  const level = els.teacherLaunchSource.value === "targeted" ? "all" : (els.teacherLaunchLevel.value || "all");
+  return {
+    version: 1,
+    purpose: els.teacherLaunchPurpose.value || "custom",
+    // Mixed rounds should retain the selected balancing strategy so the
+    // shared class queue does not accidentally cluster several questions from
+    // one app (for example three Melodic Intervals in a row). App-specific
+    // rounds remain random within that app; Targeted rounds use class evidence.
+    strategy: els.teacherLaunchSource.value === "targeted"
+      ? "class-priorities"
+      : els.teacherLaunchSource.value === "mixed"
+        ? (els.teacherLaunchStrategy.value || "balanced")
+        : "random",
+    classId: els.teacherLaunchClass.value || "",
+    questionCount: Number(els.teacherLaunchQuestionCount.value || 5),
+    maxListens: Number(els.teacherLaunchPlayCount.value || 4),
+    moduleIds: selectedQuestionSetModules(),
+    sourceKeys: selectedQuestionSetSources(),
+    musicalElements: els.teacherLaunchElement.value ? [els.teacherLaunchElement.value] : [],
+    skillCodes: els.teacherLaunchSkill.value ? [els.teacherLaunchSkill.value] : [],
+    levels: level === "all" ? [] : [level],
+    avoidRecent: els.teacherLaunchAvoidRecent.checked,
+    leaderboard: els.teacherLaunchLeaderboard.checked,
+    seed: `${state.teacher?.id || "teacher"}:${Date.now()}`
+  };
+}
+
+function formatPreviewDistribution(values = {}) {
+  return Object.entries(values).map(([label, count]) => `${label}: ${count}`).join(" · ") || "No classified questions";
+}
+
+function renderTeacherLaunchPreview(result) {
+  const preview = result.preview || {};
+  els.teacherLaunchPreview.innerHTML = `
+    <h3>${Number(preview.questionCount || 0)} questions · about ${Number(preview.estimatedMinutes || 1)} min</h3>
+    <p>${escapeHtml(preview.rationale || "Question set ready.")}</p>
+    <p><strong>Apps:</strong> ${escapeHtml(formatPreviewDistribution(preview.modules))}</p>
+    <p><strong>Elements:</strong> ${escapeHtml(formatPreviewDistribution(preview.musicalElements))}</p>
+    ${preview.focusSkills?.length ? `<p><strong>Skills:</strong> ${escapeHtml(preview.focusSkills.join(", "))}</p>` : ""}
+    ${preview.questions?.length ? `<ol class="question-set-preview-list">${preview.questions.map((question) => `<li><strong>${escapeHtml(question.moduleTitle)}</strong><span>${escapeHtml([question.questionId, question.skillName, question.level].filter(Boolean).join(" · "))}</span></li>`).join("")}</ol>` : ""}
+    ${preview.warnings?.length ? `<ul>${preview.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul>` : ""}
+  `;
+  els.teacherLaunchPreview.hidden = false;
+}
+
+async function previewTeacherQuestionSet() {
+  if (els.teacherLaunchStrategy.value === "skill-focus" && !els.teacherLaunchElement.value && !els.teacherLaunchSkill.value) {
+    setMessage(els.teacherLaunchMessage, "Choose a musical element or specific skill for a Skill Focus set.", "error");
+    return null;
+  }
+  setMessage(els.teacherLaunchMessage, "Building preview…");
+  els.previewTeacherLaunch.disabled = true;
+  try {
+    const result = await api("/api/classroom/question-set/preview", {
+      method: "POST",
+      body: JSON.stringify({ spec: buildTeacherQuestionSetSpec() })
+    });
+    teacherLaunchDraft = result;
+    renderTeacherLaunchPreview(result);
+    setMessage(els.teacherLaunchMessage, "Question set ready. Review it, then open the live room.", "success");
+    return result;
+  } catch (error) {
+    teacherLaunchDraft = null;
+    setMessage(els.teacherLaunchMessage, error.message, "error");
+    return null;
+  } finally {
+    els.previewTeacherLaunch.disabled = false;
+  }
+}
+
+// "App" mode's select stores a PM_REGISTRY sourceKey (e.g.
+// "melody-master-devices"), not always the same string as its moduleId —
+// resolve both from the registry for the homework spec.
+function resolveTeacherLaunchAppSelection() {
+  const sourceKey = els.teacherLaunchApp.value;
+  const source = window.EchoAuralPMRegistry?.get(sourceKey);
+  return { moduleId: source?.moduleId || sourceKey, sourceKey };
+}
+
+async function submitHomeworkAssignment() {
+  const title = els.teacherLaunchHomeworkTitle.value.trim();
+  const classId = els.teacherLaunchClass.value;
+  const selectionMode = els.teacherLaunchSource.value;
+  if (!title) return setMessage(els.teacherLaunchMessage, "Give this homework a title.", "error");
+  if (!classId) return setMessage(els.teacherLaunchMessage, "Choose a class for this homework.", "error");
+
+  const body = {
+    classId,
+    title,
+    dueAt: els.teacherLaunchHomeworkDueAt.value ? new Date(els.teacherLaunchHomeworkDueAt.value).toISOString() : null,
+    selectionMode,
+    questionCount: Number(els.teacherLaunchQuestionCount.value || 10)
+  };
+
+  if (selectionMode === "app") {
+    const { moduleId, sourceKey } = resolveTeacherLaunchAppSelection();
+    body.moduleId = moduleId;
+    body.sourceKey = sourceKey;
+  }
+
+  if (selectionMode === "selected") {
+    body.selectedConcepts = Object.entries(teacherLaunchSelectedConcepts)
+      .filter(([, values]) => values.size)
+      .map(([moduleId, values]) => ({ moduleId, concepts: Array.from(values) }));
+    if (!body.selectedConcepts.length) {
+      return setMessage(els.teacherLaunchMessage, "Tick at least one concept to target.", "error");
+    }
+  }
+
+  setMessage(els.teacherLaunchMessage, "Assigning homework…");
+  els.teacherLaunchSubmit.disabled = true;
+  try {
+    const result = await api("/api/teacher/homework", { method: "POST", body: JSON.stringify(body) });
+    setMessage(els.teacherLaunchMessage, `Homework assigned to ${result.assignment.assignedCount} student${result.assignment.assignedCount === 1 ? "" : "s"}.`, "success");
+    await loadHomeworkAssignments();
+    window.setTimeout(closeTeacherLaunchDialog, 900);
+  } catch (error) {
+    setMessage(els.teacherLaunchMessage, error.message, "error");
+  } finally {
+    els.teacherLaunchSubmit.disabled = false;
+  }
+}
+
+async function submitTeacherLaunch(event) {
   event.preventDefault();
+  if (teacherLaunchMode === "homework") return submitHomeworkAssignment();
   const copy = TEACHER_LAUNCH_COPY[teacherLaunchMode] || TEACHER_LAUNCH_COPY.live;
+  const examLab = els.teacherLaunchModule.value === "exam-lab";
+  if (teacherLaunchMode === "live" && !examLab && !teacherLaunchDraft) {
+    teacherLaunchDraft = await previewTeacherQuestionSet();
+    if (!teacherLaunchDraft) return;
+  }
+  const plannedModules = teacherLaunchDraft?.questionPlan
+    ? Array.from(new Set(teacherLaunchDraft.questionPlan.map((item) => item.moduleId)))
+    : [];
+  const plannedModule = plannedModules.length > 1 ? "mixed" : (plannedModules[0] || els.teacherLaunchModule.value || "instrument-identifier");
   const params = new URLSearchParams({
     dashboardLaunch: "1",
     launch: teacherLaunchMode,
-    module: els.teacherLaunchModule.value || "instrument-identifier",
+    module: plannedModule,
     quizLength: els.teacherLaunchQuestionCount.value || "5",
     maxListens: els.teacherLaunchPlayCount.value || "4",
     questionLevel: els.teacherLaunchLevel.value || "all",
     autoCreate: copy.autoCreate
   });
 
-  if (els.teacherLaunchModule.value === "exam-lab" && els.teacherLaunchClass.value) {
+  if (els.teacherLaunchClass.value) {
     params.set("classId", els.teacherLaunchClass.value);
   }
 
+  if (teacherLaunchDraft?.draftId) params.set("questionSetDraft", teacherLaunchDraft.draftId);
+
   if (els.teacherLaunchModule.value === "mixed") {
-    params.set("mixedModules", "instrument-identifier,melodic-intervals");
+    params.set("mixedModules", plannedModules.length ? plannedModules.join(",") : selectedQuestionSetModules().join(","));
   }
 
   window.location.assign(`/teacher/?${params.toString()}`);
@@ -400,13 +751,22 @@ function renderClassSummary() {
   const canAddStudent = classes.length > 0 && !seatLimitReached;
   els.openStudentDialog.disabled = !canAddStudent;
 
-  if (!classes.length) {
-    els.openStudentDialog.textContent = "Create a class first";
-  } else if (seatLimitReached) {
-    els.openStudentDialog.textContent = "All student seats used";
-  } else {
-    els.openStudentDialog.textContent = "Add student";
-  }
+  const addStudentLabel = !classes.length
+    ? "Create a class first"
+    : seatLimitReached
+      ? "All student seats used"
+      : "Add student";
+  els.openStudentDialog.querySelector(".teacher-button-label").textContent = addStudentLabel;
+  renderDashboardGlance();
+}
+
+// "This week at a glance" left-sidebar widget — real current totals (not a
+// time-windowed "this week" delta, since no such history is tracked yet),
+// drawn from the same state this console already loads.
+function renderDashboardGlance() {
+  if (els.glanceClassCount) els.glanceClassCount.textContent = String(activeClasses().length);
+  if (els.glanceStudentCount) els.glanceStudentCount.textContent = String(currentSeatAvailability().activeStudents);
+  if (els.glanceHomeworkCount) els.glanceHomeworkCount.textContent = String(state.homeworkAssignments.length);
 }
 
 async function loadClasses() {
@@ -593,24 +953,14 @@ function progressPill(progress, fallback = "No results") {
 }
 
 function studentRowMarkup(student) {
-  const overall = overallStudent(student.id);
-  const progressModeRow = progressModeStudentSummary(student.id);
-  const quizzes = categoryStudent("quizzes", student.id);
-
   return `
     <article class="student-row student-row-v2 class-student-row-v7 ${student.active ? "" : "inactive"}" data-student-id="${escapeHtml(student.id)}">
-      <button class="student-summary-button" type="button" data-action="view-progress">
+      <div class="student-summary-copy">
         <span class="student-name">${escapeHtml(student.displayName)}</span>
         <span class="student-username">${escapeHtml(student.username)}</span>
-      </button>
-      <div class="student-category-results-v2">
-        <div><span>Overall</span>${progressPill(overall)}</div>
-        <div><span>Progress Mode</span>${progressModePill(progressModeRow)}</div>
-        <div><span>Live Sessions</span>${progressPill(quizzes, "No sessions")}</div>
       </div>
       <div class="student-status">${student.active ? "Active seat" : "Inactive"}</div>
       <div class="student-actions">
-        <button class="small-button" type="button" data-action="view-progress">View progress</button>
         <button class="small-button" type="button" data-action="reset-pin">Reset PIN</button>
         <button class="${student.active ? "danger-button" : "small-button"}" type="button" data-action="toggle">${student.active ? "Disable" : "Reactivate"}</button>
       </div>
@@ -656,6 +1006,7 @@ function renderStudents() {
   renderClassSummary();
 
   const classes = activeClasses();
+  els.addStudentAction.hidden = classes.length === 0;
   if (!classes.length) {
     els.studentList.innerHTML = '<div class="empty-state">No classes yet. Create a class, add named student logins, then finish the class.</div>';
     return;
@@ -733,44 +1084,6 @@ const CLASS_CATEGORY_CONFIG = {
   }
 };
 
-function classCategorySummaryMarkup(categoryKey, category) {
-  const config = CLASS_CATEGORY_CONFIG[categoryKey];
-  const overall = category?.overall || {};
-  const hasEvidence = Number(overall.questions || 0) > 0;
-  const practiceSeconds = categoryKey === "practice" ? Number(overall.practiceSeconds || 0) : 0;
-  const practiceTimeText = practiceSeconds ? ` · ${formatDuration(practiceSeconds)} practice` : "";
-  const studentCount = practiceSeconds && !hasEvidence
-    ? Number(overall.practiceStudents || 0)
-    : Number(overall.participatingStudents || 0);
-  const percentage = hasEvidence ? `${Number(overall.percentage || 0)}%` : "—";
-  const feedback = hasEvidence
-    ? overall.compiledFeedback
-    : practiceSeconds
-      ? "Students have logged practice time. Progress-mode scores will appear here when they complete levelled rounds."
-      : config.emptyFeedback;
-
-  return `
-    <div class="learning-summary-heading-v5">
-      <div class="learning-summary-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" style="--ea-icon:url('${config.icon}')"></span></div>
-      <div class="learning-summary-title-v5">
-        <p>${escapeHtml(config.eyebrow)}</p>
-        <h3 id="${escapeHtml(config.headingId)}">${escapeHtml(config.title)}</h3>
-      </div>
-      <strong class="learning-summary-percentage-v5 ${scoreClass(overall.percentage, overall.questions)}">${percentage}</strong>
-    </div>
-
-    <div class="learning-summary-feedback-v5">
-      <span>Compiled class feedback</span>
-      <p>${escapeHtml(feedback)}</p>
-    </div>
-
-    <div class="learning-summary-footer-v5">
-      <span>${Number(overall.questions || 0)} questions · ${Number(overall.rounds || 0)} rounds${practiceTimeText} · ${studentCount} students</span>
-      <button class="secondary-button learning-detail-button-v5" type="button" data-category-detail="${escapeHtml(categoryKey)}">Detailed feedback</button>
-    </div>
-  `;
-}
-
 // Real modules/progress-mode/ class-wide aggregate, computed client-side
 // from state.progressModeSummaries (one row per student who has ever
 // finished a round there — see loadProgressModeSummaries).
@@ -794,34 +1107,22 @@ function progressModeClassAggregate() {
   return { rows, totalStudents, participating, totalCorrect, totalQuestions, percentage, averageLevelLabel };
 }
 
-function progressModeClassSummaryMarkup() {
-  const config = CLASS_CATEGORY_CONFIG.progress;
-  const data = progressModeClassAggregate();
-  const hasEvidence = data.totalQuestions > 0;
-  const feedback = hasEvidence
-    ? `Class average level: ${data.averageLevelLabel}. ${data.participating} / ${data.totalStudents} students have played a round.`
-    : config.emptyFeedback;
-
-  return `
-    <div class="learning-summary-heading-v5">
-      <div class="learning-summary-icon-slot-v5" aria-hidden="true"><span class="dashboard-line-icon-v5" style="--ea-icon:url('${config.icon}')"></span></div>
-      <div class="learning-summary-title-v5">
-        <p>${escapeHtml(config.eyebrow)}</p>
-        <h3 id="${escapeHtml(config.headingId)}">${escapeHtml(config.title)}</h3>
-      </div>
-      <strong class="learning-summary-percentage-v5 ${scoreClass(data.percentage, data.totalQuestions)}">${hasEvidence ? `${data.percentage}%` : "—"}</strong>
-    </div>
-
-    <div class="learning-summary-feedback-v5">
-      <span>Compiled class feedback</span>
-      <p>${escapeHtml(feedback)}</p>
-    </div>
-
-    <div class="learning-summary-footer-v5">
-      <span>${data.totalQuestions} questions · ${data.participating} / ${data.totalStudents} students</span>
-      <button class="secondary-button learning-detail-button-v5" type="button" data-category-detail="progress">Detailed feedback</button>
-    </div>
-  `;
+// Level first, percentage as the tiebreaker — sorting by raw percentage
+// alone ranked a student stuck at Foundation on a lucky small sample above
+// one who had already reached Mastering (which requires clearing an 80%+
+// bar at every level along the way — a hard early climb can easily average
+// out lower lifetime than a shallower, more recent run of correct
+// answers), while the badge shown right next to their name still displayed
+// the real, higher level — a visible contradiction in a teacher-facing,
+// whole-class view. Same reasoning as account/student-home/student-home.js's
+// weakestArea/strongestAreas. A named, standalone comparator (not inlined
+// into the .sort() call below) so it can be unit-tested directly — see
+// account/teacher-dashboard/tests/roster-ranking.test.js.
+function compareProgressModeRosterRows(a, b) {
+  const levelA = PROGRESSION_LEVEL_LABELS.indexOf(a.overallLevelLabel);
+  const levelB = PROGRESSION_LEVEL_LABELS.indexOf(b.overallLevelLabel);
+  if (levelA !== levelB) return levelB - levelA;
+  return progressModePercentage(b) - progressModePercentage(a);
 }
 
 // Class-wide Progress Mode detail dialog — a per-student roster breakdown,
@@ -835,7 +1136,7 @@ function progressModeClassDetailMarkup() {
 
   const rows = data.rows
     .slice()
-    .sort((a, b) => progressModePercentage(b) - progressModePercentage(a))
+    .sort(compareProgressModeRosterRows)
     .map((row) => {
       const student = state.students.find((candidate) => String(candidate.id) === String(row.studentId));
       const name = student ? student.displayName : (row.displayName || row.username || "Student");
@@ -856,12 +1157,6 @@ function progressModeClassDetailMarkup() {
     <div class="category-feedback-v2"><span>Compiled feedback</span><p>${escapeHtml(`Class average level: ${data.averageLevelLabel}.`)}</p></div>
     <details class="category-details-v2" open><summary>By student</summary><div class="category-history-list-v2">${rows}</div></details>
   `;
-}
-
-function renderClassCategory(targetId, categoryKey, category) {
-  const target = document.getElementById(targetId);
-  if (!target) return;
-  target.innerHTML = classCategorySummaryMarkup(categoryKey, category);
 }
 
 function examLabDashboardRouteHref(route = {}) {
@@ -936,6 +1231,42 @@ function renderExamLabDashboardSessions(sessions = []) {
   </section>`;
 }
 
+async function loadHomeworkAssignments() {
+  try {
+    const result = await api("/api/teacher/homework");
+    state.homeworkAssignments = result.assignments || [];
+  } catch (_error) {
+    // Leave whatever was already loaded — the dashboard still works without
+    // a fresh list, and the launch dialog surfaces its own error already.
+  }
+  return state.homeworkAssignments;
+}
+
+function renderHomeworkAssignmentsDetail(assignments = []) {
+  if (!assignments.length) {
+    return `
+      <div class="homework-detail-placeholder-v5">
+        <span class="homework-status-pill-v3">No homework yet</span>
+        <h3>No homework assigned</h3>
+        <p>Use "Set homework" to assign a round of questions for students to complete at their own pace.</p>
+      </div>
+    `;
+  }
+  return `
+    <div class="homework-assignment-list-v1">
+      ${assignments.map((assignment) => `
+        <div class="homework-assignment-row-v1">
+          <div>
+            <strong>${escapeHtml(assignment.title)}</strong>
+            <small>${escapeHtml(assignment.className)} · ${assignment.dueAt ? `Due ${escapeHtml(formatDateTime(assignment.dueAt))}` : "No due date"} · Assigned ${escapeHtml(formatDateTime(assignment.createdAt))}</small>
+          </div>
+          <span class="homework-assignment-progress-v1 ${assignment.completedCount >= assignment.assignedCount && assignment.assignedCount > 0 ? "is-complete" : ""}">${assignment.completedCount} of ${assignment.assignedCount} complete</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 function detailedCategoryMarkup(categoryKey, category) {
   const config = CLASS_CATEGORY_CONFIG[categoryKey];
   const overall = category?.overall || {};
@@ -947,17 +1278,30 @@ function detailedCategoryMarkup(categoryKey, category) {
       ? "Students have logged practice time. Progress-mode scores will appear here when they complete levelled rounds."
       : config.emptyFeedback;
 
-  if (categoryKey === "homework") {
+  const homeworkAssignmentsSection = categoryKey === "homework"
+    ? `
+      <section class="category-detail-homework-v1">
+        <div class="category-detail-section-heading-v5">
+          <div><p class="card-eyebrow">Assignments</p><h3>Homework tracking</h3></div>
+        </div>
+        ${renderHomeworkAssignmentsDetail(state.homeworkAssignments)}
+      </section>
+    `
+    : "";
+
+  if (categoryKey === "homework" && !hasEvidence) {
     return `
+      ${homeworkAssignmentsSection}
       <div class="homework-detail-placeholder-v5">
-        <span class="homework-status-pill-v3">Coming next</span>
-        <h3>No homework assigned</h3>
-        <p>Homework assignments, deadlines, submissions, app-by-app averages and compiled feedback will appear here when the homework system is added.</p>
+        <span class="homework-status-pill-v3">No completions yet</span>
+        <h3>No homework results yet</h3>
+        <p>Once a student completes an assigned round, their results and compiled feedback will appear here.</p>
       </div>
     `;
   }
 
   return `
+    ${homeworkAssignmentsSection}
     <div class="category-detail-overview-v5">
       <div class="category-detail-score-v5 ${scoreClass(overall.percentage, overall.questions)}">
         <span>${escapeHtml(overall.level || "No evidence")}</span>
@@ -989,9 +1333,10 @@ function detailedCategoryMarkup(categoryKey, category) {
   `;
 }
 
-function openCategoryDetail(categoryKey) {
+async function openCategoryDetail(categoryKey) {
   const config = CLASS_CATEGORY_CONFIG[categoryKey];
   if (!config || !els.categoryDetailDialog) return;
+  if (categoryKey === "homework") await loadHomeworkAssignments();
 
   const isProgressDetail = categoryKey === "progress";
   const categories = state.classProgress?.categories || {};
@@ -1009,25 +1354,185 @@ function openCategoryDetail(categoryKey) {
   els.categoryDetailDialog.showModal();
 }
 
-function renderClassProgress() {
-  const progress = state.classProgress;
-  if (!progress) return;
-  const overall = progress.overall;
-  els.classLevel.textContent = overall.level;
-  els.classPercentage.textContent = overall.questions ? `${overall.percentage}%` : "—";
-  els.classScore.textContent = `${formatMark(overall.score)} / ${formatMark(overall.maximumScore)} marks`;
-  els.classQuestions.textContent = String(overall.questions);
-  els.classRounds.textContent = String(overall.rounds);
-  els.classStudents.textContent = `${overall.participatingStudents} / ${overall.activeStudents}`;
-  els.classParticipation.textContent = `${overall.participation}%`;
-  els.classFeedback.textContent = overall.compiledFeedback;
+// Class-wide equivalent of a single student's progressModeStudentSummary()
+// row shape ({sources, areas}) — sums every student's real Progress Mode
+// evidence (state.progressModeSummaries, loaded for the whole roster by
+// loadProgressModeSummaries) so teacherElementTotals can blend it into the
+// class-level element tiles exactly the way it already blends one
+// student's own row for the individual view. An optional classId restricts
+// the sum to students in that class — Progress Mode data is fetched once
+// for the whole roster and is per-student, so this filter is cheap and
+// needs no separate network request (unlike Live Session/Homework data,
+// which does need a class-scoped server call — see loadMiddleColumnData).
+function classProgressModeAreaSummary(classId = "") {
+  const sourceTotals = new Map();
+  const areaTotals = new Map();
+  const studentClassById = new Map(state.students.map((student) => [String(student.id), student.classId]));
+  state.progressModeSummaries.forEach((row, studentId) => {
+    if (classId && String(studentClassById.get(String(studentId)) || "") !== String(classId)) return;
+    (row.sources || []).forEach((source) => {
+      const sourceKey = String(source.sourceKey || "");
+      if (!sourceKey) return;
+      if (!sourceTotals.has(sourceKey)) {
+        sourceTotals.set(sourceKey, { sourceKey, areaKey: source.areaKey, label: source.label, correct: 0, questions: 0 });
+      }
+      const entry = sourceTotals.get(sourceKey);
+      entry.correct += Number(source.correct || 0);
+      entry.questions += Number(source.questions || 0);
+    });
+    (row.areas || []).forEach((area) => {
+      const areaKey = String(area.areaKey || "");
+      if (!areaKey) return;
+      if (!areaTotals.has(areaKey)) areaTotals.set(areaKey, { areaKey, correct: 0, questions: 0 });
+      const entry = areaTotals.get(areaKey);
+      entry.correct += Number(area.correct || 0);
+      entry.questions += Number(area.questions || 0);
+    });
+  });
+  return { sources: Array.from(sourceTotals.values()), areas: Array.from(areaTotals.values()) };
+}
 
-  const categories = progress.categories || { quizzes: { overall: {}, modules: [] } };
-  const progressModeTarget = document.getElementById("teacherPracticeContent");
-  if (progressModeTarget) progressModeTarget.innerHTML = progressModeClassSummaryMarkup();
-  renderClassCategory("teacherQuizContent", "quizzes", categories.quizzes);
-  renderClassCategory("teacherHomeworkContent", "homework", categories.homework || { overall: {} });
-  renderStudents();
+// Resolves which progress/progressMode pair feeds the middle column for the
+// current state.middleColumn scope, fetching (and caching) class-scoped
+// data only when needed, then re-renders the tile grid and the right
+// column's suggested intervention. This is the single entry point every
+// filter control (mode buttons, class select, student select) calls after
+// updating state.middleColumn.
+async function loadMiddleColumnData() {
+  const { classId, studentId } = state.middleColumn;
+  els.classProgressStatus.textContent = "Loading class results…";
+  try {
+    if (studentId) {
+      const result = await api(`/api/teacher/students/${studentId}/progress`);
+      state.middleColumnProgress = result.progress;
+      state.middleColumnProgressMode = progressModeStudentSummary(studentId);
+    } else if (classId) {
+      if (state.classScopedProgressClassId !== classId) {
+        state.classScopedProgress = await api(`/api/teacher/progress/class?classId=${encodeURIComponent(classId)}`);
+        state.classScopedProgressClassId = classId;
+      }
+      state.middleColumnProgress = state.classScopedProgress;
+      state.middleColumnProgressMode = classProgressModeAreaSummary(classId);
+    } else {
+      state.middleColumnProgress = state.classProgress;
+      state.middleColumnProgressMode = classProgressModeAreaSummary();
+    }
+    renderClassElementGrid();
+    updateSuggestedIntervention();
+    els.classProgressStatus.textContent = "";
+  } catch (error) {
+    els.classProgressStatus.textContent = error.message || "Could not load class results.";
+  }
+}
+
+function renderClassElementGrid() {
+  if (!els.classElementGrid) return;
+  const totals = teacherElementTotals(state.middleColumnProgress, state.middleColumnProgressMode, state.middleColumn.mode);
+  state.middleColumnTotals = totals;
+  const areaKeys = ["melody", "texture", "harmony", "instrumentation", "rhythm", "context", "structure"];
+  // Feedback statements only ever appear on a tile once a real student is
+  // selected — a class-wide or whole-account tile is numbers only, per the
+  // confirmed design (a blended group's "doing well/focus on" isn't a real
+  // statement about any one learner).
+  const hasStudentScope = Boolean(state.middleColumn.studentId);
+
+  els.classElementGrid.innerHTML = areaKeys.map((areaKey) => {
+    const area = totals.get(areaKey) || {};
+    const questions = Number(area.maximumScore || area.questions || 0);
+    const correct = Number(area.score || 0);
+    const percentage = questions ? Math.round((correct / questions) * 100) : 0;
+    const level = percentage >= 85 ? "Mastering" : percentage >= 70 ? "Securing" : percentage >= 50 ? "Developing" : "Foundation";
+    const cardSummary = hasStudentScope && questions ? composeTileCardSummary(area) : null;
+    return `
+      <button type="button" class="class-element-card-v1 ${scoreClass(percentage, questions)}" data-class-element="${areaKey}" aria-label="View ${TEACHER_ELEMENT_LABELS[areaKey]} details">
+        <span class="class-element-card-icon-v1"><img src="${TEACHER_ELEMENT_ICONS[areaKey]}" alt="" /></span>
+        <strong class="class-element-card-title-v1">${TEACHER_ELEMENT_LABELS[areaKey]}</strong>
+        ${cardSummary ? `<p class="class-element-card-feedback-v1">${escapeHtml(cardSummary)}</p>` : ""}
+        <strong class="class-element-card-pct-v1">${questions ? `${percentage}%` : "—"}</strong>
+        <span class="class-element-card-bar-v1" aria-hidden="true"><i style="width:${questions ? percentage : 0}%"></i></span>
+        <small class="class-element-card-level-v1">${escapeHtml(level)}</small>
+        <span class="class-element-card-explore-v1">Click to explore<span aria-hidden="true">›</span></span>
+      </button>
+    `;
+  }).join("");
+
+  els.classElementGrid.querySelectorAll("[data-class-element]").forEach((card) => {
+    card.addEventListener("click", () => {
+      openClassElementBreakdown(card.dataset.classElement);
+    });
+  });
+
+  updateLearningFullBreakdownLink();
+}
+
+// "Full breakdown" is only meaningful for a single non-"all" mode with no
+// student selected (a single student's popup already shows everything
+// relevant; "all modes" has no one category for the legacy dialog to show).
+function updateLearningFullBreakdownLink() {
+  if (!els.learningFullBreakdownLink) return;
+  const canShow = state.middleColumn.mode !== "all" && !state.middleColumn.studentId;
+  els.learningFullBreakdownLink.hidden = !canShow;
+}
+
+function openClassElementBreakdown(areaKey) {
+  const studentContext = state.middleColumn.studentId
+    ? state.students.find((student) => String(student.id) === String(state.middleColumn.studentId))
+    : null;
+  renderTeacherElementBreakdown(areaKey, state.middleColumnTotals, studentContext);
+}
+
+// Mode filter only changes which parts of already-loaded data get summed
+// (see teacherElementTotals' modeFilter param) — no refetch needed.
+function setMiddleColumnMode(mode) {
+  state.middleColumn.mode = mode;
+  els.learningModeFilter?.querySelectorAll("[data-mode-filter]").forEach((button) => {
+    const selected = button.dataset.modeFilter === mode;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  renderClassElementGrid();
+  updateSuggestedIntervention();
+}
+
+function setMiddleColumnClass(classId) {
+  state.middleColumn.classId = classId;
+  state.middleColumn.studentId = "";
+  populateLearningStudentFilterSelect();
+  scheduleMiddleColumnRefresh();
+  loadMiddleColumnData();
+}
+
+function setMiddleColumnStudent(studentId) {
+  state.middleColumn.studentId = studentId;
+  scheduleMiddleColumnRefresh();
+  loadMiddleColumnData();
+}
+
+function populateLearningClassFilterSelect() {
+  const select = els.learningClassFilterSelect;
+  if (!select) return;
+  const classes = activeClasses();
+  select.hidden = classes.length <= 1;
+  if (select.hidden) return;
+  const previous = state.middleColumn.classId;
+  select.innerHTML = '<option value="">All classes</option>'
+    + classes.map((classItem) => `<option value="${escapeHtml(classItem.id)}">${escapeHtml(classItem.className)}</option>`).join("");
+  select.value = classes.some((classItem) => String(classItem.id) === previous) ? previous : "";
+  if (select.value !== previous) state.middleColumn.classId = select.value;
+}
+
+function populateLearningStudentFilterSelect() {
+  const select = els.learningStudentFilterSelect;
+  if (!select) return;
+  const pool = state.students
+    .filter((student) => student.active && (!state.middleColumn.classId || String(student.classId) === String(state.middleColumn.classId)))
+    .slice()
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
+  const previous = state.middleColumn.studentId;
+  select.innerHTML = '<option value="">All students</option>'
+    + pool.map((student) => `<option value="${escapeHtml(String(student.id))}">${escapeHtml(student.displayName)}</option>`).join("");
+  select.value = pool.some((student) => String(student.id) === previous) ? previous : "";
+  if (select.value !== previous) state.middleColumn.studentId = select.value;
 }
 
 // Real modules/progress-mode/ data for this teacher's whole roster — a
@@ -1067,8 +1572,15 @@ async function loadClassProgress(showStatus = false) {
     loadProgressModeSummaries()
   ]);
   state.classProgress = classProgress;
-  renderClassProgress();
-  els.classProgressStatus.textContent = showStatus ? "Class results refreshed." : "";
+  // A stale class-scoped cache would otherwise keep showing pre-refresh
+  // numbers if the teacher is currently viewing a class filter.
+  state.classScopedProgress = null;
+  state.classScopedProgressClassId = null;
+  renderStudents();
+  populateLearningClassFilterSelect();
+  populateLearningStudentFilterSelect();
+  await loadMiddleColumnData();
+  if (showStatus) els.classProgressStatus.textContent = "Class results refreshed.";
 }
 
 function individualProgressionLevelLabel(module) {
@@ -1194,74 +1706,889 @@ function individualProgressModeCategory(studentId) {
   `;
 }
 
-function renderStudentProgress(progress) {
-  const overall = progress.overall;
-  const categories = progress.categories || { quizzes: { overall: {}, modules: [], recentRounds: [], recentQuestions: [] }, homework: { overall: {} } };
-  els.studentProgressContent.innerHTML = `
-    <div class="individual-overall-strip-v2">
-      <div class="individual-overall-score-v2 ${scoreClass(overall.percentage, overall.questions)}">
-        <span>${escapeHtml(overall.level)}</span><strong>${overall.questions ? `${overall.percentage}%` : "—"}</strong><small>${formatMark(overall.score)} / ${formatMark(overall.maximumScore)} marks</small>
+const TEACHER_ELEMENT_ICONS = {
+  melody: "/assets/icons/modules/melody-master.png",
+  texture: "/assets/icons/modules/texture-trainer.png",
+  harmony: "/assets/icons/modules/harmony-explorer.png",
+  instrumentation: "/assets/icons/modules/instrument-identifier.png",
+  rhythm: "/assets/icons/modules/meter-master.png",
+  context: "/assets/icons/modules/context-coach.png",
+  structure: "/assets/icons/modules/structure-spotter.png"
+};
+
+const TEACHER_ELEMENT_LABELS = {
+  melody: "Melody",
+  texture: "Texture",
+  harmony: "Harmony",
+  instrumentation: "Instrumentation",
+  rhythm: "Meter",
+  context: "Context",
+  structure: "Structure"
+};
+
+const TEACHER_MODULE_ELEMENTS = {
+  "melody-master": "melody",
+  "melody-master-dictation": "melody",
+  "melody-master-devices": "melody",
+  "melodic-intervals": "melody",
+  "texture-trainer": "texture",
+  "instrument-identifier": "instrumentation",
+  "ensemble-recognition": "instrumentation",
+  "meter-master": "rhythm",
+  "key-signature-sprint": "harmony",
+  "harmony-key-signatures": "harmony",
+  "chord-identifier": "harmony",
+  "cadence-coach": "harmony",
+  "era-explorer": "context",
+  "context-coach-composer": "context",
+  "context-coach-period": "context",
+  "exam-lab": "context",
+  "musical-language-articulation": "melody",
+  "musical-language-ornamentation": "melody",
+  "musical-language-dynamics": "texture",
+  "musical-language-tempo": "rhythm",
+  "musical-language": "melody",
+  "structure-spotter": "structure"
+};
+
+const TEACHER_SUBAPP_ICONS = {
+  "melody-master": "/assets/icons/modules/mm-transparent/melodic-dictation-transparent.png",
+  "melodic-devices": "/assets/icons/modules/mm-transparent/melodic-devices-transparent.png",
+  "melodic-intervals": "/assets/icons/modules/mm-transparent/melodic-intervals-transparent.png",
+  "texture-trainer": "/assets/icons/modules/texture-trainer.png",
+  "instrument-identifier": "/assets/icons/modules/instrument-identifier.png",
+  "ensemble-recognition": "/assets/icons/modules/ii-transparent/ensembles-transparent-v3.png",
+  "key-signatures": "/assets/icons/modules/he-transparent/key-signatures-transparent.png",
+  "chord-identifier": "/assets/icons/modules/he-transparent/chord-identifier-transparent.png",
+  "cadence-coach": "/assets/icons/modules/he-transparent/cadences-transparent.png",
+  "meter-master": "/assets/icons/modules/meter-master.png",
+  "exam-lab": "/assets/icons/modules/exam-lab.png",
+  "context-coach-composer": "/assets/icons/modules/cc-transparent/composers-transparent.png",
+  "context-coach-period": "/assets/icons/modules/cc-transparent/eras-transparent.png"
+};
+
+const TEACHER_PM_SOURCE_MODULES = {
+  "melody-master-dictation": "melody-master",
+  "melody-master-devices": "melodic-devices",
+  "melodic-intervals": "melodic-intervals",
+  "instrument-identifier": "instrument-identifier",
+  "ensemble-recognition": "ensemble-recognition",
+  "texture-trainer": "texture-trainer",
+  "chord-identifier": "chord-identifier",
+  "harmony-key-signatures": "key-signatures",
+  "cadence-coach": "cadence-coach",
+  "meter-master": "meter-master",
+  "musical-language-ornamentation": "vocabulary-melody",
+  "musical-language-articulation": "vocabulary-melody",
+  "musical-language-dynamics": "vocabulary-texture",
+  "musical-language-tempo": "vocabulary-rhythm",
+  "structure-spotter": "structure-spotter",
+  "context-coach-composer": "context-coach-composer",
+  "context-coach-period": "context-coach-period"
+};
+
+// Inverse of TEACHER_PM_SOURCE_MODULES, recovering the real Progress Mode
+// sourceKey (SOURCE_PHRASES' own key space, modules/progress-mode/
+// feedback.js) from a breakdown row's already-merged displayModuleId — used
+// to fetch the same per-app feedback phrases the student dashboard shows.
+// Vocabulary targets are deliberately excluded: 2-4 real sourceKeys collapse
+// into one "vocabulary-<area>" display row, so there's no single sourceKey
+// to invert to; those rows fall back to a generic accuracy line instead
+// (composeSubAppFeedback below). Every non-vocabulary entry already maps a
+// sourceKey to itself or to a display id that also happens to be a valid
+// quiz/homework moduleId, so a row whose moduleId isn't in this reverse map
+// is simply used as its own sourceKey (identity) — correct for every
+// quiz/homework-sourced row, whose moduleId already matches the real
+// server-side app id.
+const REVERSE_TEACHER_PM_SOURCE_MODULES = Object.fromEntries(
+  Object.entries(TEACHER_PM_SOURCE_MODULES)
+    .filter(([, displayModuleId]) => !displayModuleId.startsWith("vocabulary-"))
+    .map(([sourceKey, displayModuleId]) => [displayModuleId, sourceKey])
+);
+
+// melody-master and era-explorer each cover more than one real Progress
+// Mode sub-app (melody-master-devices/-dictation; context-coach-composer/
+// -period), and classroom rounds already tag each question with its real
+// sourceKey (see classroom/progress-recorder.js's buildAnswerData) — so
+// Live Session/Homework evidence for these two is read via
+// category.bySourceKey instead of their coarse per-moduleId row (see
+// teacherElementTotals), the same fine-grained split Progress Mode's own
+// sources already use. musical-language is deliberately NOT included here:
+// its 4 sourceKeys are intentionally unified into one "Vocabulary" row
+// everywhere, not split.
+const MULTI_SOURCE_LIVE_SOURCE_KEYS = new Set([
+  "melody-master-devices",
+  "melody-master-dictation",
+  "context-coach-composer",
+  "context-coach-period"
+]);
+
+// Shared by both evidence sources that feed teacherElementTotals: Progress
+// Mode's own per-source pool (progressMode.sources) and, for the two
+// multi-sub-app modules above, a Live Session/Homework category's
+// bySourceKey. Keying both through the same TEACHER_PM_SOURCE_MODULES
+// displayModuleId means evidence recorded independently in Progress Mode
+// and evidence recorded in a classroom round for the exact same sub-app
+// (e.g. melody-master-devices) land in one combined row instead of two
+// similar-looking ones.
+function mergeSourceKeyEvidence(totals, sourceKey, correct, questions, fallbackLabel) {
+  const areaKey = TEACHER_MODULE_ELEMENTS[sourceKey];
+  const target = areaKey && totals.get(areaKey);
+  if (!target || !questions) return;
+  target.score += correct;
+  target.maximumScore += questions;
+  target.questions += questions;
+
+  const displayModuleId = TEACHER_PM_SOURCE_MODULES[sourceKey] || sourceKey;
+  const existing = target.modules.find((module) => module.moduleId === displayModuleId);
+  if (existing) {
+    existing.score += correct;
+    existing.maximumScore += questions;
+    existing.questions += questions;
+    existing.percentage = existing.maximumScore ? Math.round((existing.score / existing.maximumScore) * 100) : 0;
+    return;
+  }
+  const vocabulary = displayModuleId === "vocabulary-melody"
+    || displayModuleId === "vocabulary-texture"
+    || displayModuleId === "vocabulary-rhythm";
+  target.modules.push({
+    categoryKey: "overall",
+    title: vocabulary ? "Vocabulary" : (fallbackLabel || displayModuleId),
+    moduleId: displayModuleId,
+    icon: vocabulary ? "/assets/icons/modules/score-decoder.png" : (TEACHER_SUBAPP_ICONS[displayModuleId] || TEACHER_ELEMENT_ICONS[areaKey]),
+    score: correct,
+    maximumScore: questions,
+    questions,
+    percentage: questions ? Math.round((correct / questions) * 100) : 0,
+    level: "Overall"
+  });
+}
+
+// Every verb SOURCE_PHRASES' and CONCEPT_PHRASES' "strength" fragments
+// actually use ("recognise instruments...", "identify chords...", "notate
+// melodic dictations...", "describe musical texture...", "classify
+// textures...", "read Roman numeral analysis...", etc.) — a small, closed,
+// hand-verified set, not a generic English conjugator. Only listed here
+// where the naive "+s" fallback below would be wrong (e.g. "classify" needs
+// "classifies", not "classifys"); every other real verb in both phrase
+// banks conjugates correctly via that fallback already. The fallback only
+// applies at all if a future phrase entry introduces an unlisted verb.
+const THIRD_PERSON_VERB_MAP = {
+  recognise: "recognises",
+  identify: "identifies",
+  notate: "notates",
+  describe: "describes",
+  classify: "classifies"
+};
+
+function thirdPersonVerbPhrase(phrase) {
+  const words = String(phrase || "").split(" ");
+  // A handful of CONCEPT_PHRASES strength fragments lead with an adverb
+  // ("confidently read key signatures...") rather than the verb itself —
+  // skip over it (adverbs don't conjugate) and conjugate the real verb
+  // that follows instead.
+  const verbIndex = words[0] && words[0].endsWith("ly") ? 1 : 0;
+  const verb = words[verbIndex] || "";
+  words[verbIndex] = THIRD_PERSON_VERB_MAP[verb] || `${verb}s`;
+  return words.join(" ");
+}
+
+// Teacher-facing counterpart to modules/progress-mode/feedback.js's own
+// buildSourceFeedback(sourceKey, correct, questions) — same SOURCE_PHRASES
+// bank, same tier thresholds/logic (loaded read-only from
+// window.EAProgressModeFeedback, the exact pattern student-home.js already
+// uses to reach into this module), but templated in third person with the
+// student's real name rather than buildSourceFeedback's own second-person
+// "You..." wording, which no template-level find/replace could safely
+// reproduce (English third-person singular needs a verb conjugated with a
+// trailing -s that "you" doesn't take — see THIRD_PERSON_VERB_MAP above).
+function composeSubAppFeedback(module, studentName) {
+  const Feedback = window.EAProgressModeFeedback;
+  const questions = Number(module?.questions || 0);
+  const correct = Number(module?.score || 0);
+  const sourceKey = REVERSE_TEACHER_PM_SOURCE_MODULES[module?.moduleId] || module?.moduleId;
+  const phrases = Feedback?.SOURCE_PHRASES?.[sourceKey];
+
+  if (!phrases) {
+    return questions
+      ? `${studentName} has ${correct} / ${Math.round(Number(module.maximumScore || 0))} marks (${module.percentage}%) so far.`
+      : `${studentName} hasn't attempted this yet.`;
+  }
+
+  const earlyMin = Feedback.EARLY_SIGNAL_MIN_QUESTIONS ?? 3;
+  const confidentMin = Feedback.FEEDBACK_MIN_QUESTIONS ?? 8;
+  const strengthMin = Feedback.STRENGTH_THRESHOLD ?? 80;
+  const weaknessMax = Feedback.WEAKNESS_THRESHOLD ?? 60;
+
+  if (!questions || questions < earlyMin) {
+    return `${studentName} needs to complete a few more questions to start building personalised feedback here.`;
+  }
+
+  const isEarly = questions < confidentMin;
+  const percentage = Math.round((correct / questions) * 100);
+
+  if (percentage >= strengthMin) {
+    return isEarly
+      ? `Early signs are good — so far ${studentName} ${thirdPersonVerbPhrase(phrases.strength)}. To stay sharp, ${studentName} should ${phrases.focus}.`
+      : `${studentName} ${thirdPersonVerbPhrase(phrases.strength)} — to stay sharp, ${studentName} should ${phrases.focus}.`;
+  }
+  if (percentage < weaknessMax) {
+    return isEarly
+      ? `It's early, but ${studentName} may want to start on ${phrases.gap} — ${studentName} should ${phrases.focus} (${phrases.label}).`
+      : `${studentName} needs to work on ${phrases.gap} — ${studentName} should ${phrases.focus} (${phrases.label}).`;
+  }
+  return isEarly
+    ? `Too early to say for sure, but ${studentName} is showing steady signs with ${phrases.label} so far. To keep improving, ${studentName} should ${phrases.focus}.`
+    : `${studentName} is making steady progress with ${phrases.label} — to keep improving, ${studentName} should ${phrases.focus}.`;
+}
+
+function capitalise(value) {
+  const text = String(value || "");
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+// Resolves a teacherElementTotals row's real Progress Mode moduleId — the
+// key both CONCEPT_PHRASES and the server's byConcept breakdown actually
+// use — via the same sourceKey composeSubAppFeedback already recovers
+// (REVERSE_TEACHER_PM_SOURCE_MODULES), then shared/js/pm-registry.js's own
+// sourceKey->moduleId mapping (already loaded on this page — see
+// index.html — and already used this same way elsewhere in this file).
+function teacherServerModuleId(module) {
+  const sourceKey = REVERSE_TEACHER_PM_SOURCE_MODULES[module?.moduleId] || module?.moduleId;
+  return window.EchoAuralPMRegistry?.get(sourceKey)?.moduleId || null;
+}
+
+// Concept-level counterpart to student-home.js's getCombinedConceptStats —
+// but teacher-side only, so only half of it applies: a teacher can never
+// read a student's own Progress Mode localStorage (that lives on the
+// student's device, not here), so this only ever reflects Live Session/
+// Homework evidence (accounts/account-server.js's byConcept), scoped by
+// whichever mode filter (all/progress/quizzes/homework) is currently
+// active in the middle column.
+function teacherConceptStats(serverModuleId) {
+  if (!serverModuleId) return {};
+  const mode = state.middleColumn.mode;
+  const progress = state.middleColumnProgress;
+  if (mode === "progress") return {};
+  if (mode === "quizzes" || mode === "homework") return progress?.categories?.[mode]?.byConcept?.[serverModuleId] || {};
+  return progress?.byConcept?.[serverModuleId] || {};
+}
+
+// Concept-level counterpart to composeSubAppFeedback above — same third-
+// person restyling of modules/progress-mode/feedback.js's own
+// buildConceptFeedback(moduleId, conceptStats) (which returns second-person
+// text, "You recognise root position chords...", unsuitable here for the
+// same reason composeSubAppFeedback's own comment explains), same
+// SOURCE_PHRASES-vs-CONCEPT_PHRASES relationship: one topic named per
+// sentence, but drawn from the finer concept-value bank
+// (CONCEPT_PHRASES[serverModuleId]) instead of the coarser per-app one when
+// that finer bank exists and has a reliable-enough sample. Returns null
+// (caller falls back to composeSubAppFeedback) whenever CONCEPT_PHRASES
+// doesn't cover this module, or nothing sampled yet reaches
+// EARLY_SIGNAL_MIN_QUESTIONS — mirrors buildConceptFeedback's own
+// null-on-insufficient-sample contract exactly.
+function composeConceptFeedback(module, studentName) {
+  const Feedback = window.EAProgressModeFeedback;
+  const serverModuleId = teacherServerModuleId(module);
+  const phrases = serverModuleId ? Feedback?.CONCEPT_PHRASES?.[serverModuleId] : null;
+  if (!phrases) return null;
+
+  const stats = teacherConceptStats(serverModuleId);
+  const earlyMin = Feedback.EARLY_SIGNAL_MIN_QUESTIONS ?? 3;
+  const confidentMin = Feedback.FEEDBACK_MIN_QUESTIONS ?? 8;
+  const strengthMin = Feedback.STRENGTH_THRESHOLD ?? 80;
+  const weaknessMax = Feedback.WEAKNESS_THRESHOLD ?? 60;
+
+  const sampled = Object.keys(stats).filter((key) => phrases[key] && stats[key].questions >= earlyMin);
+  if (!sampled.length) return null;
+  const reliable = sampled.filter((key) => stats[key].questions >= confidentMin);
+  const pool = reliable.length ? reliable : sampled;
+  const isEarly = !reliable.length;
+
+  const strengths = pool
+    .filter((key) => stats[key].percentage >= strengthMin)
+    .sort((a, b) => stats[b].percentage - stats[a].percentage);
+  const weaknesses = pool
+    .filter((key) => stats[key].percentage < weaknessMax)
+    .sort((a, b) => stats[a].percentage - stats[b].percentage);
+
+  if (strengths.length && weaknesses.length) {
+    const strong = phrases[strengths[0]];
+    const weak = phrases[weaknesses[0]];
+    return isEarly
+      ? `Early signs suggest ${studentName} ${thirdPersonVerbPhrase(strong.strength)}, but ${studentName} may want to start on ${weak.gap} — ${weak.focus} (${weak.label}).`
+      : `${studentName} ${thirdPersonVerbPhrase(strong.strength)}, but ${studentName} needs to work on ${weak.gap} — ${weak.focus} (${weak.label}).`;
+  }
+  if (strengths.length) {
+    const strong = phrases[strengths[0]];
+    return isEarly
+      ? `Early signs are good — so far ${studentName} ${thirdPersonVerbPhrase(strong.strength)}. To stay sharp, ${studentName} should ${strong.focus}.`
+      : `${studentName} ${thirdPersonVerbPhrase(strong.strength)} — to stay sharp, ${studentName} should ${strong.focus}.`;
+  }
+  if (weaknesses.length) {
+    const weak = phrases[weaknesses[0]];
+    return isEarly
+      ? `It's early, but ${studentName} may want to start on ${weak.gap} — ${studentName} should ${weak.focus} (${weak.label}).`
+      : `${studentName} needs to work on ${weak.gap} — ${studentName} should ${weak.focus} (${weak.label}).`;
+  }
+  const closest = pool.slice().sort((a, b) => stats[b].percentage - stats[a].percentage)[0];
+  const closestPhrase = phrases[closest];
+  return isEarly
+    ? `Too early to say for sure, but ${studentName} is showing steady signs with ${closestPhrase.label} so far. To keep improving, ${studentName} should ${closestPhrase.focus}.`
+    : `${studentName} is making steady progress with ${closestPhrase.label} — to keep improving, ${studentName} should ${closestPhrase.focus}.`;
+}
+
+// Teacher-dashboard counterpart to student-home.js's buildCardSummary() —
+// same "Doing well: X & Y. Focus on Z." shape (that function never used
+// first/second person to begin with, so no restyling is needed here, just
+// porting the same strongest/weakest selection logic AND the same concept-
+// value pooling: a module row covered by CONCEPT_PHRASES contributes its
+// individual concept values (e.g. "Homophonic"/"Polyphonic" instead of one
+// "Devices" item) so the tile face itself can name a specific skill, not
+// just a whole sub-app — operating on the area's already-scoped per-app
+// totals (teacherElementTotals' modules[]) rather than re-deriving PM-only
+// sources.
+function composeTileCardSummary(area) {
+  const Feedback = window.EAProgressModeFeedback;
+  const earlyMin = Feedback?.EARLY_SIGNAL_MIN_QUESTIONS ?? 3;
+  const weaknessMin = Feedback?.WEAKNESS_THRESHOLD ?? 60;
+
+  const items = [];
+  // Two module rows can share the same real serverModuleId (melody-master's
+  // "Melodic Dictation" and "Devices" rows both resolve to server moduleId
+  // "melody-master") — only query/pool that moduleId's concept stats once,
+  // same guard student-home.js's buildCardSummary uses for the same reason.
+  const moduleConceptItemCounts = new Map();
+  (area?.modules || []).forEach((module) => {
+    const serverModuleId = teacherServerModuleId(module);
+    const conceptPhrases = serverModuleId ? Feedback?.CONCEPT_PHRASES?.[serverModuleId] : null;
+    if (conceptPhrases) {
+      if (!moduleConceptItemCounts.has(serverModuleId)) {
+        const conceptStats = teacherConceptStats(serverModuleId);
+        let addedHere = 0;
+        Object.keys(conceptStats).forEach((conceptValue) => {
+          if (!conceptPhrases[conceptValue]) return;
+          const stat = conceptStats[conceptValue];
+          if (stat.questions < earlyMin) return;
+          items.push({ name: capitalise(conceptValue), percentage: stat.percentage });
+          addedHere += 1;
+        });
+        moduleConceptItemCounts.set(serverModuleId, addedHere);
+      }
+      if (moduleConceptItemCounts.get(serverModuleId) > 0) return;
+    }
+    if (Number(module.questions) >= earlyMin) {
+      items.push({ name: module.title, percentage: module.percentage });
+    }
+  });
+  if (!items.length) return null;
+
+  items.sort((a, b) => b.percentage - a.percentage);
+  let strengths;
+  let focus;
+  if (items.length === 1) {
+    if (items[0].percentage >= weaknessMin) { strengths = [items[0]]; focus = null; }
+    else { strengths = []; focus = items[0]; }
+  } else {
+    focus = items[items.length - 1];
+    strengths = items.slice(0, items.length - 1).slice(0, 2);
+  }
+
+  const strengthNames = strengths.map((item) => item.name);
+  const parts = [];
+  if (strengthNames.length) parts.push(`Doing well: ${strengthNames.join(" & ")}.`);
+  if (focus) parts.push(`Focus on ${focus.name}.`);
+  return parts.join(" ");
+}
+
+function teacherProgressNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+// modeFilter selects which of the 3 evidence sources feed the totals:
+// "all" (default) blends Progress Mode + Live Sessions + Homework, exactly
+// as before; "progress" restricts to Progress Mode only (skips
+// progress.categories entirely); "quizzes"/"homework" restrict to that one
+// round-history category only (skips Progress Mode entirely). The
+// placeholder sub-app rows below (Context Coach, Harmony apps, Vocabulary,
+// melodic-devices) are still seeded unconditionally so every filter shows
+// the same set of sub-apps, just with 0/0 evidence where nothing matches.
+function teacherElementTotals(progress, progressMode, modeFilter = "all") {
+  const totals = new Map();
+  Object.keys(TEACHER_ELEMENT_LABELS).forEach((areaKey) => totals.set(areaKey, {
+    score: 0,
+    maximumScore: 0,
+    questions: 0,
+    modules: []
+  }));
+
+  const categoryEntries = modeFilter === "progress"
+    ? []
+    : modeFilter === "quizzes" || modeFilter === "homework"
+      ? Object.entries(progress?.categories || {}).filter(([categoryKey]) => categoryKey === modeFilter)
+      : Object.entries(progress?.categories || {});
+
+  categoryEntries.forEach(([categoryKey, category]) => {
+    (category?.modules || []).forEach((module) => {
+      // melody-master and era-explorer are handled below via
+      // category.bySourceKey instead (see MULTI_SOURCE_LIVE_SOURCE_KEYS'
+      // comment) — using this coarse per-moduleId row as well would count
+      // the same attempts twice.
+      if (module.moduleId === "melody-master" || module.moduleId === "era-explorer") return;
+      const areaKey = TEACHER_MODULE_ELEMENTS[module.moduleId];
+      if (!areaKey) return;
+      const target = totals.get(areaKey);
+      const score = teacherProgressNumber(module.score);
+      const maximumScore = teacherProgressNumber(module.maximumScore);
+      const questions = teacherProgressNumber(module.questions);
+      target.score += score;
+      target.maximumScore += maximumScore;
+      target.questions += questions;
+      const vocabularyModule = module.moduleId === "musical-language"
+        || String(module.moduleId).startsWith("musical-language-");
+      // key-signature-sprint is the app's real routing/moduleId, but every
+      // other reference to this sub-app (PM's sourceKey mapping, the
+      // harmony placeholder row below) uses the friendlier "key-signatures"
+      // id — normalise here too so Live Session/Homework evidence merges
+      // into the same row as Progress Mode evidence instead of a second,
+      // oddly-named duplicate.
+      const displayModuleId = vocabularyModule
+        ? `vocabulary-${areaKey}`
+        : module.moduleId === "key-signature-sprint"
+          ? "key-signatures"
+          : module.moduleId;
+      const existing = target.modules.find((entry) => entry.moduleId === displayModuleId);
+      if (existing) {
+        existing.score += score;
+        existing.maximumScore += maximumScore;
+        existing.questions += questions;
+        existing.percentage = existing.maximumScore ? Math.round((existing.score / existing.maximumScore) * 100) : 0;
+      } else target.modules.push({
+        categoryKey: "overall",
+        title: vocabularyModule
+          ? "Vocabulary"
+          : module.moduleId === "texture-trainer"
+            ? "Devices"
+            : module.moduleId === "meter-master"
+              ? "Devices"
+            : (module.title || module.moduleId),
+        moduleId: displayModuleId,
+        icon: vocabularyModule ? "/assets/icons/modules/score-decoder.png" : (TEACHER_SUBAPP_ICONS[module.moduleId] || module.icon),
+        score,
+        maximumScore,
+        questions,
+        percentage: maximumScore ? Math.round((score / maximumScore) * 100) : 0,
+        level: module.level || "Not started"
+      });
+    });
+  });
+
+  // Context Coach is presented as its two student-facing sub-apps rather
+  // than the legacy Exam Lab bucket. Keep both rows visible even when the
+  // student has not attempted either one yet. These placeholder rows (and
+  // the ones below) must exist BEFORE the Progress Mode sources loop runs,
+  // so real PM evidence for e.g. melodic-devices/ensemble-recognition
+  // merges into the friendly-titled placeholder instead of the loop's own
+  // fallback creating a second row titled with the raw PM source label.
+  const context = totals.get("context");
+  if (context) {
+    context.modules = context.modules.filter((module) => module.moduleId !== "exam-lab");
+    [
+      ["context-coach-composer", "Composers"],
+      ["context-coach-period", "Eras & Periods"]
+    ].forEach(([moduleId, title]) => {
+      if (!context.modules.some((module) => module.moduleId === moduleId)) {
+        context.modules.push({
+          categoryKey: "overall",
+          title,
+          moduleId,
+          icon: TEACHER_SUBAPP_ICONS[moduleId],
+          score: 0,
+          maximumScore: 0,
+          questions: 0,
+          percentage: 0,
+          level: "Not started"
+        });
+      }
+    });
+  }
+
+  const instrumentation = totals.get("instrumentation");
+  if (instrumentation && !instrumentation.modules.some((module) => module.moduleId === "ensemble-recognition")) {
+    instrumentation.modules.push({
+      categoryKey: "overall",
+      title: "Ensembles",
+      moduleId: "ensemble-recognition",
+      icon: TEACHER_SUBAPP_ICONS["ensemble-recognition"],
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      percentage: 0,
+      level: "Not started"
+    });
+  }
+
+  const harmony = totals.get("harmony");
+  if (harmony) {
+    const harmonyApps = [
+      ["key-signatures", "Keys"],
+      ["chord-identifier", "Chords"],
+      ["cadence-coach", "Cadences"]
+    ];
+    harmonyApps.forEach(([moduleId, title]) => {
+      if (!harmony.modules.some((module) => module.moduleId === moduleId)) {
+        harmony.modules.push({
+          categoryKey: "overall",
+          title,
+          moduleId,
+          icon: TEACHER_SUBAPP_ICONS[moduleId],
+          score: 0,
+          maximumScore: 0,
+          questions: 0,
+          percentage: 0,
+          level: "Not started"
+        });
+      }
+    });
+  }
+
+  ["melody", "texture", "rhythm"].forEach((areaKey) => {
+    const area = totals.get(areaKey);
+    if (!area || area.modules.some((module) => module.moduleId === `vocabulary-${areaKey}`)) return;
+    area.modules.push({
+      categoryKey: "overall",
+      title: "Vocabulary",
+      moduleId: `vocabulary-${areaKey}`,
+      icon: "/assets/icons/modules/score-decoder.png",
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      percentage: 0,
+      level: "Not started"
+    });
+  });
+  const melody = totals.get("melody");
+  if (melody && !melody.modules.some((module) => module.moduleId === "melodic-devices")) {
+    melody.modules.unshift({
+      categoryKey: "overall",
+      title: "Devices",
+      moduleId: "melodic-devices",
+      icon: TEACHER_SUBAPP_ICONS["melodic-devices"],
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      percentage: 0,
+      level: "Not started"
+    });
+  }
+  if (melody && !melody.modules.some((module) => module.moduleId === "melody-master")) {
+    melody.modules.unshift({
+      categoryKey: "overall",
+      title: "Melodic Dictation",
+      moduleId: "melody-master",
+      icon: TEACHER_SUBAPP_ICONS["melody-master"],
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      percentage: 0,
+      level: "Not started"
+    });
+  }
+
+  // Live Session/Homework evidence for melody-master and era-explorer's own
+  // sub-apps — see MULTI_SOURCE_LIVE_SOURCE_KEYS' comment for why these two
+  // specifically need the finer bySourceKey split rather than the coarse
+  // per-moduleId row skipped in the category loop above. Runs down here,
+  // after every placeholder row above already exists, so it merges into
+  // e.g. "Devices"/"Composers" instead of creating a second row titled with
+  // the raw sourceKey (the same ordering the Progress Mode sources loop
+  // below already relies on).
+  categoryEntries.forEach(([, category]) => {
+    Object.entries(category?.bySourceKey || {}).forEach(([sourceKey, stats]) => {
+      if (!MULTI_SOURCE_LIVE_SOURCE_KEYS.has(sourceKey)) return;
+      mergeSourceKeyEvidence(totals, sourceKey, teacherProgressNumber(stats.correct), teacherProgressNumber(stats.questions));
+    });
+  });
+
+  // Progress Mode is stored separately from the server's round history. Add
+  // its area totals to the element cards so the headline percentages cover
+  // all three modes. Do not add a synthetic "Progress Mode" sub-app row:
+  // the breakdown is intentionally an overall-by-app view, not a mode view.
+  // progressMode is passed in explicitly by the caller (one student's own
+  // row for the individual view, or the summed class row for the class
+  // view) rather than read from state here, so this same function powers
+  // both scopes. Skipped entirely when modeFilter restricts to quizzes or
+  // homework only.
+  const includeProgressMode = modeFilter === "all" || modeFilter === "progress";
+  (includeProgressMode ? (progressMode?.sources || []) : []).forEach((source) => {
+    const areaKey = String(source.areaKey || "");
+    const target = totals.get(areaKey);
+    if (!target) return;
+    const score = teacherProgressNumber(source.correct);
+    const maximumScore = teacherProgressNumber(source.questions);
+    const sourceKey = String(source.sourceKey || "");
+    const displayModuleId = TEACHER_PM_SOURCE_MODULES[sourceKey] || sourceKey;
+    const existing = target.modules.find((module) => module.moduleId === displayModuleId);
+    if (existing) {
+      existing.score += score;
+      existing.maximumScore += maximumScore;
+      existing.questions += maximumScore;
+      existing.percentage = existing.maximumScore ? Math.round((existing.score / existing.maximumScore) * 100) : 0;
+      return;
+    }
+    const vocabulary = displayModuleId === "vocabulary-melody"
+      || displayModuleId === "vocabulary-texture"
+      || displayModuleId === "vocabulary-rhythm";
+    target.modules.push({
+      categoryKey: "overall",
+      title: vocabulary ? "Vocabulary" : (source.label || sourceKey),
+      moduleId: displayModuleId,
+      icon: vocabulary ? "/assets/icons/modules/score-decoder.png" : (TEACHER_SUBAPP_ICONS[displayModuleId] || TEACHER_ELEMENT_ICONS[areaKey]),
+      score,
+      maximumScore,
+      questions: maximumScore,
+      percentage: maximumScore ? Math.round((score / maximumScore) * 100) : 0,
+      level: "Overall"
+    });
+  });
+  (includeProgressMode ? (progressMode?.areas || []) : []).forEach((area) => {
+    const target = totals.get(String(area.areaKey));
+    if (!target) return;
+    const questions = teacherProgressNumber(area.questions);
+    const correct = teacherProgressNumber(area.correct);
+    target.score += correct;
+    target.maximumScore += questions;
+    target.questions += questions;
+  });
+
+  return totals;
+}
+
+// Sub-apps whose icon file is transparent white line-art needing the
+// element's own accent colour behind it as a filled tile — exactly
+// SUB_APP_TILE_ICONS' own membership in account/student-home/student-
+// home.js (same files, reused as-is). Everything else in
+// TEACHER_SUBAPP_ICONS is already a pre-coloured square icon (matching
+// student-home's SUB_APP_ICONS) and renders plain. Vocabulary rows use the
+// same tile treatment as their student-dashboard counterpart, with the
+// wide-landscape variant class.
+const TEACHER_SUBAPP_TILE_ICON_IDS = new Set([
+  "melodic-devices", "melody-master", "melodic-intervals",
+  "ensemble-recognition", "key-signatures", "chord-identifier", "cadence-coach"
+]);
+
+function isTeacherSubAppTileIcon(moduleId) {
+  return TEACHER_SUBAPP_TILE_ICON_IDS.has(moduleId) || String(moduleId).startsWith("vocabulary-");
+}
+
+// Markup below intentionally reuses the exact class names (.pm-detail,
+// .pm-element-columns, .pm-el-header, .pm-panel, .pm-el-row-list, .pm-el-
+// row and its children) that account/student-home/student-home.js's
+// elementDetailMarkup() emits, so this popup is styled identically —
+// #teacherElementBreakdownDialog carries the same student-category-detail-
+// dialog-v3 scoping class that CSS is written against (see index.html),
+// rather than re-implementing a second copy of that styling here.
+//
+// studentContext (optional): the real state.students entry currently
+// selected in the middle column. When set, each row gets a real, third-
+// person feedback sentence (composeSubAppFeedback) built from the same
+// SOURCE_PHRASES bank the student dashboard itself reads. When null (whole-
+// account or class-only scope), rows show their stats only — no feedback
+// sentence — per the confirmed design: a blended group's feedback isn't a
+// real statement about any one learner.
+function renderTeacherElementBreakdown(areaKey, totals, studentContext = null) {
+  const detail = els.teacherElementBreakdownContent;
+  if (!detail) return;
+  const Feedback = window.EAProgressModeFeedback;
+  const earlySignalMin = Feedback?.EARLY_SIGNAL_MIN_QUESTIONS ?? 3;
+  const confidentMin = Feedback?.FEEDBACK_MIN_QUESTIONS ?? 8;
+  const area = totals.get(areaKey) || { modules: [] };
+  const percentage = area.maximumScore ? Math.round((area.score / area.maximumScore) * 100) : 0;
+  const level = percentage >= 85 ? "Mastering" : percentage >= 70 ? "Securing" : percentage >= 50 ? "Developing" : "Foundation";
+  const studentName = studentContext?.displayName || "";
+
+  const rowsHtml = area.modules.length
+    ? area.modules.map((module) => {
+        const questions = Number(module.questions || 0);
+        const notStarted = questions < earlySignalMin;
+        const showStats = !notStarted && questions > 0;
+        const tierTag = notStarted ? "Not started" : (questions >= confidentMin ? "" : "Early signs");
+        const isTile = isTeacherSubAppTileIcon(module.moduleId);
+        const iconHtml = isTile
+          ? `<span class="pm-el-row-icon pm-el-row-icon-tile${String(module.moduleId).startsWith("vocabulary-") ? " pm-el-row-icon-vocab" : ""}"><img src="${escapeHtml(module.icon || TEACHER_ELEMENT_ICONS[areaKey])}" alt="" /></span>`
+          : `<span class="pm-el-row-icon"><img src="${escapeHtml(module.icon || TEACHER_ELEMENT_ICONS[areaKey])}" alt="" /></span>`;
+        const rowLevel = showStats
+          ? (module.percentage >= 85 ? "Mastering" : module.percentage >= 70 ? "Securing" : module.percentage >= 50 ? "Developing" : "Foundation")
+          : "";
+        const statsHtml = showStats
+          ? `
+            <span class="pm-el-row-bar" aria-hidden="true"><i style="width:${module.percentage}%"></i></span>
+            <strong class="pm-el-row-pct">${module.percentage}%</strong>
+            <span class="pm-el-row-count">${questions} mark${questions === 1 ? "" : "s"}</span>
+            <span class="pm-el-row-status-v1 ${scoreClass(module.percentage, questions)}"><i aria-hidden="true"></i>${rowLevel}</span>
+          `
+          : `<span class="pm-el-row-count pm-el-row-count-only">${questions ? `${questions} mark${questions === 1 ? "" : "s"} so far` : "No marks yet"}</span>`;
+        // Concept-level feedback (e.g. "recognises homophonic textures well
+        // but must work on polyphonic texture recognition") whenever this
+        // module has concept data reliable enough to name a specific skill;
+        // falls back to the coarser per-app sentence otherwise — same
+        // preference order student-home.js's elementDetailMarkup already
+        // uses for the student's own dashboard.
+        const feedbackHtml = studentContext
+          ? `<p class="pm-el-row-feedback">${escapeHtml(composeConceptFeedback(module, studentName) || composeSubAppFeedback(module, studentName))}</p>`
+          : "";
+        return `
+          <div class="pm-el-row${notStarted ? " pm-el-row-not-started" : ""}">
+            ${iconHtml}
+            <div class="pm-el-row-body">
+              <div class="pm-el-row-top">
+                <span class="pm-el-row-label" title="${escapeHtml(module.title)}">${escapeHtml(module.title)}</span>
+                ${tierTag ? `<span class="pm-el-row-tag${notStarted ? " pm-el-row-tag-muted" : ""}">${tierTag}</span>` : ""}
+                <span class="pm-el-row-stats">${statsHtml}</span>
+              </div>
+              ${feedbackHtml}
+            </div>
+          </div>
+        `;
+      }).join("")
+    : `<p class="pm-callout-empty">No apps found for this element.</p>`;
+
+  const headerStatsHtml = area.maximumScore
+    ? `<span class="pm-el-header-pct">${percentage}% overall</span><span class="pm-el-header-sep" aria-hidden="true">·</span><span>${area.maximumScore} mark${area.maximumScore === 1 ? "" : "s"}</span>`
+    : `<span class="pm-el-header-empty">No evidence yet</span>`;
+
+  const elementLabelLower = (TEACHER_ELEMENT_LABELS[areaKey] || areaKey).toLowerCase();
+  const whoText = studentName || "Students";
+  const WHAT_THIS_MEANS = {
+    Mastering: `${whoText} ${studentName ? "has" : "have"} a strong command of ${elementLabelLower}. Stretch and exam-style material will keep this sharp.`,
+    Securing: `${whoText} ${studentName ? "is" : "are"} confidently applying ${elementLabelLower} skills, with room to polish accuracy under exam conditions.`,
+    Developing: `${whoText} ${studentName ? "is" : "are"} developing core ${elementLabelLower} skills but ${studentName ? "needs" : "need"} more support to secure them.`,
+    Foundation: `${whoText} ${studentName ? "is" : "are"} just starting out with ${elementLabelLower}. Frequent, foundational practice will help most.`
+  };
+  const whatThisMeansHtml = area.maximumScore
+    ? `<div class="pm-el-header-explainer-v1"><span aria-hidden="true">💡</span><div><strong>What this means</strong><p>${escapeHtml(WHAT_THIS_MEANS[level] || "")}</p></div></div>`
+    : "";
+
+  detail.innerHTML = `
+    <div class="pm-detail">
+      <div class="pm-element-columns">
+        <section class="pm-el-header" data-area="${escapeHtml(areaKey)}">
+          <span class="pm-el-header-icon" aria-hidden="true"><img src="${escapeHtml(TEACHER_ELEMENT_ICONS[areaKey])}" alt="" /></span>
+          <div class="pm-el-header-copy">
+            <strong class="pm-el-header-title">${escapeHtml(TEACHER_ELEMENT_LABELS[areaKey] || areaKey)}${studentName ? ` — ${escapeHtml(studentName)}` : ""}</strong>
+            <div class="pm-el-header-meta">${headerStatsHtml}</div>
+          </div>
+          ${area.maximumScore ? `<span class="pm-el-level-pill">${escapeHtml(level)}</span>` : ""}
+        </section>
+        ${whatThisMeansHtml}
+        <section class="pm-panel">
+          <div class="pm-section-heading"><h3>Performance by app</h3></div>
+          <div class="pm-el-row-list" data-area="${escapeHtml(areaKey)}">${rowsHtml}</div>
+        </section>
       </div>
-      <div class="individual-overall-metrics-v2">
-        <div><span>Questions</span><strong>${overall.questions}</strong></div>
-        <div><span>Rounds</span><strong>${overall.rounds}</strong></div>
-        <div><span>Apps started</span><strong>${overall.modulesStarted} / 6</strong></div>
-      </div>
-      <p>${escapeHtml(overall.compiledFeedback)}</p>
-    </div>
-    <div class="individual-category-grid-v2">
-      ${individualProgressModeCategory(state.progressStudent?.id)}
-      ${individualCategory("Live Sessions", "Teacher-led learning", categories.quizzes, true, "/assets/icons/dashboard/join-live-session.png", "quizzes")}
-      ${individualCategory("Homework", "Assigned learning", categories.homework, false, "/assets/icons/dashboard/homework.png", "homework")}
     </div>
   `;
+  els.teacherElementBreakdownDialog.showModal();
 }
 
-async function openStudentProgress(student) {
-  state.progressStudent = student;
-  els.progressStudentName.textContent = student.displayName;
-  els.progressStudentMeta.textContent = `Username: ${student.username}`;
-  els.studentProgressContent.innerHTML = '<div class="progress-empty-state">Loading student feedback…</div>';
-  els.studentProgressDialog.showModal();
-  await refreshOpenStudentProgress(false);
-  scheduleStudentProgressRefresh();
-}
-
-async function refreshOpenStudentProgress(silent = true) {
-  const student = state.progressStudent;
-  if (!student?.id || !els.studentProgressDialog.open || state.studentProgressRefreshInFlight) return;
-  state.studentProgressRefreshInFlight = true;
-
+// Keeps the middle column's numbers current while a non-default (class or
+// student) scope is selected — mirrors the old per-student dialog's
+// 12s-polling behavior, just triggered by "a scope filter is active"
+// instead of "the dialog happens to be open." The whole-account default
+// view keeps its pre-existing behavior of only refreshing on manual
+// button press or initial load.
+async function refreshMiddleColumnData(silent = true) {
+  if (!(state.middleColumn.classId || state.middleColumn.studentId) || state.middleColumnRefreshInFlight) return;
+  state.middleColumnRefreshInFlight = true;
   try {
-    const result = await api(`/api/teacher/students/${student.id}/progress`);
-    els.progressStudentMeta.textContent = `Username: ${result.student.username} · ${result.student.active ? "Active account" : "Inactive account"}`;
-    renderStudentProgress(result.progress);
+    await loadMiddleColumnData();
   } catch (error) {
-    if (!silent) els.studentProgressContent.innerHTML = `<div class="progress-empty-state">${escapeHtml(error.message)}</div>`;
-    else console.warn(error);
+    if (!silent) console.warn(error);
   } finally {
-    state.studentProgressRefreshInFlight = false;
+    state.middleColumnRefreshInFlight = false;
   }
 }
 
-function scheduleStudentProgressRefresh() {
-  clearStudentProgressRefresh();
-  if (!state.progressStudent?.id || !els.studentProgressDialog.open) return;
-  state.studentProgressRefreshTimer = window.setInterval(() => {
-    refreshOpenStudentProgress(true);
-  }, STUDENT_PROGRESS_REFRESH_MS);
+function scheduleMiddleColumnRefresh() {
+  clearMiddleColumnRefresh();
+  if (!(state.middleColumn.classId || state.middleColumn.studentId)) return;
+  state.middleColumnRefreshTimer = window.setInterval(() => {
+    refreshMiddleColumnData(true);
+  }, MIDDLE_COLUMN_REFRESH_MS);
 }
 
-function clearStudentProgressRefresh() {
-  if (!state.studentProgressRefreshTimer) return;
-  window.clearInterval(state.studentProgressRefreshTimer);
-  state.studentProgressRefreshTimer = null;
+function clearMiddleColumnRefresh() {
+  if (!state.middleColumnRefreshTimer) return;
+  window.clearInterval(state.middleColumnRefreshTimer);
+  state.middleColumnRefreshTimer = null;
 }
 
-function closeStudentProgressDialog() {
-  clearStudentProgressRefresh();
-  state.progressStudent = null;
-  els.studentProgressDialog.close();
+// Real per-student signal (classroom/mastery.js's concept mastery/due
+// scoring, rolled up from the student's own Progress Mode SM-2 review
+// history) via GET /api/teacher/students/:id/concept-mastery — replaces
+// the old v1 heuristic (lowest raw % among 6 broad areas, no sample-size
+// gating, no spaced-repetition awareness). Only surfaces anything once a
+// specific student is selected in the middle column (a blended class-wide
+// suggestion isn't actionable the same way). A monotonic request token
+// guards against a slow, stale fetch overwriting a newer student selection.
+let interventionRequestToken = 0;
+async function updateSuggestedIntervention() {
+  const studentId = state.middleColumn.studentId;
+  const requestToken = ++interventionRequestToken;
+  if (!studentId) {
+    state.suggestedIntervention = null;
+    renderInterventionPanel();
+    return;
+  }
+  const student = state.students.find((item) => String(item.id) === String(studentId));
+  if (!student) {
+    state.suggestedIntervention = null;
+    renderInterventionPanel();
+    return;
+  }
+
+  let concepts = [];
+  try {
+    const result = await api(`/api/teacher/students/${encodeURIComponent(studentId)}/concept-mastery`);
+    concepts = result.concepts || [];
+  } catch (_error) {
+    // No signal yet (e.g. an older DB without the Elo/reviews migrations,
+    // or this student simply has no review history) — the empty state
+    // below covers this the same as "no suggestion".
+  }
+  if (requestToken !== interventionRequestToken) return; // a newer student was selected while this was in flight.
+
+  const top = concepts[0] || null;
+  state.suggestedIntervention = top
+    ? {
+        studentId,
+        studentName: student.displayName,
+        classId: student.classId || "",
+        moduleId: top.moduleId,
+        areaKey: TEACHER_MODULE_ELEMENTS[top.moduleId] || "",
+        value: top.value,
+        label: top.label,
+        masteryScore: top.masteryScore,
+        dueScore: top.dueScore,
+        overdue: top.dueScore >= 1
+      }
+    : null;
+  renderInterventionPanel();
+}
+
+function renderInterventionPanel() {
+  const suggestion = state.suggestedIntervention;
+  if (els.interventionSuggestion) els.interventionSuggestion.hidden = !suggestion;
+  if (els.interventionEmptyState) els.interventionEmptyState.hidden = Boolean(suggestion);
+  if (!suggestion || !els.interventionSuggestionBody) return;
+  const statusText = suggestion.overdue
+    ? "due for review"
+    : `${suggestion.masteryScore}% mastery`;
+  els.interventionSuggestionBody.innerHTML = `
+    <strong>${escapeHtml(suggestion.studentName)}</strong>
+    <span>${escapeHtml(suggestion.label)} · ${escapeHtml(statusText)}</span>
+  `;
 }
 
 async function loadDashboard() {
@@ -1273,12 +2600,14 @@ async function loadDashboard() {
 
     const [studentResult] = await Promise.all([
       api("/api/teacher/students"),
-      loadClasses()
+      loadClasses(),
+      loadHomeworkAssignments()
     ]);
 
     state.students = studentResult.students || [];
     state.teacher.licence.seatLimit = studentResult.seatLimit;
     renderStudents();
+    renderDashboardGlance();
     await loadClassProgress(false);
   } catch (error) {
     if (error.status === 401 || error.status === 403) {
@@ -1342,11 +2671,6 @@ els.studentList.addEventListener("click", async (event) => {
   if (!button || !row) return;
   const student = state.students.find((item) => item.id === row.dataset.studentId);
   if (!student) return;
-
-  if (button.dataset.action === "view-progress") {
-    await openStudentProgress(student);
-    return;
-  }
 
   if (button.dataset.action === "reset-pin") {
     state.resetStudent = student;
@@ -1550,10 +2874,19 @@ els.studentDialog.addEventListener("click", (event) => {
   if (event.target === els.studentDialog) els.studentDialog.close();
 });
 
-els.learningSummaryList.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-category-detail]");
+els.learningModeFilter?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-mode-filter]");
   if (!button) return;
-  openCategoryDetail(button.dataset.categoryDetail);
+  setMiddleColumnMode(button.dataset.modeFilter);
+});
+els.learningClassFilterSelect?.addEventListener("change", () => {
+  setMiddleColumnClass(els.learningClassFilterSelect.value);
+});
+els.learningStudentFilterSelect?.addEventListener("change", () => {
+  setMiddleColumnStudent(els.learningStudentFilterSelect.value);
+});
+els.learningFullBreakdownLink?.addEventListener("click", () => {
+  openCategoryDetail(state.middleColumn.mode);
 });
 
 els.openLiveLaunchDialog.addEventListener("click", () => openTeacherLaunchDialog("live"));
@@ -1576,8 +2909,26 @@ els.teacherLaunchDialog.addEventListener("click", (event) => {
 els.teacherLaunchApp.addEventListener("change", () => {
   if (els.teacherLaunchSource.value !== "app") return;
   setTeacherLaunchValue(els.teacherLaunchModule, els.teacherLaunchApp.value);
+  invalidateTeacherLaunchPreview();
   updateTeacherLaunchHelper();
 });
+els.teacherLaunchSelectedApp.addEventListener("change", () => {
+  loadConceptPicker(els.teacherLaunchSelectedApp.value);
+});
+els.teacherLaunchConceptList.addEventListener("change", (event) => {
+  const checkbox = event.target.closest("input[data-concept-value]");
+  if (!checkbox) return;
+  const moduleId = els.teacherLaunchSelectedApp.value;
+  if (!teacherLaunchSelectedConcepts[moduleId]) teacherLaunchSelectedConcepts[moduleId] = new Set();
+  if (checkbox.checked) teacherLaunchSelectedConcepts[moduleId].add(checkbox.dataset.conceptValue);
+  else teacherLaunchSelectedConcepts[moduleId].delete(checkbox.dataset.conceptValue);
+});
+els.teacherLaunchClass.addEventListener("change", invalidateTeacherLaunchPreview);
+els.teacherLaunchElement.addEventListener("change", invalidateTeacherLaunchPreview);
+els.teacherLaunchSkill.addEventListener("change", invalidateTeacherLaunchPreview);
+els.teacherLaunchAvoidRecent.addEventListener("change", invalidateTeacherLaunchPreview);
+els.teacherLaunchLeaderboard.addEventListener("change", invalidateTeacherLaunchPreview);
+els.previewTeacherLaunch?.addEventListener("click", previewTeacherQuestionSet);
 els.teacherLaunchForm.addEventListener("submit", submitTeacherLaunch);
 
 els.closeCategoryDetail.addEventListener("click", () => els.categoryDetailDialog.close());
@@ -1590,24 +2941,60 @@ els.openPasswordDialog.addEventListener("click", () => {
   setMessage(els.passwordMessage);
   els.passwordDialog.showModal();
 });
+
+// "Classes" is a real navigation aid to the classes/students already on
+// this page (not a separate route yet) — smooth-scrolls the left console
+// into view rather than opening anything new.
+els.navClassesButton?.addEventListener("click", () => {
+  els.studentAccountsConsole?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+// Reports and Assessments are not built yet — these are honest "coming
+// soon" placeholders (per the reimagined dashboard's brief) rather than
+// dead links or fake functionality. Reuses the existing student-form-
+// message styling so no new visual language is introduced for this.
+let teacherToolPlaceholderTimer = null;
+function showTeacherToolPlaceholder(label) {
+  if (!els.teacherToolPlaceholderMessage) return;
+  els.teacherToolPlaceholderMessage.textContent = `${label} is coming soon.`;
+  els.teacherToolPlaceholderMessage.hidden = false;
+  window.clearTimeout(teacherToolPlaceholderTimer);
+  teacherToolPlaceholderTimer = window.setTimeout(() => {
+    els.teacherToolPlaceholderMessage.hidden = true;
+  }, 4000);
+}
+els.navReportsButton?.addEventListener("click", () => showTeacherToolPlaceholder("Reports"));
+els.openReportsPlaceholder?.addEventListener("click", () => showTeacherToolPlaceholder("Reports"));
+els.openAssessmentsPlaceholder?.addEventListener("click", () => showTeacherToolPlaceholder("Assessment management"));
 els.cancelPasswordButton.addEventListener("click", () => els.passwordDialog.close());
 els.cancelPinButton.addEventListener("click", () => els.pinDialog.close());
-els.closeStudentProgress.addEventListener("click", closeStudentProgressDialog);
-els.studentProgressDialog.addEventListener("click", (event) => {
-  if (event.target === els.studentProgressDialog) closeStudentProgressDialog();
-});
-els.studentProgressDialog.addEventListener("close", () => {
-  clearStudentProgressRefresh();
-  state.progressStudent = null;
+els.closeTeacherElementBreakdown?.addEventListener("click", () => els.teacherElementBreakdownDialog.close());
+els.teacherElementBreakdownDialog.addEventListener("click", (event) => {
+  if (event.target === els.teacherElementBreakdownDialog) els.teacherElementBreakdownDialog.close();
 });
 window.addEventListener("focus", () => {
-  refreshOpenStudentProgress(true);
+  refreshMiddleColumnData(true);
 });
 els.refreshClassProgress.addEventListener("click", async () => {
   els.refreshClassProgress.disabled = true;
   try { await loadClassProgress(true); }
   catch (error) { els.classProgressStatus.textContent = error.message || "Could not refresh results."; }
   finally { els.refreshClassProgress.disabled = false; }
+});
+els.setInterventionButton?.addEventListener("click", () => {
+  const suggestion = state.suggestedIntervention;
+  if (!suggestion) return;
+  // The live-launch preset still only understands the 6 broad musical-
+  // element filters (no concept-level pre-fill there yet), so a specific
+  // concept suggestion is mapped back to its module's element as the
+  // closest available preset — same fallback classroom/mastery.js's own
+  // design intentionally leaves for a later pass.
+  const statusText = suggestion.overdue ? "is due for review on" : `is at ${suggestion.masteryScore}% mastery of`;
+  openTeacherLaunchDialog("live", {
+    classId: suggestion.classId,
+    areaKey: suggestion.areaKey,
+    note: `Suggested because ${suggestion.studentName} ${statusText} ${suggestion.label}.`
+  });
 });
 
 els.passwordForm.addEventListener("submit", async (event) => {

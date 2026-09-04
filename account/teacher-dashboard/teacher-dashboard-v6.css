@@ -1,0 +1,764 @@
+/* Reimagined teacher dashboard look (2026-08-21 design pass), matching the
+   reference mockup: icon-forward nav, "at a glance" + help widgets on the
+   left, chip-style element cards with a "Click to explore" footer, a
+   richer element-breakdown popup, and bigger icon+description teacher-tool
+   cards on the right (including two "coming soon" placeholders for
+   reporting/assessment features that don't exist yet).
+
+   Everything here is scoped under .teacher-dashboard-v5 (this page's own
+   top-level class) or the teacher-only .teacher-element-breakdown-dialog-v10
+   wrapper, and loaded after every other stylesheet on this page — including
+   student-dashboard.css, whose .pm-* rules this popup also carries via the
+   shared .student-category-detail-dialog-v3 class. Never touches a bare
+   .pm-* selector, so none of this can bleed into the student dashboard,
+   which reuses those same class names on its own page. */
+
+/* ---------- Topbar nav ---------- */
+
+.teacher-dashboard-v5 .teacher-dashboard-actions-v3 {
+  gap: 4px;
+}
+
+.teacher-dashboard-v5 .teacher-dashboard-actions-v3 .nav-link {
+  position: relative;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: .68rem;
+}
+
+.teacher-dashboard-v5 .teacher-dashboard-actions-v3 .nav-link .teacher-nav-icon {
+  width: 26px;
+  height: 26px;
+}
+
+.teacher-dashboard-v5 .teacher-nav-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: .72;
+}
+
+.teacher-dashboard-v5 .nav-link.is-active .teacher-nav-icon img {
+  opacity: 1;
+}
+
+.teacher-dashboard-v5 .teacher-dashboard-actions-v3 .nav-link.is-active {
+  background: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.teacher-dashboard-v5 .teacher-dashboard-actions-v3 .nav-link.is-active::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--td-gradient);
+}
+
+/* ---------- Left sidebar: Student accounts panel (matches reference exactly) ---------- */
+
+/* The whole left column used to be one continuous card; the reference
+   instead shows four separate tiles (Student accounts / Classes / This
+   week at a glance / Need help) under one shared "Account & Classes"
+   label. The outer <section> keeps its layout role (flex column, grid
+   sizing) but loses its own border/background/padding — each tile now
+   supplies that itself, matching the reference's card-within-a-column
+   look while every #id JS reads from is untouched. */
+.teacher-dashboard-v5 .student-accounts-console-v3 {
+  padding: 0;
+  gap: 10px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.teacher-dashboard-v5 .lhs-eyebrow-v1 {
+  flex: 0 0 auto;
+  margin: 0;
+  color: #9edcff;
+}
+
+.teacher-dashboard-v5 .lhs-tile-v1 {
+  flex: 0 0 auto;
+  padding: 16px;
+  border: 1px solid var(--td-line);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(63, 166, 255, .055), transparent 35%),
+    rgba(255, 255, 255, .045);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .14);
+}
+
+/* The Classes tile is the one tile that can genuinely overflow (many
+   classes/students). Nesting a flex:1 child inside a max-height-only flex
+   column doesn't give it anything to grow into (max-height caps growth but
+   never forces it), which just collapsed the roster to ~0px — so instead
+   the TILE itself scrolls as a block once it hits its cap, natural content
+   height below that, same net effect without the nested-flex sizing trap. */
+.teacher-dashboard-v5 .lhs-tile-classes-v1 {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.teacher-dashboard-v5 .lhs-tile-classes-v1 .class-grouped-student-list-v7 {
+  flex: 0 0 auto;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+/* This footer (temp-password notice / form message) is empty almost all
+   the time — its divider line used to make sense as a break inside one
+   long card, but now just floats with nothing under it when there's
+   nothing to show. Padding stays for when a message does appear; the
+   border only draws once there's actually visible content above it. */
+.teacher-dashboard-v5 .student-console-footer-v4 {
+  border-top: 0;
+}
+
+.teacher-dashboard-v5 .student-console-footer-v4:has(:not([hidden]):not(:empty)) {
+  border-top: 1px solid var(--td-line);
+}
+
+.teacher-dashboard-v5 .lhs-tile-accounts-v1 .teacher-console-heading-v3 {
+  min-height: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+/* "Student accounts" reads as a tile title now, not a page-level heading —
+   noticeably smaller than the reference's page headings ("Progress by
+   element" etc.), matching how the reference itself sizes it. */
+.teacher-dashboard-v5 #studentAccountsHeading {
+  font-size: 1rem;
+}
+
+.teacher-dashboard-v5 .sr-only-v1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.teacher-dashboard-v5 #studentAccountsHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teacher-dashboard-v5 .student-accounts-heading-icon-v1 {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: #9edcff;
+}
+
+.teacher-dashboard-v5 .student-accounts-heading-icon-v1 img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: .82;
+}
+
+/* "Seats used ... 5 / 20" — a plain inline row (no boxed pill), full width,
+   sitting between the heading and the seat bar. */
+.teacher-dashboard-v5 .student-seat-heading-v4 {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  margin-top: 12px;
+  padding: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  text-align: left;
+}
+
+.teacher-dashboard-v5 .student-seat-heading-v4 span {
+  color: var(--td-muted);
+  font-size: .78rem;
+  font-weight: 650;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.teacher-dashboard-v5 .student-seat-heading-v4 strong {
+  margin-top: 0;
+  color: var(--td-text);
+  font-size: .92rem;
+  font-weight: 800;
+}
+
+.teacher-dashboard-v5 .student-seat-bar-v4 {
+  margin-top: 8px;
+}
+
+.teacher-dashboard-v5 .seats-available-caption-v1 {
+  display: block;
+  margin-top: 6px;
+  color: var(--td-muted);
+  font-size: .72rem;
+  font-weight: 550;
+}
+
+/* "+ Add student" — the big full-width gradient button, sitting right
+   after the seats caption and before the Classes section (matches the
+   reference's vertical order; addStudentAction is hidden until a class
+   exists, same as before). */
+.teacher-dashboard-v5 .add-student-after-classes-v10 {
+  margin-top: 14px;
+}
+
+.teacher-dashboard-v5 .teacher-add-student-button-v10 {
+  min-height: 46px;
+  padding: 2px 16px;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #3fa6ff 0%, #8b5cf6 100%);
+  box-shadow: 0 10px 24px rgba(139, 92, 246, .28);
+}
+
+.teacher-dashboard-v5 .teacher-add-student-button-v10:hover:not(:disabled) {
+  background: linear-gradient(90deg, #57b3ff 0%, #9d6dff 100%);
+}
+
+.teacher-dashboard-v5 .teacher-add-student-button-v10 .teacher-button-label {
+  color: #fff;
+  font-size: .86rem;
+  font-weight: 800;
+}
+
+.teacher-dashboard-v5 .teacher-add-student-icon-plus-v1 {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* "Classes" section header — icon + label on the left, a plain text-style
+   "+ Create class" link on the right (not a boxed button), matching the
+   reference. The real class-limit count (classCountMetric) stays in the
+   DOM for anyone who needs it programmatically but is visually hidden —
+   the reference doesn't surface it here, and the create-class button's own
+   disabled/label state already communicates the limit when it's reached. */
+.teacher-dashboard-v5 .teacher-class-strip-v7 {
+  flex: 0 0 auto;
+  margin: 0 0 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 > div {
+  display: block;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 span.classes-strip-label-v1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--td-text);
+  font-size: .92rem;
+  font-weight: 800;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.teacher-dashboard-v5 .classes-strip-icon-v1 {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: #9edcff;
+}
+
+.teacher-dashboard-v5 .classes-strip-icon-v1 img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: .82;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 button.classes-create-link-v1 {
+  flex: 0 0 auto;
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #9edcff;
+  font-size: .78rem;
+  font-weight: 750;
+}
+
+/* JS swaps this button's own text between "Create class" / "3 classes
+   created" / "No seats available" depending on state (renderClassSummary)
+   — a "+" only makes sense while the action is actually available, so it's
+   added here via ::before rather than baked into the HTML text, which
+   would get overwritten anyway. */
+.teacher-dashboard-v5 .teacher-class-strip-v7 button.classes-create-link-v1:not(:disabled)::before {
+  content: "+ ";
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 button.classes-create-link-v1:hover:not(:disabled) {
+  color: #fff;
+  background: none;
+}
+
+.teacher-dashboard-v5 .teacher-class-strip-v7 button.classes-create-link-v1:disabled {
+  color: var(--td-muted);
+}
+
+/* Class row — a single highlighted pill per class (border+glow), matching
+   the reference's own "Year 10 IGCSE Music" card. The real expand/collapse
+   toggle (student-class-toggle-v7) is genuine functionality — kept, just
+   restyled smaller and quieter so it reads as part of the pill rather than
+   a separate button. */
+.teacher-dashboard-v5 .student-class-group-v7 {
+  margin: 0 0 8px;
+  border-color: rgba(63, 166, 255, .3);
+  border-radius: 13px;
+  background: linear-gradient(120deg, rgba(63, 166, 255, .1), rgba(139, 92, 246, .07));
+}
+
+.teacher-dashboard-v5 .student-class-heading-v7 {
+  min-height: 0;
+  padding: 10px 12px;
+  border-bottom: 0;
+  background: none;
+  backdrop-filter: none;
+}
+
+.teacher-dashboard-v5 .student-class-heading-v7 strong {
+  font-size: .84rem;
+  font-weight: 800;
+}
+
+.teacher-dashboard-v5 .student-class-heading-v7 span {
+  margin-top: 3px;
+  font-size: .68rem;
+}
+
+.teacher-dashboard-v5 .student-class-controls-v7 b {
+  min-width: 26px;
+  height: 26px;
+  border-color: rgba(255, 255, 255, .18);
+  color: #fff;
+  background: rgba(255, 255, 255, .1);
+  font-size: .74rem;
+  font-weight: 800;
+}
+
+.teacher-dashboard-v5 .student-class-toggle-v7 {
+  width: 22px;
+  height: 22px;
+  border-color: rgba(255, 255, 255, .16);
+  color: var(--td-muted);
+  background: rgba(255, 255, 255, .06);
+  font-size: .82rem;
+  box-shadow: none;
+}
+
+.teacher-dashboard-v5 .student-class-toggle-v7:hover,
+.teacher-dashboard-v5 .student-class-toggle-v7:focus-visible {
+  color: var(--td-text);
+  border-color: rgba(255, 255, 255, .3);
+}
+
+.teacher-dashboard-v5 .student-class-group-v7.is-expanded .student-class-toggle-v7 {
+  color: #9edcff;
+  border-color: rgba(63, 166, 255, .4);
+  background: rgba(63, 166, 255, .12);
+}
+
+/* ---------- Left sidebar: "This week at a glance" + "Need help" ---------- */
+
+.teacher-dashboard-v5 .dashboard-glance-panel-v1 h3 {
+  margin: 0 0 10px;
+  color: var(--td-text);
+  font-size: .84rem;
+  font-weight: 800;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.teacher-dashboard-v5 .dashboard-glance-body-v1 {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.teacher-dashboard-v5 .dashboard-glance-sparkline-v1 {
+  flex: 0 0 auto;
+  width: 84px;
+  align-self: center;
+  opacity: .85;
+}
+
+.teacher-dashboard-v5 .dashboard-glance-list-v1 {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.teacher-dashboard-v5 .dashboard-glance-list-v1 li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.teacher-dashboard-v5 .dashboard-glance-icon-v1 {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--td-panel);
+}
+
+.teacher-dashboard-v5 .dashboard-glance-icon-v1 img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: .85;
+}
+
+.teacher-dashboard-v5 .dashboard-glance-list-v1 li span:nth-child(2) {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--td-muted);
+  font-size: .78rem;
+  font-weight: 650;
+}
+
+.teacher-dashboard-v5 .dashboard-glance-list-v1 li strong {
+  flex: 0 0 auto;
+  color: var(--td-text);
+  font-size: .92rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.teacher-dashboard-v5 .dashboard-help-panel-v1 {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.teacher-dashboard-v5 .dashboard-help-icon-v1 {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #9edcff;
+  background: rgba(63, 166, 255, .16);
+  font-weight: 800;
+  font-size: .82rem;
+}
+
+.teacher-dashboard-v5 .dashboard-help-panel-v1 p {
+  margin: 0;
+  color: var(--td-muted);
+  font-size: .74rem;
+  line-height: 1.5;
+}
+
+/* ---------- Element cards ---------- */
+
+.teacher-dashboard-v5 .class-element-card-v1 {
+  gap: 0;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--eh-area, #fff) 7%, rgba(255, 255, 255, .03));
+}
+
+/* TEACHER_ELEMENT_ICONS (melody-master.png etc.) are full card-face art —
+   their own coloured background baked in, not a transparent line-art icon
+   — so unlike the nav/tool icons below, these must never get an invert
+   filter or a badge background of their own; object-fit:cover (unchanged
+   from the pre-existing rule) lets the artwork's own rounded corners and
+   colour show through as-is. */
+.teacher-dashboard-v5 .class-element-card-icon-v1 {
+  border-radius: 12px;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--eh-area, #3fa6ff) 30%, transparent);
+}
+
+.teacher-dashboard-v5 .class-element-card-explore-v1 {
+  flex: 0 0 auto;
+  margin-top: 8px;
+  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid color-mix(in srgb, var(--eh-area, #fff) 22%, transparent);
+  color: color-mix(in srgb, var(--eh-area, #fff) 70%, var(--td-text));
+  font-size: .66rem;
+  font-weight: 750;
+}
+
+.teacher-dashboard-v5 .class-element-card-explore-v1 span {
+  font-size: .9rem;
+  transition: transform .16s ease;
+}
+
+.teacher-dashboard-v5 .class-element-card-v1:hover .class-element-card-explore-v1 span,
+.teacher-dashboard-v5 .class-element-card-v1:focus-visible .class-element-card-explore-v1 span {
+  transform: translateX(3px);
+}
+
+@media (max-height: 760px) {
+  .teacher-dashboard-v5 .class-element-card-explore-v1 { display: none; }
+}
+
+/* ---------- Right sidebar: Teacher tools eyebrow-only heading ---------- */
+
+.teacher-dashboard-v5 .class-actions-console-v3 .teacher-console-heading-v3 h2 {
+  margin-top: 2px;
+  font-size: .98rem;
+}
+
+/* ---------- Teacher tool cards ---------- */
+
+.teacher-dashboard-v5 .teacher-tool-card-list-v1 {
+  gap: 10px;
+}
+
+.teacher-dashboard-v5 .teacher-tool-card-v1 {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--td-line);
+  border-radius: 14px;
+  background: var(--td-panel);
+  box-shadow: none;
+  text-align: left;
+}
+
+.teacher-dashboard-v5 .teacher-tool-card-v1:hover,
+.teacher-dashboard-v5 .teacher-tool-card-v1:focus-visible {
+  border-color: var(--td-line-strong);
+  background: var(--td-panel-strong);
+  transform: none;
+}
+
+.teacher-dashboard-v5 .teacher-tool-card-v1 .teacher-button-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: var(--td-icon-surface);
+}
+
+.teacher-dashboard-v5 .teacher-tool-card-v1 .teacher-button-icon img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.teacher-dashboard-v5 .teacher-tool-card-copy-v1 {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.teacher-dashboard-v5 .teacher-tool-card-copy-v1 strong {
+  color: var(--td-text);
+  font-size: .86rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+
+.teacher-dashboard-v5 .teacher-tool-card-copy-v1 small {
+  color: var(--td-muted);
+  font-size: .7rem;
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-dashboard-v5 .teacher-tool-card-chevron-v1 {
+  flex: 0 0 auto;
+  color: var(--td-muted);
+  font-size: 1.2rem;
+}
+
+/* First card ("Start Live Session") carries the highlighted/primary
+   treatment; the rest stay as quiet dark cards — matches the reference
+   mockup's own hierarchy (one glowing action, the rest plain). */
+.teacher-dashboard-v5 #openLiveLaunchDialog.teacher-tool-card-v1 {
+  border-color: rgba(255, 93, 186, .38);
+  background:
+    radial-gradient(circle at 85% 15%, rgba(166, 107, 255, .28), transparent 60%),
+    linear-gradient(135deg, rgba(255, 93, 186, .22), rgba(166, 107, 255, .16));
+  box-shadow: 0 10px 24px rgba(255, 93, 186, .14);
+}
+
+.teacher-dashboard-v5 #openLiveLaunchDialog.teacher-tool-card-v1:hover,
+.teacher-dashboard-v5 #openLiveLaunchDialog.teacher-tool-card-v1:focus-visible {
+  border-color: rgba(255, 93, 186, .55);
+}
+
+.teacher-dashboard-v5 #openLiveLaunchDialog.teacher-tool-card-v1 .teacher-button-icon {
+  background:
+    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, .5), transparent 55%),
+    linear-gradient(135deg, #ff5dba, #a66bff);
+}
+
+.teacher-dashboard-v5 .teacher-tool-placeholder-message-v1 {
+  margin: 2px 2px 0;
+  color: #9edcff;
+  font-size: .72rem;
+  font-weight: 650;
+}
+
+/* ---------- Smart intervention panel ---------- */
+
+.teacher-dashboard-v5 .smart-intervention-panel-v1 {
+  border-color: rgba(166, 107, 255, .28);
+  background:
+    radial-gradient(circle at 85% 0%, rgba(166, 107, 255, .14), transparent 55%),
+    rgba(255, 255, 255, .045);
+}
+
+.teacher-dashboard-v5 .smart-intervention-heading-v1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #c9b6ff !important;
+}
+
+.teacher-dashboard-v5 .smart-intervention-beta-v1 {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(166, 107, 255, .22);
+  color: #e4d9ff;
+  font-size: .58rem;
+  font-weight: 800;
+  font-style: normal;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* ---------- Element breakdown popup ---------- */
+
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-v10 {
+  width: min(760px, calc(100vw - 32px));
+}
+
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-header-icon {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-header-explainer-v1 {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid var(--td-line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-header-explainer-v1 span:first-child {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-header-explainer-v1 strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--td-text);
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-header-explainer-v1 p {
+  margin: 0;
+  color: var(--td-muted);
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-section-heading h3 {
+  color: var(--td-text);
+}
+
+/* Status pill per row ("Securing" / "Developing" / …), colour-matched to
+   the same is-secure/is-strong/is-developing/is-focus classes scoreClass()
+   already applies to the top-level element cards, for a consistent
+   colour language between the grid and this popup. */
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-row-status-v1 {
+  flex: 0 0 auto;
+  padding: 3px 9px 3px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .06);
+  font-size: .64rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-row-status-v1 i {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-row-status-v1.is-secure { color: #6ee7b7; }
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-row-status-v1.is-strong { color: #9edcff; }
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-row-status-v1.is-developing { color: #ffcc66; }
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-row-status-v1.is-focus { color: #ff9d9d; }
+
+@media (max-width: 720px) {
+  .teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-row-status-v1 {
+    margin: 4px 0 0;
+  }
+}

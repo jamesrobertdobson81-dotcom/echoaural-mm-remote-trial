@@ -372,8 +372,10 @@ check(/moduleId:\s*DASHBOARD_LAUNCH_MODULE_IDS\.has\(requestedLaunchModuleId\)\s
 check(/dashboardLaunch\.enabled\s*&&\s*dashboardLaunch\.moduleId[\s\S]*return dashboardLaunch\.moduleId;/.test(teacherJs), 'Dashboard-launched rooms should keep their selected app type through room creation and start.');
 check(/numberFromParam\('quizLength',\s*3,\s*\[1,\s*3,\s*5,\s*10,\s*15\]\)/.test(teacherJs), 'Teacher Mode should retain the one-question ExamLab launch setting.');
 check(!/id="openExamLabLaunchDialog"/.test(dashboardHtml), 'Teacher Dashboard should not show a separate Start Exam Lab button.');
-check((dashboardHtml.match(/data-launch-source=/g) || []).length === 3, 'Start Live Session should offer exactly three question-source choices.');
-check(/data-launch-source="app"/.test(dashboardHtml) && /data-launch-source="mixed"/.test(dashboardHtml) && /data-launch-source="exam-lab"/.test(dashboardHtml), 'Question Source should offer App, Mixed Apps and ExamLab.');
+const launchSourceButtons = dashboardHtml.match(/<button[^>]*data-launch-source="[^"]*"[^>]*>/g) || [];
+const liveSessionLaunchSourceButtons = launchSourceButtons.filter((tag) => !/data-homework-only/.test(tag));
+check(liveSessionLaunchSourceButtons.length === 3, 'Start Live Session should offer exactly three question-source choices.');
+check(/data-launch-source="app"/.test(dashboardHtml) && /data-launch-source="mixed"/.test(dashboardHtml) && /<option value="exam-lab">/.test(dashboardHtml), 'Question Source should offer App and Mixed Apps, with ExamLab reachable via the App dropdown.');
 check(/id="teacherLaunchApp"/.test(dashboardHtml) && /Instrument Identifier/.test(dashboardHtml) && /Melody Master/.test(dashboardHtml) && /Melodic Intervals/.test(dashboardHtml), 'The App source should provide an individual-app dropdown.');
 check(/showsStandardChoices\s*=\s*selectedSource\s*===\s*"app"\s*\|\|\s*selectedSource\s*===\s*"mixed"/.test(dashboardJs), 'Questions, plays and level choices should appear only for App or Mixed Apps.');
 check(!/EXL00[123]/.test(`${teacherJs}\n${dashboardHtml}\n${dashboardJs}\n${studentHtml}`), 'Classroom and dashboard UI source must not name internal extract IDs.');

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title-assessments" fill="none">
+  <title id="title-assessments">Manage assessments</title>
+  <rect x="24" y="16" width="80" height="100" rx="10" fill="currentColor" opacity=".18"/>
+  <rect x="24" y="16" width="80" height="100" rx="10" stroke="currentColor" stroke-width="6"/>
+  <rect x="44" y="10" width="40" height="16" rx="6" fill="currentColor"/>
+  <path d="M40 58 L52 70 L76 46" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M40 88 L52 100 L76 76" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".72"/>
+</svg>
