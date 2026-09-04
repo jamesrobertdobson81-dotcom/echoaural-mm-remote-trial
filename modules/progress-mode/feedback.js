@@ -92,6 +92,12 @@
       strength: "recognise musical periods well",
       focus: "compare the stylistic features that mark the boundary between neighbouring periods",
       label: "period identification"
+    },
+    "structure-spotter": {
+      strength: "recognise musical structures and forms well",
+      gap: "telling similarly-shaped structures apart",
+      focus: "listen for exactly when a section repeats, contrasts or returns before naming the form",
+      label: "structure and form"
     }
   };
 

@@ -169,11 +169,12 @@ function createAdapters(projectRoot) {
   const instrumentAdapter = require(path.join(projectRoot, 'modules', 'instrument-identifier', 'teacher-adapter.js'))(context);
   const textureAdapter = require(path.join(projectRoot, 'modules', 'texture-trainer', 'teacher-adapter.js'))(context);
   const melodicIntervalsAdapter = require(path.join(projectRoot, 'modules', 'melodic-intervals', 'teacher-adapter.js'))(context);
+  const structureSpotterAdapter = require(path.join(projectRoot, 'modules', 'structure-spotter', 'teacher-adapter.js'))(context);
   const examLabAdapter = require(path.join(projectRoot, 'modules', 'exam-lab', 'teacher-adapter.js'))({
     ...context,
     moduleDir: path.join(projectRoot, 'modules', 'exam-lab')
   });
-  return [melodyAdapter, instrumentAdapter, textureAdapter, melodicIntervalsAdapter, examLabAdapter];
+  return [melodyAdapter, instrumentAdapter, textureAdapter, melodicIntervalsAdapter, structureSpotterAdapter, examLabAdapter];
 }
 
 function sendJson(res, statusCode, payload) {
@@ -222,6 +223,11 @@ function resolveQuestionAudioForBrowser(room, audioPath = '') {
   if (moduleId === 'instrument-identifier') return `/modules/instrument-identifier/${raw.replace(/^\.\//, '')}`;
   if (moduleId === 'texture-trainer') return `/modules/texture-trainer/${raw.replace(/^\.\//, '')}`;
   if (moduleId === 'melodic-intervals') return `/modules/melodic-intervals/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'cadence-coach') return `/modules/cadence-coach/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'meter-master') return `/modules/meter-master/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'musical-language') return `/modules/musical-language/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'structure-spotter') return `/modules/structure-spotter/${raw.replace(/^\.\//, '')}`;
+  if (moduleId === 'ensemble-recognition') return `/modules/ensemble-recognition/${raw.replace(/^\.\//, '')}`;
   if (moduleId === 'exam-lab') return `/modules/exam-lab/${raw.replace(/^\.\//, '')}`;
 
   return raw;

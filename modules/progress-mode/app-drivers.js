@@ -103,6 +103,48 @@
     return kicker ? (kicker.textContent || "").trim() : null;
   }
 
+  // Structure Spotter (modules/structure-spotter/) reuses ScoreDecoder's DOM
+  // idiom (#answers .answer-button for MC, #typedAnswer for typed tiers,
+  // #nextButton enabled on submit) with one deliberate fix: ScoreDecoder's
+  // own #feedback element is only ever cleared, never populated with
+  // "Correct"/"N of M marks" text (renderFeedback() writes into #answerCard
+  // instead) — so msLanguageIsCorrect's text-matching branch is dead code
+  // for typed tiers there. Structure Spotter's script.js has the same split
+  // (renderFeedback() writes into #answerCard, not #feedback), so this
+  // reads the real status text from #answerCard .ss-feedback-status
+  // ("Correct · 1/1" / "Partly correct · 1/2" / "Not quite · 0/1") instead.
+  function ssIsAnswered(doc) {
+    var mc = doc.querySelectorAll("#answers .answer-button");
+    if (mc.length && Array.prototype.every.call(mc, function (b) { return b.disabled; })) return true;
+    var typed = doc.getElementById("typedAnswer");
+    if (typed && typed.disabled) return true;
+    var nextButton = doc.getElementById("nextButton");
+    return !!nextButton && !nextButton.disabled;
+  }
+
+  function ssIsCorrect(doc) {
+    if (doc.querySelector("#answers .answer-button.incorrect")) return false;
+    if (doc.querySelector("#answers .answer-button.correct")) return true;
+    var status = doc.querySelector("#answerCard .ss-feedback-status");
+    if (!status) return true;
+    var text = (status.textContent || "").trim();
+    var match = /(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/.exec(text);
+    if (match) return parseFloat(match[1]) >= parseFloat(match[2]) / 2;
+    return text.indexOf("Not quite") === -1;
+  }
+
+  function ssSignature(doc) {
+    var choices = textSignature(doc, "#answers .answer-button");
+    if (choices) return choices;
+    var prompt = doc.querySelector(".he-question-prompt");
+    if (prompt) {
+      var promptText = (prompt.textContent || "").trim();
+      if (promptText) return promptText;
+    }
+    var kicker = doc.getElementById("questionKicker");
+    return kicker ? (kicker.textContent || "").trim() : null;
+  }
+
   // Shared by the harmony-key-signatures driver below. Answer buttons follow
   // the usual disabled-on-submit idiom (#answers .answer-button); the typed
   // fallback (#typedInput, used when answers=choice isn't respected) mirrors
@@ -619,14 +661,15 @@
   // Progress Mode now reports levels/feedback against, not individual
   // drivers/sub-apps. A driver's own `label` still identifies it, but only
   // ever surfaces inside written feedback text, never as its own scored row.
-  var AREA_ORDER = ["melody", "texture", "harmony", "instrumentation", "rhythm", "context"];
+  var AREA_ORDER = ["melody", "texture", "harmony", "instrumentation", "rhythm", "context", "structure"];
   var AREA_LABELS = {
     melody: "Melody",
     texture: "Texture",
     harmony: "Harmony",
     instrumentation: "Instrumentation",
     rhythm: "Rhythm",
-    context: "Context"
+    context: "Context",
+    structure: "Structure"
   };
   // Coloured per-area app icons for the student dashboard Progress Mode
   // "Detailed feedback" tiles — falls back to Progress Mode's own icon for
@@ -637,7 +680,8 @@
     harmony: "/assets/icons/modules/harmony-explorer.png",
     instrumentation: "/assets/icons/modules/instrument-identifier.png",
     rhythm: "/assets/icons/modules/meter-master.png",
-    context: "/assets/icons/modules/context-coach.png"
+    context: "/assets/icons/modules/context-coach.png",
+    structure: "/assets/icons/modules/structure-spotter.png"
   };
 
   var DRIVERS = {
@@ -1056,6 +1100,25 @@
       isAnswered: msLanguageIsAnswered,
       isCorrect: msLanguageIsCorrect,
       getSignature: msLanguageSignature
+    },
+
+    // Structure Spotter is one unified topic (unlike ScoreDecoder's 4-way
+    // split) — a single entry, pinning level and a fixed 5-question count;
+    // "elementFocus" is deliberately left on its default "Mixed" so a
+    // Progress Mode round can draw from any of the 3 structure groups.
+    "structure-spotter": {
+      label: "Structure Spotter",
+      area: "structure",
+      path: "../structure-spotter/index.html",
+      levelValues: LEVEL_VALUES,
+      configure: function (doc, levelIndex) {
+        setRadio(doc, "structureLevel", this.levelValues[levelIndex]);
+        setRadio(doc, "questionCount", "5");
+      },
+      startButtonId: "startButton",
+      isAnswered: ssIsAnswered,
+      isCorrect: ssIsCorrect,
+      getSignature: ssSignature
     },
 
     "meter-master": {

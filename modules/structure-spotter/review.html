@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Structure Spotter Review | EchoAural</title>
+  <link rel="stylesheet" href="review.css" />
+  <link rel="stylesheet" href="../../shared/css/ea-brand-logos.css" />
+</head>
+<body data-brand-app="structure-spotter">
+  <div class="review-shell">
+    <header class="review-topbar">
+      <a class="brand refined-logo" href="../../index.html" aria-label="Back to EchoAural home">
+        <span class="brand-wave refined-wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+        <strong class="wordmark"><span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span></strong>
+      </a>
+      <div class="review-title">
+        <p class="eyebrow">Structure Spotter audit tool</p>
+        <h1>Question Review</h1>
+      </div>
+      <a class="topbar-link" href="index.html">Back to Structure Spotter</a>
+    </header>
+
+    <main class="review-layout">
+      <aside class="panel question-list-panel">
+        <div class="panel-heading"><span class="heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2>Questions</h2></div>
+
+        <div class="summary-grid" aria-label="Review summary">
+          <div><strong id="totalCount">0</strong><span>Total</span></div>
+          <div><strong id="reviewedCount">0</strong><span>Reviewed</span></div>
+          <div><strong id="dropCount">0</strong><span>Drop</span></div>
+        </div>
+        <p id="levelCountSummary" class="question-list-note">Loading Structure Spotter question bank…</p>
+
+        <label class="search-field"><span>Search</span><input id="searchInput" type="search" placeholder="ID, term, prompt…" autocomplete="off" /></label>
+
+        <div class="filter-row level-filter-row" aria-label="Level filters">
+          <button class="filter-button is-active" type="button" data-level-filter="all">All levels</button>
+          <button class="filter-button" type="button" data-level-filter="Foundation">Foundation</button>
+          <button class="filter-button" type="button" data-level-filter="Developing">Developing</button>
+          <button class="filter-button" type="button" data-level-filter="Securing">Securing</button>
+          <button class="filter-button" type="button" data-level-filter="Mastering">Mastering</button>
+        </div>
+
+        <div class="filter-row" aria-label="Element filters">
+          <button class="filter-button is-active" type="button" data-element-filter="all">All elements</button>
+          <button class="filter-button" type="button" data-element-filter="Classical Forms">Classical Forms</button>
+          <button class="filter-button" type="button" data-element-filter="Popular & EDM">Popular &amp; EDM</button>
+          <button class="filter-button" type="button" data-element-filter="World Structures">World Structures</button>
+        </div>
+
+        <div class="filter-row" aria-label="Decision filters">
+          <button class="filter-button is-active" type="button" data-filter="all">All</button>
+          <button class="filter-button" type="button" data-filter="unreviewed">Unreviewed</button>
+          <button class="filter-button" type="button" data-filter="drop">Drop</button>
+          <button class="filter-button" type="button" data-filter="locked">Locked</button>
+        </div>
+
+        <div id="questionList" class="question-list" aria-label="Structure Spotter questions"></div>
+      </aside>
+
+      <section class="panel audition-panel">
+        <div class="panel-heading panel-heading-centre"><span class="heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2>Audition</h2></div>
+        <div class="question-meta-row"><span id="questionPosition">Question 0 / 0</span><span id="questionLevelBadge">Level unset</span></div>
+
+        <article class="audition-card">
+          <p class="eyebrow" id="questionId">SS-000</p>
+          <h3 id="questionTitle">Loading…</h3>
+          <p id="questionMeta" class="audition-meta">—</p>
+
+          <div class="audition-iframe-wrap">
+            <iframe id="auditionFrame" class="audition-iframe" title="Structure Spotter live question preview" src="about:blank"></iframe>
+            <p id="iframeStatus" class="iframe-status">Choose a question to begin.</p>
+          </div>
+
+          <div class="nav-row">
+            <button id="prevButton" class="secondary-button" type="button">Previous</button>
+            <button id="reloadButton" class="secondary-button" type="button">Reload question</button>
+            <button id="nextButton" class="primary-button" type="button">Next question</button>
+          </div>
+        </article>
+      </section>
+
+      <aside class="panel review-panel">
+        <div class="panel-heading"><span class="heading-wave" aria-hidden="true"><span></span><span></span><span></span></span><h2>Review</h2></div>
+        <form id="reviewForm" class="review-form">
+          <fieldset><legend>Decision</legend>
+            <label><input type="radio" name="decision" value="keep" /> Keep</label>
+            <label><input type="radio" name="decision" value="edit" /> Edit</label>
+            <label><input type="radio" name="decision" value="drop" /> Drop</label>
+          </fieldset>
+          <fieldset><legend>Level</legend>
+            <label><input type="radio" name="difficulty" value="Foundation" /> Foundation</label>
+            <label><input type="radio" name="difficulty" value="Developing" /> Developing</label>
+            <label><input type="radio" name="difficulty" value="Securing" /> Securing</label>
+            <label><input type="radio" name="difficulty" value="Mastering" /> Mastering</label>
+          </fieldset>
+          <fieldset><legend>Issues</legend>
+            <label><input type="checkbox" name="issue" value="prompt" /> Prompt wording needs editing</label>
+            <label><input type="checkbox" name="issue" value="options" /> Options/distractors need editing</label>
+            <label><input type="checkbox" name="issue" value="answer" /> Correct answer/mark scheme wrong</label>
+            <label><input type="checkbox" name="issue" value="pattern" /> Pattern display needs editing</label>
+            <label><input type="checkbox" name="issue" value="level" /> Level/difficulty uncertain</label>
+            <label><input type="checkbox" name="issue" value="source" /> Source/rights check</label>
+          </fieldset>
+          <label class="notes-field"><span>Notes for Codex</span><textarea id="reviewNotes" rows="6" placeholder="e.g. Move to Securing, distractors too easy to eliminate, mastering answer needs a real work example…"></textarea></label>
+        </form>
+        <section class="source-summary"><h3>Current record</h3><div id="sourceSummaryContent"></div></section>
+        <div class="export-row">
+          <button id="downloadJsonButton" class="primary-button" type="button">Download JSON</button>
+          <button id="downloadCsvButton" class="secondary-button" type="button">Download CSV</button>
+          <button id="clearReviewButton" class="ghost-button" type="button">Clear local review</button>
+        </div>
+        <p id="saveStatus" class="save-status" role="status" aria-live="polite">Autosave ready.</p>
+      </aside>
+    </main>
+  </div>
+  <script src="../progress-mode/app-drivers.js"></script>
+  <script src="review.js"></script>
+</body>
+</html>

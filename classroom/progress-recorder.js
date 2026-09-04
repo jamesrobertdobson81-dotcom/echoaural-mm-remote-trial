@@ -10,6 +10,13 @@ const MODULE_TITLES = {
   'instrument-identifier': 'Instrument Identifier',
   'texture-trainer': 'Texture Trainer',
   'meter-master': 'Meter Master',
+  'cadence-coach': 'Cadence Coach',
+  'musical-language': 'ScoreDecoder Vocabulary',
+  'structure-spotter': 'Structure Spotter',
+  'ensemble-recognition': 'Ensemble Recognition',
+  'key-signature-sprint': 'Key Signatures',
+  'chord-identifier': 'Chord Identifier',
+  'era-explorer': 'Context Coach',
   'exam-lab': 'Exam Lab'
 };
 

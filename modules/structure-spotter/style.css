@@ -1,0 +1,267 @@
+@import url("../harmony-explorer/style.css");
+
+.app-shell[data-brand-app="structure-spotter"] {
+  --module-accent: #FF5A36;
+  --he-purple: #FF5A36;
+  --he-purple-soft: #FFC7B0;
+  --he-purple-deep: #A6320F;
+}
+
+.topbar-app-link-ss { --module-accent: var(--ea-structure-spotter, #FF5A36); }
+
+.app-shell[data-brand-app="structure-spotter"] .topbar-ii-gradient,
+.app-shell[data-brand-app="structure-spotter"] .ii-title-gradient,
+.app-shell[data-brand-app="structure-spotter"] .console-title-gradient {
+  color: #FF5A36;
+  -webkit-text-fill-color: #FF5A36;
+  text-shadow: 0 0 12px rgba(255, 90, 54, .3);
+}
+
+.app-shell[data-brand-app="structure-spotter"] .panel-heading-accent {
+  background: #FF5A36;
+  box-shadow: 0 0 8px rgba(255, 90, 54, .45);
+}
+
+.app-shell[data-brand-app="structure-spotter"] .level-button:hover,
+.app-shell[data-brand-app="structure-spotter"] .level-button:has(input:checked) {
+  border-color: rgba(255, 90, 54, .58);
+  background: radial-gradient(circle at 85% 10%, rgba(255, 90, 54, .2), transparent 38%), linear-gradient(135deg, rgba(166, 50, 15, .15), rgba(255, 199, 176, .08));
+  box-shadow: 0 18px 42px rgba(255, 90, 54, .12), inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+.app-shell[data-brand-app="structure-spotter"] .quiz-panel.is-ready #startButton.centre-start {
+  background: linear-gradient(180deg, #FFC7B0 0%, #FF5A36 48%, #A6320F 100%);
+  color: #0f0c2e;
+  box-shadow: 0 0 28px rgba(255, 90, 54, .3), 0 8px 22px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255, 255, 255, .3);
+}
+
+.app-shell[data-brand-app="structure-spotter"] .quiz-panel.is-ready #startButton.centre-start::after {
+  filter: invert(1);
+}
+
+.app-shell[data-brand-app="structure-spotter"] .console-ii-icon {
+  background: linear-gradient(135deg, #FFC7B0, #FF5A36 55%, #A6320F) !important;
+}
+
+body::before {
+  border-color: rgba(255, 90, 54, .08);
+  box-shadow: 0 0 0 58px rgba(255, 90, 54, .018), 0 0 0 116px rgba(255, 90, 54, .012);
+}
+
+body::after {
+  border-color: rgba(255, 90, 54, .12);
+  box-shadow: 0 0 0 82px rgba(255, 90, 54, .04), 0 0 0 164px rgba(255, 90, 54, .028), 0 0 0 246px rgba(255,255,255,.012), 0 0 70px rgba(255, 90, 54, .07);
+}
+
+.app-shell[data-brand-app="structure-spotter"]::before,
+.app-shell[data-brand-app="structure-spotter"]::after {
+  border-color: rgba(255, 90, 54, .09);
+}
+
+.app-shell[data-brand-app="structure-spotter"] .answerCard-empty.he-source-panel .answer-empty-orbit {
+  background: repeating-radial-gradient(circle, transparent 0 17px, rgba(255, 90, 54,.14) 18px, transparent 19px);
+  box-shadow: 0 0 38px rgba(255, 90, 54,.08);
+}
+
+.app-shell[data-brand-app="structure-spotter"] .answer-empty-sparkle {
+  background: #FF5A36;
+  filter: drop-shadow(0 0 5px rgba(255, 90, 54,.55));
+}
+
+.ss-placeholder-icon {
+  display: grid !important;
+  place-items: center;
+  color: #fff;
+  font: 850 clamp(1.3rem, 2.6vw, 2.5rem)/1 Inter, sans-serif;
+  letter-spacing: -.08em;
+  background: linear-gradient(135deg, #FFC7B0, #FF5A36 55%, #A6320F) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  box-shadow: 0 0 24px rgba(255, 90, 54,.22) !important;
+}
+
+.ss-placeholder-icon-small {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  font-size: .9rem;
+}
+
+.ss-app-icon img {
+  object-fit: contain !important;
+  transform: scale(1.06) !important;
+  opacity: 1;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, .34)) !important;
+}
+
+.app-shell[data-brand-app="structure-spotter"] .topbar-module-icon.ss-app-icon,
+.app-shell[data-brand-app="structure-spotter"] .ii-hero-icon.ss-app-icon,
+.app-shell[data-brand-app="structure-spotter"] .console-ii-icon.ss-app-icon {
+  background: linear-gradient(145deg, #6b1f0a, #a6320f 54%, #ff9270) !important;
+  border-color: rgba(255, 199, 176, .38) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .2),
+    0 0 26px rgba(255, 90, 54, .22) !important;
+}
+
+.ss-skill-space {
+  height: 105px;
+  flex: 0 0 105px;
+}
+
+.quiz-panel:not(.is-ready) .console-actions-start,
+.quiz-panel:not(.is-ready) .console-ready-brand,
+.quiz-panel:not(.is-ready) .ii-ready-wave {
+  display: none !important;
+}
+
+.quiz-panel:not(.is-ready) .listening-console {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  align-content: start;
+  gap: clamp(10px, 1.25vh, 16px);
+  min-height: 0;
+  height: 100%;
+  padding: clamp(18px, 2.1vh, 28px) clamp(18px, 2vw, 28px);
+  box-sizing: border-box;
+}
+
+.quiz-panel:not(.is-ready) .console-actions-replay { display: flex !important; justify-content: center; }
+.quiz-panel:not(.is-ready) .console-question-kicker { margin: 0; }
+.quiz-panel:not(.is-ready) .console-heading { margin: 0 auto; max-width: 52rem; }
+.quiz-panel:not(.is-ready) #questionText {
+  max-width: 630px;
+  margin: 8px auto 17px;
+  color: var(--text, #f7f4ff);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  line-height: normal;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+.quiz-panel:not(.is-ready) #structureSpotterCentrePanel {
+  order: 0 !important;
+  align-self: start;
+  align-content: start;
+  margin-top: 0;
+}
+
+/* Structure Spotter has no notation-image assets — the "visual" area shows
+   the structure's own pattern (e.g. A – B – A – C – A) as a row of styled
+   chips, generated in script.js's renderVisual(). Hidden entirely when a
+   question carries no pattern (Foundation/Mastering tiers, and every
+   Type B "named section" question). */
+.ss-visual-card {
+  width: min(580px, 92%);
+  min-height: clamp(72px, 10vh, 108px);
+  margin: 0 auto clamp(12px, 1.5vh, 18px);
+  padding: 16px 22px;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.78);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff, #f4f2fb);
+  box-shadow: 0 15px 35px rgba(0,0,0,.2), inset 0 1px 0 #fff;
+}
+
+.ss-visual-card[hidden] {
+  display: none !important;
+}
+
+.ss-pattern-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.ss-pattern-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #A6320F, #FF5A36 60%, #FF9270);
+  color: #fff;
+  font: 800 clamp(.95rem, 2vw, 1.3rem)/1 Inter, sans-serif;
+  letter-spacing: .01em;
+  box-shadow: 0 6px 16px rgba(166, 50, 15, .28), inset 0 1px 0 rgba(255,255,255,.22);
+}
+
+.ss-pattern-arrow {
+  width: 16px;
+  height: 2px;
+  flex: 0 0 auto;
+  background: rgba(166, 50, 15, .35);
+  border-radius: 2px;
+}
+
+.he-options.ss-options {
+  width: min(650px, 96%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.he-options.ss-options .answer-button {
+  min-height: 50px;
+  padding: 10px 16px;
+  color: #f6f1ff;
+  border: 1px solid rgba(255, 90, 54, .28);
+  border-radius: 13px;
+  background: rgba(255, 90, 54, .09);
+  font-weight: 750;
+}
+
+.he-options.ss-options .answer-button:hover,
+.he-options.ss-options .answer-button:focus-visible {
+  border-color: #FF5A36;
+  background: rgba(255, 90, 54, .2);
+}
+
+.he-options.ss-options .answer-button:disabled { cursor: default; }
+.he-options.ss-options .answer-button.correct { border-color: #56e0b6; background: rgba(86, 224, 182, .16); }
+.he-options.ss-options .answer-button.incorrect { border-color: #ff8fa8; background: rgba(255, 143, 168, .14); }
+
+.quiz-panel:not(.is-ready) .he-gameplay-action {
+  min-height: 44px;
+  padding: 10px 25px;
+  border: 0;
+  border-radius: 12px;
+  color: #0f0c2e;
+  background: linear-gradient(135deg, #A6320F, #FF5A36 55%, #FFC7B0);
+  box-shadow: 0 8px 22px rgba(166, 50, 15, .27);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.quiz-panel:not(.is-ready) .he-gameplay-action:disabled {
+  cursor: default;
+  opacity: .45;
+}
+
+.ss-typed-wrap { width: min(540px, 94%); margin: 0 auto; display: grid; }
+.ss-typed-input { width: 100%; min-height: 58px; padding: 0 18px; box-sizing: border-box; color: #fff; font: 650 1rem/1 Inter, sans-serif; border: 1px solid rgba(255, 90, 54,.4); border-radius: 12px; outline: none; background: rgba(9,17,36,.84); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+.ss-typed-input:focus { border-color: #FF5A36; box-shadow: 0 0 0 3px rgba(255, 90, 54,.12); }
+
+.ss-feedback-card { display: grid; gap: 14px; padding: 22px; }
+.ss-feedback-status { margin: 0; color: #FF9270; font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.ss-feedback-card h2 { margin: 0; color: #fff; font-size: 1.18rem; line-height: 1.3; }
+.ss-feedback-row { padding: 12px 14px; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; background: rgba(255,255,255,.035); }
+.ss-feedback-row span { display: block; margin-bottom: 5px; color: rgba(255,255,255,.48); font-size: .68rem; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; }
+.ss-feedback-row strong, .ss-feedback-row p { margin: 0; color: rgba(255,255,255,.9); font-size: .86rem; line-height: 1.5; }
+
+@media (max-height: 820px) {
+  .ss-skill-space { height: 72px; flex-basis: 72px; }
+  .ss-visual-card { min-height: 72px; }
+}
+
+@media (max-width: 720px) {
+  .he-options.ss-options { grid-template-columns: 1fr; }
+}
