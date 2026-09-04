@@ -1636,6 +1636,234 @@ async function handleAccountApi(req, res, parsedUrl) {
       return sendJson(res, 200, { ok: true });
     }
 
+    // The read side of progress-mode-summary above — a student's own
+    // dashboard and this app's own cross-device continuity both need their
+    // real, server-known scores, not just whichever device's localStorage
+    // happens to be open. Same identity rule as every other student route:
+    // scoped from the session via requireStudent, never from a query
+    // param. Defaults gracefully (same pattern as progress-mode-state's GET
+    // below) if this student has no row yet.
+    if (req.method === 'GET' && pathname === '/api/student/progress-mode-summary') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const result = await getPool().query(`
+        SELECT overall_level_label, rounds_completed, total_correct, total_questions, areas, sources, updated_at
+        FROM progress_mode_summaries
+        WHERE student_id = $1
+        LIMIT 1
+      `, [student.id]);
+
+      const row = result.rows[0];
+      return sendJson(res, 200, {
+        ok: true,
+        overallLevelLabel: row?.overall_level_label || null,
+        roundsCompleted: row?.rounds_completed || 0,
+        totalCorrect: row?.total_correct || 0,
+        totalQuestions: row?.total_questions || 0,
+        areas: row?.areas || [],
+        sources: row?.sources || [],
+        updatedAt: row?.updated_at || null
+      });
+    }
+
+    // Server-side mirror of modules/progress-mode/store.js's per-area
+    // level/level-progress — NOT the same table as progress-mode-summary
+    // above (that table only carries cumulative correct/questions totals,
+    // not per-area level/level-progress detail). Exists purely so a
+    // student's level state survives switching devices; the client always
+    // GETs and merges this before a round can start (see script.js's
+    // syncStateFromServer), so the POST below is a safe blind upsert —
+    // whatever the client posts already reflects a merge of local + server
+    // state, not just its own local view. Identity comes entirely from the
+    // session (requireStudent), never trusted from the request body.
+    if (req.method === 'GET' && pathname === '/api/student/progress-mode-state') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const result = await getPool().query(`
+        SELECT areas, updated_at
+        FROM progress_mode_sync_state
+        WHERE student_id = $1
+        LIMIT 1
+      `, [student.id]);
+
+      const row = result.rows[0];
+      return sendJson(res, 200, {
+        ok: true,
+        areas: row?.areas || {},
+        updatedAt: row?.updated_at || null
+      });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/student/progress-mode-state') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const body = await readJsonBody(req, 64_000);
+      const cleanKey = (value, maximum) => String(value || '').trim().slice(0, maximum);
+      const cleanNonNegativeInt = (value) => {
+        const number = Math.round(Number(value));
+        return Number.isFinite(number) && number >= 0 ? number : 0;
+      };
+
+      const rawAreas = body.areas && typeof body.areas === 'object' && !Array.isArray(body.areas) ? body.areas : {};
+      const areas = {};
+      Object.keys(rawAreas).slice(0, 12).forEach((rawKey) => {
+        const areaKey = cleanKey(rawKey, 40);
+        if (!areaKey) return;
+        const value = rawAreas[rawKey] || {};
+        const level = Math.min(3, cleanNonNegativeInt(value.level));
+        const rawLevelProgress = value.levelProgress && typeof value.levelProgress === 'object' ? value.levelProgress : {};
+        const levelProgress = {};
+        Object.keys(rawLevelProgress).slice(0, 4).forEach((levelKey) => {
+          const cleanLevelKey = cleanKey(levelKey, 4);
+          if (!/^[0-3]$/.test(cleanLevelKey)) return;
+          const entry = rawLevelProgress[levelKey] || {};
+          const rawConcepts = entry.concepts && typeof entry.concepts === 'object' ? entry.concepts : {};
+          const concepts = {};
+          Object.keys(rawConcepts).slice(0, 200).forEach((conceptKey) => {
+            const cleanConceptKey = cleanKey(conceptKey, 200);
+            if (cleanConceptKey) concepts[cleanConceptKey] = true;
+          });
+          levelProgress[cleanLevelKey] = {
+            correct: cleanNonNegativeInt(entry.correct),
+            total: cleanNonNegativeInt(entry.total),
+            concepts
+          };
+        });
+        areas[areaKey] = { level, levelProgress };
+      });
+
+      await getPool().query(`
+        INSERT INTO progress_mode_sync_state (student_id, teacher_id, areas, updated_at)
+        VALUES ($1, $2, $3::jsonb, NOW())
+        ON CONFLICT (student_id) DO UPDATE SET
+          areas = EXCLUDED.areas,
+          updated_at = NOW()
+      `, [
+        student.id,
+        student.teacher_id,
+        JSON.stringify(areas)
+      ]);
+
+      return sendJson(res, 200, { ok: true });
+    }
+
+    // Append-only log of individual Progress Mode answered-question events
+    // (db/progress-mode-reviews-schema.sql) — the server-side source of
+    // truth for spaced repetition, so a device switch doesn't reset what's
+    // due for review. Each row stores the RESULTING ease/interval/
+    // repetitions after that review (not just correct/incorrect), so a
+    // device merging this in just needs "the most recent row per
+    // source+signature" (see modules/progress-mode/store.js's
+    // applyIncomingReviews) — no server-side merge logic needed.
+    //
+    // Deliberately does not touch question_elo_ratings/student_skill_
+    // ratings (classroom/elo.js) — that adaptive-targeting system, and the
+    // homework/question-set-builder work that consumes it, isn't part of
+    // this codebase yet; Progress Mode's own cross-device sync doesn't
+    // need it.
+    if (req.method === 'GET' && pathname === '/api/student/progress-mode-reviews') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const result = await getPool().query(`
+        SELECT source_key, question_signature, correct, response_time_ms,
+               ease_factor, interval_draws, repetitions, level_index,
+               EXTRACT(EPOCH FROM completed_at)::bigint * 1000 AS completed_at_ms
+        FROM progress_mode_reviews
+        WHERE student_id = $1
+        ORDER BY completed_at ASC
+      `, [student.id]);
+
+      return sendJson(res, 200, {
+        ok: true,
+        reviews: result.rows.map((row) => ({
+          sourceKey: row.source_key,
+          questionSignature: row.question_signature,
+          correct: row.correct,
+          responseTimeMs: row.response_time_ms,
+          easeFactor: Number(row.ease_factor),
+          intervalDraws: row.interval_draws,
+          repetitions: row.repetitions,
+          levelIndex: row.level_index,
+          completedAt: Number(row.completed_at_ms)
+        }))
+      });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/student/progress-mode-reviews') {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+
+      const body = await readJsonBody(req, 256_000);
+      const cleanKey = (value, maximum) => String(value || '').trim().slice(0, maximum);
+      const cleanNonNegativeInt = (value) => {
+        const number = Math.round(Number(value));
+        return Number.isFinite(number) && number >= 0 ? number : 0;
+      };
+      const cleanEaseFactor = (value) => {
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.min(5, Math.max(1, number)) : 2.5;
+      };
+      const cleanResponseTimeMs = (value) => {
+        const number = Math.round(Number(value));
+        return Number.isFinite(number) && number >= 0 ? Math.min(number, 600_000) : null;
+      };
+
+      const reviews = (Array.isArray(body.reviews) ? body.reviews : [])
+        .slice(0, 50)
+        .map((review) => ({
+          sourceKey: cleanKey(review?.sourceKey, 80),
+          questionSignature: cleanKey(review?.questionSignature, 200),
+          correct: Boolean(review?.correct),
+          responseTimeMs: cleanResponseTimeMs(review?.responseTimeMs),
+          easeFactor: cleanEaseFactor(review?.easeFactor),
+          intervalDraws: cleanNonNegativeInt(review?.intervalDraws),
+          repetitions: cleanNonNegativeInt(review?.repetitions),
+          levelIndex: Math.min(3, cleanNonNegativeInt(review?.levelIndex)),
+          clientReviewId: cleanKey(review?.clientReviewId, 160)
+        }))
+        .filter((review) => review.sourceKey && review.questionSignature && review.clientReviewId);
+
+      if (!reviews.length) return sendJson(res, 200, { ok: true, saved: 0 });
+
+      const client = await getPool().connect();
+      let saved = 0;
+      try {
+        await client.query('BEGIN');
+        for (const review of reviews) {
+          const existing = await client.query(`
+            SELECT id FROM progress_mode_reviews WHERE student_id = $1 AND client_review_id = $2 LIMIT 1
+          `, [student.id, review.clientReviewId]);
+          if (existing.rows[0]) continue;
+
+          await client.query(`
+            INSERT INTO progress_mode_reviews (
+              student_id, teacher_id, source_key, question_signature, correct,
+              response_time_ms, ease_factor, interval_draws, repetitions,
+              level_index, client_review_id
+            )
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+          `, [
+            student.id, student.teacher_id, review.sourceKey, review.questionSignature, review.correct,
+            review.responseTimeMs, review.easeFactor, review.intervalDraws, review.repetitions,
+            review.levelIndex, review.clientReviewId
+          ]);
+          saved += 1;
+        }
+        await client.query('COMMIT');
+      } catch (error) {
+        await client.query('ROLLBACK');
+        if (error.code !== '23505') throw error;
+      } finally {
+        client.release();
+      }
+
+      return sendJson(res, 200, { ok: true, saved });
+    }
+
     if (req.method === 'GET' && pathname === '/api/student/progress') {
       const student = await requireStudent(req, res);
       if (!student) return true;
