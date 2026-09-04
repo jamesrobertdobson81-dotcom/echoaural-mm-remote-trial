@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Homework | EchoAural</title>
+<link rel="stylesheet" href="/shared/css/ea-brand-logos.css">
+<style>
+  :root {
+    --hw-bg-0: #050b16;
+    --hw-bg-1: #07111f;
+    --hw-panel: #0b1a2f;
+    --hw-line: rgba(148, 163, 184, .22);
+    --hw-text: #e8eef8;
+    --hw-muted: #93a0bd;
+    --hw-blue: #3fa6ff;
+    --hw-teal: #27e1c1;
+    --hw-pink: #ff5dba;
+    --hw-good: #2fd992;
+    --hw-bad: #ff6b7a;
+    --hw-gradient: linear-gradient(90deg, var(--hw-blue) 0%, #8b5cf6 55%, var(--hw-pink) 100%);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: radial-gradient(120% 140% at 15% -10%, #0d2038 0%, var(--hw-bg-0) 55%), var(--hw-bg-0);
+    color: var(--hw-text);
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+  a { color: inherit; }
+
+  header.hw-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--hw-line);
+    background: rgba(7, 17, 31, .8);
+    backdrop-filter: blur(6px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .brand.refined-logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+  .wordmark { font-size: 1.05rem; letter-spacing: .01em; }
+  .wordmark-echo { color: var(--hw-text); }
+  .wordmark-aural { background: var(--ea-wordmark-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  .hw-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 0; }
+  .hw-title { font-weight: 600; font-size: .95rem; max-width: 46vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hw-progress-track { width: 180px; height: 6px; border-radius: 999px; background: rgba(148, 163, 184, .18); overflow: hidden; }
+  .hw-progress-fill { height: 100%; background: var(--hw-gradient); transition: width .25s ease; }
+  .hw-progress-label { font-size: .72rem; color: var(--hw-muted); letter-spacing: .02em; }
+
+  main.hw-main { flex: 1; display: flex; flex-direction: column; padding: 18px 22px 26px; gap: 14px; max-width: 1080px; width: 100%; margin: 0 auto; }
+
+  .hw-stage {
+    position: relative;
+    flex: 1;
+    min-height: 62vh;
+    border-radius: 18px;
+    border: 1px solid var(--hw-line);
+    background: var(--hw-panel);
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(2, 6, 16, .45);
+  }
+  .hw-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+
+  .hw-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    padding: 32px;
+    background: linear-gradient(180deg, rgba(7, 15, 27, .96), rgba(7, 15, 27, .9));
+    z-index: 5;
+  }
+  .hw-overlay[hidden] { display: none; }
+  .hw-spinner {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 3px solid rgba(148, 163, 184, .28);
+    border-top-color: var(--hw-blue);
+    animation: hw-spin .8s linear infinite;
+  }
+  @keyframes hw-spin { to { transform: rotate(360deg); } }
+  .hw-overlay p { margin: 0; color: var(--hw-muted); font-size: .92rem; max-width: 34ch; }
+  .hw-overlay strong { font-size: 1.05rem; color: var(--hw-text); }
+
+  .hw-exit-row { display: flex; justify-content: flex-end; }
+  .hw-exit-link {
+    font-size: .8rem; color: var(--hw-muted); text-decoration: none;
+    border: 1px solid var(--hw-line); border-radius: 999px; padding: 6px 14px;
+  }
+  .hw-exit-link:hover { color: var(--hw-text); border-color: var(--hw-line-strong, rgba(148,163,184,.4)); }
+
+  .hw-complete-card {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    text-align: center;
+    padding: 48px 32px;
+    border-radius: 18px;
+    border: 1px solid var(--hw-line);
+    background: var(--hw-panel);
+  }
+  .hw-complete-card.is-active { display: flex; }
+  .hw-complete-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(47, 217, 146, .14); color: var(--hw-good);
+    font-size: 1.8rem;
+  }
+  .hw-complete-card h1 { margin: 0; font-size: 1.4rem; }
+  .hw-complete-score { font-size: 2.2rem; font-weight: 700; background: var(--hw-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hw-complete-card p { margin: 0; color: var(--hw-muted); max-width: 40ch; }
+  .hw-back-button {
+    margin-top: 8px; padding: 12px 26px; border-radius: 999px; border: 0;
+    background: var(--hw-gradient); color: #06101f; font-weight: 600; text-decoration: none;
+    display: inline-block;
+  }
+
+  .hw-error-card {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    padding: 48px 32px;
+    border-radius: 18px;
+    border: 1px solid var(--hw-bad);
+    background: var(--hw-panel);
+  }
+  .hw-error-card.is-active { display: flex; }
+  .hw-error-card h1 { margin: 0; font-size: 1.2rem; color: var(--hw-bad); }
+  .hw-error-card p { margin: 0; color: var(--hw-muted); max-width: 40ch; }
+
+  .hw-main.is-finished .hw-stage,
+  .hw-main.is-errored .hw-stage,
+  .hw-main.is-finished .hw-exit-row,
+  .hw-main.is-errored .hw-exit-row { display: none; }
+</style>
+</head>
+<body>
+  <header class="hw-topbar">
+    <a class="brand refined-logo" href="/account/student-home/" aria-label="Back to your dashboard">
+      <span class="brand-wave refined-wave" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </span>
+      <strong class="wordmark">
+        <span class="wordmark-echo">Echo</span><span class="wordmark-aural">Aural</span>
+      </strong>
+    </a>
+    <div class="hw-meta">
+      <span class="hw-title" id="hwTitle">Homework</span>
+      <div class="hw-progress-track"><div class="hw-progress-fill" id="hwProgressFill" style="width:0%"></div></div>
+      <span class="hw-progress-label" id="hwProgressLabel">Loading…</span>
+    </div>
+  </header>
+
+  <main class="hw-main" id="hwMain">
+    <div class="hw-exit-row">
+      <a class="hw-exit-link" href="/account/student-home/" id="hwExitLink">Exit without finishing</a>
+    </div>
+
+    <div class="hw-stage">
+      <iframe class="hw-frame" id="hwFrame" title="Homework question" allow="autoplay"></iframe>
+      <div class="hw-overlay" id="hwOverlay">
+        <div class="hw-spinner" aria-hidden="true"></div>
+        <p id="hwOverlayText">Loading your next question…</p>
+      </div>
+    </div>
+
+    <div class="hw-complete-card" id="hwCompleteCard">
+      <span class="hw-complete-icon" aria-hidden="true">✓</span>
+      <h1>Homework complete</h1>
+      <div class="hw-complete-score" id="hwCompleteScore">0%</div>
+      <p id="hwCompleteSummary">Nice work — your results have been saved.</p>
+      <a class="hw-back-button" href="/account/student-home/">Back to your dashboard</a>
+    </div>
+
+    <div class="hw-error-card" id="hwErrorCard">
+      <h1>Something went wrong</h1>
+      <p id="hwErrorText">This homework could not be loaded.</p>
+      <a class="hw-back-button" href="/account/student-home/">Back to your dashboard</a>
+    </div>
+  </main>
+
+  <script src="/shared/js/pm-registry.js"></script>
+  <script src="homework-player.js"></script>
+</body>
+</html>

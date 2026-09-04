@@ -76,6 +76,13 @@ button { cursor: pointer; }
   gap: 18px;
   background: rgba(5,13,28,.72);
   backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  /* Own compositing layer, isolated from the wave logo's continuous
+     transform/opacity animation inside it — without this, Safari
+     recomputes the whole blurred backdrop on every animation frame,
+     which shows up as a visible flicker/strobe on the nav bar. */
+  transform: translateZ(0);
+  isolation: isolate;
 }
 
 .account-logo {
@@ -1967,7 +1974,7 @@ button:disabled { cursor: wait; opacity: .62; transform: none !important; }
   grid-column: 1 / -1;
   grid-row: 3;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 4px;
 }
 
@@ -2386,50 +2393,6 @@ button:disabled { cursor: wait; opacity: .62; transform: none !important; }
   white-space: nowrap;
 }
 
-.teacher-dashboard-v5 .learning-summary-list-v5 {
-  flex: 1 1 auto;
-  min-height: 0;
-  padding-top: 10px;
-  display: grid;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.teacher-dashboard-v5 .learning-summary-card-v5 {
-  min-height: 0;
-  padding: 14px 15px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 92% 8%, rgba(139,92,246,.055), transparent 38%),
-    #fbfcfe;
-}
-
-.teacher-dashboard-v5 .quiz-summary-v5 {
-  border-color: rgba(139,92,246,.22);
-  background:
-    radial-gradient(circle at 92% 8%, rgba(139,92,246,.08), transparent 38%),
-    #fff;
-  box-shadow: 0 14px 32px rgba(76,29,149,.07);
-}
-
-.teacher-dashboard-v5 .homework-summary-v5 {
-  border-style: dashed;
-  background:
-    radial-gradient(circle at 92% 8%, rgba(56,189,248,.06), transparent 38%),
-    linear-gradient(145deg, #fbfcfe, #f8f7ff);
-}
-
-.teacher-dashboard-v5 .learning-summary-heading-v5 {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto;
-  gap: 11px;
-  align-items: center;
-}
-
 .teacher-dashboard-v5 .learning-summary-icon-slot-v5,
 .category-detail-icon-slot-v5 {
   width: 44px;
@@ -2477,96 +2440,6 @@ button:disabled { cursor: wait; opacity: .62; transform: none !important; }
   background: var(--ea-icon) center / contain no-repeat;
   -webkit-mask: none;
   mask: none;
-}
-
-.teacher-dashboard-v5 .learning-summary-title-v5 {
-  min-width: 0;
-}
-
-.teacher-dashboard-v5 .learning-summary-title-v5 p {
-  margin: 0 0 2px;
-  color: #7c3aed;
-  font-size: .55rem;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.teacher-dashboard-v5 .learning-summary-title-v5 h3 {
-  margin: 0;
-  font-size: 1.08rem;
-  letter-spacing: -.035em;
-}
-
-.teacher-dashboard-v5 .learning-summary-percentage-v5 {
-  min-width: 62px;
-  text-align: right;
-  font-size: 1.65rem;
-  line-height: 1;
-  letter-spacing: -.06em;
-}
-
-.teacher-dashboard-v5 .learning-summary-percentage-v5.is-secure { color: #067647; }
-.teacher-dashboard-v5 .learning-summary-percentage-v5.is-strong { color: #026aa2; }
-.teacher-dashboard-v5 .learning-summary-percentage-v5.is-developing { color: #6941c6; }
-.teacher-dashboard-v5 .learning-summary-percentage-v5.is-focus { color: #b42318; }
-.teacher-dashboard-v5 .learning-summary-percentage-v5.is-empty { color: #98a2b3; }
-
-.teacher-dashboard-v5 .learning-summary-feedback-v5 {
-  flex: 1 1 auto;
-  min-height: 0;
-  margin-top: 10px;
-  padding: 9px 11px;
-  border: 1px solid rgba(139,92,246,.12);
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(255,255,255,.72);
-}
-
-.teacher-dashboard-v5 .learning-summary-feedback-v5 > span {
-  display: block;
-  color: #7c3aed;
-  font-size: .5rem;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.teacher-dashboard-v5 .learning-summary-feedback-v5 p {
-  margin: 4px 0 0;
-  color: #475467;
-  display: -webkit-box;
-  overflow: hidden;
-  font-size: .68rem;
-  line-height: 1.35;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
-
-.teacher-dashboard-v5 .learning-summary-footer-v5 {
-  flex: 0 0 auto;
-  margin-top: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.teacher-dashboard-v5 .learning-summary-footer-v5 > span {
-  min-width: 0;
-  color: var(--muted);
-  overflow: hidden;
-  font-size: .58rem;
-  font-weight: 750;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.teacher-dashboard-v5 .learning-detail-button-v5 {
-  min-height: 30px;
-  padding: 0 10px;
-  flex: 0 0 auto;
-  font-size: .58rem;
 }
 
 .teacher-launch-dialog-v8 {
@@ -3009,41 +2882,7 @@ button:disabled { cursor: wait; opacity: .62; transform: none !important; }
   line-height: 1.55;
 }
 
-@media (max-width: 1000px) {
-  .teacher-dashboard-v5 .learning-summary-list-v5 {
-    grid-template-rows: none;
-    grid-auto-rows: minmax(190px, auto);
-  }
-}
-
 @media (max-width: 650px) {
-  .teacher-dashboard-v5 .learning-summary-heading-v5 {
-    grid-template-columns: 40px minmax(0, 1fr) auto;
-  }
-
-  .teacher-dashboard-v5 .learning-summary-icon-slot-v5 {
-    width: 40px;
-    height: 40px;
-  }
-
-  .teacher-dashboard-v5 .learning-summary-percentage-v5 {
-    min-width: 54px;
-    font-size: 1.4rem;
-  }
-
-  .teacher-dashboard-v5 .learning-summary-footer-v5 {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .teacher-dashboard-v5 .learning-summary-footer-v5 > span {
-    white-space: normal;
-  }
-
-  .teacher-dashboard-v5 .learning-detail-button-v5 {
-    width: 100%;
-  }
-
   .category-detail-dialog-v5 {
     width: calc(100vw - 14px);
     max-height: calc(100vh - 14px);

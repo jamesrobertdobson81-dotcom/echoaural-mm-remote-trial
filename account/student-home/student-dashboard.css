@@ -1,708 +1,2144 @@
-/* EchoAural student dashboard v3
-   Same three-console rhythm as the teacher dashboard, with student-friendly content. */
+/* EchoAural student dashboard — sidebar + hero layout (matches the supplied
+   mock-up). Body class .eahome-v4 scopes everything below; the older
+   "-v3"/"-v2" console-grid layout this replaced has been removed (it's no
+   longer emitted by index.html/student-home.js, so keeping it would just be
+   dead CSS). The detailed-feedback <dialog> and everything it renders for
+   the Live Sessions / Homework categories (.category-detail-*, .student-
+   detail-*, .pm-detail-toolbar/.pm-toolbar-* etc.) is UNCHANGED below —
+   only the Progress Mode branch of that dialog (.pm-detail-columns onward)
+   is new, to match the supplied "detailed feedback" mock-up. */
 
-.student-dashboard-v3 {
+.eahome-v4 {
+  --eh-bg-0: #050b16;
+  --eh-bg-1: #07111f;
+  --eh-bg-2: #0c1c33;
+  --eh-panel: rgba(255, 255, 255, .045);
+  --eh-panel-strong: rgba(255, 255, 255, .07);
+  --eh-line: rgba(148, 163, 184, .16);
+  --eh-line-strong: rgba(148, 163, 184, .28);
+  --eh-text: #eef2fb;
+  --eh-muted: #93a0bd;
+  --eh-blue: #3fa6ff;
+  --eh-purple: #a66bff;
+  --eh-pink: #ff5dba;
+  --eh-teal: #27e1c1;
+  --eh-amber: #ffaa2b;
+  --eh-gradient: linear-gradient(90deg, var(--eh-blue) 0%, var(--eh-purple) 55%, var(--eh-pink) 100%);
+  /* Newer, less-saturated gradient — same family already used for the
+     homepage hero's second gradient line (shared/css/brand.css's
+     .hero-title-gradient-alt: sky-400/violet-500/rose-400) rather than
+     this page's original punchier --eh-gradient. Used sparingly, just
+     for inline name/word accents (greeting name, "Progress" in the
+     topbar wordmark) rather than replacing --eh-gradient everywhere. */
+  --eh-gradient-soft: linear-gradient(90deg, #38bdf8 0%, #8b5cf6 55%, #fb7185 100%);
+  /* Scales the main content area (hero/modules/stats/activity/side cards)
+     up to fill extra vertical space on taller viewports, while staying
+     exactly 1 (today's proven no-scroll sizing) at 768px and below. */
+  --eh-vhs: clamp(1, calc(100vh / 768px), 1.3);
   min-height: 100vh;
-  overflow: hidden;
+  color: var(--eh-text);
   background:
-    radial-gradient(circle at 12% 18%, rgba(56, 189, 248, .08), transparent 26%),
-    radial-gradient(circle at 88% 14%, rgba(139, 92, 246, .08), transparent 28%),
-    #eef2f7;
+    radial-gradient(circle at 14% 8%, rgba(63, 166, 255, .10), transparent 32%),
+    radial-gradient(circle at 88% 4%, rgba(166, 107, 255, .10), transparent 30%),
+    linear-gradient(160deg, var(--eh-bg-0) 0%, var(--eh-bg-1) 55%, var(--eh-bg-2) 100%);
 }
 
-.student-dashboard-v3 .student-dashboard-shell-v3 {
+.eahome-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-columns: 220px minmax(0, 1fr);
 }
 
-.student-dashboard-v3 .student-dashboard-header-v3 {
-  position: relative;
-  z-index: 5;
-  padding: 10px 18px;
-  color: #fff;
-  background:
-    radial-gradient(circle at 14% 0%, rgba(56,189,248,.18), transparent 35%),
-    radial-gradient(circle at 86% 0%, rgba(139,92,246,.2), transparent 36%),
-    linear-gradient(145deg, #06152d, #0a2242 58%, #102a50);
-  box-shadow: 0 14px 34px rgba(6,21,45,.18);
-}
+/* ---------- Sidebar ---------- */
 
-.student-dashboard-v3 .student-dashboard-topbar-v3 {
-  width: min(1540px, 100%);
-  min-height: 62px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 22px;
-}
-
-.student-dashboard-v3 .student-dashboard-logo-v3 {
-  flex: 0 0 auto;
-}
-
-.student-dashboard-v3 .student-welcome-v3 {
-  min-width: 0;
-}
-
-.student-dashboard-v3 .student-welcome-v3 p {
-  margin: 0 0 1px;
-  color: #b9eaff;
-  font-size: .7rem;
-  font-weight: 900;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-
-.student-dashboard-v3 .student-welcome-v3 h1 {
-  margin: 0;
-  font-size: clamp(1.35rem, 2vw, 1.82rem);
-  line-height: 1.05;
-  letter-spacing: -.04em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.student-dashboard-v3 .student-welcome-v3 > span {
-  display: block;
-  margin-top: 4px;
-  color: rgba(255,255,255,.7);
-  font-size: .76rem;
-}
-
-.student-dashboard-v3 .student-welcome-v3 strong {
-  color: #fff;
-}
-
-.student-dashboard-v3 .student-dashboard-actions-v3 {
-  justify-content: flex-end;
-}
-
-.student-dashboard-v3 .student-dashboard-actions-v3 .nav-link {
-  min-height: 34px;
-  padding: 0 13px;
-  font-size: .8rem;
-}
-
-.student-dashboard-v3 .student-dashboard-main-v3 {
-  min-height: 0;
-  padding: 12px 14px 14px;
-}
-
-.student-dashboard-v3 .student-console-grid-v3 {
-  width: min(1540px, 100%);
-  height: calc(100vh - 98px);
-  min-height: 540px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(235px, .78fr) minmax(520px, 1.48fr) minmax(265px, .9fr);
-  gap: 12px;
-}
-
-.student-dashboard-v3 .student-console-v3 {
-  min-width: 0;
-  min-height: 0;
-  padding: 16px;
-  border: 1px solid rgba(210,220,234,.95);
-  border-radius: 24px;
+.eahome-sidebar {
+  min-height: 100vh;
+  padding: 20px 14px;
+  border-right: 1px solid var(--eh-line);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  gap: 26px;
+  background: rgba(5, 10, 20, .35);
+}
+
+.eahome-logo {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 4px;
+}
+
+.eahome-logo .account-wave {
+  width: 52px;
+  height: 52px;
+  padding: 10px 8px 10px 20px;
+}
+
+.eahome-nav {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eahome-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--eh-muted);
+  background: none;
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 650;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+
+.eahome-nav-item:hover {
+  color: var(--eh-text);
+  background: var(--eh-panel);
+}
+
+.eahome-nav-item.is-active {
+  color: #fff;
+  border-color: rgba(63, 166, 255, .38);
   background:
-    radial-gradient(circle at 92% 5%, rgba(139,92,246,.045), transparent 34%),
-    rgba(255,255,255,.97);
-  box-shadow: 0 22px 52px rgba(15,23,42,.11);
+    radial-gradient(circle at 85% 15%, rgba(166, 107, 255, .22), transparent 60%),
+    linear-gradient(135deg, rgba(63, 166, 255, .22), rgba(166, 107, 255, .16));
+  box-shadow: 0 0 0 1px rgba(63, 166, 255, .12), 0 8px 20px rgba(63, 166, 255, .12);
 }
 
-.student-dashboard-v3 .student-progress-console-v3 {
-  overflow: visible;
+.eahome-nav-item.is-disabled {
+  opacity: .45;
+  cursor: not-allowed;
 }
 
-.student-dashboard-v3 .student-learning-console-v3 {
-  border-color: rgba(139,92,246,.2);
-  box-shadow: 0 25px 60px rgba(54,41,115,.14);
-}
-
-.student-dashboard-v3 .student-console-heading-v3 {
+/* Grown to fill the row height freed up by the reduced vertical padding
+   above (padding shrank by 4px each side, icon grew by the same 8px) —
+   net result: the button's own outer height is unchanged, but the icon
+   fills far more of it. */
+.eahome-nav-icon {
   flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+}
+
+.eahome-nav-icon img {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: .82;
+}
+
+.eahome-nav-item.is-active .eahome-nav-icon img,
+.eahome-nav-item:hover .eahome-nav-icon img {
+  opacity: 1;
+}
+
+.eahome-sidebar-footer {
+  padding-top: 12px;
+  border-top: 1px solid var(--eh-line);
+  text-align: center;
+}
+
+.eahome-sidebar-wordmark {
+  font-size: .82rem;
+  letter-spacing: -.03em;
+}
+
+/* ---------- Main column ---------- */
+
+/* Top padding sized so the topbar's own vertical centreline (greeting text
+   + the overall-progress badge/wordmark + refresh/profile buttons, all
+   centre-aligned as one row — see .eahome-topbar below) lands level with
+   the EA logo's centreline in the sidebar (57px from viewport top, fixed —
+   the sidebar's own spacing is all plain px, not vhs-scaled). The topbar
+   row is now 72px tall (the badge is its tallest child), so padding-top =
+   57 - 72/2 = 21px, flat, not vhs-scaled, works at every supported
+   viewport height because the topbar's own height barely varies with vhs;
+   .eahome-content-grid's margin-top below makes up the remainder so the
+   hero tile underneath still lands level with the nav's "Overall" button
+   regardless of this row's own height. */
+.eahome-main {
+  min-width: 0;
+  padding: 21px 28px calc(3px * var(--eh-vhs));
+}
+
+/* The greeting text this row used to open with is gone (replaced by the
+   badge+wordmark below, left-aligned in its place) — a plain flex row
+   with space-between is enough now that there's no longer a third,
+   screen-centred item to reason about. */
+.eahome-topbar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 18px;
 }
 
-.student-dashboard-v3 .student-console-heading-v3 .card-eyebrow {
-  margin: 0 0 3px;
-  font-size: .68rem;
+.eahome-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.student-dashboard-v3 .student-console-heading-v3 h2 {
-  margin: 0;
-  font-size: clamp(1.25rem, 1.55vw, 1.52rem);
-  letter-spacing: -.04em;
+/* Icon + wordmark lockup — now sits where the greeting text used to be
+   (first item in the topbar's flex row). Left inset matches the hero
+   card's own level icon (.eahome-hero-feedback-icon, itself aligned to
+   the module grid's PNG icons — see that rule's note): content-left's
+   edge (248px) + 1px border + 10px*vhs, i.e. the hero card's 26px*vhs
+   padding minus the same 16px*vhs the level icon is pulled left by. Still
+   the tallest thing in the row (72px, well above the icon-button/profile-
+   toggle's ~38-40px), so it still defines the topbar's own height;
+   .eahome-main's padding-top and .eahome-content-grid's margin-top (see
+   their comments) stay calibrated against that same 72px. */
+.eahome-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-left: calc(1px + 10px * var(--eh-vhs));
 }
 
-.student-dashboard-v3 .student-overall-score-v3 {
+/* Square gradient tile, grown to 72px (up from 56px) — as large as it can
+   be while still reading as an icon beside the wordmark, not a full
+   illustration. Same tile-behind-icon treatment as the hero level icon:
+   overall-progress.png is genuinely transparent white line art, shown
+   unrecoloured on top of the EA blue-to-purple gradient rather than
+   masked. */
+.eahome-topbar-badge {
+  width: 72px;
+  height: 72px;
   flex: 0 0 auto;
-  min-height: 180px;
-  margin-top: 13px;
-  padding: 20px 16px;
-  border-radius: 21px;
   display: grid;
-  align-content: center;
-  justify-items: center;
-  text-align: center;
-  color: #fff;
+  place-items: center;
+  border-radius: 14px;
   background:
-    radial-gradient(circle at 78% 8%, rgba(56,189,248,.22), transparent 35%),
-    linear-gradient(145deg, #071a35, #102f59);
-  box-shadow: 0 18px 40px rgba(7,26,53,.2);
+    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, .45), transparent 55%),
+    radial-gradient(circle at 80% 85%, rgba(0, 0, 0, .18), transparent 60%),
+    linear-gradient(135deg, var(--eh-blue), var(--eh-purple));
 }
 
-.student-dashboard-v3 .student-overall-score-v3 > span {
-  color: #b9eaff;
-  font-size: .7rem;
-  font-weight: 900;
-  letter-spacing: .1em;
-  text-transform: uppercase;
+.eahome-topbar-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
-.student-dashboard-v3 .student-overall-score-v3 > strong {
-  margin-top: 5px;
-  font-size: clamp(3.2rem, 5vw, 4.55rem);
-  line-height: .88;
-  letter-spacing: -.08em;
-  background: var(--brand-gradient);
+.eahome-topbar-brand-text {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 2.1rem;
+  letter-spacing: -.03em;
+  white-space: nowrap;
+}
+
+/* Split-weight wordmark: "Overall" stays bold and plain white, "Progress"
+   goes thinner (500 — the in-app question-prompt weight, e.g.
+   modules/instrument-identifier/style.css's #questionText) while keeping
+   its gradient colour. */
+.eahome-topbar-brand-main {
+  color: #fff;
+  font-weight: 800;
+}
+
+.eahome-topbar-brand-gradient {
+  background: var(--eh-gradient-soft);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  font-weight: 500;
 }
 
-.student-dashboard-v3 .student-overall-score-v3 > small {
-  margin-top: 8px;
-  color: rgba(255,255,255,.68);
-  font-size: .8rem;
-  font-weight: 750;
-}
-
-.student-dashboard-v3 .student-overall-metrics-v3 {
+.eahome-icon-button {
+  width: 38px;
+  height: 38px;
   flex: 0 0 auto;
-  margin-top: 9px;
+  border: 1px solid var(--eh-line);
+  border-radius: 999px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 7px;
+  place-items: center;
+  background: var(--eh-panel);
+  cursor: pointer;
+  transition: background .16s ease, transform .16s ease;
 }
 
-.student-dashboard-v3 .student-overall-metrics-v3 > div {
-  min-width: 0;
-  padding: 11px 8px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #fbfcfe;
+.eahome-icon-button:hover {
+  background: var(--eh-panel-strong);
+  transform: translateY(-1px);
 }
 
-.student-dashboard-v3 .student-overall-metrics-v3 span,
-.student-dashboard-v3 .student-account-card-v3 > span,
-.student-dashboard-v3 .student-compiled-feedback-v3 > span,
-.student-dashboard-v3 .student-next-step-v3 > span,
-.student-dashboard-v3 .student-memory-heading-v3 > span {
-  display: block;
-  color: var(--muted);
-  font-size: .62rem;
-  font-weight: 900;
-  letter-spacing: .07em;
-  text-transform: uppercase;
+.eahome-icon-button img {
+  width: 17px;
+  height: 17px;
+  filter: brightness(0) invert(1);
+  opacity: .82;
 }
 
-.student-dashboard-v3 .student-overall-metrics-v3 strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 1.05rem;
-}
-
-.student-dashboard-v3 .student-account-card-v3 {
-  flex: 0 0 auto;
-  margin-top: 9px;
-  padding: 12px 13px;
-  border: 1px solid rgba(139,92,246,.16);
-  border-radius: 15px;
-  background: linear-gradient(145deg, #faf9ff, #f7fbff);
-}
-
-.student-dashboard-v3 .student-account-card-v3 strong {
-  display: block;
-  margin-top: 4px;
-  color: #101828;
-  font-size: .95rem;
-}
-
-.student-dashboard-v3 .student-account-card-v3 small {
-  display: block;
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: .72rem;
-  line-height: 1.38;
-}
-
-.student-dashboard-v3 .student-quick-actions-v3 {
-  flex: 0 0 auto;
-  margin-top: auto;
-  padding-top: 10px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 7px;
-}
-
-.student-dashboard-v3 .student-action-wrap-v3 {
-  position: relative;
-}
-
-.student-dashboard-v3 .student-mode-button-v3 {
-  width: 100%;
-  min-height: 52px;
-  height: 52px;
-  padding: 0 14px;
-  box-sizing: border-box;
+.eahome-pill {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
-  text-align: left;
-  line-height: 1.12;
-  font-size: .84rem;
-  font-weight: 780;
-  letter-spacing: .01em;
-  border: 0;
+  gap: 8px;
+  padding: 2px 14px;
+  border: 1px solid var(--eh-line);
   border-radius: 12px;
-  color: #fff;
-  background: linear-gradient(180deg, #6bb8ff 0%, #3FA6FF 48%, #2b8eef 100%);
-  box-shadow:
-    0 0 22px rgba(63, 166, 255, .28),
-    0 8px 18px rgba(0, 0, 0, .12),
-    inset 0 1px 0 rgba(255, 255, 255, .22);
-  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  background: var(--eh-panel);
+  font-size: .8rem;
+  font-weight: 650;
+  color: var(--eh-text);
+  white-space: nowrap;
 }
 
-.student-dashboard-v3 .student-mode-button-v3:hover,
-.student-dashboard-v3 .student-mode-button-v3:focus-visible {
-  transform: translateY(-1px);
-  filter: brightness(1.04);
-  box-shadow:
-    0 0 28px rgba(63, 166, 255, .36),
-    0 10px 22px rgba(0, 0, 0, .14),
-    inset 0 1px 0 rgba(255, 255, 255, .26);
-  outline: none;
+.eahome-pill img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
-.student-dashboard-v3 .student-mode-icon-v3 {
+.eahome-pill strong {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.eahome-profile {
   position: relative;
+}
+
+.eahome-profile-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 3px 12px 3px 3px;
+  border: 1px solid var(--eh-line);
+  border-radius: 12px;
+  background: var(--eh-panel);
+  color: var(--eh-text);
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.eahome-avatar {
   width: 34px;
   height: 34px;
   flex: 0 0 auto;
-  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--eh-blue), var(--eh-purple));
+  color: #fff;
+  font-size: .74rem;
+  font-weight: 800;
+}
+
+.eahome-chevron {
+  width: 12px;
+  height: 12px;
+  color: var(--eh-muted);
+}
+
+.eahome-profile-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  padding: 12px;
+  border: 1px solid var(--eh-line-strong);
+  border-radius: 14px;
+  background: linear-gradient(160deg, #0b1730 0%, #0d2038 100%);
+  box-shadow: 0 20px 44px rgba(3, 9, 20, .45);
+}
+
+.eahome-profile-meta {
+  margin: 0 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--eh-line);
+  color: var(--eh-muted);
+  font-size: .74rem;
+  line-height: 1.5;
+}
+
+.eahome-profile-meta strong {
+  color: var(--eh-text);
+}
+
+.eahome-profile-menu-button {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--eh-line-strong);
+  border-radius: 9px;
+  color: var(--eh-text);
+  background: rgba(255, 255, 255, .04);
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.eahome-profile-menu-button:hover {
+  background: rgba(255, 255, 255, .09);
+}
+
+/* Taken out of flow (absolute, anchored to .eahome-topbar's own bottom
+   edge) so this filling with "Refreshing your results…"/"Results
+   refreshed." text on every refresh-button press can never push the hero
+   card or anything below it — nothing downstream reads this element's
+   height any more, whether it's empty or full. */
+.eahome-status {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin: 3px 0 0;
+  color: var(--eh-teal);
+  font-size: .7rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* ---------- Content grid ---------- */
+
+/* Flat 25px, not vhs-scaled — makes up whatever .eahome-main's top padding
+   and the topbar's own (now 72px) height don't already cover, so the hero
+   tile still lands level with the nav's "Overall" button (118px from
+   viewport top) regardless of the topbar row's height (see the comment on
+   .eahome-main). */
+.eahome-content-grid {
+  margin-top: 25px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: calc(14px * var(--eh-vhs));
+  align-items: start;
+}
+
+.eahome-content-left {
+  min-width: 0;
+  display: grid;
+  gap: calc(3px * var(--eh-vhs));
+}
+
+/* ---------- Hero ---------- */
+
+.eahome-hero {
+  padding: calc(8px * var(--eh-vhs)) calc(26px * var(--eh-vhs));
+  border: 1px solid rgba(63, 166, 255, .22);
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: calc(20px * var(--eh-vhs));
+  background:
+    radial-gradient(circle at 90% 10%, rgba(166, 107, 255, .16), transparent 45%),
+    radial-gradient(circle at 8% 90%, rgba(63, 166, 255, .14), transparent 42%),
+    linear-gradient(145deg, #081633 0%, #0a1c3e 55%, #0c1730 100%);
+  box-shadow: 0 24px 60px rgba(3, 9, 20, .35);
+}
+
+/* Stretched (align-items:stretch above) to the ring's own height, so the
+   feedback row below can flex-grow into that same space while the action
+   buttons stay pinned to the bottom. */
+.eahome-hero-copy {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pulled left so the level icon's own left edge lines up with the module
+   grid's PNG icons (.eahome-module-icon, inset 1px border + 10px*vhs
+   padding inside each card) rather than the hero card's outer edge — both
+   .eahome-hero and .eahome-module-card share the same 1px border, which
+   cancels out, leaving just the 26px*vhs vs 10px*vhs padding difference:
+   margin-left = -(26-10)px*vhs = -16px*vhs. The hero title/buttons above
+   and below keep the card's normal padding inset, only this row shifts. */
+.eahome-hero-feedback {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: calc(14px * var(--eh-vhs));
+  margin-bottom: calc(12px * var(--eh-vhs));
+  margin-left: calc(-16px * var(--eh-vhs));
+}
+
+.eahome-hero-level {
+  width: 72px;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(5px * var(--eh-vhs));
+}
+
+.eahome-hero-level-label {
+  color: #fff;
+  font-size: calc(.68rem * var(--eh-vhs));
+  font-weight: 750;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Uses the same transparent, white-line-art-only level PNGs as the
+   left-hand settings panels in the main apps (assets/icons/levels/
+   mm-transparent/), shown unrecoloured (white) on a rounded tile filled
+   with EA's own blue-to-purple gradient (same pairing as the ring, CTA
+   buttons and avatar) sitting behind it — same tile-behind-icon pattern
+   as .pm-subapp-row-icon-tile in the detail popup. */
+.eahome-hero-feedback-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, .45), transparent 55%),
+    radial-gradient(circle at 80% 85%, rgba(0, 0, 0, .18), transparent 60%),
+    linear-gradient(135deg, var(--eh-blue), var(--eh-purple));
+}
+
+.eahome-hero-feedback-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.eahome-hero-copy p {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--eh-muted);
+  font-size: calc(.8rem * var(--eh-vhs));
+  line-height: 1.4;
+}
+
+.eahome-hero-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(8px * var(--eh-vhs));
+  margin-left: calc(-16px * var(--eh-vhs));
+}
+
+.eahome-cta-primary,
+.eahome-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 13px;
+  border-radius: 10px;
+  font-size: .74rem;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.eahome-cta-primary {
+  color: #fff;
+  background: linear-gradient(90deg, var(--eh-blue), var(--eh-purple));
+  box-shadow: 0 10px 26px rgba(63, 166, 255, .28);
+}
+
+.eahome-cta-primary:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+/* The hero's three buttons and explicitly frosted dashboard actions use the
+   same panel treatment as the sidebar nav items / topbar icon button. */
+.eahome-hero-actions .eahome-cta-primary,
+.eahome-cta-primary.eahome-cta-frosted {
+  color: var(--eh-text);
+  background: var(--eh-panel);
+  border: 1px solid var(--eh-line);
+  box-shadow: none;
+  min-height: 44px;
+  gap: 10px;
+}
+
+.eahome-hero-actions .eahome-cta-primary:hover,
+.eahome-cta-primary.eahome-cta-frosted:hover {
+  background: var(--eh-panel-strong);
+  filter: none;
+}
+
+/* Grown to fill the button's own 44px min-height almost edge to edge —
+   the button has zero vertical padding, so this is free space, not a
+   trade-off. The img fills its box completely (no inset) since these PNGs
+   already carry their own transparent margin baked in. */
+.eahome-hero-actions .eahome-cta-icon,
+.eahome-cta-primary.eahome-cta-frosted .eahome-cta-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.eahome-hero-actions .eahome-cta-icon img,
+.eahome-cta-primary.eahome-cta-frosted .eahome-cta-icon img {
+  width: 100%;
+  height: 100%;
+}
+
+.eahome-cta-secondary {
+  color: var(--eh-text);
+  border-color: var(--eh-line-strong);
+  background: rgba(255, 255, 255, .04);
+}
+
+.eahome-cta-secondary:hover {
+  background: rgba(255, 255, 255, .09);
+}
+
+.eahome-cta-icon {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+}
+
+.eahome-cta-icon img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.eahome-cta-block {
+  width: 100%;
+  justify-content: center;
+}
+
+.eahome-cta-outline {
+  color: var(--eh-text);
+  border: 1px solid var(--eh-line-strong);
+  background: rgba(255, 255, 255, .03);
+}
+
+.eahome-cta-outline:hover {
+  background: rgba(255, 255, 255, .07);
+}
+
+/* The ring itself (conic-gradient, centre masked out) is a separate,
+   absolutely-positioned layer inside .eahome-hero-ring-wrap — CSS mask
+   applies to everything painted in an element, so the real percentage text
+   has to live in a sibling on top of it rather than inside the masked
+   element, or the mask would cut a hole through the text too. */
+.eahome-hero-ring-wrap {
+  position: relative;
+  width: calc(128px * var(--eh-vhs));
+  height: calc(128px * var(--eh-vhs));
+  display: grid;
+  place-items: center;
+}
+
+.eahome-hero-ring {
+  --pct: 0;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  /* EA's established blue-to-purple gradient (same pairing as the primary
+     CTA buttons and the profile avatar) swept around the filled arc,
+     instead of a single flat blue. */
+  background: conic-gradient(
+    from 200deg,
+    var(--eh-blue) 0deg,
+    var(--eh-purple) calc(var(--pct) * 3.6deg),
+    rgba(255, 255, 255, .08) 0
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px * var(--eh-vhs)), #000 calc(100% - 14px * var(--eh-vhs)));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 14px * var(--eh-vhs)), #000 calc(100% - 14px * var(--eh-vhs)));
+  filter: drop-shadow(0 0 18px rgba(107, 120, 255, .35));
+}
+
+.eahome-hero-ring-value {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 0 8px;
+}
+
+.eahome-hero-ring-value strong {
+  background: var(--eh-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: calc(1.7rem * var(--eh-vhs));
+  font-weight: 900;
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+
+.eahome-hero-ring-value span {
+  color: var(--eh-muted);
+  font-size: calc(.62rem * var(--eh-vhs));
+  font-weight: 650;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ---------- Learning modules grid ---------- */
+
+.eahome-modules h2,
+.eahome-section-heading h2,
+.eahome-stats-row h2 {
+  margin: 0 0 calc(8px * var(--eh-vhs));
+  font-size: calc(.96rem * var(--eh-vhs));
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+/* .eahome-stats-row's own padding-left (18px*vhs) is 8px*vhs short of the
+   hero card's (26px*vhs) — this extra makes up just that gap for the
+   heading text itself, without touching the row's own padding (which
+   would also shift the stat tiles/icons), landing "Your stats" at the
+   same X as the hero title/greeting/"Your learning modules" above. */
+.eahome-stats-row h2 {
+  padding-left: calc(8px * var(--eh-vhs));
+}
+
+/* Tightened independently of the shared h2 rule above (Recent activity/
+   Your stats headings keep their own spacing) — reclaims a little more
+   room for the taller module cards below. Left inset matches the hero
+   card's own text position (1px border + 26px*vhs padding) — .eahome-
+   modules itself has no card chrome of its own, so this is reproduced
+   directly as padding-left, same reasoning as .eahome-topbar-brand's. */
+.eahome-modules h2 {
+  margin-bottom: calc(4px * var(--eh-vhs));
+  padding-left: calc(1px + 26px * var(--eh-vhs));
+}
+
+.eahome-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: calc(3px * var(--eh-vhs));
+}
+
+/* 7 areas (Structure is the newest, added after the original 6): the 7th
+   card sits alone in a 3rd row, centred in the middle column so it reads
+   as a deliberate spotlight rather than a leftover — same treatment as
+   the teacher dashboard's element grid. Only engages once a 7th card is
+   actually present, so this grid still behaves exactly as before anywhere
+   it's reused with just 6. */
+.eahome-modules-grid:has(> :nth-child(7)) > :nth-child(7) {
+  grid-column: 2;
+}
+
+/* Card height comes from its grid row (see the min-width:1181px block
+   below, where .eahome-modules-grid's rows are stretched to fill whatever
+   vertical space is actually available — 2 rows worth for 6 areas, 3 for
+   7) — min-height here is just the sub-1181px/mobile fallback, where the
+   grid still sizes rows to content and the page scrolls normally.
+   align-content:center (rather than :start) lets the header/pct/bar/
+   feedback/badge stack sit centred in that row instead of packed to the
+   top with dead space below, once rows are genuinely taller than their
+   bare content. */
+.eahome-module-card {
+  min-width: 0;
+  min-height: calc(120px * var(--eh-vhs));
+  padding: calc(8px * var(--eh-vhs));
+  border: 1px solid var(--eh-line);
+  border-radius: 14px;
+  display: grid;
+  align-content: center;
+  gap: calc(4px * var(--eh-vhs));
+  color: var(--eh-text);
+  background: var(--eh-panel);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+
+.eahome-module-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(63, 166, 255, .32);
+  background: var(--eh-panel-strong);
+}
+
+/* Per-area accent colour, reused from Progress Mode's own established
+   convention (modules/progress-mode/style.css .pm-element-row[data-area]),
+   not invented for this page — used to colour each card's progress bar
+   with "the colour of the app" instead of one fixed gradient for all six. */
+.eahome-module-card[data-area="melody"] { --eh-area: #FF5DBA; }
+.eahome-module-card[data-area="texture"] { --eh-area: #27E1C1; }
+.eahome-module-card[data-area="harmony"] { --eh-area: #A66BFF; }
+.eahome-module-card[data-area="instrumentation"] { --eh-area: #3FA6FF; }
+.eahome-module-card[data-area="rhythm"] { --eh-area: #FFAA2B; }
+.eahome-module-card[data-area="context"] { --eh-area: #FF7AC8; }
+.eahome-module-card[data-area="structure"] { --eh-area: #FF5A36; }
+
+.eahome-module-header {
+  display: flex;
+  align-items: center;
+  gap: calc(10px * var(--eh-vhs));
+  min-width: 0;
+}
+
+.eahome-module-icon {
+  width: calc(48px * var(--eh-vhs));
+  height: calc(48px * var(--eh-vhs));
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+}
+
+.eahome-module-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.eahome-module-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: calc(.8rem * var(--eh-vhs));
+  font-weight: 700;
+}
+
+.eahome-module-pct {
+  font-size: calc(1.1rem * var(--eh-vhs));
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
+.eahome-module-bar {
+  height: calc(6px * var(--eh-vhs));
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .08);
+}
+
+.eahome-module-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--eh-area, var(--eh-gradient));
+}
+
+/* Real per-area coaching text — shortened at the source in JS
+   (renderEahomeModulesGrid's shortenAreaSummary) to a length that keeps
+   this whole page within one viewport with all 6 cards showing at once, so
+   this shouldn't normally need to clip anything. The max-height + clamp
+   here is a pure safety net (e.g. a future content change producing an
+   unexpectedly long word that doesn't wrap where expected), not the
+   primary truncation mechanism — the string is already short by the time
+   it reaches this element. */
+/* height (not just max-height) is required here — .eahome-module-card is
+   a CSS grid, and a -webkit-box/-webkit-line-clamp element's intrinsic
+   size isn't reliably read by grid's auto-row sizing (observed collapsing
+   to ~1 line's height even with max-height allowing 3 and room to spare),
+   so an explicit height gives the row track something concrete to size
+   around instead of guessing. */
+.eahome-module-feedback {
+  margin: 0;
+  font-size: calc(.68rem * var(--eh-vhs));
+  line-height: 1.35;
+  color: var(--eh-muted);
+  overflow-wrap: break-word;
+  height: calc(3 * 1.35 * .68rem * var(--eh-vhs));
+  max-height: calc(3 * 1.35 * .68rem * var(--eh-vhs));
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.eahome-module-badge {
+  width: fit-content;
+  padding: calc(2px * var(--eh-vhs)) calc(8px * var(--eh-vhs));
+  border-radius: 999px;
+  font-size: calc(.6rem * var(--eh-vhs));
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+/* Badge shows the student's real EA progression level for that area
+   (Foundation/Developing/Securing/Mastering — same four stages tracked
+   everywhere else in the app), not a percentage-derived label. */
+.eahome-module-card.is-level-foundation .eahome-module-badge {
+  color: #ff9bd6;
+  background: rgba(255, 93, 186, .16);
+}
+
+.eahome-module-card.is-level-developing .eahome-module-badge {
+  color: #ffcf7a;
+  background: rgba(255, 170, 43, .16);
+}
+
+.eahome-module-card.is-level-securing .eahome-module-badge {
+  color: #8fcbff;
+  background: rgba(63, 166, 255, .16);
+}
+
+.eahome-module-card.is-level-mastering .eahome-module-badge {
+  color: #7ef0c9;
+  background: rgba(39, 225, 193, .16);
+}
+
+/* ---------- Your stats — full width, single row of four ---------- */
+
+.eahome-stats-row {
+  padding: calc(4px * var(--eh-vhs)) calc(18px * var(--eh-vhs));
+  border: 1px solid var(--eh-line);
+  border-radius: 16px;
+  background: var(--eh-panel);
+}
+
+.eahome-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: calc(10px * var(--eh-vhs));
+}
+
+.eahome-stats-grid.is-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.eahome-stat-tile {
+  display: flex;
+  align-items: center;
+  gap: calc(10px * var(--eh-vhs));
+}
+
+/* Sized to match the number-over-label pair beside it (one line for the
+   number, one for the label, plus their gap) — a fixed value rather than
+   a dynamic stretch, since the label can occasionally wrap in the
+   narrower 4-across row and a height tied to that would grow unbounded. */
+.eahome-stat-icon {
+  flex: 0 0 auto;
+  width: calc(37px * var(--eh-vhs));
+  height: calc(37px * var(--eh-vhs));
+  display: grid;
+  place-items: center;
+}
+
+.eahome-stat-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.eahome-stat-copy {
+  display: grid;
+  justify-items: start;
+  align-content: center;
+  gap: 2px;
+}
+
+.eahome-stat-tile strong {
+  font-size: calc(1.15rem * var(--eh-vhs));
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
+.eahome-stat-tile span {
+  color: var(--eh-muted);
+  font-size: calc(.68rem * var(--eh-vhs));
+  font-weight: 600;
+}
+
+.eahome-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.eahome-link-button {
+  border: 0;
+  background: none;
+  color: var(--eh-blue);
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Now holds up to 10 rounds (grown from 3) — capped and internally
+   scrollable so the card's own height stays fixed and the page never grows
+   past one viewport, instead of pushing the whole right column taller. */
+.eahome-activity-list {
+  display: grid;
+  gap: 4px;
+  max-height: calc(140px * var(--eh-vhs));
+  overflow-y: auto;
+}
+
+.eahome-activity-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(5px * var(--eh-vhs)) calc(8px * var(--eh-vhs));
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.eahome-activity-row:hover {
+  background: rgba(255, 255, 255, .05);
+}
+
+.eahome-activity-check {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #7ef0c9;
+  background: rgba(39, 225, 193, .16);
+  font-size: .74rem;
+}
+
+.eahome-activity-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: grid;
+  gap: 2px;
+}
+
+.eahome-activity-copy strong {
+  font-size: .82rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eahome-activity-copy small {
+  color: var(--eh-muted);
+  font-size: .7rem;
+}
+
+.eahome-activity-row em {
+  flex: 0 0 auto;
+  font-style: normal;
+  font-size: .82rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.eahome-activity-row em.is-secure,
+.eahome-activity-row em.is-strong { color: #7ef0c9; }
+.eahome-activity-row em.is-developing { color: #ffcf7a; }
+.eahome-activity-row em.is-focus { color: #ff9bd6; }
+.eahome-activity-row em.is-empty { color: var(--eh-muted); }
+
+.student-memory-empty-v3 {
+  padding: 18px;
+  border: 1px dashed var(--eh-line-strong);
+  border-radius: 12px;
+  color: var(--eh-muted);
+  text-align: center;
+  font-size: .78rem;
+}
+
+/* ---------- Right column ---------- */
+
+.eahome-content-right {
+  min-width: 0;
+  display: grid;
+  gap: calc(8px * var(--eh-vhs));
+}
+
+.eahome-side-card {
+  padding: calc(10px * var(--eh-vhs)) calc(14px * var(--eh-vhs));
+  border: 1px solid var(--eh-line);
+  border-radius: 16px;
+  background: var(--eh-panel);
+}
+
+.eahome-next-step-card {
+  border-color: rgba(166, 107, 255, .3);
+  background:
+    radial-gradient(circle at 90% 0%, rgba(166, 107, 255, .16), transparent 55%),
+    var(--eh-panel);
+}
+
+.eahome-side-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.eahome-side-card-heading h3 {
+  margin: 0;
+  font-size: calc(.9rem * var(--eh-vhs));
+  font-weight: 800;
+}
+
+.eahome-side-card-icon {
+  width: calc(52px * var(--eh-vhs));
+  height: calc(52px * var(--eh-vhs));
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+}
+
+.eahome-side-card-icon img {
+  width: calc(46px * var(--eh-vhs));
+  height: calc(46px * var(--eh-vhs));
+  object-fit: contain;
+}
+
+.eahome-eyebrow-pink {
+  margin: 4px 0 2px;
+  color: var(--eh-pink);
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.eahome-next-step-card h4 {
+  margin: 0 0 calc(5px * var(--eh-vhs));
+  font-size: calc(.96rem * var(--eh-vhs));
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.eahome-side-card-body {
+  margin: 0 0 calc(10px * var(--eh-vhs));
+  color: var(--eh-muted);
+  font-size: calc(.76rem * var(--eh-vhs));
+  line-height: 1.4;
+}
+
+.eahome-homework-tasks-card {
+  border-color: rgba(255, 170, 43, .28);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(255, 170, 43, .11), transparent 48%),
+    var(--eh-panel);
+}
+
+.eahome-homework-task-count {
+  min-width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #ffd19a;
+  background: rgba(255, 170, 43, .13);
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.eahome-homework-task-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.eahome-homework-task-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--eh-line);
+  border-radius: 11px;
+  color: var(--eh-text);
+  background: rgba(255, 255, 255, .035);
+  text-decoration: none;
+}
+
+.eahome-homework-task-row:hover {
+  border-color: rgba(255, 170, 43, .3);
+  background: rgba(255, 255, 255, .06);
+}
+
+.eahome-homework-task-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+}
+
+.eahome-homework-task-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.eahome-homework-task-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.eahome-homework-task-copy strong {
+  overflow: hidden;
+  font-size: .76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eahome-homework-task-copy small {
+  color: var(--eh-muted);
+  font-size: .65rem;
+}
+
+.eahome-homework-task-row em {
+  padding: 4px 7px;
+  border-radius: 999px;
+  color: #ffd19a;
+  background: rgba(255, 170, 43, .1);
+  font-size: .59rem;
+  font-style: normal;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.eahome-homework-task-row em.is-complete {
+  color: var(--eh-teal);
+  background: rgba(39, 225, 193, .1);
+}
+
+.eahome-homework-task-empty {
+  display: grid;
+  justify-items: center;
+  padding: 18px 12px;
+  border: 1px dashed var(--eh-line-strong);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.eahome-homework-task-empty-icon {
+  width: 54px;
+  height: 54px;
+  display: block;
+}
+
+.eahome-homework-task-empty-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.eahome-homework-task-empty strong {
+  margin-top: 3px;
+  font-size: .78rem;
+}
+
+.eahome-homework-task-empty p {
+  margin: 4px 0 0;
+  color: var(--eh-muted);
+  font-size: .68rem;
+  line-height: 1.4;
+}
+
+/* ---------- Progress Mode detailed feedback popup ---------- */
+/* .pm-detail / .pm-detail-toolbar / .pm-toolbar-* below are unchanged from
+   the existing design (kept verbatim) — only the content BELOW the toolbar
+   (.pm-detail-columns onward) is new, replacing the old light-themed
+   .pm-detail-grid/.pm-detail-tile area cards with a dark layout matching
+   the supplied "detailed feedback" mock-up. */
+
+.student-category-detail-dialog-v3 .pm-detail {
+  --pm-navy: #071423;
+  --pm-panel: #0b1a2f;
+  --pm-line: rgba(148, 163, 184, .22);
+  --pm-muted: #8b9bb4;
+  --pm-text: #e8eef8;
+  --pm-wordmark: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
+  display: grid;
+  gap: 0;
+}
+
+.student-category-detail-dialog-v3 .pm-detail-toolbar {
+  padding: 16px 24px 18px;
+  border: 1px solid rgba(63, 166, 255, .18);
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 10px 20px;
+  color: var(--pm-text);
+  background:
+    radial-gradient(circle at 90% 10%, rgba(166, 107, 255, .18), transparent 45%),
+    radial-gradient(circle at 8% 90%, rgba(63, 166, 255, .16), transparent 42%),
+    linear-gradient(145deg, #081633 0%, #0a1c3e 55%, #0c1730 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 10px 30px rgba(3, 9, 20, .28);
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-left,
+.student-category-detail-dialog-v3 .pm-toolbar-right {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-segment {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-brand .pm-toolbar-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-brand .pm-toolbar-eyebrow {
+  font-size: .5rem;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-brand .pm-detail-brand-title {
+  font-size: .86rem;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-level {
+  gap: 16px;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-level .pm-toolbar-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 15px;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-level-label {
+  font-size: 1.85rem;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-level .pm-toolbar-meta {
+  font-size: .76rem;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-icon {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   overflow: hidden;
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 68% 22%, rgba(143, 203, 255, .38), transparent 40%),
-    linear-gradient(135deg, #8FCBFF 0%, #3FA6FF 55%, #1B6FCC 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .10),
-    0 8px 16px rgba(0, 23, 94, .18);
-  opacity: 1;
+    radial-gradient(circle at 68% 22%, rgba(166, 107, 255, .32), transparent 45%),
+    linear-gradient(135deg, var(--eh-blue) 0%, var(--eh-purple) 100%);
+  box-shadow: 0 0 0 1px rgba(166, 107, 255, .28);
 }
 
-.student-dashboard-v3 .student-mode-icon-v3::before {
-  content: "";
-  position: absolute;
-  inset: 0;
+.student-category-detail-dialog-v3 .pm-toolbar-level .pm-toolbar-icon {
+  background: #06101f;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-icon img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
   display: block;
-  background: var(--ea-icon) center / cover no-repeat;
-  -webkit-mask: none;
-  mask: none;
   filter:
     drop-shadow(0 0 3px rgba(255, 255, 255, .35))
     drop-shadow(0 0 8px rgba(255, 255, 255, .18));
 }
 
-.student-dashboard-v3 .student-mode-button-v3 span {
+.student-category-detail-dialog-v3 .pm-toolbar-level .pm-toolbar-icon img {
+  filter: none;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-copy {
   min-width: 0;
-  font-weight: 780;
-  color: #fff;
+  display: grid;
+  gap: 2px;
+  justify-items: start;
 }
 
-.student-dashboard-v3 .student-app-menu-v3 {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(100% + 7px);
-  z-index: 25;
-  padding: 7px;
-  border: 1px solid rgba(210,220,234,.95);
-  border-radius: 16px;
-  background: rgba(255,255,255,.98);
-  box-shadow: 0 18px 42px rgba(15,23,42,.16);
+.student-category-detail-dialog-v3 .pm-toolbar-eyebrow {
+  color: rgba(199, 215, 245, .78);
+  font-size: .6rem;
+  font-weight: 800;
+  letter-spacing: .13em;
+  text-transform: uppercase;
 }
 
-.student-dashboard-v3 .student-app-menu-v3 a {
-  min-height: 36px;
-  padding: 0 10px;
-  border-radius: 11px;
+.student-category-detail-dialog-v3 .pm-detail-brand-title {
+  margin: 0;
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 1.3rem;
+  font-weight: 860;
+  letter-spacing: -.05em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.student-category-detail-dialog-v3 .pm-detail-brand-main {
+  color: rgba(255, 255, 255, .98);
+  font-weight: 700;
+}
+
+.student-category-detail-dialog-v3 .pm-detail-brand-mode {
+  color: #3FA6FF;
+  font-weight: 500;
+  text-shadow: 0 0 14px rgba(63, 166, 255, .35);
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-level-label {
+  color: rgba(255, 255, 255, .98);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.045em;
+  white-space: nowrap;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-meta {
+  color: rgba(255, 255, 255, .6);
+  font-size: .68rem;
+  font-weight: 650;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-divider {
+  align-self: stretch;
+  width: 1px;
+  margin: 2px 0;
+  background: linear-gradient(180deg, transparent, rgba(148, 163, 184, .32) 22%, rgba(148, 163, 184, .32) 78%, transparent);
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-stats {
   display: flex;
   align-items: center;
-  color: #18233a;
-  font-size: .78rem;
-  font-weight: 850;
-  text-decoration: none;
+  flex-wrap: nowrap;
+  gap: 16px;
 }
 
-.student-dashboard-v3 .student-app-menu-v3 a:hover,
-.student-dashboard-v3 .student-app-menu-v3 a:focus-visible {
-  color: #0f172a;
-  background: #f3f6ff;
-  outline: none;
-}
-
-.student-dashboard-v3 .student-dashboard-status-v3 {
-  flex: 0 0 auto;
-  min-height: 18px;
-  margin: 3px 0 0;
-  font-size: .7rem;
-}
-
-.student-dashboard-v3 .student-learning-summary-list-v3 {
-  flex: 1 1 auto;
-  min-height: 0;
-  margin-top: 7px;
-  display: grid;
-  grid-template-rows: repeat(4, minmax(0, 1fr));
-  gap: 7px;
-}
-
-.student-dashboard-v3 .student-learning-summary-card-v3 {
-  min-height: 0;
-  padding: 11px 13px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
+.student-category-detail-dialog-v3 .pm-toolbar-stat {
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 92% 8%, rgba(139,92,246,.055), transparent 38%),
-    #fbfcfe;
-}
-
-.student-dashboard-v3 .progress-mode-summary-v3 {
-  border-color: rgba(56,189,248,.24);
-  background:
-    radial-gradient(circle at 92% 8%, rgba(56,189,248,.08), transparent 38%),
-    #fff;
-}
-
-.student-dashboard-v3 .quiz-summary-v3 {
-  border-color: rgba(139,92,246,.22);
-  background:
-    radial-gradient(circle at 92% 8%, rgba(139,92,246,.08), transparent 38%),
-    #fff;
-  box-shadow: 0 14px 32px rgba(76,29,149,.07);
-}
-
-.student-dashboard-v3 .homework-summary-v3 {
-  border-style: dashed;
-  background:
-    radial-gradient(circle at 92% 8%, rgba(56,189,248,.06), transparent 38%),
-    linear-gradient(145deg, #fbfcfe, #f8f7ff);
-}
-
-.student-dashboard-v3 .student-learning-summary-heading-v3 {
-  flex: 0 0 auto;
-  display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) auto;
-  gap: 11px;
   align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-.student-dashboard-v3 .student-learning-icon-slot-v3 {
-  position: relative;
-  width: 46px;
-  height: 46px;
-  border: 1px solid rgba(143, 203, 255, .42);
+.student-category-detail-dialog-v3 .pm-toolbar-stat-icon {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-stat-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-stat .pm-toolbar-copy {
+  gap: 0;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-stat strong {
+  font-size: .92rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, .98);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.student-category-detail-dialog-v3 .pm-toolbar-stat span {
+  font-size: .64rem;
+  font-weight: 650;
+  color: rgba(255, 255, 255, .58);
+  white-space: nowrap;
+}
+
+@media (max-width: 820px) {
+  .student-category-detail-dialog-v3 .pm-detail-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .student-category-detail-dialog-v3 .pm-toolbar-divider {
+    display: none;
+  }
+
+  .student-category-detail-dialog-v3 .pm-toolbar-stats {
+    gap: 16px;
+  }
+
+  .student-category-detail-dialog-v3 .pm-toolbar-meta {
+    white-space: normal;
+  }
+}
+
+/* Content below the toolbar — dark to match it (the old version was a
+   light card grid sitting directly under a dark toolbar; this keeps one
+   consistent dark surface all the way down, matching the mock-up). */
+.student-category-detail-dialog-v3 .pm-detail-columns {
+  padding: 18px 24px 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 16px;
+  background: var(--pm-navy);
+  border-radius: 0 0 16px 16px;
+}
+
+/* Single musical element's collated evidence (Progress Mode / Live
+   Sessions / Homework, stacked) — same dark surface and .pm-panel style
+   as .pm-detail-columns above, just one column since there's one area's
+   worth of content instead of six. */
+.student-category-detail-dialog-v3 .pm-element-columns {
+  padding: 18px 24px 24px;
+  display: grid;
+  gap: 14px;
+  background: var(--pm-navy);
+  border-radius: 0 0 16px 16px;
+}
+
+.student-category-detail-dialog-v3 .pm-detail-main-col,
+.student-category-detail-dialog-v3 .pm-detail-side-col {
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.student-category-detail-dialog-v3 .pm-panel {
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--pm-line);
   border-radius: 14px;
+  background: var(--pm-panel);
+}
+
+/* Redesigned element-popup identity strip — same six accent colours as the
+   dashboard's own module cards, applied as a subtle tint on the header
+   itself (not just the rows below) so which element you're looking at is
+   legible at a glance, before reading a single word. */
+.student-category-detail-dialog-v3 .pm-el-header[data-area="melody"] { --eh-area: #FF5DBA; }
+.student-category-detail-dialog-v3 .pm-el-header[data-area="texture"] { --eh-area: #27E1C1; }
+.student-category-detail-dialog-v3 .pm-el-header[data-area="harmony"] { --eh-area: #A66BFF; }
+.student-category-detail-dialog-v3 .pm-el-header[data-area="instrumentation"] { --eh-area: #3FA6FF; }
+.student-category-detail-dialog-v3 .pm-el-header[data-area="rhythm"] { --eh-area: #FFAA2B; }
+.student-category-detail-dialog-v3 .pm-el-header[data-area="context"] { --eh-area: #FF7AC8; }
+.student-category-detail-dialog-v3 .pm-el-header[data-area="structure"] { --eh-area: #FF5A36; }
+
+.student-category-detail-dialog-v3 .pm-el-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid rgba(148, 163, 184, .22);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 12% -10%, color-mix(in srgb, var(--eh-area) 30%, transparent), transparent 60%),
+    var(--pm-panel);
+}
+
+.student-category-detail-dialog-v3 .pm-el-header-icon {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
   overflow: hidden;
   display: grid;
   place-items: center;
-  background:
-    radial-gradient(circle at 68% 22%, rgba(143, 203, 255, .38), transparent 40%),
-    linear-gradient(135deg, #8FCBFF 0%, #3FA6FF 55%, #1B6FCC 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .10),
-    0 14px 30px rgba(27, 111, 204, .22);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--eh-area) 45%, transparent);
 }
 
-.student-dashboard-v3 .student-learning-icon-slot-v3 span:not(.student-dashboard-line-icon-v3) {
-  display: none;
-}
-
-.student-dashboard-v3 .student-learning-icon-slot-v3 .student-dashboard-line-icon-v3 {
-  position: absolute;
-  inset: 0;
+.student-category-detail-dialog-v3 .pm-el-header-icon img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
   display: block;
-  background: var(--ea-icon) center / cover no-repeat;
-  -webkit-mask: none;
-  mask: none;
-  filter:
-    drop-shadow(0 0 3px rgba(255, 255, 255, .35))
-    drop-shadow(0 0 8px rgba(255, 255, 255, .18));
 }
 
-.student-dashboard-v3 .student-learning-title-v3 {
+.student-category-detail-dialog-v3 .pm-el-header-copy {
   min-width: 0;
-}
-
-.student-dashboard-v3 .student-learning-title-v3 p {
-  margin: 0 0 2px;
-  color: #7c3aed;
-  font-size: .66rem;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.student-dashboard-v3 .student-learning-title-v3 h3 {
-  margin: 0;
-  font-size: clamp(1.18rem, 1.4vw, 1.38rem);
-  letter-spacing: -.035em;
-}
-
-.student-dashboard-v3 .student-learning-percentage-v3 {
-  min-width: 70px;
-  text-align: right;
-  font-size: clamp(1.8rem, 2.2vw, 2.18rem);
-  line-height: 1;
-  letter-spacing: -.06em;
-}
-
-.student-dashboard-v3 .student-learning-percentage-v3.is-secure { color: #067647; }
-.student-dashboard-v3 .student-learning-percentage-v3.is-strong { color: #026aa2; }
-.student-dashboard-v3 .student-learning-percentage-v3.is-developing { color: #6941c6; }
-.student-dashboard-v3 .student-learning-percentage-v3.is-focus { color: #b42318; }
-.student-dashboard-v3 .student-learning-percentage-v3.is-empty { color: #98a2b3; }
-
-.student-dashboard-v3 .student-learning-feedback-v3 {
   flex: 1 1 auto;
-  min-height: 0;
-  margin-top: 10px;
-  padding: 10px 11px;
-  border: 1px solid rgba(139,92,246,.12);
-  border-radius: 13px;
-  overflow: hidden;
-  background: rgba(255,255,255,.76);
+  display: grid;
+  gap: 5px;
 }
 
-.student-dashboard-v3 .student-learning-feedback-v3 > span {
-  display: block;
-  color: #7c3aed;
-  font-size: .64rem;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+.student-category-detail-dialog-v3 .pm-el-header-title {
+  color: var(--pm-text);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1;
 }
 
-.student-dashboard-v3 .student-learning-feedback-v3 p {
-  margin: 5px 0 0;
-  color: #475467;
-  display: -webkit-box;
-  overflow: hidden;
-  font-size: .82rem;
-  line-height: 1.42;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+.student-category-detail-dialog-v3 .pm-el-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--pm-muted);
+  font-size: .8rem;
+  font-weight: 650;
 }
 
-.student-dashboard-v3 .student-learning-footer-v3 {
+.student-category-detail-dialog-v3 .pm-el-header-pct {
+  color: var(--pm-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.student-category-detail-dialog-v3 .pm-el-header-sep {
+  opacity: .5;
+}
+
+.student-category-detail-dialog-v3 .pm-el-header-empty {
+  font-style: italic;
+}
+
+/* Level pill — a distinct chip rather than plain inline text, so "which
+   level am I at" is scannable without reading the whole meta line. */
+.student-category-detail-dialog-v3 .pm-el-level-pill {
   flex: 0 0 auto;
-  margin-top: 9px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--eh-area) 55%, transparent);
+  background: color-mix(in srgb, var(--eh-area) 18%, transparent);
+  color: #fff;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.student-category-detail-dialog-v3 .pm-panel h3 {
+  margin: 0 0 12px;
+  color: var(--pm-text);
+  font-size: .92rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+
+.student-category-detail-dialog-v3 .pm-section-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.student-category-detail-dialog-v3 .pm-area-list {
+  display: grid;
   gap: 10px;
 }
 
-.student-dashboard-v3 .student-learning-footer-v3 > span {
+.student-category-detail-dialog-v3 .pm-area-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) minmax(80px, 1fr) 40px;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-category-detail-dialog-v3 .pm-area-row-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+}
+
+.student-category-detail-dialog-v3 .pm-area-row-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.student-category-detail-dialog-v3 .pm-area-row-label {
   min-width: 0;
-  color: var(--muted);
+  color: var(--pm-text);
+  font-size: .78rem;
+  font-weight: 700;
   overflow: hidden;
-  font-size: .68rem;
-  font-weight: 750;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.student-dashboard-v3 .student-detail-button-v3 {
-  min-height: 34px;
-  padding: 0 11px;
+.student-category-detail-dialog-v3 .pm-area-row-bar {
+  height: 7px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .08);
+}
+
+.student-category-detail-dialog-v3 .pm-area-row-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #3fa6ff, #a66bff, #ff5dba);
+}
+
+.student-category-detail-dialog-v3 .pm-area-row-pct {
+  color: var(--pm-text);
+  font-size: .8rem;
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Per-app rows in an element's popup — same six accent colours as the
+   dashboard's own module cards (.eahome-module-card[data-area]), applied
+   here to both the icon (as a mask fill, so every app's icon reads as one
+   flat colour regardless of what colour is actually baked into that PNG)
+   and the progress bar. */
+.student-category-detail-dialog-v3 .pm-area-list[data-area="melody"] { --eh-area: #FF5DBA; }
+.student-category-detail-dialog-v3 .pm-area-list[data-area="texture"] { --eh-area: #27E1C1; }
+.student-category-detail-dialog-v3 .pm-area-list[data-area="harmony"] { --eh-area: #A66BFF; }
+.student-category-detail-dialog-v3 .pm-area-list[data-area="instrumentation"] { --eh-area: #3FA6FF; }
+.student-category-detail-dialog-v3 .pm-area-list[data-area="rhythm"] { --eh-area: #FFAA2B; }
+.student-category-detail-dialog-v3 .pm-area-list[data-area="context"] { --eh-area: #FF7AC8; }
+.student-category-detail-dialog-v3 .pm-area-list[data-area="structure"] { --eh-area: #FF5A36; }
+
+.student-category-detail-dialog-v3 .pm-subapp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-category-detail-dialog-v3 .pm-subapp-row-body {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: grid;
+  gap: 4px;
+}
+
+.student-category-detail-dialog-v3 .pm-subapp-row-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(80px, 1fr) 40px;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Draft-quality feedback line, derived from real prior-question data for
+   this specific app (see elementDetailMarkup in student-home.js) — wording
+   will be tuned later. */
+.student-category-detail-dialog-v3 .pm-subapp-row-feedback {
+  margin: 0;
+  color: var(--pm-muted);
+  font-size: .7rem;
+  line-height: 1.4;
+}
+
+.student-category-detail-dialog-v3 .pm-subapp-row-icon {
+  width: 56px;
+  height: 56px;
   flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.student-category-detail-dialog-v3 .pm-subapp-row-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Apps with no correctly-coloured pre-baked tile of their own — built here
+   instead from that app's real transparent white icon (same file its own
+   homepage uses) on a tile filled with the element's exact accent colour,
+   matching the pre-baked melody-master.png-style icons pixel-for-pixel
+   instead of approximating via a filter. */
+/* Same radial-highlight-over-flat-colour gradient as the pre-baked
+   instrument-identifier.png/meter-master.png tiles (which are just a
+   coloured PNG background baked in, not CSS) — a bright highlight in one
+   corner fading into the element's own accent colour, instead of one flat
+   fill, so these constructed tiles have the same depth/vibrancy. */
+.student-category-detail-dialog-v3 .pm-subapp-row-icon-tile {
+  background:
+    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, .45), transparent 55%),
+    radial-gradient(circle at 80% 85%, rgba(0, 0, 0, .18), transparent 60%),
+    var(--eh-area, var(--pm-text));
+}
+
+.student-category-detail-dialog-v3 .pm-subapp-row-icon-tile img {
+  width: 96%;
+  height: 96%;
+  object-fit: contain;
+}
+
+/* score-decoder.png is a wide landscape source (1536x1024), unlike every
+   other tile icon (all square) — filling the tile edge-to-edge and
+   cropping it, instead of shrinking it to fit inside with contain, so the
+   artwork reads at the same size/prominence as the rest and the gradient
+   tile behind it isn't mostly hidden by empty letterbox space. */
+.student-category-detail-dialog-v3 .pm-subapp-row-icon-vocab img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.student-category-detail-dialog-v3 .pm-subapp-row-label {
+  min-width: 0;
+  color: var(--pm-text);
+  font-size: .78rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-category-detail-dialog-v3 .pm-subapp-row-bar {
+  height: 7px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .08);
+}
+
+.student-category-detail-dialog-v3 .pm-subapp-row-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--eh-area, var(--eh-gradient));
+}
+
+.student-category-detail-dialog-v3 .pm-subapp-row-pct {
+  color: var(--pm-text);
+  font-size: .8rem;
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Redesigned per-app rows for the element popup (elementDetailMarkup) —
+   deliberately a new, separate class family from .pm-subapp-row above
+   rather than a restyle of it, since .pm-subapp-row is still used verbatim
+   by the Overview popup's Exam Lab card (snapshotDetailMarkup) and must
+   keep working unchanged. */
+.student-category-detail-dialog-v3 .pm-el-row-list[data-area="melody"] { --eh-area: #FF5DBA; }
+.student-category-detail-dialog-v3 .pm-el-row-list[data-area="texture"] { --eh-area: #27E1C1; }
+.student-category-detail-dialog-v3 .pm-el-row-list[data-area="harmony"] { --eh-area: #A66BFF; }
+.student-category-detail-dialog-v3 .pm-el-row-list[data-area="instrumentation"] { --eh-area: #3FA6FF; }
+.student-category-detail-dialog-v3 .pm-el-row-list[data-area="rhythm"] { --eh-area: #FFAA2B; }
+.student-category-detail-dialog-v3 .pm-el-row-list[data-area="context"] { --eh-area: #FF7AC8; }
+.student-category-detail-dialog-v3 .pm-el-row-list[data-area="structure"] { --eh-area: #FF5A36; }
+
+.student-category-detail-dialog-v3 .pm-el-row-list {
+  display: grid;
+  gap: 14px;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, .14);
+}
+
+.student-category-detail-dialog-v3 .pm-el-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+/* Not-started rows recede — dimmed icon/label, no bar, so a glance down
+   the list immediately shows which apps have real evidence yet and which
+   don't, instead of every row looking equally "active". */
+.student-category-detail-dialog-v3 .pm-el-row-not-started {
+  opacity: .55;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-icon {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-icon-tile {
+  background:
+    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, .45), transparent 55%),
+    radial-gradient(circle at 80% 85%, rgba(0, 0, 0, .18), transparent 60%),
+    var(--eh-area, var(--pm-text));
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-icon-tile img {
+  width: 96%;
+  height: 96%;
+  object-fit: contain;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-icon-vocab img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-body {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: grid;
+  gap: 6px;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: 10px;
+  row-gap: 4px;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-label {
+  color: var(--pm-text);
+  font-size: .86rem;
+  font-weight: 750;
+}
+
+/* Tag reads as a small status chip — amber for "still early", a quieter
+   neutral tone for "not started yet" — so the same word never has to be
+   read twice (once as a tag, once buried in the sentence) to know which
+   tier a row is in. */
+.student-category-detail-dialog-v3 .pm-el-row-tag {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(255, 170, 43, .16);
+  color: #ffb94f;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-tag-muted {
+  background: rgba(148, 163, 184, .16);
+  color: var(--pm-muted);
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-bar {
+  width: 72px;
+  height: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .08);
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--eh-area, var(--eh-gradient));
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-pct {
+  min-width: 34px;
+  color: var(--pm-text);
+  font-size: .8rem;
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-count {
+  color: var(--pm-muted);
+  font-size: .68rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-count-only {
+  font-style: italic;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-feedback {
+  margin: 0;
+  color: var(--pm-muted);
+  font-size: .74rem;
+  line-height: 1.45;
+}
+
+.student-category-detail-dialog-v3 .pm-el-row-not-started .pm-el-row-feedback {
+  font-style: italic;
+}
+
+@media (max-width: 560px) {
+  .student-category-detail-dialog-v3 .pm-el-row-top {
+    align-items: flex-start;
+  }
+
+  .student-category-detail-dialog-v3 .pm-el-row-stats {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+
+.student-category-detail-dialog-v3 .pm-evidence-list {
+  display: grid;
+  gap: 6px;
+}
+
+.student-category-detail-dialog-v3 .pm-evidence-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 6px;
+  border-radius: 9px;
+}
+
+.student-category-detail-dialog-v3 .pm-evidence-row:hover {
+  background: rgba(255, 255, 255, .04);
+}
+
+.student-category-detail-dialog-v3 .pm-evidence-icon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--eh-blue), var(--eh-purple));
+  font-size: .62rem;
+}
+
+.student-category-detail-dialog-v3 .pm-evidence-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: grid;
+  gap: 2px;
+}
+
+.student-category-detail-dialog-v3 .pm-evidence-copy strong {
+  color: var(--pm-text);
+  font-size: .78rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-category-detail-dialog-v3 .pm-evidence-copy small {
+  color: var(--pm-muted);
+  font-size: .68rem;
+}
+
+.student-category-detail-dialog-v3 .pm-evidence-pct {
+  flex: 0 0 auto;
+  color: var(--pm-text);
+  font-size: .8rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.student-category-detail-dialog-v3 .pm-panel-positive {
+  border-color: rgba(39, 225, 193, .28);
+}
+
+.student-category-detail-dialog-v3 .pm-panel-focus {
+  border-color: rgba(255, 93, 186, .28);
+}
+
+.student-category-detail-dialog-v3 .pm-callout-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.student-category-detail-dialog-v3 .pm-callout-item + .pm-callout-item {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--pm-line);
+}
+
+.student-category-detail-dialog-v3 .pm-callout-check {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #7ef0c9;
+  background: rgba(39, 225, 193, .16);
   font-size: .7rem;
 }
 
-.student-dashboard-v3 .student-memory-scroll-v3 {
-  flex: 1 1 auto;
-  min-height: 0;
+.student-category-detail-dialog-v3 .pm-callout-icon {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: rgba(255, 93, 186, .12);
+}
+
+.student-category-detail-dialog-v3 .pm-callout-icon img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.student-category-detail-dialog-v3 .pm-callout-item strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--pm-text);
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.student-category-detail-dialog-v3 .pm-callout-item p {
+  margin: 0;
+  color: var(--pm-muted);
+  font-size: .72rem;
+  line-height: 1.5;
+}
+
+.student-category-detail-dialog-v3 .pm-callout-empty {
+  margin: 0;
+  color: var(--pm-muted);
+  font-size: .74rem;
+}
+
+.student-category-detail-dialog-v3 .pm-panel-focus .eahome-cta-primary {
   margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  overflow: hidden;
 }
 
-.student-dashboard-v3 .student-compiled-feedback-v3,
-.student-dashboard-v3 .student-next-step-v3 {
-  flex: 0 0 auto;
-  padding: 13px 14px;
-  border: 1px solid rgba(139,92,246,.16);
-  border-radius: 16px;
-  background: linear-gradient(145deg, #faf9ff, #f7fbff);
+@media (max-width: 820px) {
+  .student-category-detail-dialog-v3 .pm-detail-columns {
+    grid-template-columns: 1fr;
+  }
 }
 
-.student-dashboard-v3 .student-next-step-v3 {
-  border-color: rgba(56,189,248,.2);
-  background: linear-gradient(145deg, #f6fbff, #f9f7ff);
-}
-
-.student-dashboard-v3 .student-compiled-feedback-v3 > span,
-.student-dashboard-v3 .student-next-step-v3 > span {
-  color: #7c3aed;
-}
-
-.student-dashboard-v3 .student-compiled-feedback-v3 p,
-.student-dashboard-v3 .student-next-step-v3 p {
-  margin: 5px 0 0;
-  color: #475467;
-  font-size: .82rem;
-  line-height: 1.48;
-}
-
-.student-dashboard-v3 .student-recent-memory-v3 {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.student-dashboard-v3 .student-memory-heading-v3 {
-  flex: 0 0 auto;
-  padding: 2px 2px 8px;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.student-dashboard-v3 .student-memory-heading-v3 > span {
-  color: #7c3aed;
-}
-
-.student-dashboard-v3 .student-memory-heading-v3 small {
-  color: var(--muted);
-  font-size: .68rem;
-  font-weight: 750;
-}
-
-.student-dashboard-v3 .student-memory-list-v3 {
-  flex: 1 1 auto;
-  min-height: 0;
-  padding-right: 3px;
-  display: grid;
-  align-content: start;
-  gap: 7px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-.student-dashboard-v3 .student-memory-row-v3 {
-  width: 100%;
-  min-width: 0;
-  padding: 10px 11px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "source score"
-    "title score"
-    "meta score";
-  gap: 2px 9px;
-  text-align: left;
-  color: inherit;
-  background: #fbfcfe;
-  cursor: pointer;
-}
-
-.student-dashboard-v3 .student-memory-row-v3:hover {
-  border-color: rgba(139,92,246,.28);
-  transform: translateY(-1px);
-  box-shadow: 0 9px 20px rgba(76,29,149,.07);
-}
-
-.student-dashboard-v3 .student-memory-source-v3 {
-  grid-area: source;
-  color: #7c3aed;
-  font-size: .56rem;
-  font-style: normal;
-  font-weight: 900;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-}
-
-.student-dashboard-v3 .student-memory-row-v3 strong {
-  grid-area: title;
-  overflow: hidden;
-  font-size: .79rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.student-dashboard-v3 .student-memory-row-v3 small {
-  grid-area: meta;
-  color: var(--muted);
-  font-size: .64rem;
-}
-
-.student-dashboard-v3 .student-memory-row-v3 em {
-  grid-area: score;
-  min-width: 52px;
-  align-self: center;
-  padding: 5px 7px;
-  border-radius: 999px;
-  text-align: center;
-  font-size: .68rem;
-  font-style: normal;
-  font-weight: 900;
-  background: #f2f4f7;
-}
-
-.student-dashboard-v3 .student-memory-row-v3 em.is-secure { color: #067647; background: #ecfdf3; }
-.student-dashboard-v3 .student-memory-row-v3 em.is-strong { color: #026aa2; background: #eff8ff; }
-.student-dashboard-v3 .student-memory-row-v3 em.is-developing { color: #6941c6; background: #f4f3ff; }
-.student-dashboard-v3 .student-memory-row-v3 em.is-focus { color: #b42318; background: #fef3f2; }
-.student-dashboard-v3 .student-memory-row-v3 em.is-empty { color: #667085; }
-
-.student-dashboard-v3 .student-memory-empty-v3 {
-  padding: 18px;
-  border: 1px dashed #cfd7e6;
-  border-radius: 15px;
-  color: var(--muted);
-  text-align: center;
-  font-size: .78rem;
-  background: #fbfcfe;
-}
+/* ---------- Shared dialog chrome (Live Sessions / Homework detail + the
+   generic parts of the Progress Mode detail) — unchanged from the previous
+   design. ---------- */
 
 .student-category-detail-dialog-v3 #studentCategoryDetailContent {
   padding: 22px 24px 26px;
@@ -743,521 +2179,324 @@
   text-transform: uppercase;
 }
 
-/* Progress Mode detailed feedback only — matches suite app branding
-   (squarer tiles, full-colour module icons, EA title typography). */
-.student-category-detail-dialog-v3 .pm-detail {
-  --pm-navy: #071423;
-  --pm-panel: #0b1a2f;
-  --pm-line: rgba(148, 163, 184, .22);
-  --pm-muted: #8b9bb4;
-  --pm-text: #e8eef8;
-  --pm-wordmark: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
-  display: grid;
-  gap: 18px;
+.student-category-detail-dialog-v3 .student-detail-questions-v3 {
+  margin-top: 20px;
 }
 
-.student-category-detail-dialog-v3 .pm-detail-overall {
-  padding: 16px 18px;
-  border: 1px solid rgba(63, 166, 255, .18);
-  border-radius: 14px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 16px 20px;
-  align-items: center;
-  color: var(--pm-text);
+/* Progress Mode detailed feedback: drop the dialog title block so the
+   toolbar sits at the top of the panel. */
+.student-category-detail-dialog-v3.is-pm-detail .category-detail-title-wrap-v5 {
+  display: none;
+}
+
+/* Coloured to match the toolbar's own gradient (not left white) so the
+   close button's row reads as the very top of one continuous surface, not
+   a gap sitting above it — same blue-purple accent pairing as the hero
+   card (.eahome-hero) so this popup reads as part of the same brand. */
+.student-category-detail-dialog-v3.is-pm-detail .category-detail-heading-v5 {
+  position: relative;
+  min-height: 0;
+  padding: 10px 14px 0;
+  justify-content: flex-end;
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
   background:
-    radial-gradient(circle at 88% 12%, rgba(63, 166, 255, .22), transparent 36%),
-    radial-gradient(circle at 12% 88%, rgba(39, 225, 193, .12), transparent 34%),
-    linear-gradient(145deg, #071a35 0%, #0c2444 55%, #102f59 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+    radial-gradient(circle at 90% 10%, rgba(166, 107, 255, .18), transparent 45%),
+    radial-gradient(circle at 8% 90%, rgba(63, 166, 255, .16), transparent 42%),
+    linear-gradient(145deg, #081633 0%, #0a1c3e 55%, #0c1730 100%);
 }
 
-.student-category-detail-dialog-v3 .pm-detail-brand {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  gap: 14px;
-  align-items: start;
+/* Single-element popup: the identity strip (icon/title/meta) now lives in
+   the merged .pm-element-header panel below, matching the other tiles in
+   the popup — so this top strip is just a minimal navy bar holding the
+   close button, not a second banner. #071423 mirrors --pm-navy (defined
+   on .pm-detail, a sibling this strip can't reach via var()). */
+.student-category-detail-dialog-v3.is-pm-detail.is-element-detail .category-detail-heading-v5 {
+  background: #071423;
+  /* Extra top/right inset (over the shared 10px/14px) so the close button
+     clears the dialog's own 24px corner radius — at the smaller inset it
+     visually hung off the rounded corner into the backdrop instead of
+     sitting inside the dark strip. */
+  padding: 36px 36px 0;
 }
 
-.student-category-detail-dialog-v3 .pm-detail-brand-icon {
-  width: 72px;
-  height: 72px;
-  border-radius: 12px;
+/* The 6 element popups specifically (not the Overview snapshot, which
+   keeps the shared 900px width) — smaller background tile, and a smaller
+   close button to match the more compact strip above. */
+.student-category-detail-dialog-v3.is-element-detail {
+  width: min(760px, calc(100vw - 30px));
+}
+
+.student-category-detail-dialog-v3.is-pm-detail.is-element-detail .dialog-close-button {
+  width: 34px;
+  height: 34px;
+  font-size: 1.4rem;
+}
+
+/* Progress Mode's own brand mark, centred in this same strip — hidden for
+   every other category (empty innerHTML there, see openCategoryDetail).
+   Absolutely positioned so it centres independently of the close button's
+   flex-end placement, without the heading's own padding/height (which
+   must stay exactly as set above) having to grow to fit it. */
+.pm-heading-brand {
+  display: none;
+}
+
+.student-category-detail-dialog-v3.is-pm-detail .pm-heading-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.student-category-detail-dialog-v3.is-pm-detail .pm-heading-brand-icon {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   overflow: hidden;
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 68% 22%, rgba(143, 203, 255, .38), transparent 40%),
-    linear-gradient(135deg, #8FCBFF 0%, #3FA6FF 55%, #1B6FCC 100%);
-  box-shadow: 0 0 0 1px rgba(143, 203, 255, .28);
+    radial-gradient(circle at 68% 22%, rgba(166, 107, 255, .32), transparent 45%),
+    linear-gradient(135deg, var(--eh-blue) 0%, var(--eh-purple) 100%);
+  box-shadow: 0 0 0 1px rgba(166, 107, 255, .28);
 }
 
-.student-category-detail-dialog-v3 .pm-detail-brand-icon img {
+.student-category-detail-dialog-v3.is-pm-detail .pm-heading-brand-icon img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  border-radius: 0;
   filter:
     drop-shadow(0 0 3px rgba(255, 255, 255, .35))
     drop-shadow(0 0 8px rgba(255, 255, 255, .18));
 }
 
-.student-category-detail-dialog-v3 .pm-detail-brand-copy,
-.student-category-detail-dialog-v3 .pm-detail-overall-copy {
-  min-width: 0;
-  display: grid;
-  gap: 4px;
-  padding-top: 10px;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-brand-copy {
-  justify-items: start;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-brand-eyebrow {
-  color: rgba(199, 215, 245, .78);
-  font-size: .62rem;
-  font-weight: 800;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-brand-title {
-  margin: 0;
-  display: inline-flex;
-  align-items: baseline;
-  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+.student-category-detail-dialog-v3.is-pm-detail .pm-heading-brand-title {
+  font-size: 1.3rem;
   font-weight: 860;
-  letter-spacing: -.055em;
+  letter-spacing: -.05em;
   line-height: 1;
   white-space: nowrap;
 }
 
-.student-category-detail-dialog-v3 .pm-detail-brand-main {
-  color: rgba(255, 255, 255, .98);
-  font-weight: 700;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-brand-mode {
-  color: #3FA6FF;
-  font-weight: 500;
-  text-shadow: 0 0 14px rgba(63, 166, 255, .35);
-}
-
-.student-category-detail-dialog-v3 .pm-detail-overall-status {
-  display: grid;
-  grid-template-columns: 72px minmax(0, max-content);
-  gap: 12px;
-  align-items: start;
-  justify-self: end;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-overall-icon {
-  width: 72px;
-  height: 72px;
-  border-radius: 12px;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  background: #06101f;
-  box-shadow: 0 0 0 1px rgba(143, 203, 255, .28);
-}
-
-.student-category-detail-dialog-v3 .pm-detail-overall-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 0;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-overall-copy {
-  justify-items: start;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-overall-level {
-  margin: 0;
-  color: rgba(255, 255, 255, .98);
-  -webkit-text-fill-color: rgba(255, 255, 255, .98);
-  background: none;
-  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -.055em;
-  white-space: nowrap;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-overall-meta {
-  margin: 0;
-  color: rgba(255, 255, 255, .62);
-  font-size: .68rem;
-  font-weight: 650;
-  letter-spacing: .01em;
-  white-space: nowrap;
-}
-
-@media (max-width: 820px) {
-  .student-category-detail-dialog-v3 .pm-detail-overall {
-    grid-template-columns: 1fr;
-  }
-
-  .student-category-detail-dialog-v3 .pm-detail-overall-status {
-    justify-self: start;
-  }
-
-  .student-category-detail-dialog-v3 .pm-detail-overall-meta {
-    white-space: normal;
-  }
-}
-
-.student-category-detail-dialog-v3 .pm-detail-areas {
-  display: grid;
-  gap: 12px;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-areas-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-eyebrow {
-  margin: 0 0 4px;
-  color: #667085;
-  font-size: .62rem;
-  font-weight: 850;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-areas-heading h3 {
-  margin: 0;
-  color: #101828;
-  font-size: 1.05rem;
-  font-weight: 860;
-  letter-spacing: -.03em;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-action {
-  min-height: 36px;
-  padding: 0 14px;
-  border: 1px solid rgba(63, 166, 255, .28);
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #0b4a6f;
-  background: rgba(63, 166, 255, .08);
-  font-size: .74rem;
-  font-weight: 800;
-  letter-spacing: -.01em;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-action:hover {
-  border-color: rgba(63, 166, 255, .48);
-  background: rgba(63, 166, 255, .14);
-}
-
-.student-category-detail-dialog-v3 .pm-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-tile {
-  --pm-accent: #3FA6FF;
-  min-width: 0;
-  padding: 14px;
-  border: 1px solid var(--pm-line, #d0d5dd);
-  border-radius: 12px;
-  display: grid;
-  gap: 10px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .92), #f7f9fc),
-    #fff;
-  box-shadow: 0 10px 24px rgba(16, 24, 40, .04);
-}
-
-.student-category-detail-dialog-v3 .pm-detail-tile[data-area="melody"] { --pm-accent: #FF5DBA; }
-.student-category-detail-dialog-v3 .pm-detail-tile[data-area="texture"] { --pm-accent: #27E1C1; }
-.student-category-detail-dialog-v3 .pm-detail-tile[data-area="harmony"] { --pm-accent: #A66BFF; }
-.student-category-detail-dialog-v3 .pm-detail-tile[data-area="instrumentation"] { --pm-accent: #3FA6FF; }
-.student-category-detail-dialog-v3 .pm-detail-tile[data-area="rhythm"] { --pm-accent: #FFAA2B; }
-.student-category-detail-dialog-v3 .pm-detail-tile[data-area="context"] { --pm-accent: #FF7AC8; }
-
-.student-category-detail-dialog-v3 .pm-detail-tile-top {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: #0b1220;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--pm-accent) 35%, transparent);
-}
-
-.student-category-detail-dialog-v3 .pm-detail-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 0;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-tile-copy {
-  min-width: 0;
-  display: grid;
-  gap: 3px;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-tile-copy h4 {
-  margin: 0;
-  color: #101828;
-  font-size: .92rem;
-  font-weight: 860;
-  letter-spacing: -.025em;
-  line-height: 1.1;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-tile-copy small {
-  color: #667085;
-  font-size: .66rem;
-  font-weight: 650;
-  letter-spacing: .01em;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-level {
-  padding: 6px 8px;
-  border: 1px solid rgba(63, 166, 255, .34);
-  border-radius: 8px;
-  color: #1B6FCC;
-  background:
-    radial-gradient(circle at 80% 20%, rgba(143, 203, 255, .28), transparent 55%),
-    linear-gradient(135deg, rgba(143, 203, 255, .22), rgba(63, 166, 255, .14));
-  font-size: .58rem;
-  font-style: normal;
-  font-weight: 900;
-  letter-spacing: .08em;
-  line-height: 1;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-bar {
-  height: 7px;
-  border-radius: 4px;
-  overflow: hidden;
-  background: #e8edf5;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-bar i {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--pm-accent) 70%, #fff), var(--pm-accent));
-}
-
-
-
-.student-category-detail-dialog-v3 .pm-detail-feedback-overall,
-.student-category-detail-dialog-v3 .pm-detail-feedback-focus {
-  margin: 0;
-  padding: 10px 11px;
-  border: 1px solid #e4e9f2;
-  border-radius: 10px;
-  color: #475467;
-  background: #fff;
-  font-size: .72rem;
-  line-height: 1.45;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-feedback-overall {
-  border-color: color-mix(in srgb, var(--pm-accent) 22%, #e4e9f2);
-  color: #101828;
-  background: color-mix(in srgb, var(--pm-accent) 7%, #fff);
-  font-weight: 700;
-}
-
-.student-category-detail-dialog-v3 .pm-detail-sources {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 8px 0 0;
+/* No padding here at all — the toolbar (and, below it, .pm-detail-columns)
+   fills this box edge to edge and carries its own padding instead. */
+.student-category-detail-dialog-v3.is-pm-detail #studentCategoryDetailContent {
   padding: 0;
-  list-style: none;
 }
 
-.student-category-detail-dialog-v3 .pm-detail-sources li {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 5px 9px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--pm-accent) 5%, #fff);
-  font-size: .68rem;
+/* Before any Progress Mode evidence exists, progressModeDetailMarkup()
+   renders the shared .progress-empty-state box with no toolbar around it.
+   account.css styles that box for light contexts (dashed grey border,
+   white-ish background) — override it here so it doesn't clash with this
+   dialog's dark blue heading strip sitting directly above it. */
+.student-category-detail-dialog-v3.is-pm-detail #studentCategoryDetailContent .progress-empty-state {
+  margin: 20px 24px 24px;
+  border-color: rgba(148, 163, 184, .28);
+  border-radius: 14px;
+  color: #93a0bd;
+  background: rgba(255, 255, 255, .03);
 }
 
-.student-category-detail-dialog-v3 .pm-detail-sources li span {
-  color: #667085;
-}
+/* ---------- Desktop fill (matches the teacher dashboard's own
+   height:100vh + flex:1/minmax(0,1fr) technique — see
+   account/teacher-dashboard/teacher-dashboard-modern.css's
+   .teacher-dashboard-shell-v3 and .class-element-grid-v1) ---------- */
 
-.student-category-detail-dialog-v3 .pm-detail-sources li strong {
-  color: #101828;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.student-category-detail-dialog-v3 .student-detail-questions-v3 {
-  margin-top: 20px;
-}
-
-@media (max-width: 820px) {
-  .student-category-detail-dialog-v3 .pm-detail-grid {
-    grid-template-columns: 1fr;
+/* Below 1180px the layout already reflows to a stacked, narrower column
+   (see the max-width blocks below) and is fine to scroll — this bounded,
+   exactly-one-viewport treatment is desktop-only, same threshold the
+   teacher dashboard gates its own equivalent on. Previously this page
+   only ever set min-height:100vh (a floor) and let module-card sizes be
+   flat calc(px * --eh-vhs) values tuned to not overflow at the smallest
+   supported height — which left cards small and the page under-filled at
+   every taller height, since nothing here actually grew to use spare
+   space. This block makes .eahome-modules-grid a real flex-filled region
+   (like the teacher grid) so its rows — and the cards in them — actually
+   stretch to fill whatever vertical space the hero/stats-row don't use. */
+@media (min-width: 1181px) {
+  .eahome-shell {
+    height: 100vh;
   }
 
-  .student-category-detail-dialog-v3 .pm-detail-areas-heading {
-    align-items: start;
+  .eahome-sidebar {
+    height: 100vh;
+  }
+
+  .eahome-main {
+    height: 100vh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .eahome-topbar {
+    flex: 0 0 auto;
+  }
+
+  .eahome-content-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .eahome-content-left {
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .eahome-modules {
+    min-height: 0;
+    display: flex;
     flex-direction: column;
   }
-}
 
-.student-category-detail-dialog-v3 #studentCategoryDetailContent {
-  padding: 22px 24px 26px;
-}
-
-/* Progress Mode detailed feedback: drop the dialog title block so the
-   overall-level tile sits at the top of the panel. */
-.student-category-detail-dialog-v3.is-pm-detail .category-detail-title-wrap-v5 {
-  display: none;
-}
-
-.student-category-detail-dialog-v3.is-pm-detail .category-detail-heading-v5 {
-  min-height: 0;
-  padding: 10px 14px 0;
-  justify-content: flex-end;
-  border-bottom: 0;
-}
-
-.student-category-detail-dialog-v3.is-pm-detail #studentCategoryDetailContent {
-  padding: 4px 24px 26px;
-}
-
-.student-category-detail-dialog-v3 .student-detail-questions-v3 {
-  margin-top: 20px;
-}
-
-@media (max-width: 1180px) and (min-width: 1001px) {
-  .student-dashboard-v3 .student-console-grid-v3 {
-    grid-template-columns: minmax(215px, .72fr) minmax(450px, 1.4fr) minmax(245px, .84fr);
+  /* min-content (not 0) as the row floor: rows fill available space when
+     there's room to spare, but never shrink a card's content below what it
+     actually needs — at very short viewport heights the grid becomes
+     internally scrollable (overflow-y) instead of squeezing rows past
+     their content's minimum, which was causing cards to visually collide
+     with their neighbours. */
+  .eahome-modules-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-auto-rows: minmax(min-content, 1fr);
+    overflow-y: auto;
   }
 
-  .student-dashboard-v3 .student-console-v3 {
-    padding: 13px;
+  .eahome-module-card {
+    min-height: 0;
+    overflow: hidden;
   }
 
-  .student-dashboard-v3 .student-overall-score-v3 {
-    min-height: 158px;
+  /* Icon/text/bar sized off viewport height directly (not the card's own
+     computed height, which CSS has no way to read) — same technique the
+     teacher grid's own icon (clamp(40px, 6.2vh, 60px)) already uses, so
+     content actually grows to look "filled" on a taller screen instead of
+     plateauing at a fixed size once --eh-vhs hits its 1.3 cap. */
+  .eahome-module-icon {
+    width: clamp(28px, 5.2vh, 48px);
+    height: clamp(28px, 5.2vh, 48px);
   }
 
-  .student-dashboard-v3 .student-learning-feedback-v3 p {
-    font-size: .77rem;
+  .eahome-module-title {
+    font-size: clamp(.72rem, 1.7vh, .86rem);
+  }
+
+  .eahome-module-pct {
+    font-size: clamp(.92rem, 2.6vh, 1.3rem);
+  }
+
+  .eahome-module-bar {
+    height: clamp(4px, 0.8vh, 7px);
+  }
+
+  .eahome-module-feedback {
+    font-size: clamp(.62rem, 1.35vh, .72rem);
+    line-height: 1.35;
+    height: calc(2 * 1.35 * 1em);
+    max-height: calc(2 * 1.35 * 1em);
     -webkit-line-clamp: 2;
   }
 
-  .student-dashboard-v3 .student-learning-footer-v3 > span {
-    font-size: .62rem;
+  .eahome-module-badge {
+    font-size: clamp(.54rem, 1.1vh, .64rem);
+    padding: clamp(2px, .4vh, 4px) clamp(6px, 1vh, 9px);
+  }
+
+  .eahome-stats-row {
+    min-height: 0;
+  }
+
+  .eahome-content-right {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .eahome-side-card:last-child {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .eahome-activity-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
   }
 }
 
-@media (max-width: 1000px) {
-  .student-dashboard-v3 {
-    overflow: auto;
-  }
+/* ---------- Responsive ---------- */
 
-  .student-dashboard-v3 .student-dashboard-shell-v3 {
-    min-height: 100vh;
-  }
-
-  .student-dashboard-v3 .student-dashboard-topbar-v3 {
-    grid-template-columns: auto 1fr;
-  }
-
-  .student-dashboard-v3 .student-dashboard-actions-v3 {
-    grid-column: 1 / -1;
-    justify-content: flex-end;
-  }
-
-  .student-dashboard-v3 .student-dashboard-main-v3 {
-    padding: 12px;
-  }
-
-  .student-dashboard-v3 .student-console-grid-v3 {
-    height: auto;
-    min-height: 0;
+@media (max-width: 1180px) {
+  .eahome-content-grid {
     grid-template-columns: 1fr;
   }
 
-  .student-dashboard-v3 .student-console-v3 {
+  .eahome-modules-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .eahome-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .eahome-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .eahome-sidebar {
     min-height: 0;
-    overflow: visible;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    overflow-x: auto;
   }
 
-  .student-dashboard-v3 .student-learning-summary-list-v3 {
-    grid-template-rows: none;
+  .eahome-nav {
+    flex-direction: row;
   }
 
-  .student-dashboard-v3 .student-memory-list-v3 {
-    max-height: 420px;
+  .eahome-nav-item span:last-child {
+    display: none;
+  }
+
+  .eahome-sidebar-footer {
+    display: none;
+  }
+
+  .eahome-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .eahome-hero-ring-wrap {
+    justify-self: center;
   }
 }
 
 @media (max-width: 650px) {
-  .student-dashboard-v3 .student-dashboard-header-v3 {
-    padding: 10px 12px;
+  .eahome-main {
+    padding: 16px 14px 32px;
   }
 
-  .student-dashboard-v3 .student-dashboard-topbar-v3 {
-    gap: 12px;
+  .eahome-modules-grid {
+    grid-template-columns: 1fr;
   }
 
-  .student-dashboard-v3 .student-dashboard-logo-v3 .account-wordmark {
-    display: none;
-  }
-
-  .student-dashboard-v3 .student-welcome-v3 h1 {
-    white-space: normal;
-  }
-
-  .student-dashboard-v3 .student-learning-summary-heading-v3 {
-    grid-template-columns: 42px minmax(0, 1fr) auto;
-  }
-
-  .student-dashboard-v3 .student-learning-icon-slot-v3 {
-    width: 42px;
-    height: 42px;
-  }
-
-  .student-dashboard-v3 .student-learning-footer-v3 {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .student-dashboard-v3 .student-detail-button-v3 {
-    width: 100%;
+  .eahome-stats-grid {
+    grid-template-columns: 1fr;
   }
 
   .student-category-detail-dialog-v3 #studentCategoryDetailContent {
@@ -1265,7 +2504,7 @@
   }
 
   .student-category-detail-dialog-v3.is-pm-detail #studentCategoryDetailContent {
-    padding: 4px 18px 18px;
+    padding: 0;
   }
 
   .student-category-detail-dialog-v3 .student-category-detail-overview-v3 {
@@ -1275,13 +2514,310 @@
   .student-category-detail-dialog-v3 .student-detail-module-list-v3 {
     grid-template-columns: 1fr;
   }
+
+  .student-category-detail-dialog-v3 .pm-detail-columns {
+    padding: 14px;
+  }
 }
 
-.student-dashboard-v3 .student-mode-icon-v3 {
+/* ---------- Searchable question history ---------- */
+
+.eahome-history-dialog {
+  width: min(1120px, calc(100vw - 40px));
+  max-width: none;
+  height: min(780px, calc(100vh - 48px));
+  max-height: none;
+  padding: 0;
+  border: 1px solid rgba(99, 165, 255, .28);
+  border-radius: 22px;
+  color: var(--eh-text);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(63, 166, 255, .13), transparent 34%),
+    radial-gradient(circle at 92% 5%, rgba(166, 107, 255, .14), transparent 32%),
+    #071222;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, .62);
   overflow: hidden;
 }
 
-.student-dashboard-v3 .student-mode-icon-v3::before,
-.student-dashboard-v3 .student-learning-icon-slot-v3 .student-dashboard-line-icon-v3 {
-  background: var(--ea-icon) center / cover no-repeat;
+.eahome-history-dialog::backdrop {
+  background: rgba(2, 7, 16, .78);
+  backdrop-filter: blur(8px);
+}
+
+.eahome-history-dialog-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.eahome-history-heading {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--eh-line);
+}
+
+.eahome-history-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.eahome-history-title-icon {
+  width: 62px;
+  height: 62px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--eh-blue), var(--eh-purple));
+}
+
+.eahome-history-title-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.eahome-history-title-wrap p,
+.eahome-history-title-wrap h2,
+.eahome-history-title-wrap span {
+  margin: 0;
+}
+
+.eahome-history-title-wrap p {
+  color: var(--eh-blue);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.eahome-history-title-wrap h2 {
+  margin-top: 2px;
+  font-size: 1.55rem;
+  letter-spacing: -.03em;
+}
+
+.eahome-history-title-wrap div > span {
+  display: block;
+  margin-top: 3px;
+  color: var(--eh-muted);
+  font-size: .8rem;
+}
+
+.eahome-history-close {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border: 1px solid var(--eh-line);
+  border-radius: 11px;
+  color: var(--eh-text);
+  background: var(--eh-panel);
+  font: inherit;
+  font-size: 1.45rem;
+  cursor: pointer;
+}
+
+.eahome-history-close:hover {
+  background: var(--eh-panel-strong);
+}
+
+.eahome-history-filters {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: minmax(180px, 1.4fr) repeat(4, minmax(130px, 1fr));
+  gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--eh-line);
+  background: rgba(255, 255, 255, .018);
+}
+
+.eahome-history-filters label {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.eahome-history-filters label > span {
+  color: var(--eh-muted);
+  font-size: .64rem;
+  font-weight: 750;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.eahome-history-filters input,
+.eahome-history-filters select {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 11px;
+  border: 1px solid var(--eh-line-strong);
+  border-radius: 10px;
+  color: var(--eh-text);
+  background: #0b1930;
+  font: inherit;
+  font-size: .76rem;
+  color-scheme: dark;
+}
+
+.eahome-history-filters input:focus,
+.eahome-history-filters select:focus {
+  outline: 2px solid rgba(63, 166, 255, .42);
+  outline-offset: 1px;
+  border-color: var(--eh-blue);
+}
+
+.eahome-history-summary {
+  flex: 0 0 auto;
+  padding: 12px 24px 8px;
+  color: var(--eh-muted);
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.eahome-history-results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 0 24px 22px;
+}
+
+.eahome-history-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 13px 15px;
+  border: 1px solid var(--eh-line);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.eahome-history-row-main {
+  min-width: 0;
+}
+
+.eahome-history-row-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.eahome-history-row-tags span {
+  padding: 3px 7px;
+  border: 1px solid rgba(148, 163, 184, .2);
+  border-radius: 999px;
+  color: #c7d2e8;
+  background: rgba(148, 163, 184, .08);
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.eahome-history-row-tags .is-progress { color: #b9a5ff; border-color: rgba(166, 107, 255, .35); }
+.eahome-history-row-tags .is-quizzes { color: #87d1ff; border-color: rgba(63, 166, 255, .35); }
+.eahome-history-row-tags .is-homework { color: #ffc078; border-color: rgba(255, 170, 43, .35); }
+
+.eahome-history-row h3,
+.eahome-history-row p,
+.eahome-history-row small {
+  margin: 0;
+}
+
+.eahome-history-row h3 {
+  font-size: .84rem;
+}
+
+.eahome-history-row p {
+  margin-top: 3px;
+  color: #d7deed;
+  font-size: .76rem;
+  line-height: 1.35;
+}
+
+.eahome-history-row small {
+  display: block;
+  margin-top: 5px;
+  color: var(--eh-muted);
+  font-size: .68rem;
+  line-height: 1.35;
+}
+
+.eahome-history-mark {
+  min-width: 52px;
+  padding: 8px 9px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: .78rem;
+}
+
+.eahome-history-mark.is-full {
+  color: var(--eh-teal);
+  background: rgba(39, 225, 193, .1);
+}
+
+.eahome-history-mark.is-review {
+  color: #ff9bd6;
+  background: rgba(255, 93, 186, .1);
+}
+
+.eahome-history-empty {
+  padding: 56px 20px;
+  border: 1px dashed var(--eh-line-strong);
+  border-radius: 14px;
+  color: var(--eh-muted);
+  text-align: center;
+  font-size: .82rem;
+}
+
+@media (max-width: 900px) {
+  .eahome-history-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .eahome-history-dialog {
+    width: calc(100vw - 20px);
+    height: calc(100vh - 20px);
+  }
+
+  .eahome-history-heading,
+  .eahome-history-filters {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .eahome-history-title-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .eahome-history-title-wrap div > span {
+    display: none;
+  }
+
+  .eahome-history-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .eahome-history-summary {
+    padding-left: 14px;
+  }
+
+  .eahome-history-results {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
 }
