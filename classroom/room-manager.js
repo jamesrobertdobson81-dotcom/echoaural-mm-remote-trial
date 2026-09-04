@@ -6,6 +6,7 @@ const {
   recordQuizSubmission,
   buildLeaderboard
 } = require('./scoring');
+const { QuestionCatalogue } = require('./question-catalogue');
 const crypto = require('crypto');
 
 const DEFAULT_MAX_LISTENS = 4;
@@ -210,6 +211,10 @@ class RoomManager {
     this.defaultModuleId = options.defaultModuleId || 'melody-master';
     this.roomMaxAgeMs = Math.max(60 * 60 * 1000, Number(options.roomMaxAgeMs || process.env.ROOM_MAX_AGE_MS || DEFAULT_ROOM_MAX_AGE_MS));
     (options.adapters || []).forEach((adapter) => this.registerAdapter(adapter));
+    // Built once from the adapters registered above (not lazily), so a
+    // freshly-added adapter's questions are reflected in mixed-round
+    // eligibility immediately, matching this.adapters' own timing.
+    this.questionCatalogue = options.questionCatalogue || new QuestionCatalogue(this.getAdapters());
   }
 
   registerAdapter(adapter) {
@@ -246,7 +251,9 @@ class RoomManager {
 
   normaliseMixedModuleIds(moduleIds = DEFAULT_MIXED_MODULE_IDS) {
     const source = Array.isArray(moduleIds) ? moduleIds : String(moduleIds || '').split(',');
-    const allowed = new Set(DEFAULT_MIXED_MODULE_IDS);
+    const allowed = new Set(this.questionCatalogue.modules()
+      .filter((module) => module.mixedCompatible)
+      .map((module) => module.id));
     const unique = [];
     source.forEach((moduleId) => {
       const cleanModuleId = String(moduleId || '').trim();

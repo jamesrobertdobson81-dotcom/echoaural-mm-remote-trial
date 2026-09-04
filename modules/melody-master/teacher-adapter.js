@@ -11,6 +11,7 @@
   const projectRoot = context.projectRoot || (path ? path.resolve(__dirname, '..', '..') : '');
   const moduleDir = path ? path.join(projectRoot, 'modules', 'melody-master') : '';
   const clipsPath = path ? path.join(moduleDir, 'clips.js') : '';
+  const devicesPath = path ? path.join(moduleDir, 'data', 'melody-master-melodic-devices-50.json') : '';
   const getAudioDurationSeconds = typeof context.getAudioDurationSeconds === 'function' ? context.getAudioDurationSeconds : () => 10;
   let cachedQuestions = null;
 
@@ -59,12 +60,46 @@
           ? loadedQuestions.sourceQuestions
           : loadedQuestions.legacyQuestions;
       if (!Array.isArray(questions) || !questions.length) throw new Error('No melodyClips array found.');
-      cachedQuestions = questions.slice();
+      const deviceQuestions = JSON.parse(fs.readFileSync(devicesPath, 'utf8')).questions;
+      // Melody Master has two PM sources sharing one iframe/module. Keep one
+      // classroom adapter, but expose both banks so the server can select any
+      // Devices question as well as any Dictation question.
+      cachedQuestions = questions.map((question) => ({ ...question, sourceKey: 'melody-master-dictation' })).concat(Array.isArray(deviceQuestions)
+        ? deviceQuestions.map((question) => ({
+          ...question,
+          sourceKey: 'melody-master-devices',
+          musicalElement: 'Melody',
+          skillCode: 'MEL.DEVICE',
+          skillName: 'Melodic device'
+        }))
+        : []);
     } catch (error) {
       console.error('[Melody Master adapter] Could not load clips.js:', error.message);
       cachedQuestions = fallbackQuestions();
     }
     return cachedQuestions;
+  }
+
+  function isDeviceQuestion(question = {}) {
+    return String(question.id || '').toUpperCase().startsWith('MDV');
+  }
+
+  function normaliseDeviceAnswer(value) {
+    return String(value || '').trim().toLowerCase()
+      .replace(/[’']/g, "'").replace(/\s+/g, ' ')
+      .replace(/[^a-z0-9/#' -]/g, '');
+  }
+
+  function scoreDeviceAnswer(question = {}, answer = '') {
+    const submitted = normaliseDeviceAnswer(answer);
+    const accepted = Array.isArray(question.acceptedAnswers) && question.acceptedAnswers.length
+      ? question.acceptedAnswers : [question.correctAnswer];
+    if (String(question.responseType || '').toLowerCase().includes('written') && Array.isArray(question.markPoints) && question.markPoints.length) {
+      const marks = question.markPoints.filter((point) => (point.acceptedAnswers || []).some((item) => submitted.includes(normaliseDeviceAnswer(item)))).length;
+      return { score: Math.min(marks, Number(question.marks) || question.markPoints.length), total: Number(question.marks) || question.markPoints.length };
+    }
+    const correct = accepted.some((item) => normaliseDeviceAnswer(item) === submitted);
+    return { score: correct ? Number(question.marks) || 1 : 0, total: Number(question.marks) || 1 };
   }
 
   function normalisePitch(value) {
@@ -134,6 +169,21 @@
   }
 
   function prepareQuestion(question = {}, options = {}) {
+    if (isDeviceQuestion(question)) {
+      return {
+        moduleId: 'melody-master', moduleTitle: 'Melody Master', sourceKey: 'melody-master-devices',
+        answerType: String(question.responseType || '').toLowerCase().includes('written') ? 'text' : 'choice',
+        responseType: String(question.responseType || '').toLowerCase().includes('written') ? 'typed' : 'multiple-choice',
+        id: question.id, title: question.title || question.id, prompt: question.question || 'Choose the best answer.',
+        choices: Array.isArray(question.choices) ? question.choices.slice() : [], answer: question.correctAnswer,
+        acceptedAnswers: Array.isArray(question.acceptedAnswers) ? question.acceptedAnswers.slice() : [question.correctAnswer],
+        audio: question.audio, audioDurationSeconds: Number(question.clipDurationSeconds || 10),
+        level: question.level, category: question.category, composer: question.composer, work: question.work,
+        movement: question.movement, performer: question.performer, marks: Number(question.marks) || 1,
+        maxMarks: Number(question.marks) || 1, markPoints: question.markPoints || [], feedback: question.feedback || '',
+        seed: String(options.seed || '')
+      };
+    }
     const index = Number(options.index || 0);
     const layout = normaliseLayout(question);
     const audioPath = question.file || question.audio || '';
@@ -147,6 +197,7 @@
     return {
       moduleId: 'melody-master',
       moduleTitle: 'Melody Master',
+      sourceKey: 'melody-master-dictation',
       answerType: 'melody-dictation',
       index,
       id: question.id || `MM${String(index + 1).padStart(3, '0')}`,
@@ -202,6 +253,23 @@
   }
 
   function checkAnswer(question = {}, studentAnswer = [], context = {}) {
+    if (isDeviceQuestion(question)) {
+      const result = scoreDeviceAnswer(question, Array.isArray(studentAnswer) ? studentAnswer.join(' ') : studentAnswer);
+      return {
+        ...result,
+        total: result.total,
+        correct: result.score >= result.total,
+        modelAnswer: question.correctAnswer,
+        feedback: question.feedback || '',
+        // Captured for concept-level feedback (shared/js/concept-extractors.js).
+        answerData: {
+          skillCode: 'MEL.DEVICE',
+          skillName: 'Melodic device',
+          musicalElement: 'Melody',
+          category: question.category
+        }
+      };
+    }
     const answers = Array.isArray(studentAnswer) ? studentAnswer : Array.isArray(context.answers) ? context.answers : [];
     const fallback = scorePitchList(question, answers);
     const clientScoring = context.scoring && typeof context.scoring === 'object' ? context.scoring : {};
@@ -213,7 +281,17 @@
       pitchMarksAvailable: Number(clientScoring.pitchMarksAvailable ?? fallback.total),
       shortComment: clientScoring.shortComment || '',
       correct: Number(clientScoring.awardedMarks ?? fallback.score) >= Number(clientScoring.maxMarks ?? fallback.total),
-      matchType: 'melody-dictation'
+      matchType: 'melody-dictation',
+      // Captured for concept-level feedback (shared/js/concept-extractors.js)
+      // — `question` here is the raw clip object (see getQuestions()), the
+      // same shape MM001_SOURCE has client-side, so `difficulty` is
+      // directly available without any narrowing.
+      answerData: {
+        skillCode: 'MEL.DICTATION.PITCH',
+        skillName: 'Melodic dictation',
+        musicalElement: 'Melody',
+        difficulty: question.difficulty
+      }
     };
   }
 

@@ -7,6 +7,7 @@ const { RoomManager, DEFAULT_MAX_LISTENS } = require('./room-manager');
 const { getTeacherSession, getStudentSession } = require('../accounts/account-server');
 const { getPool } = require('../db/pool');
 const { saveTeacherModeProgress } = require('./progress-recorder');
+const { createAdapters } = require('./adapters');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -163,20 +164,6 @@ function getMp3DurationSeconds(filePath) {
   return rounded;
 }
 
-function createAdapters(projectRoot) {
-  const context = { path, fs, vm, projectRoot, getAudioDurationSeconds: getMp3DurationSeconds, useLevelledQuestions: false };
-  const melodyAdapter = require(path.join(projectRoot, 'modules', 'melody-master', 'teacher-adapter.js'))(context);
-  const instrumentAdapter = require(path.join(projectRoot, 'modules', 'instrument-identifier', 'teacher-adapter.js'))(context);
-  const textureAdapter = require(path.join(projectRoot, 'modules', 'texture-trainer', 'teacher-adapter.js'))(context);
-  const melodicIntervalsAdapter = require(path.join(projectRoot, 'modules', 'melodic-intervals', 'teacher-adapter.js'))(context);
-  const structureSpotterAdapter = require(path.join(projectRoot, 'modules', 'structure-spotter', 'teacher-adapter.js'))(context);
-  const examLabAdapter = require(path.join(projectRoot, 'modules', 'exam-lab', 'teacher-adapter.js'))({
-    ...context,
-    moduleDir: path.join(projectRoot, 'modules', 'exam-lab')
-  });
-  return [melodyAdapter, instrumentAdapter, textureAdapter, melodicIntervalsAdapter, structureSpotterAdapter, examLabAdapter];
-}
-
 function sendJson(res, statusCode, payload) {
   const body = JSON.stringify(payload);
   res.writeHead(statusCode, {
@@ -300,7 +287,7 @@ function createClassroomServer(options = {}) {
   const getBaseUrl = createBaseUrlResolver({ port });
 
   const roomManager = options.roomManager || new RoomManager({
-    adapters: createAdapters(projectRoot),
+    adapters: createAdapters(projectRoot, { getAudioDurationSeconds: getMp3DurationSeconds }),
     defaultModuleId: 'melody-master'
   });
 
