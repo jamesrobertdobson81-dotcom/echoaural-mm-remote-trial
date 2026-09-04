@@ -857,7 +857,17 @@ function createClassroomServer(options = {}) {
   function serveStatic(req, res, parsedUrl) {
     let pathname = decodeURIComponent(parsedUrl.pathname);
 
-    if (pathname === '/') pathname = '/index.html';
+    // echoaural.com's own root is now a holding page that sends visitors to
+    // either listen.echoaural.com (this app, unchanged everywhere else) or
+    // perform.echoaural.com (the separate EchoAural Perform app). Deliberately
+    // scoped to '/' only — every other path on echoaural.com still resolves
+    // exactly as before, so no existing deep link/bookmark breaks.
+    const requestHost = String(req.headers.host || '').split(':')[0].toLowerCase();
+    if (pathname === '/' && (requestHost === 'echoaural.com' || requestHost === 'www.echoaural.com')) {
+      pathname = '/holding/index.html';
+    } else if (pathname === '/') {
+      pathname = '/index.html';
+    }
     if (pathname === '/join' || pathname === '/join/') pathname = '/student/join.html';
     if (/^\/(?:join|j)\/[A-Z0-9]+\/?$/i.test(pathname)) pathname = '/student/join.html';
     if (pathname === '/teacher' || pathname === '/teacher/') pathname = '/teacher/index.html';

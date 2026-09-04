@@ -21,6 +21,8 @@ function allowedAccountOrigin(origin) {
     .map((originValue) => originValue.trim().replace(/\/+$/, ''))
     .filter(Boolean);
   const allowed = new Set([
+    'https://listen.echoaural.com',
+    'https://www.listen.echoaural.com',
     'https://echoaural.com',
     'https://www.echoaural.com',
     'https://jamesrobertdobson81-dotcom-echoaural-mm.onrender.com',

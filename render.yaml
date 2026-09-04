@@ -19,7 +19,7 @@ services:
       - key: EMAIL_REPLY_TO
         value: hello@echoaural.com
       - key: PUBLIC_SITE_URL
-        value: https://echoaural.com
+        value: https://listen.echoaural.com
       - key: PUBLIC_API_URL
         value: https://teacher-api.echoaural.com
       - key: PUBLIC_HOST
@@ -27,6 +27,6 @@ services:
       - key: PUBLIC_PROTOCOL
         value: https
       - key: ACCOUNT_ALLOWED_ORIGINS
-        value: https://echoaural.com,https://www.echoaural.com,https://jamesrobertdobson81-dotcom-echoaural-mm.onrender.com
+        value: https://listen.echoaural.com,https://www.listen.echoaural.com,https://echoaural.com,https://www.echoaural.com,https://jamesrobertdobson81-dotcom-echoaural-mm.onrender.com
       - key: ROOM_MAX_AGE_MS
         value: "43200000"

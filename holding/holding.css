@@ -1,0 +1,214 @@
+/* EchoAural holding page (echoaural.com root) — picks between Listen and
+   Perform. Reuses brand.css's .hero background + ea-brand-logos.css's
+   .brand-wave/.wordmark mark for the top EchoAural identity; everything
+   below is page-local, including the two apps' own mini-wave icons (kept
+   separate from .brand-wave rather than fighting its !important rules). */
+
+:root {
+  --perform-cyan: #16c7ff;
+  --perform-blue: #4a78ff;
+  --perform-purple: #c047ff;
+  --perform-gradient: linear-gradient(90deg, var(--perform-cyan) 0%, var(--perform-blue) 52%, var(--perform-purple) 100%);
+}
+
+.holding-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px 56px;
+}
+
+.holding-shell {
+  width: 100%;
+  max-width: 920px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.holding-lockup {
+  margin-bottom: 28px;
+}
+
+.holding-kicker {
+  margin: 0 0 10px;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .55);
+}
+
+.holding-heading {
+  margin: 0 0 14px;
+  font-size: clamp(2rem, 4.4vw, 2.9rem);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  color: #fff;
+}
+
+.holding-subheading {
+  margin: 0 0 40px;
+  max-width: 640px;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, .72);
+}
+
+.holding-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.holding-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 14px;
+  padding: 28px 26px 24px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .02));
+  backdrop-filter: blur(6px);
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.holding-card:hover,
+.holding-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, .28);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .03));
+}
+
+.holding-card-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(10, 18, 36, .5);
+}
+
+.holding-card-wave {
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 24px;
+}
+
+.holding-card-wave span {
+  width: 3px;
+  border-radius: 999px;
+  display: block;
+}
+
+.holding-card-wave-listen span:nth-child(1) { height: 30%; background: var(--wave-magenta); }
+.holding-card-wave-listen span:nth-child(2) { height: 55%; background: linear-gradient(180deg, var(--wave-magenta), var(--wave-purple)); }
+.holding-card-wave-listen span:nth-child(3) { height: 80%; background: var(--wave-purple); }
+.holding-card-wave-listen span:nth-child(4) { height: 100%; background: linear-gradient(180deg, var(--wave-purple), var(--wave-cyan)); }
+.holding-card-wave-listen span:nth-child(5) { height: 74%; background: var(--wave-cyan); }
+.holding-card-wave-listen span:nth-child(6) { height: 48%; background: var(--wave-cyan); }
+.holding-card-wave-listen span:nth-child(7) { height: 26%; background: var(--wave-purple); }
+
+.holding-card-wave-perform span:nth-child(1) { height: 30%; background: var(--perform-cyan); }
+.holding-card-wave-perform span:nth-child(2) { height: 55%; background: linear-gradient(180deg, var(--perform-cyan), var(--perform-blue)); }
+.holding-card-wave-perform span:nth-child(3) { height: 80%; background: var(--perform-blue); }
+.holding-card-wave-perform span:nth-child(4) { height: 100%; background: linear-gradient(180deg, var(--perform-blue), var(--perform-purple)); }
+.holding-card-wave-perform span:nth-child(5) { height: 74%; background: var(--perform-purple); }
+.holding-card-wave-perform span:nth-child(6) { height: 48%; background: var(--perform-purple); }
+.holding-card-wave-perform span:nth-child(7) { height: 26%; background: var(--perform-blue); }
+
+.holding-card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.holding-card-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  color: rgba(255, 255, 255, .96);
+}
+
+.holding-card-name-accent {
+  background: var(--wave-cyan);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.holding-card-listen .holding-card-name-accent {
+  background: var(--waveform-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.holding-card-perform .holding-card-name-accent {
+  background: var(--perform-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.holding-card-tagline {
+  font-size: .88rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: rgba(255, 255, 255, .78);
+}
+
+.holding-card-detail {
+  font-size: .92rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, .6);
+}
+
+.holding-card-cta {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: .88rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, .92);
+}
+
+.holding-card-cta span {
+  display: inline-block;
+  margin-left: 2px;
+  transition: transform .18s ease;
+}
+
+.holding-card:hover .holding-card-cta span,
+.holding-card:focus-visible .holding-card-cta span {
+  transform: translateX(3px);
+}
+
+.holding-footnote {
+  margin: 32px 0 0;
+  font-size: .86rem;
+  color: rgba(255, 255, 255, .5);
+}
+
+.holding-footnote a {
+  color: rgba(255, 255, 255, .82);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .holding-grid {
+    grid-template-columns: 1fr;
+  }
+}
