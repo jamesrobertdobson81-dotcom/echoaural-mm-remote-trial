@@ -9,6 +9,7 @@
   --ea-purple: #A66BFF;
   --ea-rose: #FF7AC8;
   --ea-score-decoder: #B7F34A;
+  --ea-structure: #FF6B4A;
   --ea-wordmark-gradient: linear-gradient(90deg, #3FA6FF 0%, #5BC8FF 48%, #27E1C1 100%);
   --ea-waveform-gradient: linear-gradient(90deg, #FF5DBA 0%, #A66BFF 50%, #3FA6FF 100%);
   --ea-mark-fill: #0A1224;
@@ -423,7 +424,15 @@ body[data-module="harmony-explorer"],
   --module-accent: var(--ea-purple);
 }
 
-.module-grid-main .module-card:nth-child(6),
+.module-grid-main .module-card-structure-spotter,
+.teacher-module-card[data-module-id="structure-spotter"],
+body[data-module="structure-spotter"],
+.app-shell[data-brand-app="structure-spotter"],
+.topbar-app-link-ss {
+  --module-accent: var(--ea-structure);
+}
+
+.module-grid-main .module-card-context-coach,
 .teacher-module-card[data-module-id="context-coach"],
 .teacher-module-card[data-module-id="era-explorer"],
 body[data-module="context-coach"],
@@ -432,7 +441,7 @@ body[data-module="era-explorer"],
   --module-accent: var(--ea-rose);
 }
 
-.module-grid-main .module-card:nth-child(7),
+.module-grid-main .module-card:nth-child(8),
 .module-card-score-decoder,
 .app-shell[data-brand-app="musical-language"],
 .topbar-app-link-sd {
