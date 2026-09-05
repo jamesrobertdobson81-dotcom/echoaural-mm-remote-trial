@@ -498,7 +498,7 @@ p {
   transform: translateX(-50%) translateY(-50%);
   pointer-events: none;
   z-index: 0;
-  opacity: .18;
+  opacity: .42;
   overflow: hidden;
   mask-image: linear-gradient(90deg, transparent 0%, black 9%, black 91%, transparent 100%);
 }
@@ -1438,7 +1438,7 @@ p {
   .hero-waveform-bg {
     top: 59%;
     height: 220px;
-    opacity: .20;
+    opacity: .44;
   }
 }
 
@@ -1538,7 +1538,7 @@ p {
   .hero-waveform-bg {
     top: 58%;
     height: 170px;
-    opacity: .18;
+    opacity: .40;
   }
 
   .secondary-links {
