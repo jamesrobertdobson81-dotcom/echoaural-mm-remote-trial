@@ -498,27 +498,15 @@ p {
   transform: translateX(-50%) translateY(-50%);
   pointer-events: none;
   z-index: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: clamp(4px, .55vw, 10px);
-  padding-inline: clamp(10px, 2vw, 34px);
   opacity: .18;
   overflow: hidden;
   mask-image: linear-gradient(90deg, transparent 0%, black 9%, black 91%, transparent 100%);
 }
 
-.hero-waveform-bg span {
-  width: clamp(5px, .55vw, 9px);
-  height: var(--h);
-  min-height: 26px;
-  border-radius: 999px;
-  flex: 0 0 auto;
-  background: var(--waveform-gradient);
-  box-shadow: 0 0 10px rgba(255, 93, 186, .22), 0 0 18px rgba(63, 166, 255, .16);
-  transform-origin: 50% 50%;
-  animation: eaWaveIdlePulseResolve 2.8s ease-in-out infinite;
-  animation-delay: var(--delay);
+.hero-waveform-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 @keyframes heroBarWave {
@@ -1450,13 +1438,7 @@ p {
   .hero-waveform-bg {
     top: 59%;
     height: 220px;
-    gap: 8px;
     opacity: .20;
-  }
-
-  .hero-waveform-bg span {
-    width: 6px;
-    min-height: 22px;
   }
 }
 
@@ -1556,13 +1538,7 @@ p {
   .hero-waveform-bg {
     top: 58%;
     height: 170px;
-    gap: 6px;
     opacity: .18;
-  }
-
-  .hero-waveform-bg span {
-    width: 5px;
-    min-height: 18px;
   }
 
   .secondary-links {
@@ -1584,7 +1560,6 @@ p {
   .mini-title-wave span,
   .wordmark-aural,
   .launcher-title-aural,
-  .hero-waveform-bg span,
   .module-card-waveform span,
   .hero-title-gradient,
   .hero-title-gradient-alt {
