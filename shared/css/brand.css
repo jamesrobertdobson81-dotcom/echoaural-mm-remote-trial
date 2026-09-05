@@ -27,6 +27,7 @@
   --module-harmony: #A66BFF;
   --module-context: #FF7AC8;
   --module-score-decoder: #B7F34A;
+  --module-structure: #FF6B4A;
   --shadow: 0 24px 60px rgba(16, 24, 40, .12);
 }
 
@@ -676,7 +677,7 @@ p {
 }
 
 .module-grid-main {
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(8, minmax(0, 1fr));
 }
 
 .module-grid-secondary {
@@ -964,8 +965,9 @@ p {
 .module-grid-main .module-card:nth-child(3) { --module-accent: var(--module-texture); }
 .module-grid-main .module-card:nth-child(4) { --module-accent: var(--module-meter); }
 .module-grid-main .module-card:nth-child(5) { --module-accent: var(--module-harmony); }
-.module-grid-main .module-card:nth-child(6) { --module-accent: var(--module-context); }
-.module-grid-main .module-card:nth-child(7) { --module-accent: var(--module-score-decoder); }
+.module-grid-main .module-card:nth-child(6) { --module-accent: var(--module-structure); }
+.module-grid-main .module-card:nth-child(7) { --module-accent: var(--module-context); }
+.module-grid-main .module-card:nth-child(8) { --module-accent: var(--module-score-decoder); }
 
 .module-grid-main .module-card .module-title-gradient {
   text-shadow:
