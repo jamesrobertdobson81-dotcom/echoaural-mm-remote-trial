@@ -27,7 +27,7 @@ test('ScoreDecoder Live Sessions expose exactly the same active-only rows as the
   const pmIds = rows.filter((question) => question.status === 'active').map((question) => question.question_id);
   const adapterIds = createAdapter({ path, fs, projectRoot }).getQuestions().map((question) => question.id);
 
-  assert.equal(pmIds.length, 107);
-  assert.equal(adapterIds.length, 107);
+  assert.equal(pmIds.length, 90);
+  assert.equal(adapterIds.length, 90);
   assert.deepEqual(adapterIds, pmIds);
 });

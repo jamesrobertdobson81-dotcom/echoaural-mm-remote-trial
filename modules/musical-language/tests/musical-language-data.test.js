@@ -26,16 +26,19 @@ const csvPath = path.join(__dirname, "../data/EA_Musical_Language_v1.csv");
 const questions = parseCsv(fs.readFileSync(csvPath, "utf8").replace(/^\uFEFF/, ""));
 
 test("question bank preserves the supplied progression", () => {
-  assert.equal(questions.length, 128);
+  assert.equal(questions.length, 153);
   assert.deepEqual([...new Set(questions.map((question) => question.level))].sort(), ["Developing", "Foundation", "Mastering", "Securing"]);
-  for (const level of ["Foundation", "Developing", "Securing", "Mastering"]) {
-    assert.equal(questions.filter((question) => question.level === level).length, 32);
+  // Foundation carries 5 extra "name this ornament" questions (Foundation-only,
+  // no Developing/Securing/Mastering counterpart), so it runs ahead of the rest.
+  for (const level of ["Developing", "Securing", "Mastering"]) {
+    assert.equal(questions.filter((question) => question.level === level).length, 37);
   }
+  assert.equal(questions.filter((question) => question.level === "Foundation").length, 42);
 });
 
 test("active questions contain the fields required by gameplay", () => {
   const active = questions.filter((question) => question.status === "active");
-  assert.equal(active.length, 107);
+  assert.equal(active.length, 90);
   assert.equal(new Set(questions.map((question) => question.question_id)).size, questions.length);
   active.forEach((question) => {
     assert.ok(question.prompt, `${question.question_id} needs a prompt`);
@@ -54,12 +57,22 @@ test("question type follows level progression", () => {
     Securing: "short_answer",
     Mastering: "exam_style_short_answer"
   };
-  questions.forEach((question) => assert.equal(question.question_type, expected[question.level], question.question_id));
+  // The 5 "name this ornament" questions are Foundation-only and deliberately
+  // use the reverse format (pick the term from a diagram), not the standard
+  // Foundation multiple_choice shape.
+  const nameThisOrnament = /-NAME-F$/;
+  questions.forEach((question) => {
+    if (nameThisOrnament.test(question.question_id)) {
+      assert.equal(question.question_type, "multiple_choice_reverse", question.question_id);
+      return;
+    }
+    assert.equal(question.question_type, expected[question.level], question.question_id);
+  });
 });
 
 test("every vocabulary concept has a supplied PNG marking", () => {
   const concepts = new Map(questions.map((question) => [question.concept_code, question.term]));
-  assert.equal(concepts.size, 32);
+  assert.equal(concepts.size, 42);
   for (const [concept, term] of concepts) {
     const filename = `${term.toLowerCase().trim().replace(/\s+/g, "-")}.png`;
     assert.ok(fs.existsSync(path.join(__dirname, "../assets/markings", filename)), `${concept} is missing ${filename}`);
@@ -71,9 +84,9 @@ test("reverse multiple-choice term options resolve to marking PNGs where availab
   const reverseOptions = questions
     .filter((question) => question.status === "active" && question.question_type === "multiple_choice_reverse")
     .flatMap((question) => question.options.split(" | "));
-  assert.equal(reverseOptions.filter((option) => terms.has(option.toLowerCase())).length, 101);
+  assert.equal(reverseOptions.filter((option) => terms.has(option.toLowerCase())).length, 131);
   assert.deepEqual(
-    reverseOptions.filter((option) => !terms.has(option.toLowerCase())).sort(),
-    ["beat unit", "tie", "time signature"]
+    [...new Set(reverseOptions.filter((option) => !terms.has(option.toLowerCase())))].sort(),
+    ["grace note"]
   );
 });
