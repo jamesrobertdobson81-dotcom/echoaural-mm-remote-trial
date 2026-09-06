@@ -123,6 +123,16 @@
 
   function currentQuestion() { return state.round[state.index]; }
 
+  let markingAudio = null;
+
+  function playQuestionAudio(question) {
+    if (markingAudio) { markingAudio.pause(); markingAudio.currentTime = 0; }
+    markingAudio = null;
+    if (question.audio_required?.toLowerCase() !== "yes" || !question.audio_file) return;
+    markingAudio = new Audio(question.audio_file);
+    markingAudio.play().catch(() => {});
+  }
+
   function displayedPrompt(question) {
     const isSymbolMultipleChoice = question.question_type === "multiple_choice"
       && (question.element !== "Tempo" || question.concept_code === "TEM-BPM");
@@ -139,6 +149,7 @@
 
   function renderQuestion() {
     const question = currentQuestion();
+    playQuestionAudio(question);
     state.answered = false;
     elements.next.disabled = true;
     elements.next.textContent = state.index === state.round.length - 1 ? "Finish Round" : "Next Question";
