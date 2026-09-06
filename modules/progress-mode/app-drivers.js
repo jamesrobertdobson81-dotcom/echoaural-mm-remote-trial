@@ -656,6 +656,77 @@
     }, 50);
   }
 
+  // Same reasoning and shape as installRoundLabelFix above, for the "Mark:
+  // X / Y" tile (#scoreText) instead of the "Question X of Y" one: every
+  // embedded app tracks marks for its own single-slot sub-round only, so
+  // left alone it shows something like "Mark: 0 / 1" or "Mark: 1 / 1" for
+  // whichever one question is currently loaded, never Progress Mode's real
+  // running round score. Overwrite it with EAProgressModeGetRoundScore's
+  // real correct/attempted count instead, continuously (same clobber risk
+  // as the round label — most apps set scoreText themselves on question
+  // load, answer and replay).
+  function installRoundScoreFix(doc) {
+    if (!doc || doc.getElementById("pmRoundScoreFix")) return;
+
+    var marker = doc.createElement("meta");
+    marker.id = "pmRoundScoreFix";
+    doc.head.appendChild(marker);
+
+    var win = doc.defaultView;
+    var tries = 0;
+    var timer = setInterval(function () {
+      tries += 1;
+      var quizPanel = doc.querySelector(".quiz-panel");
+      var scoreTextEl = doc.getElementById("scoreText");
+      if ((!quizPanel || !scoreTextEl) && tries < 120) return;
+      clearInterval(timer);
+      if (!quizPanel || !scoreTextEl || !win) return;
+
+      var applying = false;
+
+      function alive() {
+        try {
+          return !!(win.parent && win.parent !== win && win.frameElement && doc.defaultView === win);
+        } catch (err) {
+          return false;
+        }
+      }
+
+      function applyScore() {
+        if (applying || !alive()) return;
+        if (quizPanel.classList.contains("is-ready")) return;
+
+        var score = null;
+        try {
+          if (typeof win.parent.EAProgressModeGetRoundScore === "function") {
+            score = win.parent.EAProgressModeGetRoundScore();
+          }
+        } catch (err) { score = null; }
+        if (!score) return;
+
+        var label = "Mark: " + score.correct + " / " + score.attempted;
+
+        applying = true;
+        if (scoreTextEl.textContent !== label) scoreTextEl.textContent = label;
+        applying = false;
+      }
+
+      applyScore();
+      if (typeof win.MutationObserver !== "undefined") {
+        var observer = new win.MutationObserver(applyScore);
+        observer.observe(scoreTextEl, { characterData: true, childList: true, subtree: true });
+        observer.observe(quizPanel, { attributes: true, attributeFilter: ["class"] });
+
+        var aliveCheck = setInterval(function () {
+          if (!alive()) {
+            observer.disconnect();
+            clearInterval(aliveCheck);
+          }
+        }, 1000);
+      }
+    }, 50);
+  }
+
   function applyFocusMode(doc) {
     if (!doc.getElementById("pmFocusModeStyle")) {
       var style = doc.createElement("style");
@@ -665,6 +736,7 @@
     }
     installMmDictationScoreFix(doc);
     installRoundLabelFix(doc);
+    installRoundScoreFix(doc);
   }
 
   var LEVEL_VALUES = ["Foundation", "Developing", "Securing", "Mastering"];

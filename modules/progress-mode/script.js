@@ -165,6 +165,17 @@
     return { position: state.position, total: state.queue ? state.queue.length : 0 };
   };
 
+  // Same reasoning as EAProgressModeGetRoundProgress above, for marks
+  // instead of position: every embedded app's own "Mark: X / Y" (#scoreText)
+  // reflects that one app's own single-slot sub-round, never Progress
+  // Mode's actual round score. state.correctTotal/state.position are
+  // updated together in advanceSlot() right before the next slot loads, so
+  // reading them here always gives "marks earned / questions attempted so
+  // far this round" — see installRoundScoreFix in app-drivers.js.
+  window.EAProgressModeGetRoundScore = function () {
+    return { correct: state.correctTotal, attempted: state.position };
+  };
+
   var state = {
     studentId: null,
     studentName: null,
