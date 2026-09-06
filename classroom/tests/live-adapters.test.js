@@ -24,8 +24,8 @@ test('Melody Master classroom adapter exposes the complete Devices bank alongsid
   const dictation = adapter.getQuestions().filter((question) => /^MM\d+$/.test(question.id));
   assert.ok(dictation.length > 0);
   assert.ok(dictation.every((question) => question.sourceKey === 'melody-master-dictation'));
-  assert.equal(devices.length, 73);
-  assert.equal(new Set(devices.map((question) => question.id)).size, 73);
+  assert.equal(devices.length, 104);
+  assert.equal(new Set(devices.map((question) => question.id)).size, 104);
   devices.forEach((question) => {
     const prepared = adapter.prepareQuestion(question, { index: 0 });
     assert.equal(prepared.sourceKey, 'melody-master-devices');

@@ -10,7 +10,9 @@
     "Score assets are not included and must be created using the instructions and public-domain score links.",
     "MMX061 reuses the existing Texture Trainer TT097 audio asset without duplicating the MP3.",
     "MMX063-MMX100: 38 CIE (Cambridge IGCSE Music 0410)-style questions added 2026-08-12 from the \"GOOD MORNIN JIMMY WORK!\" real-audio candidate batch (meter-master-new-50.json), after user review (31 kept as-is, 7 edited per review notes; 11 dropped; 1 routed to Instrument Identifier as II376).",
-    "2026-08-12 (second review pass, original MMX001-061 bank): user reviewed all 61 original exam-style questions via modules/meter-master/review.html. 17 dropped (MMX008,010,019,020,027,038,043,046,047,048,050,053,054,055,058,059,060). MMX029 converted from a 2-mark written 'describe the metre' question to a 1-mark multiple-choice 'how many beats are in each bar?' question (options 2/3/4/5, answer 5). 12 score-based questions (MMX032,033,034,035,036,039,041,044,045,049,051,056) standardised into the 'Skeleton-score completion' format (\"The time signature has been removed from the score. Write the missing time signature. (1)\", 4-option multiple choice, Pearson Edexcel board style, 1 mark) per review notes, and script.js's deriveQuestionLevel was updated so this specific score+mode combination now resolves to Developing (previously any score question was hard-coded to Securing). MMX040 (also score, also 'Rhythm and metre features' mode) was explicitly excluded from this conversion per its own review note (compound metre, kept in its original 2-mark written format)."
+    "2026-08-12 (second review pass, original MMX001-061 bank): user reviewed all 61 original exam-style questions via modules/meter-master/review.html. 17 dropped (MMX008,010,019,020,027,038,043,046,047,048,050,053,054,055,058,059,060). MMX029 converted from a 2-mark written 'describe the metre' question to a 1-mark multiple-choice 'how many beats are in each bar?' question (options 2/3/4/5, answer 5). 12 score-based questions (MMX032,033,034,035,036,039,041,044,045,049,051,056) standardised into the 'Skeleton-score completion' format (\"The time signature has been removed from the score. Write the missing time signature. (1)\", 4-option multiple choice, Pearson Edexcel board style, 1 mark) per review notes, and script.js's deriveQuestionLevel was updated so this specific score+mode combination now resolves to Developing (previously any score question was hard-coded to Securing). MMX040 (also score, also 'Rhythm and metre features' mode) was explicitly excluded from this conversion per its own review note (compound metre, kept in its original 2-mark written format).",
+    "MMX106-MMX121, MMX123 (17 questions; MMX122 dropped, its MTR101 clip still used by kept MMX121) added 2026-08-20 from the THURSDAY TIME TO MOVE TO THE SEASIDE batch (meter-master-new-batch.json + a Compound triple/9/8 gap-filling addition), after user review via review-staging/meter-master-seaside.html. Reviewed difficulty tiers recorded as level_override (Foundation/Developing/Securing/Mastering, same convention as MMX003 etc.).",
+    "MMX150-MMX162 (13 questions) added 2026-08-21 from the FRIDAY JIMMY! batch (meter-master-new-batch.json), after user review via review-staging/meter-master-friday-jimmy.html. Reviewed difficulty tiers recorded as level_override, cross-checked against the live bank's own convention that Context-and-style (genre/dance-convention) questions are always Securing or Mastering, never Foundation/Developing: all 5 genre-confirmation questions in this batch (MMX151, MMX152, MMX153, MMX155, MMX162) landed at Securing/Mastering as expected, so no level adjustments were needed."
   ],
   "questions": [
     {
@@ -94,7 +96,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.3%2C_Op.55_%28Beethoven%2C_Ludwig_van%29",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX004",
@@ -124,7 +127,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.3%2C_Op.55_%28Beethoven%2C_Ludwig_van%29",
       "time_signature": "2/4",
-      "metre_family": "Simple duple"
+      "metre_family": "Simple duple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX005",
@@ -203,7 +207,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.4%2C_Op.98_%28Brahms%2C_Johannes%29",
       "time_signature": "2/4",
-      "metre_family": "Simple duple"
+      "metre_family": "Simple duple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX009",
@@ -260,7 +265,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/String_Quartet_No.12%2C_Op.96_%28Dvo%C5%99%C3%A1k%2C_Anton%C3%ADn%29",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX012",
@@ -290,32 +296,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/String_Quartet_No.12%2C_Op.96_%28Dvo%C5%99%C3%A1k%2C_Anton%C3%ADn%29",
       "time_signature": "2/4",
-      "metre_family": "Simple duple"
-    },
-    {
-      "id": "MMX013",
-      "audio_id": "MTR013",
-      "audio_path": "modules/meter-master/audio/MTR013.mp3",
-      "mode": "Pulse analysis",
-      "board_style": "OCR",
-      "marks": 1,
-      "question": "How many main beats are heard in each bar? (1)",
-      "response_type": "numeric",
-      "app_control": "numeric",
-      "options": [],
-      "correct_answer": "2",
-      "accepted_answers": [
-        "2",
-        "two"
-      ],
-      "mark_scheme": "Two main beats. (1)",
-      "feedback": "Do not count all six quavers as separate main beats.",
-      "requires_score": false,
-      "score_asset": "",
-      "score_instruction": "",
-      "score_url": "https://imslp.org/wiki/Peer_Gynt_Suite_No.1%2C_Op.46_%28Grieg%2C_Edvard%29",
-      "time_signature": "6/8",
-      "metre_family": "Compound duple"
+      "metre_family": "Simple duple",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX014",
@@ -345,7 +327,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Peer_Gynt_Suite_No.1%2C_Op.46_%28Grieg%2C_Edvard%29",
       "time_signature": "4/4",
-      "metre_family": "Simple quadruple"
+      "metre_family": "Simple quadruple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX015",
@@ -374,7 +357,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Peer_Gynt_Suite_No.1%2C_Op.46_%28Grieg%2C_Edvard%29",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX016",
@@ -429,32 +413,38 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/String_Quartet_in_D_major%2C_Hob.III%3A63_%28Haydn%2C_Joseph%29",
       "time_signature": "2/2",
-      "metre_family": "Simple duple"
+      "metre_family": "Simple duple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX018",
       "audio_id": "MTR018",
       "audio_path": "modules/meter-master/audio/MTR018.mp3",
-      "mode": "Full metre description",
+      "mode": "Aural classification",
       "board_style": "Pearson Edexcel",
-      "marks": 2,
-      "question": "Describe the metre fully. (2)",
-      "response_type": "two-part written",
-      "app_control": "two fields",
-      "options": [],
-      "correct_answer": "simple triple",
-      "accepted_answers": [
-        "simple triple",
-        "simple and triple"
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
       ],
-      "mark_scheme": "Simple. (1) Triple. (1)",
-      "feedback": "A full description includes both the subdivision and the number of beats.",
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "This extract is felt in three main beats per bar, giving it a triple metre.",
       "requires_score": false,
       "score_asset": "",
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/String_Quartet_in_D_major%2C_Hob.III%3A63_%28Haydn%2C_Joseph%29",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX021",
@@ -484,7 +474,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.4%2C_Op.90_%28Mendelssohn%2C_Felix%29",
       "time_signature": "6/8",
-      "metre_family": "Compound duple"
+      "metre_family": "Compound duple",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX022",
@@ -514,7 +505,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.4%2C_Op.90_%28Mendelssohn%2C_Felix%29",
       "time_signature": "4/4",
-      "metre_family": "Simple quadruple"
+      "metre_family": "Simple quadruple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX023",
@@ -573,7 +565,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.4%2C_Op.90_%28Mendelssohn%2C_Felix%29",
       "time_signature": "4/4",
-      "metre_family": "Simple quadruple"
+      "metre_family": "Simple quadruple",
+      "level_override": "Foundation"
     },
     {
       "id": "MMX025",
@@ -624,7 +617,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.40_in_G_minor%2C_K.550_%28Mozart%2C_Wolfgang_Amadeus%29",
       "time_signature": "6/8",
-      "metre_family": "Compound duple"
+      "metre_family": "Compound duple",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX028",
@@ -654,7 +648,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.40_in_G_minor%2C_K.550_%28Mozart%2C_Wolfgang_Amadeus%29",
       "time_signature": "2/2",
-      "metre_family": "Simple duple"
+      "metre_family": "Simple duple",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX029",
@@ -684,7 +679,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.6%2C_Op.74_%28Tchaikovsky%2C_Pyotr%29",
       "time_signature": "5/4",
-      "metre_family": "Irregular quintuple"
+      "metre_family": "Irregular quintuple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX030",
@@ -914,7 +910,8 @@
       "score_instruction": "Use 2–4 bars that correspond as closely as possible to the existing audio cut. Use a public-domain edition from the linked score page. Preserve rhythmic grouping and barlines. Remove the original time signature and present the four answer options below the score.",
       "score_url": "https://imslp.org/wiki/Symphony_No.4%2C_Op.98_%28Brahms%2C_Johannes%29",
       "time_signature": "2/4",
-      "metre_family": "Simple duple"
+      "metre_family": "Simple duple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX039",
@@ -973,7 +970,8 @@
       "score_instruction": "Use 2–4 bars that correspond as closely as possible to the existing audio cut. Use a public-domain edition from the linked score page. Preserve rhythmic grouping and barlines. Keep the signature visible because the question assesses broader interpretation, not only recall.",
       "score_url": "https://imslp.org/wiki/String_Quartet_No.12%2C_Op.96_%28Dvo%C5%99%C3%A1k%2C_Anton%C3%ADn%29",
       "time_signature": "6/8",
-      "metre_family": "Compound duple"
+      "metre_family": "Compound duple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX041",
@@ -1033,7 +1031,8 @@
       "score_instruction": "Use 2–4 bars that correspond as closely as possible to the existing audio cut. Use a public-domain edition from the linked score page. Preserve rhythmic grouping and barlines. Remove the original time signature and present the four answer options below the score.",
       "score_url": "https://imslp.org/wiki/String_Quartet_No.12%2C_Op.96_%28Dvo%C5%99%C3%A1k%2C_Anton%C3%ADn%29",
       "time_signature": "2/4",
-      "metre_family": "Simple duple"
+      "metre_family": "Simple duple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX044",
@@ -1244,7 +1243,8 @@
       "score_instruction": "Use 2–4 bars that correspond as closely as possible to the existing audio cut. Use a public-domain edition from the linked score page. Preserve rhythmic grouping and barlines. Remove the original time signature and present the four answer options below the score.",
       "score_url": "https://imslp.org/wiki/Symphony_No.40_in_G_minor%2C_K.550_%28Mozart%2C_Wolfgang_Amadeus%29",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX061",
@@ -1278,7 +1278,8 @@
       "score_instruction": "",
       "score_url": "https://imslp.org/wiki/Symphony_No.6%2C_Op.74_%28Tchaikovsky%2C_Pyotr%29",
       "time_signature": "5/4",
-      "metre_family": "Irregular quintuple"
+      "metre_family": "Irregular quintuple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX062",
@@ -1307,34 +1308,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "",
-      "metre_family": ""
-    },
-    {
-      "id": "MMX063",
-      "audio_id": "MTR032",
-      "audio_path": "modules/meter-master/audio/MTR032.mp3",
-      "mode": "Aural classification",
-      "board_style": "CIE (Cambridge IGCSE Music 0410)",
-      "marks": 1,
-      "question": "Is the metre simple or compound? (1)",
-      "response_type": "single choice",
-      "app_control": "radio",
-      "options": [
-        "Simple",
-        "Compound"
-      ],
-      "correct_answer": "compound",
-      "accepted_answers": [
-        "compound"
-      ],
-      "mark_scheme": "Compound. (1)",
-      "feedback": "This slow movement has a lilting, siciliano-style rhythm over a repeating bass pattern: each beat naturally divides into three, which is characteristic of compound time.",
-      "requires_score": false,
-      "score_asset": "",
-      "score_instruction": "",
-      "score_url": "",
-      "time_signature": "12/8",
-      "metre_family": "Compound quadruple"
+      "metre_family": "",
+      "level_override": "Developing"
     },
     {
       "id": "MMX064",
@@ -1361,7 +1336,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Compound (gigue-style; exact signature not confirmed)",
-      "metre_family": "Compound"
+      "metre_family": "Compound",
+      "level_override": "Developing"
     },
     {
       "id": "MMX065",
@@ -1391,7 +1367,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Compound (gigue convention)",
-      "metre_family": "Compound duple"
+      "metre_family": "Compound duple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX066",
@@ -1474,7 +1451,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX069",
@@ -1530,7 +1508,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX071",
@@ -1560,7 +1539,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Simple (French-overture style; exact signature not confirmed)",
-      "metre_family": "Simple"
+      "metre_family": "Simple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX072",
@@ -1649,7 +1629,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Not confirmed",
-      "metre_family": "Not confirmed"
+      "metre_family": "Not confirmed",
+      "level_override": "Foundation"
     },
     {
       "id": "MMX075",
@@ -1680,7 +1661,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Not confirmed",
-      "metre_family": "Not confirmed"
+      "metre_family": "Not confirmed",
+      "level_override": "Securing"
     },
     {
       "id": "MMX076",
@@ -1711,7 +1693,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Not confirmed",
-      "metre_family": "Not confirmed"
+      "metre_family": "Not confirmed",
+      "level_override": "Securing"
     },
     {
       "id": "MMX077",
@@ -1742,7 +1725,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Not confirmed",
-      "metre_family": "Not confirmed"
+      "metre_family": "Not confirmed",
+      "level_override": "Securing"
     },
     {
       "id": "MMX078",
@@ -1771,7 +1755,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX079",
@@ -1800,7 +1785,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX080",
@@ -1830,7 +1816,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX081",
@@ -1859,7 +1846,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX082",
@@ -1913,7 +1901,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Simple (exact signature not confirmed)",
-      "metre_family": "Simple"
+      "metre_family": "Simple",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX084",
@@ -1998,7 +1987,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX087",
@@ -2027,7 +2017,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX088",
@@ -2056,7 +2047,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX089",
@@ -2087,7 +2079,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "3/4",
-      "metre_family": "Simple triple"
+      "metre_family": "Simple triple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX090",
@@ -2117,7 +2110,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "6/8",
-      "metre_family": "Compound duple"
+      "metre_family": "Compound duple",
+      "level_override": "Securing"
     },
     {
       "id": "MMX091",
@@ -2147,7 +2141,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Variable (dumka alternates sections; exact signature not confirmed)",
-      "metre_family": "Variable/mixed"
+      "metre_family": "Variable/mixed",
+      "level_override": "Securing"
     },
     {
       "id": "MMX092",
@@ -2178,7 +2173,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Variable (dumka alternates sections; exact signature not confirmed)",
-      "metre_family": "Variable/mixed"
+      "metre_family": "Variable/mixed",
+      "level_override": "Mastering"
     },
     {
       "id": "MMX093",
@@ -2259,7 +2255,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Simple (exact signature not confirmed)",
-      "metre_family": "Simple"
+      "metre_family": "Simple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX096",
@@ -2367,7 +2364,8 @@
       "score_instruction": "",
       "score_url": "",
       "time_signature": "Simple (exact signature not confirmed)",
-      "metre_family": "Simple"
+      "metre_family": "Simple",
+      "level_override": "Developing"
     },
     {
       "id": "MMX100",
@@ -2395,6 +2393,1149 @@
       "score_url": "",
       "time_signature": "Simple (exact signature not confirmed)",
       "metre_family": "Simple"
+    },
+    {
+      "id": "MMX101",
+      "audio_id": "MTR081",
+      "audio_path": "modules/meter-master/audio/MTR081.mp3",
+      "mode": "Aural classification",
+      "board_style": "CIE (Cambridge IGCSE Music 0410)",
+      "marks": 1,
+      "question": "In a takht ensemble, which instrument's alternating dumm and takk strokes make the iqa cycle audible to everyone else?",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Riqq",
+        "Qanun",
+        "Violin",
+        "Ud"
+      ],
+      "correct_answer": "riqq",
+      "accepted_answers": [
+        "riqq",
+        "riq",
+        "rik"
+      ],
+      "mark_scheme": "Riqq. (1)",
+      "feedback": "The riqq is the takht's percussion instrument; its dumm (deep, central) and takk (high, near the rim) strokes articulate the iqa cycle.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "Iqa (Arab rhythmic mode) — not a Western time signature",
+      "metre_family": "Arab takht (iqa)",
+      "sourceQuestionId": "TKH002-Q4",
+      "sourceProvider": "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX102",
+      "audio_id": "MTR082",
+      "audio_path": "modules/meter-master/audio/MTR082.mp3",
+      "mode": "Full metre explanation",
+      "board_style": "CIE (Cambridge IGCSE Music 0410)",
+      "marks": 2,
+      "question": "The takht percussion keeps a repeating iqa pattern going under this song. Name the two basic drum sounds combined to build any iqa pattern. (2)",
+      "response_type": "two-point written",
+      "app_control": "two text entries",
+      "options": [],
+      "correct_answer": "dumm and takk",
+      "accepted_answers": [
+        "dumm",
+        "takk"
+      ],
+      "mark_scheme": "Dumm — the deep, central drum sound. (1) Takk — the higher, rim-struck drum sound. (1)",
+      "feedback": "Dumm (deep, central) and takk (high, near the rim) are the two basic sounds combined and varied to build every named iqa.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "Iqa (Arab rhythmic mode) — not a Western time signature",
+      "metre_family": "Arab takht (iqa)",
+      "sourceQuestionId": "TKE009-Q1",
+      "sourceProvider": "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX103",
+      "audio_id": "MTR083",
+      "audio_path": "modules/meter-master/audio/MTR083.mp3",
+      "mode": "Aural classification",
+      "board_style": "CIE (Cambridge IGCSE Music 0410)",
+      "marks": 1,
+      "question": "The tabla player must know the structure of the piece's rhythmic cycle well enough to do what?",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "Come in precisely on the first beat (sam) with the soloist",
+        "Avoid playing on the first beat of every cycle",
+        "Change to a completely different tala every few bars",
+        "Play only during the alap section"
+      ],
+      "correct_answer": "come in precisely on the first beat (sam) with the soloist",
+      "accepted_answers": [
+        "come in precisely on the first beat (sam) with the soloist",
+        "come in on the first beat with the soloist",
+        "land on the sam together"
+      ],
+      "mark_scheme": "Come in precisely on the first beat (sam) with the soloist. (1)",
+      "feedback": "The sam — the first beat of the tala cycle — is the most important beat; the tabla player must know the tala's structure well enough to land on it together with the soloist.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "Tala (Hindustani rhythmic cycle) — not a Western time signature",
+      "metre_family": "Hindustani classical (tala)",
+      "sourceQuestionId": "IND002-Q1",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY-SA 4.0"
+    },
+    {
+      "id": "MMX104",
+      "audio_id": "MTR084",
+      "audio_path": "modules/meter-master/audio/MTR084.mp3",
+      "mode": "Aural classification",
+      "board_style": "CIE (Cambridge IGCSE Music 0410)",
+      "marks": 1,
+      "question": "Tabla players learn and recite the individual sounds and strokes for each hand before playing them. What are these spoken drum syllables called?",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "Bols",
+        "Ragas",
+        "Talas",
+        "Qawls"
+      ],
+      "correct_answer": "bols",
+      "accepted_answers": [
+        "bols"
+      ],
+      "mark_scheme": "Bols. (1)",
+      "feedback": "Bols are the spoken mnemonic syllables tabla players use to learn, remember and recite the strokes for each hand before performing them on the drums.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "Tala (Hindustani rhythmic cycle) — not a Western time signature",
+      "metre_family": "Hindustani classical (tala)",
+      "sourceQuestionId": "IND003-Q2",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY 3.0"
+    },
+    {
+      "id": "MMX105",
+      "audio_id": "MTR085",
+      "audio_path": "modules/meter-master/audio/MTR085.mp3",
+      "mode": "Aural classification",
+      "board_style": "CIE (Cambridge IGCSE Music 0410)",
+      "marks": 1,
+      "question": "As a tabla solo like this approaches its climax, players often speed up and repeat a pattern three times before landing back on the first beat. What is this common climactic device called?",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "A tihai",
+        "A taqsim",
+        "An alap",
+        "A qawwali"
+      ],
+      "correct_answer": "a tihai",
+      "accepted_answers": [
+        "a tihai",
+        "tihai"
+      ],
+      "mark_scheme": "A tihai. (1)",
+      "feedback": "A tihai is a rhythmic phrase repeated exactly three times in a row, timed to land precisely on the sam (first beat) — one of the most characteristic devices in tabla solo playing.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "Tala (Hindustani rhythmic cycle) — not a Western time signature",
+      "metre_family": "Hindustani classical (tala)",
+      "sourceQuestionId": "IND004-Q1",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY 3.0"
+    },
+    {
+      "id": "MMX106",
+      "audio_id": "MTR086",
+      "audio_path": "modules/meter-master/audio/MTR086.mp3",
+      "mode": "Aural classification",
+      "board_style": "CIE (Cambridge IGCSE Music 0978)",
+      "marks": 1,
+      "question": "Minuet movements in Classical-era string quartets are conventionally written in which metre?",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple triple",
+        "Simple duple",
+        "Compound duple",
+        "Simple quadruple"
+      ],
+      "correct_answer": "simple triple",
+      "accepted_answers": [
+        "simple triple",
+        "3/4"
+      ],
+      "mark_scheme": "Simple triple. (1)",
+      "feedback": "Minuets are a stylised dance form conventionally in 3/4 (simple triple), one main beat per bar splitting into two.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/String_Quartet_No.15,_K.421_(Mozart,_Wolfgang_Amadeus)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Developing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX107",
+      "audio_id": "MTR087",
+      "audio_path": "modules/meter-master/audio/MTR087.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / Eduqas",
+      "marks": 1,
+      "question": "Is the metre simple or compound? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple",
+        "Compound"
+      ],
+      "correct_answer": "simple",
+      "accepted_answers": [
+        "simple"
+      ],
+      "mark_scheme": "Simple. (1)",
+      "feedback": "This minuet movement is in 3/4 — a simple metre, since each main beat divides into two, not three.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/String_Quartet_No.19,_K.465_(Mozart,_Wolfgang_Amadeus)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Developing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX108",
+      "audio_id": "MTR088",
+      "audio_path": "modules/meter-master/audio/MTR088.mp3",
+      "mode": "Aural classification",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple",
+        "simple triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "This Menuetto is in 3/4 — three main beats per bar, the conventional metre for a minuet.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Piano_Sonata_in_C_minor,_D.958_(Schubert,_Franz)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Developing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX109",
+      "audio_id": "MTR089",
+      "audio_path": "modules/meter-master/audio/MTR089.mp3",
+      "mode": "Aural classification",
+      "board_style": "OCR",
+      "marks": 1,
+      "question": "How many beats are there in each bar? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "6"
+      ],
+      "correct_answer": "3",
+      "accepted_answers": [
+        "3",
+        "three"
+      ],
+      "mark_scheme": "3. (1)",
+      "feedback": "This Menuetto is in 3/4: three main crotchet beats per bar.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Piano_Sonata_in_E-flat_major,_D.568_(Schubert,_Franz)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Securing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX110",
+      "audio_id": "MTR090",
+      "audio_path": "modules/meter-master/audio/MTR090.mp3",
+      "mode": "Aural classification",
+      "board_style": "CIE (Cambridge IGCSE Music 0978)",
+      "marks": 1,
+      "question": "Scherzo movements, like the minuets they grew from, are conventionally written in which metre?",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple triple",
+        "Compound duple",
+        "Simple quadruple",
+        "Simple duple"
+      ],
+      "correct_answer": "simple triple",
+      "accepted_answers": [
+        "simple triple",
+        "3/4"
+      ],
+      "mark_scheme": "Simple triple. (1)",
+      "feedback": "A scherzo is a fast dance-derived movement, like the minuet it replaced, conventionally in 3/4.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/String_Quartet_No.6,_Op.18_No.6_(Beethoven,_Ludwig_van)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Mastering",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX111",
+      "audio_id": "MTR091",
+      "audio_path": "modules/meter-master/audio/MTR091.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / Pearson Edexcel",
+      "marks": 1,
+      "question": "Is the metre simple or compound? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple",
+        "Compound"
+      ],
+      "correct_answer": "simple",
+      "accepted_answers": [
+        "simple"
+      ],
+      "mark_scheme": "Simple. (1)",
+      "feedback": "This scherzo is in 3/4 — simple, since each main beat divides into two.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/String_Quartet_No.1,_Op.posth_(Borodin,_Aleksandr)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Developing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX112",
+      "audio_id": "MTR092",
+      "audio_path": "modules/meter-master/audio/MTR092.mp3",
+      "mode": "Aural classification",
+      "board_style": "OCR / AQA",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "This scherzo is in 3/4 — three main beats per bar.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/String_Quartet_No.2_(Borodin,_Aleksandr)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Securing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX113",
+      "audio_id": "MTR093",
+      "audio_path": "modules/meter-master/audio/MTR093.mp3",
+      "mode": "Aural classification",
+      "board_style": "Eduqas",
+      "marks": 1,
+      "question": "What note value represents the main beat? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Crotchet",
+        "Quaver",
+        "Minim",
+        "Dotted crotchet"
+      ],
+      "correct_answer": "crotchet",
+      "accepted_answers": [
+        "crotchet"
+      ],
+      "mark_scheme": "Crotchet. (1)",
+      "feedback": "In this 3/4 scherzo, the crotchet represents the main beat, three per bar.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Piano_Sonata_in_A_minor,_D.845_(Schubert,_Franz)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Mastering",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX114",
+      "audio_id": "MTR094",
+      "audio_path": "modules/meter-master/audio/MTR094.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA",
+      "marks": 1,
+      "question": "Is the metre simple or compound? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple",
+        "Compound"
+      ],
+      "correct_answer": "simple",
+      "accepted_answers": [
+        "simple"
+      ],
+      "mark_scheme": "Simple. (1)",
+      "feedback": "This scherzo is in 3/4 — a simple metre.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Piano_Sonata_in_D_major,_D.850_(Schubert,_Franz)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Developing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX115",
+      "audio_id": "MTR095",
+      "audio_path": "modules/meter-master/audio/MTR095.mp3",
+      "mode": "Aural classification",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "How many beats are there in each bar? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "6"
+      ],
+      "correct_answer": "3",
+      "accepted_answers": [
+        "3",
+        "three"
+      ],
+      "mark_scheme": "3. (1)",
+      "feedback": "This scherzo, like the minuet it grew from, is in 3/4 — three beats per bar.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Piano_Sonata_in_A_minor,_D.959_(Schubert,_Franz)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Securing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX116",
+      "audio_id": "MTR096",
+      "audio_path": "modules/meter-master/audio/MTR096.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "This movement is in 3/8 — still a triple metre (three beats per bar), just notated with a quaver as the beat unit rather than a crotchet.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Symphony_No.3,_Op.90_(Brahms,_Johannes)",
+      "time_signature": "3/8",
+      "metre_family": "Simple triple",
+      "level_override": "Securing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX117",
+      "audio_id": "MTR097",
+      "audio_path": "modules/meter-master/audio/MTR097.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / Edexcel",
+      "marks": 1,
+      "question": "Is the metre simple or compound? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple",
+        "Compound"
+      ],
+      "correct_answer": "simple",
+      "accepted_answers": [
+        "simple"
+      ],
+      "mark_scheme": "Simple. (1)",
+      "feedback": "The main theme of this symphony's opening movement is in 3/4 — a simple metre, somewhat unusually for a symphonic first movement.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Symphony_No.2,_Op.73_(Brahms,_Johannes)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Foundation",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX118",
+      "audio_id": "MTR098",
+      "audio_path": "modules/meter-master/audio/MTR098.mp3",
+      "mode": "Aural classification",
+      "board_style": "Eduqas",
+      "marks": 1,
+      "question": "Is the metre simple or compound? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple",
+        "Compound"
+      ],
+      "correct_answer": "compound",
+      "accepted_answers": [
+        "compound"
+      ],
+      "mark_scheme": "Compound. (1)",
+      "feedback": "The famous flowing main theme is in 6/8 — a compound metre, each main beat dividing into three.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/M%C3%A1_vlast_(Smetana,_Bed%C5%99ich)",
+      "time_signature": "6/8",
+      "metre_family": "Compound duple",
+      "level_override": "Developing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX119",
+      "audio_id": "MTR099",
+      "audio_path": "modules/meter-master/audio/MTR099.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / Pearson Edexcel",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "quadruple",
+      "accepted_answers": [
+        "quadruple",
+        "simple quadruple"
+      ],
+      "mark_scheme": "Quadruple. (1)",
+      "feedback": "This overture is in common time (4/4) — four main beats per bar.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Coriolan,_Op.62_(Beethoven,_Ludwig_van)",
+      "time_signature": "4/4",
+      "metre_family": "Simple quadruple",
+      "level_override": "Developing",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX120",
+      "audio_id": "MTR100",
+      "audio_path": "modules/meter-master/audio/MTR100.mp3",
+      "mode": "Aural classification",
+      "board_style": "OCR",
+      "marks": 1,
+      "question": "Is the metre simple or compound? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple",
+        "Compound"
+      ],
+      "correct_answer": "simple",
+      "accepted_answers": [
+        "simple"
+      ],
+      "mark_scheme": "Simple. (1)",
+      "feedback": "This finale is in common time (4/4) — a simple metre throughout, from the slow introduction into the main Allegro.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Symphony_No.1,_Op.68_(Brahms,_Johannes)",
+      "time_signature": "4/4",
+      "metre_family": "Simple quadruple",
+      "level_override": "Foundation",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX121",
+      "audio_id": "MTR101",
+      "audio_path": "modules/meter-master/audio/MTR101.mp3",
+      "mode": "Context and style",
+      "board_style": "CIE (Cambridge IGCSE Music 0978)",
+      "marks": 1,
+      "question": "This Aria is written in the style of a slow Baroque dance traditionally in triple metre, richly ornamented in the French manner. Which dance style is this?",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Sarabande",
+        "Gigue",
+        "Gavotte",
+        "Bourrée"
+      ],
+      "correct_answer": "sarabande",
+      "accepted_answers": [
+        "sarabande"
+      ],
+      "mark_scheme": "Sarabande. (1)",
+      "feedback": "The Aria that opens and closes the Goldberg Variations is a stately, heavily ornamented sarabande in 3/4.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://imslp.org/wiki/Goldberg_Variations,_BWV_988_(Bach,_Johann_Sebastian)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Mastering",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX123",
+      "audio_id": "MTR102",
+      "audio_path": "modules/meter-master/audio/MTR102.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple",
+        "compound triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "This is in 9/8: three main beats per bar, each beat dividing into three quavers — a compound triple metre.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "https://en.wikipedia.org/wiki/Jesu,_Joy_of_Man%27s_Desiring",
+      "time_signature": "9/8",
+      "metre_family": "Compound triple",
+      "sourceNote": "Real recording: Pendyrus Choir/Cory Band performing 'Jesu, Joy of Man's Desiring' (Bach, chorale from Cantata BWV 147), 1991 album 'Gloria', Sain (Records) Ltd. Sourced from Wikimedia Commons — CC BY-SA 3.0, VRT-confirmed permission (ticket #2017050910011681), attribution required. The chorale's flowing triplet accompaniment is the textbook 9/8 compound-triple example, widely cited as such (e.g. in general music-theory reference material). Not personally auditioned for this specific 22-second cut — listening check recommended before release.",
+      "level_override": "Developing",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY-SA 3.0"
+    },
+    {
+      "id": "MMX150",
+      "audio_id": "MTRN001",
+      "audio_path": "modules/meter-master/audio/MTRN001.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple",
+        "simple triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "This is a minuet, in 3/4 — three main beats per bar, each dividing into two. Minuets are triple-metre dance movements by definition.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Developing",
+      "sourceNote": "Real recording: Haydn, String Quartet in D major, Op. 64 No. 5 'The Lark', III. Menuetto (Allegretto). Genre-confirmed metre — every classical-era minuet movement is in 3/4 by definition of the dance form, not an inferred by-ear claim.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX151",
+      "audio_id": "MTRN002",
+      "audio_path": "modules/meter-master/audio/MTRN002.mp3",
+      "mode": "Context and style",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "This movement is marked 'Scherzo, Allegro'. What metre would you expect, and is that what you hear?",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple",
+        "simple triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "Triple, in 3/4 — a scherzo (literally 'joke' in Italian) grew out of the minuet-and-trio tradition and, like the minuet it replaced, is conventionally in fast triple time.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Securing",
+      "sourceNote": "Real recording: Beethoven, String Quartet No. 6 in B flat major, Op. 18 No. 6, III. Scherzo (Allegro). Genre-confirmed metre — a Beethoven-era scherzo movement replacing the minuet is conventionally fast triple time, not an inferred by-ear claim.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX152",
+      "audio_id": "MTRN003",
+      "audio_path": "modules/meter-master/audio/MTRN003.mp3",
+      "mode": "Context and style",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "This movement is a 'Saltarello' — a traditional fast Italian dance. What metre would you expect?",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple duple",
+        "Compound duple",
+        "Simple triple",
+        "Compound triple"
+      ],
+      "correct_answer": "compound duple",
+      "accepted_answers": [
+        "compound duple",
+        "6/8"
+      ],
+      "mark_scheme": "Compound duple. (1)",
+      "feedback": "Compound duple, in 6/8 — the saltarello is a leaping Italian folk dance traditionally set in a fast, lilting 6/8, which Mendelssohn adopts directly for this movement's dance-derived finale.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "6/8",
+      "metre_family": "Compound duple",
+      "level_override": "Mastering",
+      "sourceNote": "Real recording: Mendelssohn, Symphony No. 4 in A major, Op. 90 'Italian', IV. Saltarello (Presto). Genre-confirmed metre — the saltarello is a traditional Italian dance form conventionally in 6/8; this specific movement's 6/8 setting is also widely documented in programme notes on the symphony. Medium confidence on the exact metre (genre convention plus documented description, not a bar read from a score).",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX153",
+      "audio_id": "MTRN004",
+      "audio_path": "modules/meter-master/audio/MTRN004.mp3",
+      "mode": "Context and style",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "This movement is a 'Marcia funebre' (funeral march). What metre would you expect, and is that what you hear?",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "duple",
+      "accepted_answers": [
+        "duple",
+        "simple duple"
+      ],
+      "mark_scheme": "Duple. (1)",
+      "feedback": "Duple, in common march time — a funeral march is, by definition of the march genre, a slow, steady duple-metre tread, which this movement's own title states outright.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "2/4",
+      "metre_family": "Simple duple",
+      "level_override": "Securing",
+      "sourceNote": "Real recording: Beethoven, Symphony No. 3 in E flat major 'Eroica', Op. 55, II. Marcia funebre (Adagio assai). Genre-confirmed metre — a march (funeral or otherwise) is duple-metre by definition of the march form, not an inferred by-ear claim.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX154",
+      "audio_id": "MTRN005",
+      "audio_path": "modules/meter-master/audio/MTRN005.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple",
+        "simple triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "This is a minuet, in 3/4 — three main beats per bar, each dividing into two. Minuets are triple-metre dance movements by definition.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Developing",
+      "sourceNote": "Real recording: Mozart, Symphony No. 40 in G minor, K. 550, III. Menuetto (Allegretto). Genre-confirmed metre — every Classical-era minuet movement is in 3/4 by definition of the dance form, not an inferred by-ear claim.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX155",
+      "audio_id": "MTRN006",
+      "audio_path": "modules/meter-master/audio/MTRN006.mp3",
+      "mode": "Context and style",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "This movement is marked 'Scherzo. Prestissimo'. What metre would you expect, and is that what you hear?",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple",
+        "simple triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "Triple — a scherzo, inheriting the minuet-and-trio tradition it replaced, is conventionally in fast triple time, here taken to an extreme (Prestissimo) tempo.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Mastering",
+      "sourceNote": "Real recording: Borodin, String Quartet No. 1 in A major, III. Scherzo (Prestissimo). Genre-confirmed metre — a scherzo movement is conventionally fast triple time regardless of exact tempo marking, not an inferred by-ear claim.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX156",
+      "audio_id": "MTRN007",
+      "audio_path": "modules/meter-master/audio/MTRN007.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple",
+        "simple triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "Triple, in 3/8 — a gentle, lilting three-in-a-bar feel, one of Brahms's less common metre choices for a symphonic third movement.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "3/8",
+      "metre_family": "Simple triple",
+      "level_override": "Developing",
+      "sourceNote": "Real recording: Brahms, Symphony No. 3 in F major, Op. 90, III. Poco allegretto. This movement's 3/8 metre was web-search-verified in an earlier session's batch (THURSDAY TIME TO MOVE TO THE SEASIDE, meter-master-new-batch.json) — reused here as an already-checked fact, not re-derived by ear.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX157",
+      "audio_id": "MTRN008",
+      "audio_path": "modules/meter-master/audio/MTRN008.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "quadruple",
+      "accepted_answers": [
+        "quadruple",
+        "simple quadruple"
+      ],
+      "mark_scheme": "Quadruple. (1)",
+      "feedback": "Quadruple, in common time (4/4) — four main beats per bar, heard clearly from the three hammered opening chords onward.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "4/4",
+      "metre_family": "Simple quadruple",
+      "level_override": "Developing",
+      "sourceNote": "Real recording: Beethoven, Coriolan Overture, Op. 62. This overture's 4/4 metre was web-search-verified in an earlier session's batch (THURSDAY TIME TO MOVE TO THE SEASIDE, meter-master-new-batch.json) — reused here as an already-checked fact, not re-derived by ear. Same source audio already used for melody-master's MDV103 and ScoreDecoder's earlier repeated-notes example in this session — no new download needed.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX158",
+      "audio_id": "MTRN009",
+      "audio_path": "modules/meter-master/audio/MTRN009.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple",
+        "simple triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "Triple, in 3/4 — an unusual choice for a symphonic opening movement (most are duple or quadruple), which is exactly what made this movement's metre so striking to its first audiences.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Developing",
+      "sourceNote": "Real recording: Beethoven, Symphony No. 3 'Eroica', Op. 55, I. Allegro con brio. Web-search-verified this session (multiple independent sources confirm 3/4) — not an inferred by-ear claim. Notably unusual: symphonic first movements are conventionally duple or quadruple, making this one of the more distinctive metre choices in this batch.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX159",
+      "audio_id": "MTRN010",
+      "audio_path": "modules/meter-master/audio/MTRN010.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "quadruple",
+      "accepted_answers": [
+        "quadruple",
+        "simple quadruple"
+      ],
+      "mark_scheme": "Quadruple. (1)",
+      "feedback": "Quadruple, in 4/4 — the conventional metre for a Classical-era symphonic sonata-form opening movement, here setting the restless, anxious character of one of Mozart's most famous themes.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "4/4",
+      "metre_family": "Simple quadruple",
+      "level_override": "Developing",
+      "sourceNote": "Real recording: Mozart, Symphony No. 40 in G minor, K. 550, I. Molto allegro. Web-search-verified this session (multiple independent sources confirm 4/4) — not an inferred by-ear claim.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX160",
+      "audio_id": "MTRN011",
+      "audio_path": "modules/meter-master/audio/MTRN011.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre simple or compound, and duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Simple duple",
+        "Compound duple",
+        "Simple triple",
+        "Compound triple"
+      ],
+      "correct_answer": "compound duple",
+      "accepted_answers": [
+        "compound duple",
+        "6/8"
+      ],
+      "mark_scheme": "Compound duple. (1)",
+      "feedback": "Compound duple, in 6/8 — two main beats per bar, each dividing into three, giving this famous flute melody its gentle, lilting, pastoral character.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "6/8",
+      "metre_family": "Compound duple",
+      "level_override": "Securing",
+      "sourceNote": "Real recording: Grieg, Peer Gynt Suite No. 1, Op. 46, I. Morning Mood. Web-search-verified this session (multiple independent sources, including Wikipedia's own article on the piece, confirm 6/8, marked Allegretto pastorale) — not an inferred by-ear claim.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX161",
+      "audio_id": "MTRN012",
+      "audio_path": "modules/meter-master/audio/MTRN012.mp3",
+      "mode": "Aural classification",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "Is this metre duple, triple or quadruple? (1)",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "quadruple",
+      "accepted_answers": [
+        "quadruple",
+        "simple quadruple"
+      ],
+      "mark_scheme": "Quadruple. (1)",
+      "feedback": "Quadruple, in 4/4 — this clip is from the finale's slow introduction (before the famous 'big tune' Allegro arrives), but the movement's 4/4 metre holds throughout.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "4/4",
+      "metre_family": "Simple quadruple",
+      "level_override": "Securing",
+      "sourceNote": "Real recording: Brahms, Symphony No. 1 in C minor, Op. 68, IV. Adagio - Più andante - Allegro non troppo, ma con brio (finale, opening). Web-search-verified this session (multiple independent sources confirm the finale is in 4/4) — not an inferred by-ear claim. Note: this clip captures the movement's slow introduction (including its famous 'alphorn'/horn-call theme), not the faster main Allegro tune, but the same 4/4 metre applies throughout per the source.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX162",
+      "audio_id": "MTRN013",
+      "audio_path": "modules/meter-master/audio/MTRN013.mp3",
+      "mode": "Context and style",
+      "board_style": "AQA / OCR / Eduqas",
+      "marks": 1,
+      "question": "This movement is marked 'Scherzo. Allegro vivace'. What metre would you expect, and is that what you hear?",
+      "response_type": "single choice",
+      "app_control": "radio",
+      "options": [
+        "Duple",
+        "Triple",
+        "Quadruple",
+        "Irregular"
+      ],
+      "correct_answer": "triple",
+      "accepted_answers": [
+        "triple",
+        "simple triple"
+      ],
+      "mark_scheme": "Triple. (1)",
+      "feedback": "Triple — a scherzo, inheriting the minuet-and-trio tradition it replaced, is conventionally in fast triple time.",
+      "requires_score": false,
+      "score_asset": "",
+      "score_instruction": "",
+      "score_url": "",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Mastering",
+      "sourceNote": "Real recording: Beethoven, Symphony No. 3 'Eroica', Op. 55, III. Scherzo (Allegro vivace). Genre-confirmed metre — a scherzo movement is conventionally fast triple time by definition of the form, not an inferred by-ear claim.",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0"
     }
   ]
 }

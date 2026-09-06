@@ -1,8 +1,8 @@
 {
   "pack": "EchoAural Melody Master – Reviewed Cambridge Melodic Devices Bank",
-  "questionCount": 73,
+  "questionCount": 104,
   "sourceQuestionCount": 50,
-  "audioClipCount": 73,
+  "audioClipCount": 104,
   "omittedAudioIds": [],
   "omittedReason": "Candidates excluded by the completed MM Devices review are not served to students.",
   "scoreRequired": false,
@@ -13,7 +13,7 @@
     "Securing",
     "Mastering"
   ],
-  "sourceNote": "Parsed from the completed MM Devices review. Only aurally approved, Cambridge-relevant melodic concepts are included. Extended on 2026-08-09 with 34 reviewed candidates from the Melody Master new-content tracker review.",
+  "sourceNote": "Parsed from the completed MM Devices review. Only aurally approved, Cambridge-relevant melodic concepts are included. Extended on 2026-08-09 with 34 reviewed candidates from the Melody Master new-content tracker review. Extended on 2026-08-20 with 8 reviewed candidates from the melody-devices-seaside review (THURSDAY TIME TO MOVE TO THE SEASIDE batch) — 13 further candidates from the same batch were reviewed and dropped.",
   "questions": [
     {
       "id": "MDV001",
@@ -3134,6 +3134,1432 @@
       "clipDurationSeconds": "9.056",
       "buildStatus": "MP3 bundled",
       "finalListeningReview": "Added from II245 review note on 2026-08-10; new clip trimmed from 7s."
+    },
+    {
+      "id": "MDV090",
+      "audioId": "MDA090",
+      "audio": "audio/melodic-devices/MDA090.mp3",
+      "sourceId": "WSB003",
+      "mode": "melodic_device_recognition",
+      "category": "Mode/Scale",
+      "question": "Name the tonality of this extract.",
+      "choices": [
+        "Whole tone",
+        "Major",
+        "Minor",
+        "Modal"
+      ],
+      "correctAnswer": "Modal",
+      "acceptedAnswers": [
+        "Modal"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Unaccompanied Latin plainchant in a Phrygian-family Gregorian mode (Mode IV / Hypophrygian) rather than major/minor tonality -- modal.",
+      "level": "Securing",
+      "composer": "",
+      "work": "Resurrexi et Adhuc Tecum Sum (Easter Introit)",
+      "movement": "",
+      "performer": "The Tudor Consort (choir)",
+      "instrumentation": "",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY 3.0",
+      "rightsNote": "The Tudor Consort, via Wikimedia Commons, CC BY 3.0.",
+      "diagnosticTags": "Modal tonality",
+      "sourceGroup": "World Scales styles batch (WSB), imported 2026-08-14",
+      "clarityConfidence": "New import -- not yet aurally reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "25",
+      "clipDurationSeconds": "25",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": ""
+    },
+    {
+      "id": "MDV091",
+      "audioId": "MDA091",
+      "audio": "audio/melodic-devices/MDA091.mp3",
+      "sourceId": "WSB015",
+      "mode": "melodic_device_recognition",
+      "category": "Ornament",
+      "question": "What ornamentation is frequently used in the following extract?",
+      "choices": [
+        "Trill",
+        "Turn",
+        "Slur",
+        "Meend"
+      ],
+      "correctAnswer": "Meend",
+      "acceptedAnswers": [
+        "Meend"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Meend is the sliding, continuous glide between pitches characteristic of Hindustani classical vocal and instrumental ornamentation.",
+      "level": "Securing",
+      "composer": "Traditional Hindustani classical",
+      "work": "Rag Miyan Malhar",
+      "movement": "",
+      "performer": "NCERT educational ensemble (voice with tabla/harmonium accompaniment)",
+      "instrumentation": "Voice, tabla, tanpura/harmonium",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY 3.0",
+      "rightsNote": "NCERT OFFICIAL, via Wikimedia Commons, CC BY 3.0.",
+      "diagnosticTags": "Meend; ornamentation",
+      "sourceGroup": "World Scales styles batch (WSB), imported 2026-08-14",
+      "clarityConfidence": "New import -- not yet aurally reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "25",
+      "clipDurationSeconds": "25",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": ""
+    },
+    {
+      "id": "MDV092",
+      "audioId": "MDA092",
+      "audio": "audio/melodic-devices/MDA092.mp3",
+      "sourceId": "TKH004-Q1",
+      "mode": "melodic_device_recognition",
+      "category": "Mode/Scale",
+      "question": "The singer's melody uses specific in-between pitches (including notes a quarter-step above or below the Western natural notes) that are not available on a piano. What is the name for the melodic mode that fixes exactly which pitches and patterns can be used?",
+      "choices": [
+        "Maqam",
+        "Iqa",
+        "Taqsim",
+        "Qasidah"
+      ],
+      "correctAnswer": "Maqam",
+      "acceptedAnswers": [
+        "Maqam"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "A maqam is a melodic mode with its own specific pitches, intervals (sometimes including quarter-tones) and characteristic melodic patterns.",
+      "level": "Mastering",
+      "composer": "Daoud Hosni",
+      "work": "Farid al-Mahasin Ban",
+      "movement": "",
+      "performer": "Egyptian singer with takht ensemble",
+      "instrumentation": "Voice, takht ensemble",
+      "sourceProvider": "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "1932 Cairo Congress of Arab Music, via Internet Archive item 1932_20241004.",
+      "diagnosticTags": "Maqam",
+      "sourceGroup": "Reviewed Melody Master candidate batch — Arab Takht ensembles (worldmusic-takht review, 2026-08-19)",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "10",
+      "clipDurationSeconds": "10",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Approved in worldmusic-takht review, 2026-08-19."
+    },
+    {
+      "id": "MDV093",
+      "audioId": "MDA093",
+      "audio": "audio/melodic-devices/MDA093.mp3",
+      "sourceId": "TKH005-Q2",
+      "mode": "melodic_device_recognition",
+      "category": "Mode/Scale",
+      "question": "The levers on this instrument allow pitches that sit exactly halfway between two Western semitones. What are these in-between pitches generally called?",
+      "choices": [
+        "Quarter-tones",
+        "Overtones",
+        "Grace notes",
+        "Appoggiaturas"
+      ],
+      "correctAnswer": "Quarter-tones",
+      "acceptedAnswers": [
+        "Quarter-tones"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Arabic maqam theory divides the octave into 24 quarter-tones rather than the 12 semitones used in Western music, though not all 24 are used in any one maqam.",
+      "level": "Securing",
+      "composer": "n/a (instrument demonstration)",
+      "work": "Qanun sample",
+      "movement": "",
+      "performer": "Ariel Qassis (Qanunji)",
+      "instrumentation": "Solo qanun",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY-SA 2.5",
+      "rightsNote": "Ariel Qassis (Qanunji), via Wikimedia Commons, CC BY-SA 2.5.",
+      "diagnosticTags": "Quarter-tones",
+      "sourceGroup": "Reviewed Melody Master candidate batch — Arab Takht ensembles (worldmusic-takht review, 2026-08-19)",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "13",
+      "clipDurationSeconds": "13",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Approved in worldmusic-takht review, 2026-08-19."
+    },
+    {
+      "id": "MDV094",
+      "audioId": "MDA094",
+      "audio": "audio/melodic-devices/MDA094.mp3",
+      "sourceId": "TKE004-Q2",
+      "mode": "melodic_device_recognition",
+      "category": "Mode/Scale",
+      "question": "What is the name for the melodic mode that determines the exact pitches (including any quarter-tones) available in this sama'i?",
+      "choices": [],
+      "correctAnswer": "Maqam",
+      "acceptedAnswers": [
+        "Maqam"
+      ],
+      "marks": 1,
+      "responseType": "Written response",
+      "markPoints": [
+        {
+          "label": "Maqam",
+          "acceptedAnswers": [
+            "maqam"
+          ]
+        }
+      ],
+      "feedback": "Every piece in the takht repertoire, whether improvised or fixed, is built on a specific maqam.",
+      "level": "Developing",
+      "composer": "Traditional instrumental form (sama'i)",
+      "work": "Sama'i Thaqil (maqam Bayati)",
+      "movement": "",
+      "performer": "Taha Abu Mandour ensemble",
+      "instrumentation": "Takht ensemble",
+      "sourceProvider": "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "1932 Cairo Congress of Arab Music, via Internet Archive item 1932_20241004.",
+      "diagnosticTags": "Maqam",
+      "sourceGroup": "Reviewed Melody Master candidate batch — Arab Takht ensembles (worldmusic-takht review, 2026-08-19)",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "13",
+      "clipDurationSeconds": "13",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Approved in worldmusic-takht review, 2026-08-19."
+    },
+    {
+      "id": "MDV095",
+      "audioId": "MDA095",
+      "audio": "audio/melodic-devices/MDA095.mp3",
+      "sourceId": "TKE006-Q2",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Describe TWO typical features of takht melody-instrument playing you might hear in a lively dance piece like this.",
+      "choices": [],
+      "correctAnswer": "Any two of: ornamentation (turns/mordents); accented short note-groups; glissando/portamento slides; elaborate, virtuosic melodic lines.",
+      "acceptedAnswers": [
+        "Any two of: ornamentation (turns/mordents); accented short note-groups; glissando/portamento slides; elaborate, virtuosic melodic lines."
+      ],
+      "marks": 2,
+      "responseType": "Written response",
+      "markPoints": [
+        {
+          "label": "Ornamentation",
+          "acceptedAnswers": [
+            "ornamentation",
+            "turns",
+            "mordents",
+            "ornaments",
+            "decoration"
+          ]
+        },
+        {
+          "label": "Accented note-groups",
+          "acceptedAnswers": [
+            "accented note-groups",
+            "accented short notes",
+            "rhythmic accents",
+            "accentuation"
+          ]
+        },
+        {
+          "label": "Glissando / portamento",
+          "acceptedAnswers": [
+            "glissando",
+            "portamento",
+            "slides",
+            "sliding between notes"
+          ]
+        },
+        {
+          "label": "Virtuosic melodic lines",
+          "acceptedAnswers": [
+            "virtuosic",
+            "elaborate melodic lines",
+            "florid melody",
+            "highly decorated melody"
+          ]
+        }
+      ],
+      "feedback": "Takht melody playing is often highly decorated, using ornaments and accented note-groupings for rhythmic drive.",
+      "level": "Mastering",
+      "composer": "Traditional dance piece",
+      "work": "Raqs Baladi (Baladi Dance)",
+      "movement": "",
+      "performer": "Taha Abu Mandour ensemble",
+      "instrumentation": "Takht ensemble",
+      "sourceProvider": "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "1932 Cairo Congress of Arab Music, via Internet Archive item 1932_20241004.",
+      "diagnosticTags": "Ornamentation; accentuation; glissando; virtuosic melody",
+      "sourceGroup": "Reviewed Melody Master candidate batch — Arab Takht ensembles (worldmusic-takht review, 2026-08-19)",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "13",
+      "clipDurationSeconds": "13",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Approved in worldmusic-takht review, 2026-08-19."
+    },
+    {
+      "id": "MDV096",
+      "audioId": "MDA096",
+      "audio": "audio/melodic-devices/MDA096.mp3",
+      "sourceId": "TKE008-Q1",
+      "mode": "melodic_device_recognition",
+      "category": "Mode/Scale",
+      "question": "This singer (Aziz Othman) decorates the melody with ornaments and fine pitch inflections. What determines exactly which pitches, including possible quarter-tones, are available to him?",
+      "choices": [
+        "The maqam",
+        "The iqa",
+        "The taqsim",
+        "The riqq"
+      ],
+      "correctAnswer": "The maqam",
+      "acceptedAnswers": [
+        "The maqam"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "The maqam fixes the scale, characteristic intervals (including possible quarter-tones) and typical melodic patterns for the whole performance.",
+      "level": "Developing",
+      "composer": "Traditional/composed song",
+      "work": "Asl al-Gharam Nazra",
+      "movement": "",
+      "performer": "Aziz Othman (singer) with takht ensemble",
+      "instrumentation": "Voice, takht ensemble",
+      "sourceProvider": "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "1932 Cairo Congress of Arab Music, via Internet Archive item 1932_20241004.",
+      "diagnosticTags": "The maqam",
+      "sourceGroup": "Reviewed Melody Master candidate batch — Arab Takht ensembles (worldmusic-takht review, 2026-08-19)",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "13",
+      "clipDurationSeconds": "13",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Approved in worldmusic-takht review, 2026-08-19."
+    },
+    {
+      "id": "MDV097",
+      "audioId": "MDA097",
+      "audio": "audio/melodic-devices/MDA097.mp3",
+      "sourceId": "IND001-Q3",
+      "mode": "melodic_device_recognition",
+      "category": "Mode/Scale",
+      "question": "The sitar's melodic line is based on a scale with recurring motifs, strong tonal centres, and its own extra-musical mood associations. What is this melodic framework called?",
+      "choices": [
+        "A raga",
+        "A tala",
+        "A gat",
+        "A qawwali"
+      ],
+      "correctAnswer": "A raga",
+      "acceptedAnswers": [
+        "A raga"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "A raga is far more than a scale: it is the basis of Hindustani melody, comprising recurring melodic motifs, strong tonal centres, and extra-musical associations such as mood or time of day.",
+      "level": "Securing",
+      "composer": "Raga-based improvisation (raga not identified by uploader)",
+      "work": "Sitar and tabla rendition (Freedom Jam 2015)",
+      "movement": "",
+      "performer": "Ashok Ayengar (sitar) with tabla",
+      "instrumentation": "Sitar, tabla",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY-SA 4.0",
+      "rightsNote": "Ashok Ayengar, via Wikimedia Commons, CC BY-SA 4.0.",
+      "diagnosticTags": "A raga",
+      "sourceGroup": "Reviewed Melody Master candidate batch — Hindustani classical music (worldmusic-indian review, 2026-08-19)",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "13",
+      "clipDurationSeconds": "13",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Approved in worldmusic-indian review, 2026-08-19."
+    },
+    {
+      "id": "MDV098",
+      "audioId": "MDA098",
+      "audio": "audio/melodic-devices/MDA098.mp3",
+      "sourceId": "INE006-Q1",
+      "mode": "melodic_device_recognition",
+      "category": "Mode/Scale",
+      "question": "This is a real historic 1931 recording of an art-song in raga Bhairavi, a genuinely well-known Hindustani raga. In the sargam system, which two notes are never altered (sharpened or flattened) because they are considered 'pure'? (2)",
+      "choices": [],
+      "correctAnswer": "Sa (the tonic) and pa (the dominant).",
+      "acceptedAnswers": [
+        "Sa and pa"
+      ],
+      "marks": 2,
+      "responseType": "Written response",
+      "markPoints": [
+        {
+          "label": "Sa (tonic)",
+          "acceptedAnswers": [
+            "sa",
+            "the tonic",
+            "sa (tonic)"
+          ]
+        },
+        {
+          "label": "Pa (dominant)",
+          "acceptedAnswers": [
+            "pa",
+            "the dominant",
+            "pa (dominant)"
+          ]
+        }
+      ],
+      "feedback": "Of the seven sargam syllables (sa, ri, ga, ma, pa, dha, ni), only sa (tonic) and pa (dominant) are never altered — they are considered 'pure'.",
+      "level": "Mastering",
+      "composer": "Traditional (Raga Bhairavi)",
+      "work": "Art-song from Meerut - Raga Bhairavi",
+      "movement": "",
+      "performer": "Indian vocalist with ensemble (Musik des Orients field recording)",
+      "instrumentation": "Voice, tabla, sarangi-type accompaniment",
+      "sourceProvider": "Musik des Orients disc set, compiled by E. M. von Hornbostel, published Berlin (Lindström A.G.)",
+      "licenceType": "Public domain",
+      "rightsNote": "Musik des Orients (E. M. von Hornbostel, 1931 disc set), public domain.",
+      "diagnosticTags": "Sa and pa (pure notes)",
+      "sourceGroup": "Reviewed Melody Master candidate batch — Hindustani classical music (worldmusic-indian review, 2026-08-19)",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "13",
+      "clipDurationSeconds": "13",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Approved in worldmusic-indian review, 2026-08-19."
+    },
+    {
+      "id": "MDV099",
+      "audioId": "MDA099",
+      "audio": "audio/melodic-devices/MDA099.mp3",
+      "sourceId": "FLM003-Q1",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "This driving, action-style cue relies on a repeated rhythmic pattern to build energy and momentum. What is a short, constantly repeated rhythmic/melodic pattern like this called?",
+      "choices": [
+        "An ostinato",
+        "A ritornello",
+        "A cadenza",
+        "A recitative"
+      ],
+      "correctAnswer": "An ostinato",
+      "acceptedAnswers": [
+        "An ostinato"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Rhythmic ostinatos and loops are a key tool for driving a storyline forward and providing exciting accompaniment under a melody, as in Bernard Herrmann's Psycho or Alan Silvestri's The Avengers.",
+      "level": "Foundation",
+      "composer": "Kevin MacLeod",
+      "work": "Hitman",
+      "movement": "",
+      "performer": "Kevin MacLeod",
+      "instrumentation": "Full mock orchestra/electronic",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY 4.0",
+      "rightsNote": "Kevin MacLeod, via Wikimedia Commons, CC BY 4.0.",
+      "diagnosticTags": "Ostinato",
+      "sourceGroup": "Reviewed Melody Master candidate batch — Film Music (worldmusic-film review, 2026-08-19)",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "15",
+      "clipDurationSeconds": "15",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Approved in worldmusic-film review, 2026-08-19."
+    },
+    {
+      "id": "MDV100",
+      "audioId": "MDA100",
+      "audio": "audio/melodic-devices/MDA100.mp3",
+      "sourceId": "FLM004-Q2",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Characters in a film score are sometimes given their own recurring musical idea, which returns whenever that character appears. What is this recurring musical idea called?",
+      "choices": [
+        "A leitmotif",
+        "A cadenza",
+        "A drone",
+        "A tihai"
+      ],
+      "correctAnswer": "A leitmotif",
+      "acceptedAnswers": [
+        "A leitmotif"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "A leitmotif is a musical phrase or idea associated with a specific character, scene or emotion — a device reintroduced to film scoring by Max Steiner (King Kong, 1933) from Wagner's operas, and used constantly ever since, including throughout the film scores of John Williams.",
+      "level": "Developing",
+      "composer": "Kevin MacLeod",
+      "work": "The Descent",
+      "movement": "",
+      "performer": "Kevin MacLeod",
+      "instrumentation": "Full mock orchestra/electronic",
+      "sourceProvider": "Wikimedia Commons",
+      "licenceType": "CC BY 4.0",
+      "rightsNote": "Kevin MacLeod, via Wikimedia Commons, CC BY 4.0.",
+      "diagnosticTags": "Leitmotif",
+      "sourceGroup": "Reviewed Melody Master candidate batch — Film Music (worldmusic-film review, 2026-08-19)",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "Cambridge IGCSE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "15",
+      "clipDurationSeconds": "15",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Approved in worldmusic-film review, 2026-08-19."
+    },
+    {
+      "id": "MDV101",
+      "audioId": "MDA101",
+      "audio": "audio/melodic-devices/MDA101.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Which option best describes the melody in this extract?",
+      "choices": [
+        "Imitation",
+        "Ostinato",
+        "Sequence",
+        "Repetition"
+      ],
+      "correctAnswer": "Imitation",
+      "acceptedAnswers": [
+        "Imitation"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "This is a canon at the unison: the second voice enters singing the exact same melody at the exact same pitch, just delayed — the clearest possible example of imitation.",
+      "level": "Mastering",
+      "composer": "J. S. Bach",
+      "work": "Goldberg Variations, BWV 988",
+      "movement": "Variation 3, Canon at the Unison",
+      "performer": "Musopen",
+      "instrumentation": "Harpsichord",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Recording: Goldberg Variations BWV 988, Variation 3 (Canon at the Unison), via the Musopen classical collection mirrored on Internet Archive (item MusopenCollectionAsFlac). Public Domain Mark 1.0. Attribution not required, but keep source record.",
+      "diagnosticTags": "Title-confirmed: a canon IS imitation by definition, at the stated interval.",
+      "sourceGroup": "THURSDAY TIME TO MOVE TO THE SEASIDE",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "14",
+      "clipDurationSeconds": "14",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-seaside review (2026-08-20). Re-trimmed to a 14-second clip."
+    },
+    {
+      "id": "MDV102",
+      "audioId": "MDA102",
+      "audio": "audio/melodic-devices/MDA102.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Which option best describes the melody in this extract?",
+      "choices": [
+        "Imitation",
+        "Sequence",
+        "Ostinato",
+        "Repetition"
+      ],
+      "correctAnswer": "Imitation",
+      "acceptedAnswers": [
+        "Imitation"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "This is a canon at the second: the second voice imitates the first, entering one step higher — imitation, not free sequence, because the melodic material itself is copied exactly.",
+      "level": "Securing",
+      "composer": "J. S. Bach",
+      "work": "Goldberg Variations, BWV 988",
+      "movement": "Variation 6, Canon at the Second",
+      "performer": "Musopen",
+      "instrumentation": "Harpsichord",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Recording: Goldberg Variations BWV 988, Variation 6 (Canon at the Second), via the Musopen classical collection mirrored on Internet Archive. Public Domain Mark 1.0. Attribution not required, but keep source record.",
+      "diagnosticTags": "Title-confirmed canon.",
+      "sourceGroup": "THURSDAY TIME TO MOVE TO THE SEASIDE",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "14",
+      "clipDurationSeconds": "14",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-seaside review (2026-08-20). Re-trimmed to a 14-second clip."
+    },
+    {
+      "id": "MDV106",
+      "audioId": "MDA106",
+      "audio": "audio/melodic-devices/MDA106.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Which option best describes the melody in this extract?",
+      "choices": [
+        "Imitation",
+        "Ostinato",
+        "Sequence",
+        "Repetition"
+      ],
+      "correctAnswer": "Imitation",
+      "acceptedAnswers": [
+        "Imitation"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "This is a canon at the sixth: the second voice imitates the first melody exactly, a sixth higher.",
+      "level": "Securing",
+      "composer": "J. S. Bach",
+      "work": "Goldberg Variations, BWV 988",
+      "movement": "Variation 18, Canon at the Sixth",
+      "performer": "Musopen",
+      "instrumentation": "Harpsichord",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Recording: Goldberg Variations BWV 988, Variation 18 (Canon at the Sixth), via the Musopen classical collection mirrored on Internet Archive. Public Domain Mark 1.0. Attribution not required, but keep source record.",
+      "diagnosticTags": "Title-confirmed canon.",
+      "sourceGroup": "THURSDAY TIME TO MOVE TO THE SEASIDE",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "14",
+      "clipDurationSeconds": "14",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-seaside review (2026-08-20). Re-trimmed to a 14-second clip."
+    },
+    {
+      "id": "MDV112",
+      "audioId": "MDA112",
+      "audio": "audio/melodic-devices/MDA112.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Which option best describes the melody in this extract?",
+      "choices": [
+        "Scalic",
+        "Broken chord",
+        "In leaps",
+        "Chromatic"
+      ],
+      "correctAnswer": "Scalic",
+      "acceptedAnswers": [
+        "Scalic"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Mozart's overture launches straight into a famous rushing, scale-based Presto passage — unusually for an opera overture of its time, with no slow introduction at all.",
+      "level": "Developing",
+      "composer": "Wolfgang Amadeus Mozart",
+      "work": "The Marriage of Figaro, K. 492: Overture",
+      "movement": "",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Recording: The Marriage of Figaro, K. 492, Overture, via the Musopen classical collection mirrored on Internet Archive. Public Domain Mark 1.0. Attribution not required, but keep source record.",
+      "diagnosticTags": "Well-documented: the overture is famous for its scalic Presto opening with no slow introduction.",
+      "sourceGroup": "THURSDAY TIME TO MOVE TO THE SEASIDE",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "14",
+      "clipDurationSeconds": "14",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-seaside review (2026-08-20). Re-trimmed to a 14-second clip. reviewedLevel from MEL-099"
+    },
+    {
+      "id": "MDV115",
+      "audioId": "MDA115",
+      "audio": "audio/melodic-devices/MDA115.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Which option best describes the melody in this extract?",
+      "choices": [
+        "Scalic",
+        "In leaps",
+        "Chromatic",
+        "Ostinato"
+      ],
+      "correctAnswer": "Scalic",
+      "acceptedAnswers": [
+        "Scalic"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "The piece is based on a hymn tune (the St Wenceslas chorale) — hymn melodies are conventionally simple and move mostly by step.",
+      "level": "Foundation",
+      "composer": "Josef Suk",
+      "work": "Meditation on an Old Czech Chorale ('St Wenceslas'), Op. 35a",
+      "movement": "",
+      "performer": "Musopen",
+      "instrumentation": "String orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Recording: Meditation on an Old Czech Chorale, Op. 35a, via the Musopen classical collection mirrored on Internet Archive. Public Domain Mark 1.0. Attribution not required, but keep source record.",
+      "diagnosticTags": "General genre convention: hymn/chorale tunes are conventionally stepwise — not individually verified against this specific recording.",
+      "sourceGroup": "THURSDAY TIME TO MOVE TO THE SEASIDE",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "14",
+      "clipDurationSeconds": "14",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-seaside review (2026-08-20). Re-trimmed to a 14-second clip."
+    },
+    {
+      "id": "MDV116",
+      "audioId": "MDA116",
+      "audio": "audio/melodic-devices/MDA116.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Which option best describes the melody in this extract?",
+      "choices": [
+        "Scalic",
+        "In leaps",
+        "Chromatic",
+        "Ostinato"
+      ],
+      "correctAnswer": "Scalic",
+      "acceptedAnswers": [
+        "Scalic"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Schubert's piano sonata melodies are known for their singing, lyrical quality, typically moving mostly by step rather than in wide leaps.",
+      "level": "Foundation",
+      "composer": "Franz Schubert",
+      "work": "Piano Sonata in A major, D. 664",
+      "movement": "I. Allegro moderato",
+      "performer": "Musopen",
+      "instrumentation": "Piano",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Recording: Piano Sonata in A major, D. 664, I. Allegro moderato, via the Musopen classical collection mirrored on Internet Archive. Public Domain Mark 1.0. Attribution not required, but keep source record.",
+      "diagnosticTags": "General stylistic convention (Schubertian lyricism, predominantly stepwise) — not individually verified bar-by-bar against this specific recording.",
+      "sourceGroup": "THURSDAY TIME TO MOVE TO THE SEASIDE",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "14",
+      "clipDurationSeconds": "14",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-seaside review (2026-08-20). Re-trimmed to a 14-second clip."
+    },
+    {
+      "id": "MDV117",
+      "audioId": "MDA117",
+      "audio": "audio/melodic-devices/MDA117.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Which option best describes the melody in this extract?",
+      "choices": [
+        "Scalic",
+        "In leaps",
+        "Chromatic",
+        "Ostinato"
+      ],
+      "correctAnswer": "Scalic",
+      "acceptedAnswers": [
+        "Scalic"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "As with much of Schubert's piano writing, the opening idea is lyrical and largely stepwise rather than built from wide leaps.",
+      "level": "Developing",
+      "composer": "Franz Schubert",
+      "work": "Piano Sonata in D major, D. 850",
+      "movement": "I. Allegro vivace",
+      "performer": "Musopen",
+      "instrumentation": "Piano",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Recording: Piano Sonata in D major, D. 850, I. Allegro vivace, via the Musopen classical collection mirrored on Internet Archive. Public Domain Mark 1.0. Attribution not required, but keep source record.",
+      "diagnosticTags": "General stylistic convention (Schubertian lyricism) — not individually verified bar-by-bar against this specific recording.",
+      "sourceGroup": "THURSDAY TIME TO MOVE TO THE SEASIDE",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": "0",
+      "clipEndSeconds": "14",
+      "clipDurationSeconds": "14",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-seaside review (2026-08-20). Re-trimmed to a 14-second clip."
+    },
+    {
+      "id": "MDV120",
+      "audioId": "MDA120",
+      "audio": "audio/melodic-devices/MDA120.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Which option best describes the melody in this extract?",
+      "choices": [
+        "Scalic",
+        "Broken chord",
+        "In leaps",
+        "Chromatic"
+      ],
+      "correctAnswer": "Scalic",
+      "acceptedAnswers": [
+        "Scalic"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "After the overture's famous slow, chordal opening, the fast fugal Allegro that follows is built from running scalic passages.",
+      "level": "Developing",
+      "composer": "Wolfgang Amadeus Mozart",
+      "work": "The Magic Flute, K. 620: Overture",
+      "movement": "",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Recording: The Magic Flute, K. 620, Overture, via the Musopen classical collection mirrored on Internet Archive. Public Domain Mark 1.0. Attribution not required, but keep source record. Clip trimmed from later in the track, after the slow introduction, to capture the fugal Allegro's scalic material — exact offset needs a listening check (see finalListeningReview).",
+      "diagnosticTags": "Well-documented: main Allegro is a fugal exposition built on a scale-based subject, following the famous slow 3-chord introduction.",
+      "sourceGroup": "THURSDAY TIME TO MOVE TO THE SEASIDE",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": "49",
+      "clipEndSeconds": "63",
+      "clipDurationSeconds": "14",
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-seaside review (2026-08-20). Re-trimmed to a 14-second clip. Reviewer note on MEL-107: \"start audio at 4 sec\" — original proportional-estimate offset (45s) shifted +4s to 49s, confirmed correct by ear."
+    },
+    {
+      "id": "MDV121",
+      "audioId": "MDA121",
+      "audio": "audio/melodic-devices/MDA121.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Name the melodic device heard as this theme repeats and rises in pitch.",
+      "choices": [
+        "Sequence",
+        "Ostinato",
+        "Pedal note",
+        "Word-painting"
+      ],
+      "correctAnswer": "Sequence",
+      "acceptedAnswers": [
+        "sequence",
+        "the melody repeated at a higher pitch each time"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — this famous theme is a textbook sequence: the same short melodic idea restated at a progressively higher pitch, building intensity and tension with each repetition.",
+      "level": "Foundation",
+      "composer": "Edvard Grieg",
+      "work": "Peer Gynt Suite No. 1, Op. 46",
+      "movement": "IV. In the Hall of the Mountain King",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "High confidence — the stepwise-rising sequential repetition of this theme is this movement's single most famous, universally documented compositional feature (it is the standard textbook example of a musical crescendo built from sequence).",
+      "diagnosticTags": "aos:AoS3",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 10,
+      "clipEndSeconds": 42,
+      "clipDurationSeconds": 32,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV093, renumbered to MDV121 — the draft's id collided with an unrelated already-live question of the same number. Audio needs to start sooner as it misses the first phrase of the sequence. C;ip needs to start 8 seconds sooner",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "sequence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV122",
+      "audioId": "MDA122",
+      "audio": "audio/melodic-devices/MDA122.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Name the melodic device heard in the repeating low bass idea underneath.",
+      "choices": [
+        "Ostinato",
+        "Sequence",
+        "Appoggiatura",
+        "Word-painting"
+      ],
+      "correctAnswer": "Ostinato",
+      "acceptedAnswers": [
+        "ostinato",
+        "repeated short pattern",
+        "a persistently repeated melodic/rhythmic figure"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — the creeping, repeated bass idea that opens this movement and continues underneath as the piece builds is a classic ostinato: a short pattern repeated persistently and unchanged.",
+      "level": "Foundation",
+      "composer": "Edvard Grieg",
+      "work": "Peer Gynt Suite No. 1, Op. 46",
+      "movement": "IV. In the Hall of the Mountain King",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "High confidence — the opening bassoon/cello ostinato is a widely documented, defining feature of this movement.",
+      "diagnosticTags": "aos:AoS3",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 0,
+      "clipEndSeconds": 18,
+      "clipDurationSeconds": 18,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV094, renumbered to MDV122 — the draft's id collided with an unrelated already-live question of the same number. No further notes.",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "ostinato"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV123",
+      "audioId": "MDA123",
+      "audio": "audio/melodic-devices/MDA123.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Describe how the ornamented melody mostly moves in this extract.",
+      "choices": [
+        "Scalic/stepwise movement",
+        "Wide leaps throughout",
+        "A single repeated note",
+        "Parallel thirds"
+      ],
+      "correctAnswer": "Scalic/stepwise movement",
+      "acceptedAnswers": [
+        "scalic",
+        "stepwise",
+        "moves mostly by step, decorated with ornaments",
+        "Scalic/stepwise movement"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct. Beneath the ornamentation (trills and turns), the underlying melodic line of this sarabande-style Aria moves mostly by step — a graceful, scalic contour typical of the style.",
+      "level": "Developing",
+      "composer": "Johann Sebastian Bach",
+      "work": "Goldberg Variations, BWV 988",
+      "movement": "Aria",
+      "performer": "Musopen",
+      "instrumentation": "Harpsichord",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Medium confidence — the underlying stepwise contour beneath the ornamentation is a standard musicological description of this Aria's melodic style, not a bar-by-bar verified claim.",
+      "diagnosticTags": "aos:AoS1",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 5.4,
+      "clipEndSeconds": 20,
+      "clipDurationSeconds": 14.6,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV096, renumbered to MDV123 — the draft's id collided with an unrelated already-live question of the same number. No further notes.",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "scalic",
+            "stepwise",
+            "Scalic/stepwise movement"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV124",
+      "audioId": "MDA124",
+      "audio": "audio/melodic-devices/MDA124.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "How would you describe the melodic movement in this slow introduction?",
+      "choices": [
+        "Chromatic movement",
+        "Simple scalic movement",
+        "A single repeated note",
+        "Wide leaps in a major key"
+      ],
+      "correctAnswer": "Chromatic movement",
+      "acceptedAnswers": [
+        "chromatic",
+        "chromatic movement",
+        "moves by semitones outside the home key"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — this quartet is nicknamed the 'Dissonance' Quartet specifically because of this slow introduction's unusually chromatic, unstable melodic writing, which unsettled listeners in Mozart's own time.",
+      "level": "Developing",
+      "composer": "Wolfgang Amadeus Mozart",
+      "work": "String Quartet No. 19 in C major, K. 465 \"Dissonance\"",
+      "movement": "I. Adagio (introduction)",
+      "performer": "Musopen",
+      "instrumentation": "String quartet",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "High confidence — the work's own popular nickname ('Dissonance') directly refers to this introduction's chromatic melodic and harmonic writing; title-confirmed, not inferred by ear.",
+      "diagnosticTags": "aos:AoS2",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 0,
+      "clipEndSeconds": 15,
+      "clipDurationSeconds": 15,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV097, renumbered to MDV124 — the draft's id collided with an unrelated already-live question of the same number. No further notes.",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "chromatic",
+            "chromatic movement"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV125",
+      "audioId": "MDA125",
+      "audio": "audio/melodic-devices/MDA125.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "How does the cello's opening melody mostly move in this extract?",
+      "choices": [
+        "A mix of stepwise movement and expressive leaps",
+        "Entirely by leap",
+        "A single repeated note",
+        "Strictly by step throughout"
+      ],
+      "correctAnswer": "A mix of stepwise movement and expressive leaps",
+      "acceptedAnswers": [
+        "mostly stepwise with some leaps",
+        "a lyrical mix of steps and leaps",
+        "A mix of stepwise movement and expressive leaps"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — this movement's famous opening cello melody (one of the most celebrated tunes in the string quartet repertoire) is lyrical and songlike, built mainly from stepwise movement with occasional expressive leaps for warmth and reach.",
+      "level": "Developing",
+      "composer": "Alexander Borodin",
+      "work": "String Quartet No. 2 in D major",
+      "movement": "III. Nocturne (Andante)",
+      "performer": "Musopen",
+      "instrumentation": "String quartet",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Medium confidence — the lyrical, mostly-stepwise character of this famous cello melody is a well-established, widely documented description (it is one of the most recognisable tunes in the quartet repertoire), not a bar-by-bar verified claim against this specific recording.",
+      "diagnosticTags": "aos:AoS3",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 0,
+      "clipEndSeconds": 18,
+      "clipDurationSeconds": 18,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV099, renumbered to MDV125 — the draft's id collided with an unrelated already-live question of the same number. No further notes.",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "stepwise with leaps",
+            "lyrical stepwise movement",
+            "A mix of stepwise movement and expressive leaps"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV126",
+      "audioId": "MDA126",
+      "audio": "audio/melodic-devices/MDA126.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "How does this movement's famous opening melody mostly move?",
+      "choices": [
+        "A mix of stepwise movement and expressive leaps",
+        "Entirely by leap",
+        "A single repeated note",
+        "Strictly chromatic throughout"
+      ],
+      "correctAnswer": "A mix of stepwise movement and expressive leaps",
+      "acceptedAnswers": [
+        "mostly stepwise with expressive leaps",
+        "a wistful, lyrical, mainly stepwise tune",
+        "A mix of stepwise movement and expressive leaps"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — this movement's wistful opening melody, one of Brahms's most celebrated tunes, is lyrical and predominantly stepwise, with occasional expressive leaps giving it its distinctive melancholic reach.",
+      "level": "Securing",
+      "composer": "Johannes Brahms",
+      "work": "Symphony No. 3 in F major, Op. 90",
+      "movement": "III. Poco allegretto",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Medium confidence — the lyrical, mostly-stepwise character of this famous opening melody is a well-established, widely documented description (it is one of Brahms's best-known tunes, also used in film and popular arrangement), not a bar-by-bar verified claim against this specific recording.",
+      "diagnosticTags": "aos:AoS3",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 0,
+      "clipEndSeconds": 20,
+      "clipDurationSeconds": 20,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV101, renumbered to MDV126 — the draft's id collided with an unrelated already-live question of the same number. No further notes.",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "stepwise with leaps",
+            "lyrical stepwise movement",
+            "A mix of stepwise movement and expressive leaps"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV127",
+      "audioId": "MDA127",
+      "audio": "audio/melodic-devices/MDA127.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "What kind of melodic material is this overture's main theme based on?",
+      "choices": [
+        "Modal",
+        "Major",
+        "Minor",
+        "Atonal"
+      ],
+      "correctAnswer": "Modal",
+      "acceptedAnswers": [
+        "modal",
+        "based on Russian Orthodox liturgical chant"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — Rimsky-Korsakov built this overture's themes directly on real Russian Orthodox chant melodies from the Obikhod (the standard liturgical chant book), giving the melodic material its distinctive modal character.",
+      "level": "Securing",
+      "composer": "Nikolai Rimsky-Korsakov",
+      "work": "Russian Easter Festival Overture, Op. 36",
+      "movement": "",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "High confidence — the composer's own preface to the score states directly that the overture's themes are drawn from the Russian Orthodox Obikhod chant book; this is a documented compositional fact, not an inferred description.",
+      "diagnosticTags": "aos:AoS3",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 0,
+      "clipEndSeconds": 18,
+      "clipDurationSeconds": 18,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV102, renumbered to MDV127 — the draft's id collided with an unrelated already-live question of the same number. Change MC choices to : Modal, Major, Minor and Atonal",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "modal",
+            "chant-derived"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV128",
+      "audioId": "MDA128",
+      "audio": "audio/melodic-devices/MDA128.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "How does this overture's lyrical second theme mostly move, in contrast to its hammered opening?",
+      "choices": [
+        "A mix of stepwise movement and expressive leaps",
+        "A single repeated note",
+        "Entirely in wide leaps",
+        "Strictly chromatic"
+      ],
+      "correctAnswer": "A mix of stepwise movement and expressive leaps",
+      "acceptedAnswers": [
+        "mostly stepwise, lyrical",
+        "a songful, mainly stepwise melody",
+        "A mix of stepwise movement and expressive leaps"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — after the overture's stark hammered opening (three unison Cs), a gentler, songful second theme enters, moving mostly by step with expressive touches — a deliberate contrast in melodic character.",
+      "level": "Securing",
+      "composer": "Ludwig van Beethoven",
+      "work": "Coriolan Overture, Op. 62",
+      "movement": "",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "Medium confidence — the lyrical, mostly-stepwise character of the contrasting second theme is a well-established description of this overture's structure, not a bar-by-bar verified claim; the clip start (0:25) is a reasonable estimate for where this theme enters, not a by-ear verified cut.",
+      "diagnosticTags": "aos:AoS2",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 25,
+      "clipEndSeconds": 40,
+      "clipDurationSeconds": 15,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV103, renumbered to MDV128 — the draft's id collided with an unrelated already-live question of the same number. No further notes.",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "stepwise with leaps",
+            "lyrical",
+            "A mix of stepwise movement and expressive leaps"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV129",
+      "audioId": "MDA129",
+      "audio": "audio/melodic-devices/MDA129.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "This famous opening theme includes one strikingly 'wrong' note partway through. What kind of melodic movement creates it?",
+      "choices": [
+        "Chromatic movement",
+        "Strictly diatonic scalic movement",
+        "A single repeated note",
+        "Wide leaps only"
+      ],
+      "correctAnswer": "Chromatic movement",
+      "acceptedAnswers": [
+        "chromatic",
+        "a chromatic note outside the home key",
+        "Chromatic movement"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — partway through this opening cello theme, the melody moves chromatically down to a C sharp that has no place in the home key of E flat major, one of the most famous single notes in the symphonic repertoire.",
+      "level": "Developing",
+      "composer": "Ludwig van Beethoven",
+      "work": "Symphony No. 3 in E flat major, Op. 55 \"Eroica\"",
+      "movement": "I. Allegro con brio",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "High confidence — the theme's chromatic descent to a jarring C sharp is one of the most extensively documented single moments in the symphonic literature (described directly, e.g. conductor Benjamin Zander calling it 'the most shocking music note that had happened in all of music up until that moment'), not an inferred claim.",
+      "diagnosticTags": "aos:AoS2",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 0,
+      "clipEndSeconds": 12,
+      "clipDurationSeconds": 12,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV104, renumbered to MDV129 — the draft's id collided with an unrelated already-live question of the same number. No further notes.",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "chromatic",
+            "chromatic movement",
+            "Chromatic movement"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV130",
+      "audioId": "MDA130",
+      "audio": "audio/melodic-devices/MDA130.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Describe the ornamental figure heard in the violins' restless opening melody.",
+      "choices": [
+        "Appoggiaturas",
+        "Trill",
+        "Broken chord",
+        "Repeated notes"
+      ],
+      "correctAnswer": "Appoggiaturas",
+      "acceptedAnswers": [
+        "appoggiatura",
+        "sighing figure",
+        "a longer note resolving down to a shorter one",
+        "appoggiaturas"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — this famous restless opening theme is built from a 'sighing' appoggiatura figure: a dissonant note that leans onto and resolves down to the note after it, giving the melody its breathless, anxious character.",
+      "level": "Securing",
+      "composer": "Wolfgang Amadeus Mozart",
+      "work": "Symphony No. 40 in G minor, K. 550",
+      "movement": "I. Molto allegro",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "High confidence — the opening theme's 'sighing figure' built from an appoggiatura is one of the most widely and specifically documented features of this symphony (multiple independent programme-note sources describe it in exactly these terms: 'a breathless sighing figure', built from a longer note resolving to a shorter one), not an inferred claim.",
+      "diagnosticTags": "aos:AoS2",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 0,
+      "clipEndSeconds": 12,
+      "clipDurationSeconds": 12,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV105, renumbered to MDV130 — the draft's id collided with an unrelated already-live question of the same number. Change \"sighing appogiatura figure\" to \"Appogiaturas\". Change other MC answers to remove 'a' eg... 'trill' not ' a trill'",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "appoggiatura",
+            "sighing figure",
+            "appoggiaturas"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV131",
+      "audioId": "MDA131",
+      "audio": "audio/melodic-devices/MDA131.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "What scale is the viola melody built from?",
+      "choices": [
+        "Pentatonic",
+        "Chromatic",
+        "Whole-tone",
+        "A single repeated pitch"
+      ],
+      "correctAnswer": "Pentatonic",
+      "acceptedAnswers": [
+        "pentatonic",
+        "a five-note scale, no semitones"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — this famous opening viola melody is built from the pentatonic scale (using only F, G, A, C, D), giving it a simple, folk-like quality; both main themes of this movement are pentatonic, a deliberate stylistic choice Dvořák made during his time in America.",
+      "level": "Securing",
+      "composer": "Antonín Dvořák",
+      "work": "String Quartet No. 12 in F major, Op. 96 \"American\"",
+      "movement": "I. Allegro ma non troppo",
+      "performer": "Musopen",
+      "instrumentation": "String quartet",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "High confidence — multiple independent sources (Chamber Music Society of Lincoln Center, The Listeners' Club) describe this specific opening viola melody as pentatonic in exactly these terms, not an inferred-by-ear claim. The clip is trimmed to 20s to comfortably include the viola's melody entrance after the brief opening violin figure, though the precise entrance timestamp is an estimate.",
+      "diagnosticTags": "aos:AoS3",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 0,
+      "clipEndSeconds": 20,
+      "clipDurationSeconds": 20,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV106, renumbered to MDV131 — the draft's id collided with an unrelated already-live question of the same number. Change question wording: What scale is the viola melody built from?",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "pentatonic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "MDV132",
+      "audioId": "MDA132",
+      "audio": "audio/melodic-devices/MDA132.mp3",
+      "sourceId": "",
+      "mode": "melodic_device_recognition",
+      "category": "Melodic device",
+      "question": "Describe the English horn melody heard in this extract.",
+      "choices": [
+        "A heavily ornamented melody",
+        "A single repeated note",
+        "Strictly scalic, unornamented",
+        "A twelve-tone row"
+      ],
+      "correctAnswer": "A heavily ornamented melody",
+      "acceptedAnswers": [
+        "ornamented",
+        "ornamentation",
+        "decorated with turns and grace notes",
+        "A heavily ornamented melody"
+      ],
+      "marks": 1,
+      "responseType": "Multiple choice",
+      "feedback": "Correct — this tone poem's second main theme, representing the Asian caravan, is a richly ornamented melody given to the English horn, contrasting with the plainer Russian theme heard earlier.",
+      "level": "Developing",
+      "composer": "Alexander Borodin",
+      "work": "In the Steppes of Central Asia",
+      "movement": "",
+      "performer": "Musopen",
+      "instrumentation": "Orchestra",
+      "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
+      "licenceType": "Public Domain Mark 1.0",
+      "rightsNote": "High confidence on the ornamentation claim itself — multiple independent sources describe this specific English horn theme as 'ornamented' in exactly these terms. Medium confidence on the clip timing — the exact timestamp where this second theme enters was estimated (not verified by ear), so this clip may need re-trimming if it lands before the English horn melody actually begins.",
+      "diagnosticTags": "aos:AoS3",
+      "sourceGroup": "FRIDAY JIMMY!",
+      "clarityConfidence": "Reviewed",
+      "closestGcseBoards": "AQA; OCR; Eduqas; Pearson Edexcel; CIE",
+      "clipStartSeconds": 75,
+      "clipEndSeconds": 97,
+      "clipDurationSeconds": 22,
+      "buildStatus": "MP3 bundled",
+      "finalListeningReview": "Reviewed and approved in the melody-devices-friday-jimmy review (2026-08-21). Originally drafted as MDV107, renumbered to MDV132 — the draft's id collided with an unrelated already-live question of the same number. No further notes.",
+      "markPoints": [
+        {
+          "label": "Device",
+          "acceptedAnswers": [
+            "ornamented",
+            "ornamentation",
+            "A heavily ornamented melody"
+          ]
+        }
+      ]
     }
   ]
 }
