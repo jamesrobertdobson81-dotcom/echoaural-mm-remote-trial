@@ -268,6 +268,7 @@ function createQuestion(config, markPoints) {
     answerOptions: Array.isArray(config.answerOptions) ? config.answerOptions : [],
     answerChoices: Array.isArray(config.answerChoices) ? config.answerChoices : [],
     correctChoice: config.correctChoice || "",
+    lockAnswerOptions: Boolean(config.lockAnswerOptions),
     acceptedWrittenAnswers: Array.isArray(config.acceptedWrittenAnswers) ? config.acceptedWrittenAnswers : [],
     preferredAnswer: config.preferredAnswer || "",
     requiredConcepts: Array.isArray(config.requiredConcepts) ? config.requiredConcepts : [],
@@ -4474,6 +4475,203 @@ window.textureQuestions.push(createQuestion({
   point("Texture", MONOPHONIC_ACCEPTED, MONOPHONIC_PARTIAL)
 ]));
 
+window.textureQuestions.push(createQuestion({
+  id: "TT168",
+  title: "Inverted Pedal — Borodin (In the Steppes of Central Asia)",
+  audio: "audio/TT168.mp3",
+  prompt: "Identify the textural device used in this extract.",
+  maxMarks: 1,
+  level: "Securing",
+  responseType: "multiple-choice",
+  correctChoice: "Inverted Pedal",
+  specificTextureTerm: "Inverted Pedal",
+  broadTextureCategory: "Texture feature",
+  answerOptions: ["Inverted Pedal", "Drone", "Ground Bass", "Pedal note"],
+  lockAnswerOptions: true,
+  modelAnswer: "Inverted pedal: a sustained note is held while the harmony above/below it changes.",
+  feedbackCorrect: "Correct. A sustained note is held under/over the melody while the harmony moves.",
+  feedbackPartial: "Good. You noticed the sustained held note.",
+  feedbackIncorrect: "Not quite. Listen for the sustained note that stays fixed while the harmony changes around it.",
+  vocabularyTip: "Use inverted pedal when a sustained note is held while the harmony moves around it.",
+  target: "Inverted Pedal",
+  textureFocus: "Inverted Pedal",
+  rationale: "Source brief documents this as a sustained tonic/dominant pedal opening the piece (programme-note literature); labelled here as an inverted pedal per brief — worth a quick listening check to confirm register before shipping.",
+  work: "In the Steppes of Central Asia",
+  composer: "Alexander Borodin",
+  performer: "Czech National Symphony Orchestra (Musopen Kickstarter Collection)",
+  collection: "archive.org",
+  licence: "Public Domain Mark 1.0 (Musopen Kickstarter Collection, archive.org)",
+  sourceUrl: "https://archive.org/download/MusopenCollectionAsFlac/Borodin_InTheSteppesOfCentralAsia/AlexanderBorodin-InTheSteppesOfCentralAsia.mp3",
+  clipStart: 0,
+  audioDurationSeconds: 20,
+}, [
+  point("Textural device", ["inverted pedal"], ["sustained note", "sustained tone", "held note"])
+]));
+
+window.textureQuestions.push(createQuestion({
+  id: "TT169",
+  title: "Alberti Bass — Mozart (Piano Sonata K.545)",
+  audio: "audio/TT169.mp3",
+  prompt: "Identify the textural device used in this extract.",
+  maxMarks: 1,
+  level: "Securing",
+  responseType: "multiple-choice",
+  correctChoice: "Alberti Bass",
+  answerOptions: ["Alberti Bass", "Ground Bass", "Drone", "Pedal"],
+  lockAnswerOptions: true,
+  modelAnswer: "Alberti bass: the left hand plays a continuous broken-chord accompaniment beneath the melody.",
+  feedbackCorrect: "Correct. The left hand plays a continuous broken-chord (Alberti bass) accompaniment.",
+  feedbackPartial: "Good. You noticed the broken-chord left-hand accompaniment.",
+  feedbackIncorrect: "Not quite. Listen for the left hand playing a continuous broken-chord pattern beneath the melody.",
+  vocabularyTip: "Use Alberti bass when the left hand plays a continuous broken-chord accompaniment pattern.",
+  target: "Alberti Bass",
+  textureFocus: "Alberti Bass",
+  work: "Piano Sonata No. 16 in C major 'Sonata facile', K. 545 (I. Allegro, opening)",
+  composer: "Wolfgang Amadeus Mozart",
+  performer: "Robin Alciatore, piano (Musopen)",
+  collection: "Wikimedia Commons",
+  licence: "Public Domain Mark 1.0 (Musopen recording hosted on Wikimedia Commons)",
+  sourceUrl: "https://commons.wikimedia.org/wiki/File:Wolfgang_Amadeus_Mozart_-_sonata_no._16_in_c_major,_k.545_'sonata_facile'_-_i._allegro.ogg",
+  clipStart: 0,
+  audioDurationSeconds: 20,
+}, [
+  point("Textural device", ["alberti bass", "broken chord accompaniment", "broken chord bass"], ["broken chords", "arpeggiated accompaniment"])
+]));
+
+// --- Arab Takht ensembles (worldmusic-takht review, 2026-08-19) ---
+window.textureQuestions.push(createQuestion({
+  id: "TT170",
+  title: "Heterophonic Texture — Sama'i Thaqil (Taha Abu Mandour ensemble)",
+  audio: "audio/TT170.mp3",
+  prompt: "In an ensemble performance like this, the melody instruments play the same tune together but each adds its own idiomatic decoration. What is this texture called?",
+  maxMarks: 1,
+  level: "Developing",
+  answerOptions: ["Heterophony", "Fugal imitation", "Chordal homophony", "Antiphony"],
+  answerChoices: ["Heterophony", "Fugal imitation", "Chordal homophony", "Antiphony"],
+  correctChoice: "Heterophony",
+  lockAnswerOptions: true,
+  questionType: "multiple-choice",
+  responseType: "multiple-choice",
+  modelAnswer: "Heterophony: multiple instrumentalists play variations of the same melody at once, each ornamenting according to the idiom of their instrument.",
+  feedbackCorrect: "Correct. Each takht melody instrument decorates the shared tune slightly differently — heterophony.",
+  feedbackPartial: "Good. Listen again for the melody instruments all playing variants of the same tune together.",
+  feedbackIncorrect: "Not quite. Heterophony is when instruments play the same melody together, each adding its own ornamentation.",
+  vocabularyTip: "Use heterophony for a shared melody performed with simultaneous individual variation, as in Arab takht ensembles.",
+  target: "Heterophony",
+  textureFocus: "Heterophony",
+  work: "Sama'i Thaqil (maqam Bayati)",
+  composer: "Traditional instrumental form (sama'i)",
+  performer: "Taha Abu Mandour ensemble",
+  collection: "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+  licence: "Public Domain Mark 1.0",
+  sourceUrl: "https://archive.org/details/1932_20241004",
+  originalId: "TKH002-Q3",
+  clipStart: 0,
+  audioDurationSeconds: 13
+}, [
+  point("Texture", ["heterophony", "heterophonic"], ["variations of the same melody", "same tune with individual ornamentation"])
+]));
+
+window.textureQuestions.push(createQuestion({
+  id: "TT171",
+  title: "Heterophonic Texture — Farid al-Mahasin Ban (Egyptian singer with takht ensemble)",
+  audio: "audio/TT171.mp3",
+  prompt: "As the takht instruments shadow the singer's melody, each adding its own spontaneous ornaments rather than playing in unison, this creates:",
+  maxMarks: 1,
+  level: "Developing",
+  answerOptions: ["Rich heterophonic texture", "Strict four-part chorale harmony", "Pure unaccompanied monophony", "A fugue"],
+  answerChoices: ["Rich heterophonic texture", "Strict four-part chorale harmony", "Pure unaccompanied monophony", "A fugue"],
+  correctChoice: "Rich heterophonic texture",
+  lockAnswerOptions: true,
+  questionType: "multiple-choice",
+  responseType: "multiple-choice",
+  modelAnswer: "When instruments accompany a solo voice in this tradition, they spontaneously imitate and vary the vocal line, producing rich heterophonic texture.",
+  feedbackCorrect: "Correct. The takht instruments shadow the vocal line with their own ornaments — rich heterophony.",
+  feedbackPartial: "Good. Listen again for the instruments following the singer's melody with their own decoration.",
+  feedbackIncorrect: "Not quite. When instruments imitate a solo voice with their own ornaments at the same time, that is heterophony, not chordal harmony or monophony.",
+  vocabularyTip: "Instruments shadowing a singer with spontaneous individual ornamentation is heterophonic texture.",
+  target: "Heterophony",
+  textureFocus: "Heterophony",
+  work: "Farid al-Mahasin Ban",
+  composer: "Daoud Hosni",
+  performer: "Egyptian singer with takht ensemble",
+  collection: "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+  licence: "Public Domain Mark 1.0",
+  sourceUrl: "https://archive.org/details/1932_20241004",
+  originalId: "TKH004-Q2",
+  clipStart: 0,
+  audioDurationSeconds: 25
+}, [
+  point("Texture", ["heterophony", "heterophonic", "rich heterophonic texture"], ["instruments shadow the singer", "spontaneous ornaments around the melody"])
+]));
+
+window.textureQuestions.push(createQuestion({
+  id: "TT172",
+  title: "Heterophonic Texture — Farid al-Mahasin Ban (ensemble excerpt)",
+  audio: "audio/TT172.mp3",
+  prompt: "As the takht instruments shadow this singer's melody, each adding its own spontaneous ornaments, what texture is created?",
+  maxMarks: 1,
+  level: "Developing",
+  answerOptions: ["Rich heterophonic texture", "Strict polyphonic fugue", "Silence (monophony with no accompaniment)", "Block chordal accompaniment"],
+  answerChoices: ["Rich heterophonic texture", "Strict polyphonic fugue", "Silence (monophony with no accompaniment)", "Block chordal accompaniment"],
+  correctChoice: "Rich heterophonic texture",
+  lockAnswerOptions: true,
+  questionType: "multiple-choice",
+  responseType: "multiple-choice",
+  modelAnswer: "Instruments accompanying a solo voice in this tradition spontaneously imitate and vary the vocal line, producing heterophony.",
+  feedbackCorrect: "Correct. The instrumentalists imitate and vary the singer's line at the same time — rich heterophonic texture.",
+  feedbackPartial: "Good. Listen again for the instruments following the singer's melody with their own decoration.",
+  feedbackIncorrect: "Not quite. When instruments imitate a solo voice with their own ornaments at the same time, that is heterophony.",
+  vocabularyTip: "Instruments shadowing a singer with spontaneous individual ornamentation is heterophonic texture.",
+  target: "Heterophony",
+  textureFocus: "Heterophony",
+  work: "Farid al-Mahasin Ban",
+  composer: "Daoud Hosni",
+  performer: "Egyptian singer with takht ensemble",
+  collection: "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+  licence: "Public Domain Mark 1.0",
+  sourceUrl: "https://archive.org/details/1932_20241004",
+  originalId: "TKE007-Q1",
+  clipStart: 0,
+  audioDurationSeconds: 10
+}, [
+  point("Texture", ["heterophony", "heterophonic", "rich heterophonic texture"], ["instruments shadow the singer", "spontaneous ornaments around the melody"])
+]));
+
+// --- Hindustani classical music (worldmusic-indian review, 2026-08-19) ---
+window.textureQuestions.push(createQuestion({
+  id: "TT173",
+  title: "Drone Texture — Sitar and Tabla (Ashok Ayengar, Freedom Jam 2015)",
+  audio: "audio/TT173.mp3",
+  prompt: "Besides the sitar's melody and the tabla's rhythm, a continuous background sound sustains the tonic and dominant pitches throughout. What is this constant background sound called?",
+  maxMarks: 1,
+  level: "Developing",
+  answerOptions: ["A drone", "A pedal chord", "A descant", "An ostinato bassline"],
+  answerChoices: ["A drone", "A pedal chord", "A descant", "An ostinato bassline"],
+  correctChoice: "A drone",
+  lockAnswerOptions: true,
+  questionType: "multiple-choice",
+  responseType: "multiple-choice",
+  modelAnswer: "A drone (traditionally from a tambura) sustains the raga's tonic (sa) and dominant (pa), giving every performer a constant reference pitch throughout the performance.",
+  feedbackCorrect: "Correct. The continuous tonic/dominant background is a drone.",
+  feedbackPartial: "Good. Listen again for the constant sustained pitch underneath the sitar and tabla.",
+  feedbackIncorrect: "Not quite. A drone is a continuous sustained pitch (here the tonic and dominant), not a chord, descant or bassline pattern.",
+  vocabularyTip: "Use drone for a continuous sustained reference pitch, common in Hindustani classical music.",
+  target: "Drone",
+  textureFocus: "Drone",
+  work: "Sitar and tabla rendition (Freedom Jam 2015)",
+  composer: "Raga-based improvisation (raga not identified by uploader)",
+  performer: "Ashok Ayengar (sitar) with tabla",
+  collection: "Wikimedia Commons",
+  licence: "CC BY-SA 4.0",
+  sourceUrl: "https://commons.wikimedia.org/wiki/File:Sitar_and_tabla_rendition_-_Freedom_Jam,_2015.oga",
+  originalId: "IND001-Q2",
+  clipStart: 0,
+  audioDurationSeconds: 13
+}, [
+  point("Texture", ["drone", "continuous drone"], ["sustained pitch", "tonic and dominant sustained"])
+]));
+
 const TT_REVIEW_APPROVED_IDS = new Set([
   "TT001",
   "TT007",
@@ -4594,7 +4792,13 @@ const TT_REVIEW_APPROVED_IDS = new Set([
   "TT149",
   "TT150",
   "TT151",
-  "TT152"
+  "TT152",
+  "TT168",
+  "TT169",
+  "TT170",
+  "TT171",
+  "TT172",
+  "TT173"
 ]);
 
 const TT_REVIEW_DROPPED_IDS = new Set([

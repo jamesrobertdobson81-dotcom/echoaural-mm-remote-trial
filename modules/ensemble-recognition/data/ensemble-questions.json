@@ -1522,6 +1522,688 @@
       "teachingTag": "arab_takht"
     },
     {
+      "id": "ENS062",
+      "audioId": "ENS062",
+      "audio": "audio/ENS062.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The tabla/tanpura accompaniment and raga-based melodic structure are hallmarks of Hindustani (North Indian) classical music.",
+      "level": "Foundation",
+      "composer": "",
+      "work": "Rag Bhimpalasi",
+      "performer": "NCERT (India) educational ensemble",
+      "sourceProvider": "Wikimedia Commons (NCERT Official)",
+      "licenceType": "CC BY 3.0",
+      "attribution": "NCERT, via Wikimedia Commons (CC BY 3.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "India",
+        "Arabic",
+        "China",
+        "Argentina"
+      ],
+      "correctAnswer": "India",
+      "acceptedAnswers": [
+        "India"
+      ],
+      "ensembleLabel": "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)",
+      "teachingTag": "hindustani_raga_origin"
+    },
+    {
+      "id": "ENS063",
+      "audioId": "ENS063",
+      "audio": "audio/ENS063.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The tabla/tanpura accompaniment and raga-based melodic structure are hallmarks of Hindustani (North Indian) classical music.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Rag Khamaj",
+      "performer": "NCERT (India) educational ensemble",
+      "sourceProvider": "Wikimedia Commons (NCERT Official)",
+      "licenceType": "CC BY 3.0",
+      "attribution": "NCERT, via Wikimedia Commons (CC BY 3.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "China",
+        "India",
+        "Indonesia",
+        "Arabic"
+      ],
+      "correctAnswer": "India",
+      "acceptedAnswers": [
+        "India"
+      ],
+      "ensembleLabel": "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)",
+      "teachingTag": "hindustani_raga_origin"
+    },
+    {
+      "id": "ENS064",
+      "audioId": "ENS064",
+      "audio": "audio/ENS064.mp3",
+      "sourceQuestionId": "",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Origin",
+      "question": "Listen to the following extract. Where does this ensemble come from?",
+      "marks": 1,
+      "feedback": "The tabla/tanpura accompaniment and raga-based melodic structure are hallmarks of Hindustani (North Indian) classical music.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Rag Malkauns",
+      "performer": "NCERT (India) educational ensemble",
+      "sourceProvider": "Wikimedia Commons (NCERT Official)",
+      "licenceType": "CC BY 3.0",
+      "attribution": "NCERT, via Wikimedia Commons (CC BY 3.0)",
+      "responseType": "mc-custom",
+      "choices": [
+        "Spain",
+        "Indonesia",
+        "Arabic",
+        "India"
+      ],
+      "correctAnswer": "India",
+      "acceptedAnswers": [
+        "India"
+      ],
+      "ensembleLabel": "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)",
+      "teachingTag": "hindustani_raga_origin"
+    },
+    {
+      "id": "ENS065",
+      "audioId": "ENS065",
+      "audio": "audio/ENS065.mp3",
+      "sourceQuestionId": "SALSA-EI-01",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "In addition to the percussion and brass, name two other instruments commonly found in a salsa ensemble. (2)",
+      "marks": 2,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Mastering",
+      "composer": "",
+      "work": "Candela En La Plaza",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 2,
+      "markPoints": [
+        {
+          "label": "Piano",
+          "acceptedAnswers": [
+            "piano"
+          ]
+        },
+        {
+          "label": "Bass",
+          "acceptedAnswers": [
+            "bass",
+            "bass guitar",
+            "double bass"
+          ]
+        },
+        {
+          "label": "Vocalist",
+          "acceptedAnswers": [
+            "vocalist",
+            "singer",
+            "vocals",
+            "voice"
+          ]
+        }
+      ],
+      "correctAnswer": "Piano, bass, vocalist",
+      "acceptedAnswers": [
+        "Piano, bass, vocalist"
+      ]
+    },
+    {
+      "id": "ENS066",
+      "audioId": "ENS066",
+      "audio": "audio/ENS066.mp3",
+      "sourceQuestionId": "SALSA-EI-02",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name two percussion instruments typically used in salsa music. (2)",
+      "marks": 2,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Securing",
+      "composer": "",
+      "work": "Clave de Fuego",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 2,
+      "markPoints": [
+        {
+          "label": "Congas",
+          "acceptedAnswers": [
+            "congas",
+            "conga"
+          ]
+        },
+        {
+          "label": "Bongos",
+          "acceptedAnswers": [
+            "bongos",
+            "bongo",
+            "bongo drums"
+          ]
+        },
+        {
+          "label": "Timbales",
+          "acceptedAnswers": [
+            "timbales"
+          ]
+        },
+        {
+          "label": "Claves",
+          "acceptedAnswers": [
+            "claves"
+          ]
+        },
+        {
+          "label": "Cowbell",
+          "acceptedAnswers": [
+            "cowbell"
+          ]
+        },
+        {
+          "label": "Güiro",
+          "acceptedAnswers": [
+            "güiro",
+            "guiro"
+          ]
+        },
+        {
+          "label": "Maracas",
+          "acceptedAnswers": [
+            "maracas"
+          ]
+        }
+      ],
+      "correctAnswer": "Congas, bongos, timbales, claves, cowbell, güiro, maracas (any 2)",
+      "acceptedAnswers": [
+        "Congas, bongos, timbales, claves, cowbell, güiro, maracas"
+      ]
+    },
+    {
+      "id": "ENS067",
+      "audioId": "ENS067",
+      "audio": "audio/ENS067.mp3",
+      "sourceQuestionId": "SALSA-EI-03",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name one instrument that makes up the brass section of a salsa band. (1)",
+      "marks": 1,
+      "feedback": "Review the performing forces in the excerpt. Saxophone is a woodwind instrument, not brass, so it is not accepted here.",
+      "level": "Securing",
+      "composer": "",
+      "work": "Brass Callejón",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 1,
+      "markPoints": [
+        {
+          "label": "Trumpet or trombone",
+          "acceptedAnswers": [
+            "trumpet",
+            "trumpets",
+            "trombone",
+            "trombones"
+          ]
+        }
+      ],
+      "correctAnswer": "Trumpet or trombone",
+      "acceptedAnswers": [
+        "Trumpet or trombone"
+      ]
+    },
+    {
+      "id": "ENS068",
+      "audioId": "ENS068",
+      "audio": "audio/ENS068.mp3",
+      "sourceQuestionId": "TAKHT-EI-01",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name four instruments commonly found in a traditional Arab Takht ensemble. (4)",
+      "marks": 4,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Mastering",
+      "composer": "",
+      "work": "Maqam Garden",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 4,
+      "markPoints": [
+        {
+          "label": "Oud",
+          "acceptedAnswers": [
+            "oud"
+          ]
+        },
+        {
+          "label": "Qanun",
+          "acceptedAnswers": [
+            "qanun",
+            "kanun",
+            "qanoon"
+          ]
+        },
+        {
+          "label": "Nay",
+          "acceptedAnswers": [
+            "nay",
+            "ney"
+          ]
+        },
+        {
+          "label": "Violin",
+          "acceptedAnswers": [
+            "violin"
+          ]
+        },
+        {
+          "label": "Riqq",
+          "acceptedAnswers": [
+            "riqq",
+            "riq",
+            "rik"
+          ]
+        },
+        {
+          "label": "Darbuka",
+          "acceptedAnswers": [
+            "darbuka",
+            "darabukka",
+            "doumbek"
+          ]
+        }
+      ],
+      "correctAnswer": "Oud, qanun, nay, violin, riqq, darbuka (any 4)",
+      "acceptedAnswers": [
+        "Oud, qanun, nay, violin, riqq, darbuka"
+      ]
+    },
+    {
+      "id": "ENS069",
+      "audioId": "ENS069",
+      "audio": "audio/ENS069.mp3",
+      "sourceQuestionId": "HIND-EI-01",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name two melody instruments commonly found in a typical Hindustani classical ensemble. (2)",
+      "marks": 2,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Securing",
+      "composer": "",
+      "work": "Monsoon Alap",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 2,
+      "markPoints": [
+        {
+          "label": "Sitar",
+          "acceptedAnswers": [
+            "sitar"
+          ]
+        },
+        {
+          "label": "Sarod",
+          "acceptedAnswers": [
+            "sarod"
+          ]
+        },
+        {
+          "label": "Sarangi",
+          "acceptedAnswers": [
+            "sarangi"
+          ]
+        },
+        {
+          "label": "Bansuri",
+          "acceptedAnswers": [
+            "bansuri"
+          ]
+        },
+        {
+          "label": "Shehnai",
+          "acceptedAnswers": [
+            "shehnai"
+          ]
+        },
+        {
+          "label": "Santoor",
+          "acceptedAnswers": [
+            "santoor",
+            "santur"
+          ]
+        },
+        {
+          "label": "Violin",
+          "acceptedAnswers": [
+            "violin"
+          ]
+        }
+      ],
+      "correctAnswer": "Sitar, sarod, sarangi, bansuri, shehnai, santoor or violin (any 2)",
+      "acceptedAnswers": [
+        "Sitar, sarod, sarangi, bansuri, shehnai, santoor or violin"
+      ]
+    },
+    {
+      "id": "ENS070",
+      "audioId": "ENS070",
+      "audio": "audio/ENS070.mp3",
+      "sourceQuestionId": "HIND-EI-03",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name two plucked-string instruments commonly used as soloists in Hindustani classical music. (2)",
+      "marks": 2,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Jharna Ki Jugalbandi",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 2,
+      "markPoints": [
+        {
+          "label": "Sitar",
+          "acceptedAnswers": [
+            "sitar"
+          ]
+        },
+        {
+          "label": "Sarod",
+          "acceptedAnswers": [
+            "sarod"
+          ]
+        },
+        {
+          "label": "Santoor",
+          "acceptedAnswers": [
+            "santoor",
+            "santur"
+          ]
+        },
+        {
+          "label": "Rudra veena",
+          "acceptedAnswers": [
+            "rudra veena",
+            "veena",
+            "been"
+          ]
+        },
+        {
+          "label": "Surbahar",
+          "acceptedAnswers": [
+            "surbahar"
+          ]
+        }
+      ],
+      "correctAnswer": "Sitar and sarod; santoor, rudra veena and surbahar are further possibilities",
+      "acceptedAnswers": [
+        "Sitar and sarod"
+      ]
+    },
+    {
+      "id": "ENS071",
+      "audioId": "ENS071",
+      "audio": "audio/ENS071.mp3",
+      "sourceQuestionId": "HIND-EI-04",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name a bowed instrument commonly used as a soloist or vocal accompanist in Hindustani classical music. (1)",
+      "marks": 1,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Raga Sarangi Dawn",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 1,
+      "markPoints": [
+        {
+          "label": "Sarangi or violin",
+          "acceptedAnswers": [
+            "sarangi",
+            "violin"
+          ]
+        }
+      ],
+      "correctAnswer": "Sarangi (also accept violin)",
+      "acceptedAnswers": [
+        "Sarangi",
+        "Violin"
+      ]
+    },
+    {
+      "id": "ENS072",
+      "audioId": "ENS072",
+      "audio": "audio/ENS072.mp3",
+      "sourceQuestionId": "HIND-EI-05",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name a wind instrument commonly used in Hindustani classical music. (1)",
+      "marks": 1,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Monsoon Bansuri",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 1,
+      "markPoints": [
+        {
+          "label": "Bansuri or shehnai",
+          "acceptedAnswers": [
+            "bansuri",
+            "shehnai"
+          ]
+        }
+      ],
+      "correctAnswer": "Bansuri or shehnai",
+      "acceptedAnswers": [
+        "Bansuri",
+        "Shehnai"
+      ]
+    },
+    {
+      "id": "ENS073",
+      "audioId": "ENS073",
+      "audio": "audio/ENS073.mp3",
+      "sourceQuestionId": "HIND-EI-07",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name the two instruments that provide the rhythmic cycle and the drone in Hindustani classical music. (2)",
+      "marks": 2,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Securing",
+      "composer": "",
+      "work": "Tanpura Drone",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 2,
+      "markPoints": [
+        {
+          "label": "Tabla (rhythmic cycle / tala)",
+          "acceptedAnswers": [
+            "tabla"
+          ]
+        },
+        {
+          "label": "Tanpura (drone)",
+          "acceptedAnswers": [
+            "tanpura",
+            "tambura"
+          ]
+        }
+      ],
+      "correctAnswer": "Tabla (rhythmic cycle), tanpura (drone)",
+      "acceptedAnswers": [
+        "Tabla, tanpura"
+      ]
+    },
+    {
+      "id": "ENS074",
+      "audioId": "ENS074",
+      "audio": "audio/ENS074.mp3",
+      "sourceQuestionId": "JAZZ-EI-01",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name three instruments that commonly make up a jazz rhythm section. (3)",
+      "marks": 3,
+      "feedback": "Review the performing forces in the excerpt. Piano and guitar are accepted for one mark between them, not both.",
+      "level": "Securing",
+      "composer": "",
+      "work": "Brushwork on Mercer",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 3,
+      "markPoints": [
+        {
+          "label": "Bass",
+          "acceptedAnswers": [
+            "bass",
+            "double bass",
+            "bass guitar",
+            "upright bass"
+          ]
+        },
+        {
+          "label": "Drums",
+          "acceptedAnswers": [
+            "drums",
+            "drum kit",
+            "drumkit"
+          ]
+        },
+        {
+          "label": "Piano or guitar",
+          "acceptedAnswers": [
+            "piano",
+            "guitar"
+          ]
+        }
+      ],
+      "correctAnswer": "Bass, drums (drum kit), piano/guitar",
+      "acceptedAnswers": [
+        "Bass, drums, piano or guitar"
+      ]
+    },
+    {
+      "id": "ENS075",
+      "audioId": "ENS075",
+      "audio": "audio/ENS075.mp3",
+      "sourceQuestionId": "JAZZ-EI-02",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble Instrumentation",
+      "question": "Name the instruments that make up a typical jazz piano trio. (1)",
+      "marks": 1,
+      "feedback": "Review the performing forces in the excerpt.",
+      "level": "Developing",
+      "composer": "",
+      "work": "Midnight Brush Trio",
+      "performer": "",
+      "sourceProvider": "Suno (AI-generated) — reviewed for GCSE/IGCSE listening use",
+      "licenceType": "Original commission for EchoAural",
+      "attribution": "",
+      "responseType": "typed",
+      "maxMarks": 1,
+      "markPoints": [
+        {
+          "label": "Piano",
+          "acceptedAnswers": [
+            "piano"
+          ]
+        },
+        {
+          "label": "Double bass",
+          "acceptedAnswers": [
+            "double bass",
+            "bass",
+            "upright bass"
+          ]
+        },
+        {
+          "label": "Drum kit",
+          "acceptedAnswers": [
+            "drum kit",
+            "drums",
+            "drumkit"
+          ]
+        }
+      ],
+      "correctAnswer": "Piano, double bass and drum kit",
+      "acceptedAnswers": [
+        "Piano, double bass and drum kit"
+      ]
+    },
+    {
+      "id": "ENS076",
+      "audioId": "ENS076",
+      "audio": "audio/ENS076.mp3",
+      "sourceQuestionId": "TKH004-Q3",
+      "mode": "ensemble_recognition",
+      "category": "Ensemble",
+      "question": "What is the name of the small instrumental ensemble accompanying this singer - the most representative instrumental grouping of the eastern Arab world?",
+      "marks": 1,
+      "feedback": "The takht is the classic small ensemble (traditionally four melody instruments plus a percussion instrument) that can accompany singing or dancing, or play on its own.",
+      "level": "Developing",
+      "composer": "Daoud Hosni",
+      "work": "Farid al-Mahasin Ban",
+      "performer": "Egyptian singer with takht ensemble",
+      "sourceProvider": "Internet Archive item 1932_20241004 (Cairo Congress of Arab Music 1932)",
+      "licenceType": "Public Domain Mark 1.0",
+      "attribution": "1932 Cairo Congress of Arab Music",
+      "responseType": "mc-custom",
+      "choices": [
+        "Takht",
+        "Firqa",
+        "Gamelan",
+        "Mariachi"
+      ],
+      "correctAnswer": "Takht",
+      "acceptedAnswers": [
+        "Takht"
+      ],
+      "ensembleLabel": "Arab takht (voice + ensemble)",
+      "teachingTag": "arab_takht_vocal_accompaniment"
+    },
+    {
       "id": "ENS057",
       "audioId": "ENS057",
       "audio": "audio/ENS057.mp3",
@@ -1675,99 +2357,6 @@
       ],
       "ensembleLabel": "Chinese instrumental (Cantonese gaohu solo)",
       "teachingTag": "chinese_gaohu_origin"
-    },
-    {
-      "id": "ENS062",
-      "audioId": "ENS062",
-      "audio": "audio/ENS062.mp3",
-      "sourceQuestionId": "",
-      "mode": "ensemble_recognition",
-      "category": "Ensemble Origin",
-      "question": "Listen to the following extract. Where does this ensemble come from?",
-      "marks": 1,
-      "feedback": "The tabla/tanpura accompaniment and raga-based melodic structure are hallmarks of Hindustani (North Indian) classical music.",
-      "level": "Foundation",
-      "composer": "",
-      "work": "Rag Bhimpalasi",
-      "performer": "NCERT (India) educational ensemble",
-      "sourceProvider": "Wikimedia Commons (NCERT Official)",
-      "licenceType": "CC BY 3.0",
-      "attribution": "NCERT, via Wikimedia Commons (CC BY 3.0)",
-      "responseType": "mc-custom",
-      "choices": [
-        "India",
-        "Arabic",
-        "China",
-        "Argentina"
-      ],
-      "correctAnswer": "India",
-      "acceptedAnswers": [
-        "India"
-      ],
-      "ensembleLabel": "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)",
-      "teachingTag": "hindustani_raga_origin"
-    },
-    {
-      "id": "ENS063",
-      "audioId": "ENS063",
-      "audio": "audio/ENS063.mp3",
-      "sourceQuestionId": "",
-      "mode": "ensemble_recognition",
-      "category": "Ensemble Origin",
-      "question": "Listen to the following extract. Where does this ensemble come from?",
-      "marks": 1,
-      "feedback": "The tabla/tanpura accompaniment and raga-based melodic structure are hallmarks of Hindustani (North Indian) classical music.",
-      "level": "Developing",
-      "composer": "",
-      "work": "Rag Khamaj",
-      "performer": "NCERT (India) educational ensemble",
-      "sourceProvider": "Wikimedia Commons (NCERT Official)",
-      "licenceType": "CC BY 3.0",
-      "attribution": "NCERT, via Wikimedia Commons (CC BY 3.0)",
-      "responseType": "mc-custom",
-      "choices": [
-        "China",
-        "India",
-        "Indonesia",
-        "Arabic"
-      ],
-      "correctAnswer": "India",
-      "acceptedAnswers": [
-        "India"
-      ],
-      "ensembleLabel": "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)",
-      "teachingTag": "hindustani_raga_origin"
-    },
-    {
-      "id": "ENS064",
-      "audioId": "ENS064",
-      "audio": "audio/ENS064.mp3",
-      "sourceQuestionId": "",
-      "mode": "ensemble_recognition",
-      "category": "Ensemble Origin",
-      "question": "Listen to the following extract. Where does this ensemble come from?",
-      "marks": 1,
-      "feedback": "The tabla/tanpura accompaniment and raga-based melodic structure are hallmarks of Hindustani (North Indian) classical music.",
-      "level": "Developing",
-      "composer": "",
-      "work": "Rag Malkauns",
-      "performer": "NCERT (India) educational ensemble",
-      "sourceProvider": "Wikimedia Commons (NCERT Official)",
-      "licenceType": "CC BY 3.0",
-      "attribution": "NCERT, via Wikimedia Commons (CC BY 3.0)",
-      "responseType": "mc-custom",
-      "choices": [
-        "Spain",
-        "Indonesia",
-        "Arabic",
-        "India"
-      ],
-      "correctAnswer": "India",
-      "acceptedAnswers": [
-        "India"
-      ],
-      "ensembleLabel": "Hindustani classical ensemble (voice, tabla, tanpura/harmonium)",
-      "teachingTag": "hindustani_raga_origin"
     }
   ]
 }

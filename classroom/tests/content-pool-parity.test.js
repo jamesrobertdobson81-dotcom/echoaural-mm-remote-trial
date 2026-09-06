@@ -14,7 +14,7 @@ test('Ensemble Recognition Live Sessions expose the complete PM question pool wi
   // driven. A missing asset should fail the separate content audit loudly,
   // never disappear invisibly from one mode only.
   const adapter = createAdapter({ path, projectRoot, fs: { existsSync: () => false } });
-  assert.equal(bank.length, 54);
+  assert.equal(bank.length, 66);
   assert.equal(adapter.getQuestions().length, bank.length);
   assert.deepEqual(adapter.getQuestions().map((question) => question.id), bank.map((question) => question.id));
 });

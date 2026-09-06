@@ -13,7 +13,7 @@ const pack = JSON.parse(
 
 describe("Ensemble Recognition question bank", () => {
   it("loads resource-backed questions with audio on disk", () => {
-    assert.equal(pack.questions.length, 54);
+    assert.equal(pack.questions.length, 66);
     assert.ok(Array.isArray(pack.vocabulary));
     assert.ok(pack.vocabulary.includes("String Quartet"));
     assert.ok(pack.vocabulary.includes("Orchestra"));
