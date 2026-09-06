@@ -18,6 +18,7 @@ const state = {
   draftStudents: [],
   generatedCredentials: null,
   resetStudent: null,
+  deleteStudent: null,
   expandedClassIds: new Set(),
   // Real modules/progress-mode/ data, keyed by studentId — see
   // accounts/account-server.js's /api/teacher/progress-mode-summary route.
@@ -88,6 +89,11 @@ const els = {
   pinForm: document.getElementById("pinForm"),
   pinMessage: document.getElementById("pinMessage"),
   cancelPinButton: document.getElementById("cancelPinButton"),
+  deleteStudentDialog: document.getElementById("deleteStudentDialog"),
+  deleteStudentDialogText: document.getElementById("deleteStudentDialogText"),
+  deleteStudentMessage: document.getElementById("deleteStudentMessage"),
+  cancelDeleteStudentButton: document.getElementById("cancelDeleteStudentButton"),
+  confirmDeleteStudentButton: document.getElementById("confirmDeleteStudentButton"),
   refreshClassProgress: document.getElementById("refreshClassProgress"),
   classProgressStatus: document.getElementById("classProgressStatus"),
   learningSummaryList: document.getElementById("learningSummaryList"),
@@ -963,6 +969,7 @@ function studentRowMarkup(student) {
       <div class="student-actions">
         <button class="small-button" type="button" data-action="reset-pin">Reset PIN</button>
         <button class="${student.active ? "danger-button" : "small-button"}" type="button" data-action="toggle">${student.active ? "Disable" : "Reactivate"}</button>
+        <button class="danger-button" type="button" data-action="delete">Delete</button>
       </div>
     </article>
   `;
@@ -2681,6 +2688,14 @@ els.studentList.addEventListener("click", async (event) => {
     return;
   }
 
+  if (button.dataset.action === "delete") {
+    state.deleteStudent = student;
+    els.deleteStudentDialogText.textContent = `This permanently deletes ${student.displayName} and all of their progress, live-session and homework history. This cannot be undone.`;
+    setMessage(els.deleteStudentMessage);
+    els.deleteStudentDialog.showModal();
+    return;
+  }
+
   if (button.dataset.action === "toggle") {
     button.disabled = true;
     try {
@@ -2716,6 +2731,35 @@ els.pinForm.addEventListener("submit", async (event) => {
     state.resetStudent = null;
   } catch (error) {
     setMessage(els.pinMessage, error.message, "error");
+  }
+});
+
+els.cancelDeleteStudentButton.addEventListener("click", () => {
+  state.deleteStudent = null;
+  els.deleteStudentDialog.close();
+});
+
+els.confirmDeleteStudentButton.addEventListener("click", async () => {
+  if (!state.deleteStudent) return;
+  const { id, displayName } = state.deleteStudent;
+  setMessage(els.deleteStudentMessage);
+  els.confirmDeleteStudentButton.disabled = true;
+  try {
+    await api(`/api/teacher/students/${id}`, { method: "DELETE" });
+    els.deleteStudentDialog.close();
+    state.deleteStudent = null;
+    setMessage(els.studentFormMessage, `${displayName} was deleted.`, "success");
+    const [result] = await Promise.all([
+      api("/api/teacher/students"),
+      loadClasses()
+    ]);
+    state.students = result.students || [];
+    renderStudents();
+    await loadClassProgress(false);
+  } catch (error) {
+    setMessage(els.deleteStudentMessage, error.message, "error");
+  } finally {
+    els.confirmDeleteStudentButton.disabled = false;
   }
 });
 

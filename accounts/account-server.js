@@ -1210,7 +1210,7 @@ async function handleAccountApi(req, res, parsedUrl) {
   try {
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
-        'Access-Control-Allow-Methods': 'GET,POST,PATCH,OPTIONS',
+        'Access-Control-Allow-Methods': 'GET,POST,PATCH,DELETE,OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Credentials': 'true',
         'Cache-Control': 'no-store'
@@ -2247,6 +2247,24 @@ async function handleAccountApi(req, res, parsedUrl) {
       } finally {
         client.release();
       }
+    }
+
+    if (req.method === 'DELETE' && studentMatch) {
+      const teacher = await requireTeacher(req, res);
+      if (!teacher) return true;
+      // Hard delete, not the same thing as the PATCH active:false toggle
+      // above — that one's reversible and keeps all history; this one
+      // permanently removes the student row, cascading (per the students
+      // table's own foreign keys) to their sessions, attempts, rounds,
+      // progress-mode summaries/reviews/sync-state and skill ratings. Scoped
+      // to this teacher's own students, same as every other student route.
+      const result = await getPool().query(`
+        DELETE FROM students
+        WHERE id = $1 AND teacher_id = $2
+        RETURNING id, display_name
+      `, [studentMatch[1], teacher.id]);
+      if (!result.rows[0]) return sendJson(res, 404, { ok: false, error: 'Student not found.' });
+      return sendJson(res, 200, { ok: true, student: { id: result.rows[0].id, displayName: result.rows[0].display_name } });
     }
 
     const resetMatch = pathname.match(/^\/api\/teacher\/students\/([0-9a-f-]+)\/reset-pin$/i);
