@@ -6,8 +6,11 @@ All clips are 44.1kHz stereo MP3 at ~192-195kbps (matching the bitrate/format
 of most of the 18 existing clips in `modules/musical-language/assets/audio/`,
 e.g. `legato.mp3`, `staccato.mp3`, `sforzando.mp3`).
 
-Six of the eight requested terms were sourced with real confidence; two
-(Turn, Tenuto) were not — see the "NOT SOURCED" entries at the bottom for why.
+Six of the eight requested terms were sourced with real confidence by this
+agent's web search. Turn was not sourced this way (see its own section
+below) but was resolved afterward by reusing an already-reviewed EchoAural
+asset. Tenuto remains genuinely unsourced — see the "NOT SOURCED" entry at
+the bottom for why.
 
 All six sourced clips come from the same collection already trusted and used
 by the 18 existing ScoreDecoder clips: the **Musopen 2012 Kickstarter
@@ -205,38 +208,54 @@ but a crushed grace note). Details are per-entry below.
 
 ---
 
-## NOT SOURCED: Turn
+## Turn — sourced separately (not by this agent)
 
-Tried and could not clear the confidence bar. What I tried:
+This term was NOT sourced via the web-search process documented for the
+other six terms below/above. Attempted first (see git history for this
+file): Wikipedia's ornament article, douglasniedt.com's named Mozart
+examples (K.331, K.511 — neither in any rights-clear collection found),
+and two Bach Goldberg Variations candidates that didn't hold up to
+verification (a different edition's ornament-realisation error in one
+case; onset-detection not finding the expected 4-close-onset burst in the
+other). Skipped at that point rather than force a weak match.
 
-- Wikipedia's own "Ornament (music)" article (which covers turns) cites no
-  specific real-world recording or passage for a turn at all — only generic
-  notation diagrams.
-- A dedicated ornamentation guide (douglasniedt.com) does name specific
-  turn examples — Mozart's Piano Sonata in A (K. 331) and the Rondo in A
-  minor, K. 511 — but neither of those works is in the Musopen public-domain
-  collection (or any other rights-clear collection I could find), so I
-  couldn't get a real recording of the actual cited passage.
-- I found two Bach Goldberg Variations candidates via secondary sources
-  (an IMSLP talk-page comment about "the initial turn" in Aria bar 3 beat 2
-  in one specific edition, and a description of Variation 14 opening with
-  "a trill with initial turn") but neither held up to the same bar the other
-  five clips met: the Aria bar-3 comment was about a *different* edition's
-  ornament-realisation error, not a confirmed feature of the actual score
-  used by this recording's performer; and the dissertation source
-  separately describes a related-but-distinct Baroque ornament in this
-  piece (the German "cadence" figure — three descending notes plus one step
-  up — which is not the same shape as the textbook turn) attached to
-  specific bars, which risked mislabelling one ornament as another. I also
-  ran the same onset-detection analysis used successfully for the
-  acciaccatura on the Aria's bars following the confirmed acciaccatura (bar
-  7, where a turn is documented in some editions) and did not find the
-  expected 4-close-onset burst a turn figure should produce — the onsets
-  there read as normal-paced melodic notes, not a compressed turn.
-- Given the brief's explicit instruction not to force a weak match on
-  ornaments, and that a turn misidentified as a mordent/trill/appoggiatura
-  would actively mislead a music student, I'm skipping this term rather
-  than guessing.
+James then identified a better source directly: EchoAural already has a
+turn confirmed, reviewed and live in production, in Melody Master's own
+question bank.
+
+- **File:** `turn.mp3` (35.7s — the full excerpt, unedited; see note on
+  length below)
+- **Source:** `modules/melody-master/audio/melodic-devices/MDA040.mp3`
+  (identical file also lives at
+  `modules/melody-master/questions/mm016/MM016-audio.mp3`), copied
+  verbatim — no re-encoding.
+- **Licence:** Already cleared for production use — Musopen, Public
+  Domain Mark 1.0 (Chopin's own work is public domain; this specific
+  recording's rights are already tracked in `melody-master-melodic-
+  devices-50.json`'s `rightsNote`/`sourceProvider` fields for MDV040).
+- **Work:** Chopin, Nocturne in E-flat major, Op. 9 No. 2 (Andante),
+  piano.
+- **Why it demonstrates the term:** This is MDV040 in Melody Master's own
+  melodic-devices bank — a multiple-choice "Identify the ornament used in
+  this extract" question whose `correctAnswer` is `"Turn"`, already
+  through a completed human listening review
+  (`finalListeningReview: "Score and audio share the MM016 source
+  excerpt; the turn is printed clearly in the supplied score."`,
+  `clarityConfidence: "High"`). The bundled score image
+  (`questions/mm016/mm016-answer-restored.png`) shows the turn sign (∾)
+  printed above a note early in the second bar of the excerpt.
+- **Why the full 35.7s, not a short trim:** I located the turn's
+  approximate position from the score (second bar of the phrase) and
+  tried to pin its exact timestamp — bar-position estimate, a pitch-
+  tracking pass matching the bar's known dictation pitches
+  (`B5-A5-G5-F5-G5-D5` from MM016's own data), and spectrogram
+  inspection — but piano sustain-pedal blur made the note-to-note timing
+  too uncertain to trim confidently without risking cutting the ornament
+  out entirely. Since this source is already fully vetted (unlike the
+  other six terms above, which needed independent verification from
+  scratch), reusing the complete excerpt as-is carries no such risk.
+  Worth trimming down once someone can confirm the exact moment by ear —
+  flagging that as a follow-up rather than guessing at it.
 
 ## NOT SOURCED: Tenuto
 
