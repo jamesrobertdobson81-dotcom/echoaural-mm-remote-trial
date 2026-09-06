@@ -312,7 +312,7 @@
 
 .teacher-dashboard-v5 .student-list-v3 .student-actions {
   grid-row: 2;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 /* Keep class expansion inside the Student accounts console. The roster is

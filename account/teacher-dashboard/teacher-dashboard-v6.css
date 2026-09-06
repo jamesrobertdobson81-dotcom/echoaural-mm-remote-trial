@@ -584,6 +584,7 @@
   display: grid;
   place-items: center;
   background: var(--td-icon-surface);
+  overflow: hidden;
 }
 
 .teacher-dashboard-v5 .teacher-tool-card-v1 .teacher-button-icon img {
@@ -591,6 +592,24 @@
   height: 22px;
   object-fit: contain;
   filter: brightness(0) invert(1);
+}
+
+/* join-live-session.png and homework.png (unlike the Reports/Assessments
+   SVGs, which are already cropped tight to their own artwork) carry a lot
+   of built-in transparent padding: join-live-session's actual artwork only
+   fills 80.7% x 69.1% of its 512x512 canvas, homework's fills 83.8% x
+   83.8% (measured directly from each PNG's alpha channel). Scaling the img
+   up by the smaller of the two fill ratios' reciprocals brings the
+   artwork's longer axis flush to the tile edge without cropping or
+   distorting it; the parent's overflow:hidden above clips the resulting
+   oversized transparent margin rather than letting it spill past the
+   tile's rounded corners. */
+.teacher-dashboard-v5 #openLiveLaunchDialog.teacher-tool-card-v1 .teacher-button-icon img {
+  transform: scale(1.24);
+}
+
+.teacher-dashboard-v5 #openHomeworkLaunchDialog.teacher-tool-card-v1 .teacher-button-icon img {
+  transform: scale(1.193);
 }
 
 .teacher-dashboard-v5 .teacher-tool-card-copy-v1 {
