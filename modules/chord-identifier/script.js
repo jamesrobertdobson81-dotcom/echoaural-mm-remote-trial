@@ -318,6 +318,14 @@
     els.round.textContent = 'Question ' + (state.index + 1) + ' of ' + state.settings.count;
     els.progress.style.width = (state.index / state.settings.count * 100) + '%';
     els.next.disabled = true;
+
+    // Auto-play the chord once as soon as the question appears, so students
+    // hear it immediately rather than having to press Play Chord first. Not
+    // chained onto anything else — a blocked/failed autoplay (e.g. no user
+    // gesture yet on first load) should never stop the question from
+    // rendering, so failures are swallowed here; Play Chord remains as a
+    // manual fallback either way.
+    Audio.playChord(question.displayPitches).catch(function () {});
   }
 
   function checkAnswer(question, typedValueOrChoice) {
