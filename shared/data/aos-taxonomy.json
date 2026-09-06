@@ -1,0 +1,55 @@
+{
+  "source": "Cambridge International Education, \"Areas of study - Paper 1\", Cambridge IGCSE / IGCSE (9-1) Music 0410/0978, for examination from 2026.",
+  "scope_rule": "AoS1-3 cover the western classical tradition generally (Baroque/Classical/Romantic era, c.1600-1900) - any period-appropriate work, not only the named focus works. AoS4-7 are explicitly scoped to early-20th-century-to-present repertoire for their respective genre/topic, not to 'any vocal/dance/ensemble music ever' regardless of era.",
+  "areas": [
+    {
+      "aos_code": "AoS1",
+      "label": "Baroque music",
+      "scope": "Western classical tradition, Baroque era (c.1600-1750).",
+      "focus_works": ["Vivaldi", "Handel"],
+      "focus_areas": []
+    },
+    {
+      "aos_code": "AoS2",
+      "label": "Classical music",
+      "scope": "Western classical tradition, Classical era (c.1750-1820).",
+      "focus_works": ["Mozart"],
+      "focus_areas": []
+    },
+    {
+      "aos_code": "AoS3",
+      "label": "Romantic music",
+      "scope": "Western classical tradition, Romantic era (c.1820-1900).",
+      "focus_works": ["Smetana (Vltava, from Ma Vlast)"],
+      "focus_areas": []
+    },
+    {
+      "aos_code": "AoS4",
+      "label": "Music and words",
+      "scope": "Vocal/choral/popular-song repertoire from the early 20th century to the present day.",
+      "focus_works": [],
+      "focus_areas": ["Art song for solo voice", "Music for choirs", "Popular song and songs from musicals"]
+    },
+    {
+      "aos_code": "AoS5",
+      "label": "Music for dance",
+      "scope": "Dance-genre repertoire from the early 20th century to the present day.",
+      "focus_works": [],
+      "focus_areas": ["Tango", "Salsa", "EDM (Electronic Dance Music)"]
+    },
+    {
+      "aos_code": "AoS6",
+      "label": "Music for small ensemble",
+      "scope": "Small-ensemble/world-music traditions from the early 20th century to the present day.",
+      "focus_works": [],
+      "focus_areas": ["Silk and bamboo ensembles", "Hindustani classical music", "Arab takht ensembles"]
+    },
+    {
+      "aos_code": "AoS7",
+      "label": "Music for stage and screen",
+      "scope": "Music written for a visual medium, from the early 20th century to the present day.",
+      "focus_works": [],
+      "focus_areas": ["Ballet music", "Film music", "Computer game music"]
+    }
+  ]
+}

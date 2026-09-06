@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "classroom": "node server.js",
-    "check": "node tools/check-project.js && node tools/check-skill-metadata.js && node --test classroom/tests/*.test.js modules/exam-lab/tests/*.test.js era-explorer/tests/*.test.js modules/ensemble-recognition/tests/*.test.js modules/harmony-explorer/key-signature-sprint/tests/*.test.js modules/progress-mode/tests/*.test.js modules/structure-spotter/tests/*.test.js shared/tests/*.test.js account/student-home/tests/*.test.js account/teacher-dashboard/tests/*.test.js && node tools/check-exam-lab-integration.js",
+    "check": "node tools/check-project.js && node tools/check-skill-metadata.js && node tools/check-aos-metadata.js && node --test classroom/tests/*.test.js modules/exam-lab/tests/*.test.js era-explorer/tests/*.test.js modules/ensemble-recognition/tests/*.test.js modules/harmony-explorer/key-signature-sprint/tests/*.test.js modules/progress-mode/tests/*.test.js modules/structure-spotter/tests/*.test.js shared/tests/*.test.js account/student-home/tests/*.test.js account/teacher-dashboard/tests/*.test.js && node tools/check-exam-lab-integration.js",
     "check:exam-lab": "node --test modules/exam-lab/tests/*.test.js && node tools/check-exam-lab-integration.js",
     "check:era-explorer": "node --test era-explorer/tests/*.test.js",
     "generate:mm": "node tools/generate-melody-master-clips.js",

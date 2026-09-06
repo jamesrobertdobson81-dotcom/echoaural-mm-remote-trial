@@ -1,0 +1,961 @@
+question_id,clip_id,aos_code,aos_label,source_basis,metadata_confidence,notes
+MMX001,MTR001,AoS3,Romantic music,composer/era,medium,
+MMX002,MTR002,AoS3,Romantic music,composer/era,medium,
+MMX003,MTR003,AoS3,Romantic music,composer/era,medium,
+MMX004,MTR004,AoS3,Romantic music,composer/era,medium,
+MMX005,MTR005,AoS3,Romantic music,composer/era,high,
+MMX006,MTR006,AoS3,Romantic music,composer/era,high,
+MMX007,MTR007,AoS3,Romantic music,composer/era,high,
+MMX009,MTR009,AoS3,Romantic music,composer/era,high,
+MMX011,MTR011,AoS3,Romantic music,composer/era,high,
+MMX012,MTR012,AoS3,Romantic music,composer/era,high,
+MMX014,MTR014,AoS3,Romantic music,composer/era,high,
+MMX015,MTR015,AoS3,Romantic music,composer/era,high,
+MMX016,MTR016,AoS3,Romantic music,composer/era,high,
+MMX017,MTR017,AoS2,Classical music,composer/era,high,
+MMX018,MTR018,AoS2,Classical music,composer/era,high,
+MMX021,MTR021,AoS3,Romantic music,composer/era,high,
+MMX022,MTR022,AoS3,Romantic music,composer/era,high,
+MMX023,MTR023,AoS3,Romantic music,composer/era,high,
+MMX024,MTR024,AoS3,Romantic music,composer/era,high,
+MMX025,MTR025,AoS2,Classical music,composer/era,high,
+MMX026,MTR026,AoS2,Classical music,composer/era,high,
+MMX028,MTR028,AoS2,Classical music,composer/era,high,
+MMX029,MTR029,AoS3,Romantic music,composer/era,high,
+MMX030,MTR030,AoS3,Romantic music,composer/era,high,
+MMX031,MTR001,AoS3,Romantic music,composer/era,medium,
+MMX032,MTR002,AoS3,Romantic music,composer/era,medium,
+MMX033,MTR003,AoS3,Romantic music,composer/era,medium,
+MMX034,MTR004,AoS3,Romantic music,composer/era,medium,
+MMX035,MTR005,AoS3,Romantic music,composer/era,high,
+MMX036,MTR006,AoS3,Romantic music,composer/era,high,
+MMX037,MTR007,AoS3,Romantic music,composer/era,high,
+MMX039,MTR009,AoS3,Romantic music,composer/era,high,
+MMX040,MTR010,AoS3,Romantic music,composer/era,high,
+MMX041,MTR011,AoS3,Romantic music,composer/era,high,
+MMX042,MTR012,AoS3,Romantic music,composer/era,high,
+MMX044,MTR014,AoS3,Romantic music,composer/era,high,
+MMX045,MTR015,AoS3,Romantic music,composer/era,high,
+MMX049,MTR019,AoS2,Classical music,composer/era,high,
+MMX051,MTR021,AoS3,Romantic music,composer/era,high,
+MMX052,MTR022,AoS3,Romantic music,composer/era,high,
+MMX056,MTR026,AoS2,Classical music,composer/era,high,
+MMX057,MTR027,AoS2,Classical music,composer/era,high,
+MMX061,TT097,AoS3,Romantic music,composer/era,high,
+MMX062,MTR031,AoS5,Music for dance,work title (tango),high,
+MMX064,MTR033,AoS1,Baroque music,composer/era,high,
+MMX065,MTR034,AoS1,Baroque music,composer/era,high,
+MMX066,MTR035,AoS1,Baroque music,composer/era,high,
+MMX067,MTR036,AoS1,Baroque music,composer/era,high,
+MMX068,MTR037,AoS2,Classical music,composer/era,high,
+MMX069,MTR038,AoS1,Baroque music,composer/era,high,
+MMX070,MTR039,AoS1,Baroque music,composer/era,high,
+MMX071,MTR040,AoS1,Baroque music,composer/era,high,
+MMX072,MTR041,AoS1,Baroque music,composer/era,high,
+MMX073,MTR042,AoS1,Baroque music,composer/era,high,
+MMX074,MTR043,AoS1,Baroque music,composer/era,high,
+MMX075,MTR044,AoS1,Baroque music,composer/era,high,
+MMX076,MTR045,AoS1,Baroque music,composer/era,high,
+MMX077,MTR046,AoS1,Baroque music,composer/era,high,
+MMX078,MTR053,AoS2,Classical music,composer/era,high,
+MMX079,MTR054,AoS2,Classical music,composer/era,high,
+MMX080,MTR055,AoS2,Classical music,composer/era,high,
+MMX081,MTR056,AoS3,Romantic music,composer/era,medium,
+MMX082,MTR058,AoS3,Romantic music,composer/era,medium,
+MMX083,MTR059,AoS2,Classical music,composer/era,high,
+MMX084,MTR061,AoS2,Classical music,composer/era,high,
+MMX085,MTR063,AoS3,Romantic music,composer/era,medium,
+MMX086,MTR064,AoS3,Romantic music,composer/era,high,
+MMX087,MTR065,AoS3,Romantic music,composer/era,high,
+MMX088,MTR067,AoS3,Romantic music,composer/era,high,
+MMX089,MTR068,AoS3,Romantic music,composer/era,high,
+MMX090,MTR069,AoS3,Romantic music,composer/era,high,
+MMX091,MTR070,AoS3,Romantic music,composer/era,high,
+MMX092,MTR071,AoS3,Romantic music,composer/era,high,
+MMX093,MTR072,AoS3,Romantic music,composer/era,high,
+MMX094,MTR073,AoS3,Romantic music,composer/era,high,
+MMX095,MTR074,AoS3,Romantic music,composer/era,high,
+MMX096,MTR075,AoS3,Romantic music,composer/era,high,
+MMX097,MTR076,AoS3,Romantic music,composer/era,high,
+MMX098,MTR077,AoS3,Romantic music,composer/era,high,
+MMX099,MTR078,AoS3,Romantic music,composer/era,high,
+MMX100,MTR080,AoS3,Romantic music,composer/era,high,
+MMX101,MTR081,AoS6,Music for small ensemble,metre_family (world music ensemble),high,
+MMX102,MTR082,AoS6,Music for small ensemble,metre_family (world music ensemble),high,
+MMX103,MTR083,AoS6,Music for small ensemble,metre_family (world music ensemble),high,
+MMX104,MTR084,AoS6,Music for small ensemble,metre_family (world music ensemble),high,
+MMX105,MTR085,AoS6,Music for small ensemble,metre_family (world music ensemble),high,
+MMX106,MTR086,AoS2,Classical music,composer/era,high,
+MMX107,MTR087,AoS2,Classical music,composer/era,high,
+MMX108,MTR088,AoS3,Romantic music,composer/era,high,
+MMX109,MTR089,AoS3,Romantic music,composer/era,high,
+MMX110,MTR090,AoS3,Romantic music,composer/era,medium,
+MMX111,MTR091,AoS3,Romantic music,composer/era,high,
+MMX112,MTR092,AoS3,Romantic music,composer/era,high,
+MMX113,MTR093,AoS3,Romantic music,composer/era,high,
+MMX114,MTR094,AoS3,Romantic music,composer/era,high,
+MMX115,MTR095,AoS3,Romantic music,composer/era,high,
+MMX116,MTR096,AoS3,Romantic music,composer/era,high,
+MMX117,MTR097,AoS3,Romantic music,composer/era,high,
+MMX118,MTR098,AoS3,Romantic music,composer/era,high,
+MMX119,MTR099,AoS3,Romantic music,composer/era,medium,
+MMX120,MTR100,AoS3,Romantic music,composer/era,high,
+MMX121,MTR101,AoS1,Baroque music,composer/era,high,
+MMX123,MTR102,AoS1,Baroque music,composer/era,high,
+MDV001,MDA001,AoS2,Classical music,composer/era,high,
+MDV002,MDA002,AoS2,Classical music,composer/era,high,
+MDV005,MDA005,AoS3,Romantic music,composer/era,high,
+MDV008,MDA008,AoS3,Romantic music,composer/era,medium,
+MDV013,MDA013,AoS3,Romantic music,composer/era,high,
+MDV016,MDA016,AoS3,Romantic music,composer/era,high,
+MDV018,MDA018,AoS3,Romantic music,composer/era,high,
+MDV020,MDA020,AoS3,Romantic music,composer/era,high,
+MDV025,MDA025,AoS2,Classical music,composer/era,high,
+MDV027,MDA027,AoS2,Classical music,composer/era,high,
+MDV028,MDA028,AoS2,Classical music,composer/era,high,
+MDV037,MDA037,AoS3,Romantic music,composer/era,high,
+MDV039,MDA039,AoS1,Baroque music,composer/era,high,
+MDV040,MDA040,AoS3,Romantic music,composer/era,high,
+MDV023,MDA023,AoS3,Romantic music,composer/era,high,
+MDV004,MDA004,AoS2,Classical music,composer/era,high,
+MDV006,MDA006,AoS2,Classical music,composer/era,high,
+MDV011,MDA011,AoS3,Romantic music,composer/era,medium,
+MDV026,MDA026,AoS2,Classical music,composer/era,high,
+MDV029,MDA029,AoS3,Romantic music,composer/era,high,
+MDV030,MDA030,AoS3,Romantic music,composer/era,high,
+MDV033,MDA033,AoS2,Classical music,composer/era,high,
+MDV038,MDA038,AoS3,Romantic music,composer/era,high,
+MDV034,MDA034,AoS2,Classical music,composer/era,high,
+MDV041,MDA041,AoS1,Baroque music,composer/era,high,
+MDV042,MDA042,AoS1,Baroque music,composer/era,high,
+MDV043,MDA043,AoS1,Baroque music,composer/era,high,
+MDV044,MDA044,AoS1,Baroque music,composer/era,high,
+MDV045,MDA045,AoS1,Baroque music,composer/era,high,
+MDV046,MDA046,AoS1,Baroque music,composer/era,high,
+MDV047,MDA047,AoS2,Classical music,composer/era,high,
+MDV048,MDA048,AoS2,Classical music,composer/era,high,
+MDV049,MDA049,AoS2,Classical music,composer/era,high,
+MDV050,MDA050,AoS1,Baroque music,composer/era,high,
+MDV051,MDA051,AoS1,Baroque music,composer/era,high,
+MDV052,MDA052,AoS1,Baroque music,composer/era,high,
+MDV053,MDA053,AoS1,Baroque music,composer/era,high,
+MDV054,MDA054,AoS7,Music for stage and screen,work title/genre,high,video game music
+MDV055,MDA055,AoS7,Music for stage and screen,work title/genre,high,video game music
+MDV056,MDA056,AoS7,Music for stage and screen,work title/genre,high,video game music
+MDV057,MDA057,AoS7,Music for stage and screen,work title/genre,high,video game music
+MDV058,MDA058,AoS7,Music for stage and screen,work title/genre,high,video game music
+MDV059,MDA059,AoS7,Music for stage and screen,work title/genre,high,video game music
+MDV060,MDA060,AoS5,Music for dance,work title/genre,high,EDM
+MDV061,MDA061,AoS5,Music for dance,work title/genre,high,EDM
+MDV062,MDA062,AoS5,Music for dance,work title/genre,high,EDM
+MDV063,MDA063,AoS4,Music and words,work title/genre,high,musical theatre song
+MDV064,MDA064,AoS4,Music and words,work title/genre,high,musical theatre song
+MDV065,MDA065,AoS4,Music and words,work title/genre,high,choral/art song
+MDV066,MDA066,AoS4,Music and words,work title/genre,high,choral/art song
+MDV067,MDA067,AoS4,Music and words,work title/genre,high,choral/art song
+MDV068,MDA068,AoS5,Music for dance,work title/genre,high,tango
+MDV069,MDA069,AoS5,Music for dance,work title/genre,high,tango
+MDV070,MDA070,AoS5,Music for dance,work title/genre,high,tango
+MDV071,MDA071,AoS5,Music for dance,work title/genre,high,tango
+MDV072,MDA072,AoS5,Music for dance,work title/genre,high,salsa
+MDV073,MDA073,AoS5,Music for dance,work title/genre,high,salsa
+MDV074,MDA074,AoS5,Music for dance,work title/genre,high,salsa
+MDV075,MDA075,AoS5,Music for dance,work title/genre,high,salsa
+MDV076,MDA076,AoS5,Music for dance,work title/genre,high,salsa
+MDV077,MDA077,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+MDV078,MDA078,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+MDV079,MDA079,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+MDV080,MDA080,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+MDV081,MDA081,AoS6,Music for small ensemble,work title/genre,high,silk and bamboo ensemble
+MDV082,MDA082,AoS6,Music for small ensemble,work title/genre,high,silk and bamboo ensemble
+MDV083,MDA083,AoS6,Music for small ensemble,work title/genre,high,silk and bamboo ensemble
+MDV084,MDA084,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+MDV085,MDA085,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+MDV086,MDA086,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+MDV087,MDA087,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+MDV088,MDA088,AoS3,Romantic music,composer/era,medium,
+MDV089,MDA089,AoS1,Baroque music,composer/era,high,
+MDV090,MDA090,AoS4,Music and words,work title/genre,medium,"sacred choral introit (word-based; chant origin predates AoS4's window, closest genre fit)"
+MDV091,MDA091,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+MDV092,MDA092,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+MDV093,MDA093,AoS6,Music for small ensemble,work title/genre,high,Arab instrument demonstration
+MDV094,MDA094,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+MDV095,MDA095,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+MDV096,MDA096,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+MDV097,MDA097,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+MDV098,MDA098,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+MDV099,MDA099,AoS7,Music for stage and screen,work title/genre,medium,"Kevin MacLeod production-music cue, cinematic/action style"
+MDV100,MDA100,AoS7,Music for stage and screen,work title/genre,medium,"Kevin MacLeod production-music cue, cinematic/action style"
+MDV101,MDA101,AoS1,Baroque music,composer/era,high,
+MDV102,MDA102,AoS1,Baroque music,composer/era,high,
+MDV106,MDA106,AoS1,Baroque music,composer/era,high,
+MDV112,MDA112,AoS2,Classical music,composer/era,high,
+MDV115,MDA115,AoS3,Romantic music,composer/era,medium,
+MDV116,MDA116,AoS3,Romantic music,composer/era,high,
+MDV117,MDA117,AoS3,Romantic music,composer/era,high,
+MDV120,MDA120,AoS2,Classical music,composer/era,high,
+MM001-M,MM001,AoS2,Classical music,composer/era,high,
+MM002-S,MM002,AoS2,Classical music,composer/era,high,
+MM002-M,MM002,AoS2,Classical music,composer/era,high,
+MM003-S,MM003,AoS2,Classical music,composer/era,high,
+MM003-M,MM003,AoS2,Classical music,composer/era,high,
+MM004-F,MM004,AoS3,Romantic music,composer/era,high,
+MM004-S,MM004,AoS3,Romantic music,composer/era,high,
+MM004-M,MM004,AoS3,Romantic music,composer/era,high,
+MM005-F,MM005,AoS3,Romantic music,composer/era,high,
+MM005-M,MM005,AoS3,Romantic music,composer/era,high,
+MM006-F,MM006,AoS3,Romantic music,composer/era,high,
+MM006-D,MM006,AoS3,Romantic music,composer/era,high,
+MM006-S,MM006,AoS3,Romantic music,composer/era,high,
+MM006-M,MM006,AoS3,Romantic music,composer/era,high,
+MM007-F,MM007,AoS2,Classical music,composer/era,high,
+MM007-D,MM007,AoS2,Classical music,composer/era,high,
+MM007-S,MM007,AoS2,Classical music,composer/era,high,
+MM007-M,MM007,AoS2,Classical music,composer/era,high,
+MM009-D,MM009,AoS2,Classical music,composer/era,high,
+MM009-S,MM009,AoS2,Classical music,composer/era,high,
+MM009-M,MM009,AoS2,Classical music,composer/era,high,
+MM010-S,MM010,AoS2,Classical music,composer/era,high,
+MM010-M,MM010,AoS2,Classical music,composer/era,high,
+MM011-F,MM011,AoS2,Classical music,composer/era,high,
+MM011-D,MM011,AoS2,Classical music,composer/era,high,
+MM011-S,MM011,AoS2,Classical music,composer/era,high,
+MM011-M,MM011,AoS2,Classical music,composer/era,high,
+MM012-S,MM012,AoS3,Romantic music,composer/era,high,
+MM012-M,MM012,AoS3,Romantic music,composer/era,high,
+MM008-F,MM008,AoS3,Romantic music,composer/era,high,
+MM008-D,MM008,AoS3,Romantic music,composer/era,high,
+MM008-S,MM008,AoS3,Romantic music,composer/era,high,
+MM008-M,MM008,AoS3,Romantic music,composer/era,high,
+MM014-M,MM014,AoS3,Romantic music,composer/era,medium,
+MM015-M,MM015,AoS3,Romantic music,composer/era,medium,
+MM013-F,MM013,AoS2,Classical music,composer/era,high,
+MM013-D,MM013,AoS2,Classical music,composer/era,high,
+MM013-S,MM013,AoS2,Classical music,composer/era,high,
+MM013-M,MM013,AoS2,Classical music,composer/era,high,
+MM016-F,MM016,AoS3,Romantic music,composer/era,high,
+MM016-S,MM016,AoS3,Romantic music,composer/era,high,
+MM017-F,MM017,AoS3,Romantic music,composer/era,high,
+MM017-M,MM017,AoS3,Romantic music,composer/era,high,
+ENS001,ENS001,AoS2,Classical music,composer/era,high,
+ENS002,ENS002,AoS2,Classical music,composer/era,high,
+ENS003,ENS003,AoS3,Romantic music,composer/era,medium,
+ENS004,ENS004,AoS3,Romantic music,composer/era,high,
+ENS005,ENS005,AoS3,Romantic music,composer/era,high,
+ENS006,ENS006,AoS3,Romantic music,composer/era,high,
+ENS007,ENS007,AoS2,Classical music,composer/era,high,
+ENS008,ENS008,AoS3,Romantic music,composer/era,high,
+ENS009,ENS009,AoS3,Romantic music,composer/era,high,
+ENS010,ENS010,AoS3,Romantic music,composer/era,high,
+ENS011,ENS011,AoS2,Classical music,composer/era,high,
+ENS015,ENS015,AoS1,Baroque music,composer/era,high,
+ENS016,ENS016,AoS2,Classical music,composer/era,high,
+ENS018,ENS018,AoS6,Music for small ensemble,work title/genre,high,Balinese gamelan
+ENS020,ENS020,AoS5,Music for dance,work title/genre,medium,"ragtime, 1899 - right at the AoS4-7 20th-century boundary; ragtime originated as dance music (cakewalk), closest fit AoS5"
+ENS021,ENS021,AoS2,Classical music,composer/era,high,
+ENS022,ENS022,AoS2,Classical music,composer/era,high,
+ENS023,ENS023,AoS3,Romantic music,composer/era,medium,
+ENS024,ENS024,AoS3,Romantic music,composer/era,high,
+ENS025,ENS025,AoS3,Romantic music,composer/era,high,
+ENS026,ENS026,AoS3,Romantic music,composer/era,high,
+ENS027,ENS027,AoS2,Classical music,composer/era,high,
+ENS028,ENS028,AoS3,Romantic music,composer/era,high,
+ENS029,ENS029,AoS3,Romantic music,composer/era,high,
+ENS030,ENS030,AoS3,Romantic music,composer/era,high,
+ENS031,ENS031,AoS2,Classical music,composer/era,high,
+ENS032,ENS032,AoS2,Classical music,composer/era,high,
+ENS033,ENS033,AoS2,Classical music,composer/era,high,
+ENS034,ENS034,AoS2,Classical music,composer/era,high,
+ENS037,ENS037,AoS3,Romantic music,composer/era,medium,
+ENS038,ENS038,AoS6,Music for small ensemble,work title/genre,high,Balinese gamelan
+ENS040,ENS040,AoS5,Music for dance,work title/genre,medium,"ragtime, 1899 - right at the AoS4-7 20th-century boundary; ragtime originated as dance music (cakewalk), closest fit AoS5"
+ENS042,ENS042,AoS2,Classical music,composer/era,high,
+ENS043,ENS043,AoS3,Romantic music,composer/era,medium,
+ENS044,ENS044,AoS3,Romantic music,composer/era,high,
+ENS046,ENS046,AoS3,Romantic music,composer/era,high,
+ENS047,ENS047,AoS2,Classical music,composer/era,high,
+ENS048,ENS048,AoS3,Romantic music,composer/era,high,
+ENS049,ENS049,AoS3,Romantic music,composer/era,high,
+ENS050,ENS050,AoS3,Romantic music,composer/era,high,
+ENS051,ENS051,AoS4,Music and words,work title/genre,high,musical theatre song
+ENS052,ENS052,AoS4,Music and words,work title/genre,high,choral
+ENS053,ENS053,AoS5,Music for dance,work title/genre,high,tango
+ENS054,ENS054,AoS5,Music for dance,work title/genre,high,tango
+ENS055,ENS055,AoS5,Music for dance,work title/genre,high,tango
+ENS056,ENS056,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+ENS062,ENS062,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+ENS063,ENS063,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+ENS064,ENS064,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+ENS065,ENS065,AoS5,Music for dance,work title/genre,high,salsa
+ENS066,ENS066,AoS5,Music for dance,work title/genre,high,salsa
+ENS067,ENS067,AoS5,Music for dance,work title/genre,high,salsa (brass)
+ENS068,ENS068,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+ENS069,ENS069,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+ENS070,ENS070,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+ENS071,ENS071,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+ENS072,ENS072,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+ENS073,ENS073,AoS6,Music for small ensemble,work title/genre,high,Hindustani classical
+ENS074,ENS074,AoS4,Music and words,work title/genre,medium,"jazz combo; no CIE AoS4-7 focus area names jazz specifically, closest fit is the popular-music umbrella of AoS4"
+ENS075,ENS075,AoS4,Music and words,work title/genre,medium,"jazz combo; no CIE AoS4-7 focus area names jazz specifically, closest fit is the popular-music umbrella of AoS4"
+ENS076,ENS076,AoS6,Music for small ensemble,work title/genre,high,Arab takht ensemble
+TT001,II201,AoS1,Baroque music,composer/era,high,
+TT007,TT007,AoS1,Baroque music,composer/era,high,
+TT008,TT008,AoS1,Baroque music,composer/era,high,
+TT009,TT009,AoS3,Romantic music,composer/era,medium,
+TT010,TT010,AoS3,Romantic music,composer/era,high,
+TT011,TT011,AoS1,Baroque music,composer/era,high,
+TT012,TT012,AoS1,Baroque music,composer/era,high,
+TT013,TT013,AoS1,Baroque music,composer/era,high,
+TT014,TT014,AoS1,Baroque music,composer/era,high,
+TT015,TT015,AoS1,Baroque music,composer/era,high,
+TT016,TT016,AoS3,Romantic music,composer/era,medium,
+TT017,TT017,AoS1,Baroque music,composer/era,high,
+TT018,TT018,AoS3,Romantic music,composer/era,high,
+TT019,TT019,AoS1,Baroque music,composer/era,high,
+TT020,TT020,AoS1,Baroque music,composer/era,high,
+TT021,TT021,AoS1,Baroque music,composer/era,high,
+TT022,TT022,AoS1,Baroque music,composer/era,high,
+TT023,TT023,AoS1,Baroque music,composer/era,high,
+TT024,TT024,AoS1,Baroque music,composer/era,high,
+TT025,TT025,AoS1,Baroque music,composer/era,high,
+TT026,TT026,AoS1,Baroque music,composer/era,high,
+TT027,TT027,AoS1,Baroque music,composer/era,high,
+TT028,TT028,AoS1,Baroque music,composer/era,high,
+TT029,TT029,AoS1,Baroque music,composer/era,high,
+TT030,TT030,AoS1,Baroque music,composer/era,high,
+TT032,TT032,AoS1,Baroque music,composer/era,high,
+TT033,TT033,AoS1,Baroque music,composer/era,high,
+TT034,TT034,AoS1,Baroque music,composer/era,high,
+TT035,TT035,AoS1,Baroque music,composer/era,high,
+TT036,TT036,AoS1,Baroque music,composer/era,high,
+TT037,TT037,AoS1,Baroque music,composer/era,high,
+TT041,TT041,AoS1,Baroque music,composer/era,high,
+TT042,TT042,AoS1,Baroque music,composer/era,high,
+TT043,TT043,AoS1,Baroque music,composer/era,high,
+TT044,TT044,AoS1,Baroque music,composer/era,high,
+TT046,TT046,AoS3,Romantic music,composer/era,high,
+TT047,TT047,AoS1,Baroque music,composer/era,high,
+TT048,TT048,AoS1,Baroque music,composer/era,high,
+TT049,TT049,AoS1,Baroque music,composer/era,high,
+TT050,TT050,AoS3,Romantic music,composer/era,medium,
+TT051,TT051,AoS1,Baroque music,composer/era,high,
+TT052,TT052,AoS1,Baroque music,composer/era,high,
+TT053,TT053,AoS3,Romantic music,composer/era,medium,
+TT054,TT054,AoS3,Romantic music,composer/era,medium,
+TT055,TT055,AoS1,Baroque music,composer/era,high,
+TT056,TT056,AoS3,Romantic music,composer/era,medium,
+TT057,TT057,AoS3,Romantic music,composer/era,high,
+TT058,TT058,AoS1,Baroque music,composer/era,high,
+TT059,TT059,AoS3,Romantic music,composer/era,high,
+TT061,TT061,AoS3,Romantic music,composer/era,high,
+TT062,TT062,AoS1,Baroque music,composer/era,high,
+TT063,TT063,AoS3,Romantic music,composer/era,high,
+TT064,TT064,AoS1,Baroque music,composer/era,high,
+TT065,TT065,AoS1,Baroque music,composer/era,high,
+TT066,TT066,AoS3,Romantic music,composer/era,high,
+TT067,TT067,AoS3,Romantic music,composer/era,high,
+TT068,TT068,AoS1,Baroque music,composer/era,high,
+TT069,TT069,AoS3,Romantic music,composer/era,high,
+TT070,TT070,AoS2,Classical music,composer/era,high,
+TT071,TT071,AoS3,Romantic music,composer/era,high,
+TT072,TT072,AoS3,Romantic music,composer/era,high,
+TT073,TT073,AoS3,Romantic music,composer/era,high,
+TT075,TT075,AoS1,Baroque music,composer/era,high,
+TT076,TT076,AoS3,Romantic music,composer/era,high,
+TT077,TT077,AoS1,Baroque music,composer/era,high,
+TT078,TT078,AoS1,Baroque music,composer/era,high,
+TT079,TT079,AoS2,Classical music,composer/era,high,
+TT080,TT080,AoS2,Classical music,composer/era,high,
+TT081,TT081,AoS1,Baroque music,composer/era,high,
+TT082,TT082,AoS2,Classical music,composer/era,high,
+TT083,TT083,AoS1,Baroque music,composer/era,high,
+TT084,TT084,AoS2,Classical music,composer/era,high,
+TT085,TT085,AoS3,Romantic music,composer/era,high,
+TT086,TT086,AoS3,Romantic music,composer/era,high,
+TT087,TT087,AoS3,Romantic music,composer/era,medium,
+TT088,TT088,AoS3,Romantic music,composer/era,high,
+TT089,TT089,AoS1,Baroque music,composer/era,high,
+TT090,TT090,AoS3,Romantic music,composer/era,high,
+TT091,TT091,AoS2,Classical music,composer/era,high,
+TT093,TT093,AoS2,Classical music,composer/era,high,
+TT095,TT095,AoS2,Classical music,composer/era,high,
+TT097,TT097,AoS3,Romantic music,composer/era,high,
+TT098,TT098,AoS3,Romantic music,composer/era,high,
+TT099,TT099,AoS1,Baroque music,composer/era,high,
+TT100,TT100,AoS2,Classical music,composer/era,high,
+TT101,TT101,AoS4,Music and words,work title/genre,medium,"traditional hymn/folk song, word-based; origin predates AoS4's 20th-century window, closest genre fit"
+TT105,TT105,AoS3,Romantic music,composer/era,high,
+TT108,TT108,AoS3,Romantic music,composer/era,medium,
+TT109,TT109,AoS3,Romantic music,work title/genre,medium,"anonymous Spanish guitar Romance, commonly dated Romantic-era; no composer to confirm AoS1-3 lineage precisely"
+TT111,TT111,AoS1,Baroque music,composer/era,high,
+TT112,TT112,AoS1,Baroque music,composer/era,high,
+TT113,TT113,AoS1,Baroque music,composer/era,high,
+TT114,TT114,AoS3,Romantic music,composer/era,high,
+TT115,TT115,AoS1,Baroque music,composer/era,high,
+TT116,TT116,AoS4,Music and words,work title/genre,medium,"traditional folk round, word-based; ancient origin, closest genre fit"
+TT117,TT117,AoS4,Music and words,composer/era,medium,Renaissance-era sacred choral (predates AoS1's Baroque start and AoS4's 20th-century window); closest genre fit is AoS4 (words/choir)
+TT118,TT118,AoS2,Classical music,composer/era,high,
+TT120,TT120,AoS1,Baroque music,composer/era,high,
+TT121,TT121,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+TT122,TT122,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+TT123,TT123,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+TT124,TT124,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+TT125,TT125,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+TT127,TT127,AoS1,Baroque music,composer/era,high,
+TT128,TT128,AoS1,Baroque music,composer/era,high,
+TT130,TT130,AoS4,Music and words,composer/era,medium,Renaissance-era sacred choral (predates AoS1's Baroque start and AoS4's 20th-century window); closest genre fit is AoS4 (words/choir)
+TT131,TT131,AoS4,Music and words,composer/era,medium,Renaissance-era sacred choral (predates AoS1's Baroque start and AoS4's 20th-century window); closest genre fit is AoS4 (words/choir)
+TT132,TT132,AoS4,Music and words,composer/era,medium,Renaissance-era sacred choral (predates AoS1's Baroque start and AoS4's 20th-century window); closest genre fit is AoS4 (words/choir)
+TT133,TT133,AoS4,Music and words,composer/era,medium,Renaissance-era sacred choral (predates AoS1's Baroque start and AoS4's 20th-century window); closest genre fit is AoS4 (words/choir)
+TT134,TT134,AoS4,Music and words,composer/era,medium,Renaissance-era sacred choral (predates AoS1's Baroque start and AoS4's 20th-century window); closest genre fit is AoS4 (words/choir)
+TT135,TT135,AoS4,Music and words,composer/era,medium,Renaissance-era sacred choral (predates AoS1's Baroque start and AoS4's 20th-century window); closest genre fit is AoS4 (words/choir)
+TT136,TT136,AoS4,Music and words,work title/genre,high,"contemporary composer, choral"
+TT139,TT139,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+TT140,TT140,AoS4,Music and words,work title/genre,medium,"traditional hymn/folk song, word-based; origin predates AoS4's 20th-century window, closest genre fit"
+TT147,TT147,AoS2,Classical music,work title/genre,high,Mozart K.332
+TT148,TT148,AoS3,Romantic music,work title/genre,high,Chopin Op.15 No.2
+TT149,TT149,AoS4,Music and words,work title/genre,medium,"traditional hymn/folk song, word-based; origin predates AoS4's 20th-century window, closest genre fit"
+TT150,TT150,AoS4,Music and words,work title/genre,medium,sacred choral setting honouring a 20th-century-canonised saint; likely 20th-century composition
+TT151,TT151,AoS1,Baroque music,work title/genre,high,J.S. Bach BWV 1001
+TT152,TT152,AoS1,Baroque music,work title/genre,high,Telemann TWV fantasia
+TT168,TT168,AoS3,Romantic music,work title/genre,high,Borodin tone poem
+TT169,TT169,AoS2,Classical music,work title/genre,high,Mozart K.545
+TT170,TT170,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+TT171,TT171,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+TT172,TT172,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+TT173,TT173,AoS6,Music for small ensemble,work title/genre,high,world/small-ensemble tradition
+II001,II001,AoS2,Classical music,genre field (era),high,
+II002,II002,AoS2,Classical music,genre field (era),high,
+II003,II003,AoS2,Classical music,genre field (era),high,
+II004,II004,AoS2,Classical music,genre field (era),high,
+II005,II005,AoS2,Classical music,genre field (era),high,
+II006,II006,AoS2,Classical music,genre field (era),high,
+II007,II007,AoS1,Baroque music,genre field (era),high,
+II008,II008,AoS1,Baroque music,genre field (era),high,
+II009,II009,AoS1,Baroque music,genre field (era),high,
+II010,II010,AoS1,Baroque music,genre field (era),high,
+II011,II011,AoS2,Classical music,genre field (era),high,
+II012,II012,AoS2,Classical music,genre field (era),high,
+II014,II014,AoS2,Classical music,genre field (era),high,
+II015,II015,AoS2,Classical music,genre field (era),high,
+II016,II016,AoS2,Classical music,genre field (era),high,
+II017,II017,AoS2,Classical music,genre field (era),high,
+II018,II018,AoS2,Classical music,genre field (era),high,
+II019,II019,AoS2,Classical music,genre field (era),high,
+II020,II020,AoS1,Baroque music,genre field (era),high,
+II021,II021,AoS1,Baroque music,genre field (era),high,
+II022,II022,AoS1,Baroque music,genre field (era),high,
+II023,II023,AoS1,Baroque music,genre field (era),high,
+II024,II024,AoS1,Baroque music,genre field (era),high,
+II025,II025,AoS5,Music for dance,work title (dance form),medium,"""Sicilliene"" is a stylised dance-form title (Sicilienne); 20th-century piece with no other AoS4-7 category fit, closest fit AoS5"
+II026,II026,AoS5,Music for dance,work title (dance form),medium,"""Sicilliene"" is a stylised dance-form title (Sicilienne); 20th-century piece with no other AoS4-7 category fit, closest fit AoS5"
+II031,II031,AoS1,Baroque music,genre field (era),high,
+II032,II032,AoS1,Baroque music,genre field (era),high,
+II033,II033,AoS2,Classical music,composer/era,medium,
+II034,II034,AoS2,Classical music,composer/era,medium,
+II035,II035,AoS3,Romantic music,genre field (era),high,
+II036,II036,AoS3,Romantic music,genre field (era),high,
+II037,II037,AoS3,Romantic music,genre field (era),high,
+II038,II038,AoS3,Romantic music,genre field (era),high,
+II039,II039,AoS1,Baroque music,genre field (era),high,
+II040,II040,AoS1,Baroque music,genre field (era),high,
+II041,II041,AoS1,Baroque music,genre field (era),high,
+II042,II042,AoS1,Baroque music,genre field (era),high,
+II048,II048,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II049,II049,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II050,II050,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II051,II051,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II052,II052,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II053,II053,AoS3,Romantic music,genre field (era),high,
+II054,II054,AoS3,Romantic music,genre field (era),high,
+II055,II055,AoS3,Romantic music,genre field (era),high,
+II056,II056,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II057,II057,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II058,II058,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II059,II059,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II060,II060,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II061,II061,AoS3,Romantic music,composer/style,medium,"Elgar, 1919 concerto; stylistically continues Romantic concerto tradition despite the date, closest fit AoS3"
+II062,II062,AoS3,Romantic music,genre field (era),high,
+II063,II063,AoS3,Romantic music,genre field (era),high,
+II064,II064,AoS3,Romantic music,genre field (era),high,
+II065,II065,AoS3,Romantic music,genre field (era),high,
+II066,II066,AoS2,Classical music,genre field (era),high,
+II067,II067,AoS2,Classical music,genre field (era),high,
+II068,II068,AoS2,Classical music,genre field (era),high,
+II069,II069,AoS2,Classical music,genre field (era),high,
+II070,II070,AoS1,Baroque music,genre field (era),high,
+II071,II071,AoS1,Baroque music,genre field (era),high,
+II072,II072,AoS1,Baroque music,genre field (era),high,
+II073,II073,AoS1,Baroque music,genre field (era),high,
+II074,II074,AoS1,Baroque music,genre field (era),high,
+II075,II075,AoS3,Romantic music,genre field (era),high,
+II076,II076,AoS3,Romantic music,genre field (era),high,
+II077,II077,AoS3,Romantic music,genre field (era),high,
+II078,II078,AoS1,Baroque music,genre field (era),high,
+II079,II079,AoS1,Baroque music,genre field (era),high,
+II080,II080,AoS1,Baroque music,genre field (era),high,
+II081,II081,AoS1,Baroque music,genre field (era),high,
+II082,II082,AoS1,Baroque music,genre field (era),high,
+II083,II083,AoS1,Baroque music,genre field (era),high,
+II084,II084,AoS1,Baroque music,genre field (era),high,
+II085,II085,AoS1,Baroque music,genre field (era),high,
+II090,II090,AoS2,Classical music,genre field (era),high,
+II091,II091,AoS2,Classical music,genre field (era),high,
+II092,II092,AoS2,Classical music,genre field (era),high,
+II093,II093,AoS2,Classical music,genre field (era),high,
+II094,II094,AoS2,Classical music,genre field (era),high,
+II096,II096,AoS2,Classical music,genre field (era),high,
+II097,II097,AoS2,Classical music,genre field (era),high,
+II098,II098,AoS3,Romantic music,genre field (era),high,
+II099,II099,AoS3,Romantic music,genre field (era),high,
+II100,II100,AoS3,Romantic music,genre field (era),high,
+II101,II101,AoS1,Baroque music,genre field (era),high,
+II102,II102,AoS1,Baroque music,genre field (era),high,
+II103,II103,AoS1,Baroque music,genre field (era),high,
+II104,II104,AoS1,Baroque music,genre field (era),high,
+II105,II105,AoS1,Baroque music,genre field (era),high,
+II106,II106,AoS1,Baroque music,genre field (era),high,
+II107,II107,AoS1,Baroque music,genre field (era),high,
+II108,II108,AoS1,Baroque music,genre field (era),high,
+II109,II109,AoS1,Baroque music,genre field (era),high,
+II110,II110,AoS1,Baroque music,genre field (era),high,
+II111,II111,AoS1,Baroque music,genre field (era),high,
+II112,II112,AoS1,Baroque music,genre field (era),high,
+II113,II113,AoS1,Baroque music,genre field (era),high,
+II114,II114,AoS1,Baroque music,genre field (era),high,
+II115,II115,AoS2,Classical music,genre field (era),high,
+II116,II116,AoS2,Classical music,genre field (era),high,
+II117,II117,AoS2,Classical music,genre field (era),high,
+II121,II121,AoS3,Romantic music,genre field (era),high,
+II122,II122,AoS3,Romantic music,genre field (era),high,
+II123,II123,AoS3,Romantic music,genre field (era),high,
+II124,II124,AoS3,Romantic music,genre field (era),high,
+II125,II125,AoS3,Romantic music,genre field (era),high,
+II126,II126,AoS3,Romantic music,genre field (era),high,
+II127,II127,AoS3,Romantic music,genre field (era),high,
+II130,II130,AoS3,Romantic music,genre field (era),high,
+II132,II132,AoS2,Classical music,genre field (era),high,
+II133,II133,AoS2,Classical music,genre field (era),high,
+II134,II134,AoS2,Classical music,genre field (era),high,
+II135,II135,AoS2,Classical music,genre field (era),high,
+II136,II136,AoS2,Classical music,genre field (era),high,
+II137,II137,AoS2,Classical music,genre field (era),high,
+II138,II138,AoS2,Classical music,genre field (era),high,
+II139,II139,AoS2,Classical music,genre field (era),high,
+II140,II140,AoS2,Classical music,genre field (era),high,
+II141,II141,AoS2,Classical music,genre field (era),high,
+II142,II142,AoS2,Classical music,genre field (era),high,
+II143,II143,AoS2,Classical music,genre field (era),high,
+II144,II144,AoS1,Baroque music,genre field (era),high,
+II145,II145,AoS1,Baroque music,genre field (era),high,
+II146,II146,AoS2,Classical music,genre field (era),high,
+II147,II147,AoS2,Classical music,genre field (era),high,
+II148,II148,AoS2,Classical music,genre field (era),high,
+II152,II152,AoS2,Classical music,genre field (era),high,
+II153,II153,AoS2,Classical music,genre field (era),high,
+II154,II154,AoS2,Classical music,genre field (era),high,
+II155,II155,AoS2,Classical music,genre field (era),high,
+II156,II156,AoS2,Classical music,genre field (era),high,
+II157,II157,AoS2,Classical music,genre field (era),high,
+II158,II158,AoS2,Classical music,genre field (era),high,
+II159,II159,AoS2,Classical music,genre field (era),high,
+II160,II160,AoS2,Classical music,genre field (era),high,
+II161,II161,AoS2,Classical music,genre field (era),high,
+II162,II162,AoS2,Classical music,genre field (era),high,
+II163,II163,AoS2,Classical music,genre field (era),high,
+II164,II164,AoS2,Classical music,genre field (era),high,
+II171,II171,AoS2,Classical music,genre field (era),high,
+II172,II172,AoS2,Classical music,genre field (era),high,
+II173,II173,AoS2,Classical music,genre field (era),high,
+II174,II174,AoS2,Classical music,genre field (era),high,
+II175,II175,AoS2,Classical music,genre field (era),high,
+II176,II176,AoS2,Classical music,genre field (era),high,
+II177,II177,AoS2,Classical music,genre field (era),high,
+II178,II178,AoS2,Classical music,genre field (era),high,
+II179,II179,AoS2,Classical music,genre field (era),high,
+II180,II180,AoS2,Classical music,genre field (era),high,
+II181,II181,AoS2,Classical music,genre field (era),high,
+II182,II182,AoS2,Classical music,genre field (era),high,
+II183,II183,AoS2,Classical music,genre field (era),high,
+II184,II184,AoS3,Romantic music,genre field (era),high,
+II185,II185,AoS3,Romantic music,genre field (era),high,
+II186,II186,AoS3,Romantic music,genre field (era),high,
+II187,II187,AoS3,Romantic music,genre field (era),high,
+II188,II188,AoS3,Romantic music,genre field (era),high,
+II189,II189,AoS3,Romantic music,genre field (era),high,
+II190,II190,AoS3,Romantic music,genre field (era),high,
+II191,II191,AoS1,Baroque music,genre field (era),high,
+II192,II192,AoS1,Baroque music,genre field (era),high,
+II193,II193,AoS1,Baroque music,genre field (era),high,
+II194,II194,AoS1,Baroque music,genre field (era),high,
+II195,II195,AoS1,Baroque music,genre field (era),high,
+II196,II196,AoS1,Baroque music,genre field (era),high,
+II197,II197,AoS1,Baroque music,genre field (era),high,
+II198,II198,AoS1,Baroque music,genre field (era),high,
+II199,II199,AoS1,Baroque music,genre field (era),high,
+II200,II200,AoS1,Baroque music,genre field (era),high,
+II201,II201,AoS1,Baroque music,genre field (era),high,
+II202,II202,AoS1,Baroque music,genre field (era),high,
+II203,II203,AoS1,Baroque music,genre field (era),high,
+II205,II205,AoS1,Baroque music,genre field (era),high,
+II206,II206,AoS1,Baroque music,genre field (era),high,
+II212,II212,AoS3,Romantic music,genre field (era),high,
+II213,II213,AoS3,Romantic music,genre field (era),high,
+II214,II214,AoS3,Romantic music,genre field (era),high,
+II215,II215,AoS3,Romantic music,genre field (era),high,
+II216,II216,AoS3,Romantic music,genre field (era),high,
+II217,II217,AoS3,Romantic music,genre field (era),high,
+II218,II218,AoS3,Romantic music,genre field (era),high,
+II219,II219,AoS3,Romantic music,genre field (era),high,
+II220,II220,AoS3,Romantic music,genre field (era),high,
+II221,II221,AoS3,Romantic music,genre field (era),high,
+II223,II223,AoS1,Baroque music,genre field (era),high,
+II224,II224,AoS1,Baroque music,genre field (era),high,
+II225,II225,AoS1,Baroque music,genre field (era),high,
+II226,II226,AoS1,Baroque music,genre field (era),high,
+II227,II227,AoS1,Baroque music,genre field (era),high,
+II241,II241,AoS1,Baroque music,genre field (era),high,
+II242,II242,AoS1,Baroque music,genre field (era),high,
+II243,II243,AoS1,Baroque music,genre field (era),high,
+II244,II244,AoS1,Baroque music,genre field (era),high,
+II245,II245,AoS1,Baroque music,genre field (era),high,
+II246,II246,AoS1,Baroque music,genre field (era),high,
+II247,II247,AoS1,Baroque music,genre field (era),high,
+II248,II248,AoS1,Baroque music,genre field (era),high,
+II249,II249,AoS1,Baroque music,genre field (era),high,
+II285,II285,AoS3,Romantic music,genre field (era),high,
+II286,II286,AoS7,Music for stage and screen,prior review remark,high,
+II287,II287,AoS7,Music for stage and screen,prior review remark,high,
+II288,II288,AoS7,Music for stage and screen,prior review remark,high,
+II289,II289,AoS7,Music for stage and screen,prior review remark,high,
+II291,II291,AoS7,Music for stage and screen,prior review remark,high,
+II292,II292,AoS7,Music for stage and screen,prior review remark,high,
+II293,II293,AoS7,Music for stage and screen,prior review remark,high,
+II294,II294,AoS7,Music for stage and screen,prior review remark,high,
+II295,II295,AoS5,Music for dance,prior review remark,high,
+II296,II296,AoS5,Music for dance,prior review remark,high,
+II297,II297,AoS5,Music for dance,prior review remark,high,
+II298,II298,AoS4,Music and words,prior review remark,high,
+II299,II299,AoS4,Music and words,prior review remark,high,
+II300,II300,AoS5,Music for dance,prior review remark,high,
+II301,II301,AoS5,Music for dance,prior review remark,high,
+II302,II302,AoS5,Music for dance,prior review remark,high,
+II303,II303,AoS5,Music for dance,prior review remark,high,
+II305,II305,AoS5,Music for dance,prior review remark,high,
+II306,II306,AoS5,Music for dance,prior review remark,high,
+II309,II309,AoS6,Music for small ensemble,prior review remark,high,
+II311,II311,AoS6,Music for small ensemble,prior review remark,high,
+II312,II312,AoS6,Music for small ensemble,prior review remark,high,
+II313,II313,AoS6,Music for small ensemble,prior review remark,high,
+II314,II314,AoS6,Music for small ensemble,prior review remark,high,
+II315,II315,AoS6,Music for small ensemble,prior review remark,high,
+II316,II316,AoS6,Music for small ensemble,prior review remark,high,
+II317,II317,AoS6,Music for small ensemble,prior review remark,high,
+II318,II318,AoS5,Music for dance,prior review remark,high,
+II319,II319,AoS5,Music for dance,prior review remark,high,
+II322,II322,AoS5,Music for dance,prior review remark,high,
+II323,II323,AoS6,Music for small ensemble,prior review remark,high,
+II324,II324,AoS5,Music for dance,prior review remark,high,
+II191K,II191K,AoS1,Baroque music,genre field (era),high,
+II192K,II192K,AoS1,Baroque music,genre field (era),high,
+II193K,II193K,AoS1,Baroque music,genre field (era),high,
+II195K,II195K,AoS1,Baroque music,genre field (era),high,
+II196K,II196K,AoS1,Baroque music,genre field (era),high,
+II198K,II198K,AoS1,Baroque music,genre field (era),high,
+II325,II325,AoS3,Romantic music,genre field (era),high,
+II376,II376,AoS3,Romantic music,genre field (era),high,
+II397,II397,AoS6,Music for small ensemble,composer/tradition (world ensemble),high,
+II398,II398,AoS6,Music for small ensemble,composer/tradition (world ensemble),high,
+II399,II399,AoS6,Music for small ensemble,composer/tradition (world ensemble),high,
+II400,II400,AoS6,Music for small ensemble,composer/tradition (world ensemble),high,
+II401,II401,AoS3,Romantic music,genre field (era),high,
+II402,II402,AoS6,Music for small ensemble,composer/tradition (world ensemble),high,
+II403,II403,AoS6,Music for small ensemble,composer/tradition (world ensemble),high,
+II404,II404,AoS4,Music and words,genre field,high,
+II405,II405,AoS4,Music and words,genre field,high,
+II406,II406,AoS3,Romantic music,composer/era,medium,
+II407,II407,AoS3,Romantic music,composer/era,medium,
+II408,II408,AoS6,Music for small ensemble,genre field,high,
+II409,II409,AoS6,Music for small ensemble,genre field,high,
+II410,II410,AoS6,Music for small ensemble,genre field,high,
+II411,II411,AoS6,Music for small ensemble,prior review remark,high,
+II412,II412,AoS6,Music for small ensemble,prior review remark,high,
+II413,II413,AoS6,Music for small ensemble,prior review remark,high,
+II414,II414,AoS6,Music for small ensemble,prior review remark,high,
+II027,II027,AoS1,Baroque music,form convention,medium,"Sarabande is a Baroque dance-suite movement (solo, unaccompanied - consistent with a Baroque solo suite)"
+II028,II028,AoS1,Baroque music,form convention,medium,"Sarabande is a Baroque dance-suite movement (solo, unaccompanied - consistent with a Baroque solo suite)"
+II029,II029,AoS1,Baroque music,form convention,medium,"Sarabande is a Baroque dance-suite movement (solo, unaccompanied - consistent with a Baroque solo suite)"
+II030,II030,AoS1,Baroque music,form convention,medium,"""Double"" (variation movement) is a Baroque dance-suite term"
+II208,II208,AoS1,Baroque music,instrumentation/form convention,medium,"trumpet + organ accompaniment, Rondeau form - Baroque convention (e.g. Mouret/Purcell-style trumpet repertoire)"
+II209,II209,AoS1,Baroque music,instrumentation/form convention,medium,"trumpet + organ accompaniment, Rondeau form - Baroque convention (e.g. Mouret/Purcell-style trumpet repertoire)"
+II210,II210,AoS1,Baroque music,instrumentation/form convention,medium,"trumpet + organ accompaniment, Rondeau form - Baroque convention (e.g. Mouret/Purcell-style trumpet repertoire)"
+II211,II211,AoS1,Baroque music,instrumentation/form convention,medium,"trumpet + organ accompaniment, Rondeau form - Baroque convention (e.g. Mouret/Purcell-style trumpet repertoire)"
+II228,II228,AoS1,Baroque music,form convention,medium,Siciliano + Rondeau are Baroque dance/form terms
+II229,II229,AoS1,Baroque music,form convention,medium,Siciliano + Rondeau are Baroque dance/form terms
+II230,II230,AoS1,Baroque music,form convention,medium,Siciliano + Rondeau are Baroque dance/form terms
+II231,II231,AoS1,Baroque music,form convention,medium,Siciliano + Rondeau are Baroque dance/form terms
+II256,II256,AoS1,Baroque music,work title,high,BWV catalogue number (J.S. Bach)
+II257,II257,AoS1,Baroque music,work title,high,BWV catalogue number (J.S. Bach)
+II258,II258,AoS1,Baroque music,work title,high,BWV catalogue number (J.S. Bach)
+II259,II259,AoS1,Baroque music,work title,high,BWV catalogue number (J.S. Bach)
+II260,II260,AoS1,Baroque music,work title,high,BWV catalogue number (J.S. Bach)
+II261,II261,AoS1,Baroque music,work title,high,BWV catalogue number (J.S. Bach)
+II262,II262,AoS1,Baroque music,work title,high,BWV catalogue number (J.S. Bach)
+II263,II263,AoS1,Baroque music,work title,high,BWV catalogue number (J.S. Bach)
+II264,II264,AoS3,Romantic music,instrumentation convention,medium,"oboe + piano character piece; piano (not harpsichord/organ) accompaniment suggests a Romantic-era salon miniature, genre convention only"
+II265,II265,AoS3,Romantic music,instrumentation convention,medium,"oboe + piano character piece; piano (not harpsichord/organ) accompaniment suggests a Romantic-era salon miniature, genre convention only"
+II266,II266,AoS3,Romantic music,instrumentation convention,medium,"oboe + piano character piece; piano (not harpsichord/organ) accompaniment suggests a Romantic-era salon miniature, genre convention only"
+II267,II267,AoS3,Romantic music,instrumentation convention,medium,"oboe + piano character piece; piano (not harpsichord/organ) accompaniment suggests a Romantic-era salon miniature, genre convention only"
+II268,II268,AoS1,Baroque music,instrumentation convention,medium,oboe/bassoon + harpsichord continuo - Baroque trio-sonata texture
+II270,II270,AoS1,Baroque music,instrumentation convention,medium,oboe/bassoon + harpsichord continuo - Baroque trio-sonata texture
+II271,II271,AoS1,Baroque music,instrumentation convention,medium,oboe/bassoon + harpsichord continuo - Baroque trio-sonata texture
+II272,II272,AoS1,Baroque music,instrumentation convention,medium,oboe/bassoon + harpsichord continuo - Baroque trio-sonata texture
+II273,II273,AoS1,Baroque music,instrumentation convention,medium,oboe/bassoon + harpsichord continuo - Baroque trio-sonata texture
+II274,II274,AoS1,Baroque music,instrumentation convention,medium,oboe/bassoon + harpsichord continuo - Baroque trio-sonata texture
+II275,II275,AoS1,Baroque music,instrumentation convention,medium,oboe/bassoon + harpsichord continuo - Baroque trio-sonata texture
+II276,II276,AoS1,Baroque music,work title,high,HWV catalogue number (Handel)
+II277,II277,AoS1,Baroque music,work title,high,HWV catalogue number (Handel)
+II278,II278,AoS1,Baroque music,work title,high,HWV catalogue number (Handel)
+II279,II279,AoS1,Baroque music,work title,high,HWV catalogue number (Handel)
+II280,II280,AoS1,Baroque music,work title,high,HWV catalogue number (Handel)
+II281,II281,AoS1,Baroque music,work title,high,HWV catalogue number (Handel)
+II282,II282,AoS1,Baroque music,work title,high,HWV catalogue number (Handel)
+II284,II284,AoS1,Baroque music,work title,high,HWV catalogue number (Handel)
+II265K,II265K,AoS3,Romantic music,instrumentation convention,medium,"oboe + piano character piece; piano (not harpsichord/organ) accompaniment suggests a Romantic-era salon miniature, genre convention only"
+II271K,II271K,AoS1,Baroque music,instrumentation convention,medium,oboe/bassoon + harpsichord continuo - Baroque trio-sonata texture
+II275B,II275B,AoS1,Baroque music,instrumentation convention,medium,oboe/bassoon + harpsichord continuo - Baroque trio-sonata texture
+II326,II326,AoS5,Music for dance,instrument identity,high,the tango instrument
+II327,II327,AoS6,Music for small ensemble,instrument identity,high,Hindustani classical instrument
+II328,II328,AoS6,Music for small ensemble,instrument identity,high,Hindustani classical instrument
+II332,II332,AoS6,Music for small ensemble,instrument identity,high,Chinese silk and bamboo tradition instrument
+II333,II333,AoS6,Music for small ensemble,instrument identity,high,Chinese silk and bamboo tradition instrument
+II334,II334,AoS6,Music for small ensemble,instrument identity,high,Balinese gamelan
+II335,II335,AoS6,Music for small ensemble,instrument identity,high,Chinese silk and bamboo tradition instrument
+II336,II336,AoS6,Music for small ensemble,instrument identity,medium,Japanese traditional instrument; closest fit to AoS6's small-ensemble world traditions
+II337,II337,AoS6,Music for small ensemble,instrument identity,medium,part of the same curated world-instruments batch (II326-344); no more specific tradition identified
+II338,II338,AoS6,Music for small ensemble,instrument identity,medium,part of the same curated world-instruments batch; no more specific AoS4-7 category fits Afro-Brazilian/African percussion
+II339,II339,AoS5,Music for dance,instrument identity,medium,"Latin dance percussion, closest fit to AoS5's salsa focus area"
+II340,II340,AoS6,Music for small ensemble,instrument identity,medium,used in both Arab and Indonesian gamelan contexts; small-ensemble world tradition
+II341,II341,AoS6,Music for small ensemble,instrument identity,high,Hindustani classical instrument
+II342,II342,AoS6,Music for small ensemble,instrument identity,medium,Japanese traditional instrument; closest fit to AoS6's small-ensemble world traditions
+II343,II343,AoS6,Music for small ensemble,instrument identity,high,Hindustani classical instrument
+II392,II392,AoS6,Music for small ensemble,instrument identity,high,Hindustani classical instrument
+II396,II396,AoS6,Music for small ensemble,instrument identity,high,Arab takht ensemble instrument
+EXL001-Q01,EXL001,AoS1,Baroque music,composer/genre (extract-level),high,"Albinoni, Baroque oboe concerto"
+EXL001-Q02,EXL001,AoS1,Baroque music,composer/genre (extract-level),high,"Albinoni, Baroque oboe concerto"
+EXL001-Q03,EXL001,AoS1,Baroque music,composer/genre (extract-level),high,"Albinoni, Baroque oboe concerto"
+EXL001-Q04,EXL001,AoS1,Baroque music,composer/genre (extract-level),high,"Albinoni, Baroque oboe concerto"
+EXL001-Q05,EXL001,AoS1,Baroque music,composer/genre (extract-level),high,"Albinoni, Baroque oboe concerto"
+EXL001-Q06,EXL001,AoS1,Baroque music,composer/genre (extract-level),high,"Albinoni, Baroque oboe concerto"
+EXL001-Q07,EXL001,AoS1,Baroque music,composer/genre (extract-level),high,"Albinoni, Baroque oboe concerto"
+EXL002-Q01,EXL002,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL002-Q02,EXL002,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL002-Q03,EXL002,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL002-Q04,EXL002,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL002-Q05,EXL002,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL002-Q06,EXL002,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL002-Q07,EXL002,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL002-Q08,EXL002,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL003-Q01,EXL003,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL003-Q02,EXL003,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL003-Q03,EXL003,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL003-Q05,EXL003,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL003-Q06,EXL003,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL003-Q07,EXL003,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL003-Q08,EXL003,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL003-Q09,EXL003,AoS3,Romantic music,composer/genre (extract-level),high,"Grieg, Romantic"
+EXL004-Q01,EXL004,AoS6,Music for small ensemble,composer/genre (extract-level),high,"Hindustani classical, sitar+tabla"
+EXL004-Q02,EXL004,AoS6,Music for small ensemble,composer/genre (extract-level),high,"Hindustani classical, sitar+tabla"
+EXL004-Q03,EXL004,AoS6,Music for small ensemble,composer/genre (extract-level),high,"Hindustani classical, sitar+tabla"
+EXL004-Q04,EXL004,AoS6,Music for small ensemble,composer/genre (extract-level),high,"Hindustani classical, sitar+tabla"
+EXL004-Q05,EXL004,AoS6,Music for small ensemble,composer/genre (extract-level),high,"Hindustani classical, sitar+tabla"
+EXL004-Q06,EXL004,AoS6,Music for small ensemble,composer/genre (extract-level),high,"Hindustani classical, sitar+tabla"
+EXL004-Q07,EXL004,AoS6,Music for small ensemble,composer/genre (extract-level),high,"Hindustani classical, sitar+tabla"
+EXL005-Q01,EXL005,AoS5,Music for dance,composer/genre (extract-level),high,EDM
+EXL005-Q02,EXL005,AoS5,Music for dance,composer/genre (extract-level),high,EDM
+EXL005-Q03,EXL005,AoS5,Music for dance,composer/genre (extract-level),high,EDM
+EXL005-Q04,EXL005,AoS5,Music for dance,composer/genre (extract-level),high,EDM
+EXL005-Q05,EXL005,AoS5,Music for dance,composer/genre (extract-level),high,EDM
+EXL005-Q06,EXL005,AoS5,Music for dance,composer/genre (extract-level),high,EDM
+EXL005-Q07,EXL005,AoS5,Music for dance,composer/genre (extract-level),high,EDM
+EXL005-Q08,EXL005,AoS5,Music for dance,composer/genre (extract-level),high,EDM
+EXL006-Q01,EXL006,AoS2,Classical music,composer/genre (extract-level),high,"Mozart, Classical"
+EXL006-Q02,EXL006,AoS2,Classical music,composer/genre (extract-level),high,"Mozart, Classical"
+EXL006-Q03,EXL006,AoS2,Classical music,composer/genre (extract-level),high,"Mozart, Classical"
+EXL006-Q04,EXL006,AoS2,Classical music,composer/genre (extract-level),high,"Mozart, Classical"
+EXL006-Q05,EXL006,AoS2,Classical music,composer/genre (extract-level),high,"Mozart, Classical"
+EXL006-Q06,EXL006,AoS2,Classical music,composer/genre (extract-level),high,"Mozart, Classical"
+EXL006-Q07,EXL006,AoS2,Classical music,composer/genre (extract-level),high,"Mozart, Classical"
+EXL006-Q08,EXL006,AoS2,Classical music,composer/genre (extract-level),high,"Mozart, Classical"
+EXL007-Q01,EXL007,AoS4,Music and words,composer/genre (extract-level),high,"Josh Woodward, contemporary singer-songwriter"
+EXL007-Q02,EXL007,AoS4,Music and words,composer/genre (extract-level),high,"Josh Woodward, contemporary singer-songwriter"
+EXL007-Q03,EXL007,AoS4,Music and words,composer/genre (extract-level),high,"Josh Woodward, contemporary singer-songwriter"
+EXL007-Q04,EXL007,AoS4,Music and words,composer/genre (extract-level),high,"Josh Woodward, contemporary singer-songwriter"
+EXL007-Q05,EXL007,AoS4,Music and words,composer/genre (extract-level),high,"Josh Woodward, contemporary singer-songwriter"
+EXL007-Q06,EXL007,AoS4,Music and words,composer/genre (extract-level),high,"Josh Woodward, contemporary singer-songwriter"
+EXL007-Q07,EXL007,AoS4,Music and words,composer/genre (extract-level),high,"Josh Woodward, contemporary singer-songwriter"
+EXL008-Q01,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q02,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q03,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q04,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q05,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q06,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q07,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q08,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q09,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q10,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q11,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL008-Q12,EXL008,AoS2,Classical music,composer/genre (extract-level),medium,"Beethoven Symphony No. 8 - catalogued as 'Classical symphonic movement'/'Classical' period (lighter, Haydn-esque, atypical of his more Romantic-leaning works), overriding the usual Beethoven AoS3 default"
+EXL010-Q01,EXL010,AoS3,Romantic music,composer/genre (extract-level),high,"Tchaikovsky, Nutcracker (1892) - Romantic era by date takes priority over its ballet genre, which predates AoS7's 20th-century scope"
+EXL010-Q02,EXL010,AoS3,Romantic music,composer/genre (extract-level),high,"Tchaikovsky, Nutcracker (1892) - Romantic era by date takes priority over its ballet genre, which predates AoS7's 20th-century scope"
+EXL010-Q03,EXL010,AoS3,Romantic music,composer/genre (extract-level),high,"Tchaikovsky, Nutcracker (1892) - Romantic era by date takes priority over its ballet genre, which predates AoS7's 20th-century scope"
+EXL010-Q04,EXL010,AoS3,Romantic music,composer/genre (extract-level),high,"Tchaikovsky, Nutcracker (1892) - Romantic era by date takes priority over its ballet genre, which predates AoS7's 20th-century scope"
+EXL010-Q05,EXL010,AoS3,Romantic music,composer/genre (extract-level),high,"Tchaikovsky, Nutcracker (1892) - Romantic era by date takes priority over its ballet genre, which predates AoS7's 20th-century scope"
+EXL010-Q06,EXL010,AoS3,Romantic music,composer/genre (extract-level),high,"Tchaikovsky, Nutcracker (1892) - Romantic era by date takes priority over its ballet genre, which predates AoS7's 20th-century scope"
+EXL010-Q07,EXL010,AoS3,Romantic music,composer/genre (extract-level),high,"Tchaikovsky, Nutcracker (1892) - Romantic era by date takes priority over its ballet genre, which predates AoS7's 20th-century scope"
+EXL010-Q08,EXL010,AoS3,Romantic music,composer/genre (extract-level),high,"Tchaikovsky, Nutcracker (1892) - Romantic era by date takes priority over its ballet genre, which predates AoS7's 20th-century scope"
+EXL010-Q09,EXL010,AoS3,Romantic music,composer/genre (extract-level),high,"Tchaikovsky, Nutcracker (1892) - Romantic era by date takes priority over its ballet genre, which predates AoS7's 20th-century scope"
+EXL011-Q01,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q02,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q03,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q04,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q05,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q06,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q07,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q08,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q09,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q10,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL011-Q11,EXL011,AoS5,Music for dance,composer/genre (extract-level),medium,"Kevin MacLeod 'Sax, Rock and Roll' - instrumental rock'n'roll, historically a dance genre; not one of AoS5's three named focus genres, closest fit"
+EXL012-Q01,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q02,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q03,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q04,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q05,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q06,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q07,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q08,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q09,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q10,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL012-Q11,EXL012,AoS5,Music for dance,composer/genre (extract-level),high,disco/EDM
+EXL013-Q01,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q02,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q03,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q04,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q05,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q06,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q07,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q08,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q09,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q10,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL013-Q11,EXL013,AoS6,Music for small ensemble,composer/genre (extract-level),high,Balinese gamelan
+EXL014-Q01,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q02,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q03,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q04,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q05,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q06,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q07,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q08,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q09,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q10,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL014-Q11,EXL014,AoS5,Music for dance,composer/genre (extract-level),high,Latin dance/salsa
+EXL015-Q01,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q02,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q03,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q04,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q05,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q06,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q07,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q08,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q09,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q10,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL015-Q11,EXL015,AoS6,Music for small ensemble,composer/genre (extract-level),high,Middle Eastern
+EXL016-Q01,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q02,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q03,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q04,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q05,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q06,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q07,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q08,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q09,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q10,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL016-Q11,EXL016,AoS6,Music for small ensemble,composer/genre (extract-level),high,Indian-influenced world music
+EXL017-Q01,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q02,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q03,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q04,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q05,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q06,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q07,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q08,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q09,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q10,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL017-Q11,EXL017,AoS6,Music for small ensemble,composer/genre (extract-level),medium,"African percussion ensemble; closest fit to AoS6's small-ensemble umbrella, not one of its three named traditions"
+EXL018-Q01,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q02,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q03,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q04,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q05,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q06,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q07,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q08,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q09,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q10,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL018-Q11,EXL018,AoS4,Music and words,composer/genre (extract-level),medium,"reggae; not one of AoS5's three named dance genres, closest fit is the popular-music umbrella of AoS4"
+EXL019-Q01,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q02,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q03,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q04,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q05,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q06,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q07,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q08,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q09,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q10,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL019-Q11,EXL019,AoS6,Music for small ensemble,composer/genre (extract-level),high,Japanese folk song
+EXL020-Q01,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q02,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q03,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q04,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q05,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q06,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q07,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q08,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q09,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q10,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL020-Q11,EXL020,AoS4,Music and words,composer/genre (extract-level),medium,hip-hop; word/rap-centric genre fits AoS4's popular-song umbrella
+EXL021-Q01,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q02,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q03,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q04,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q05,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q06,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q07,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q08,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q09,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q10,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL021-Q11,EXL021,AoS4,Music and words,composer/genre (extract-level),medium,pop/light jazz
+EXL022-Q01,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q02,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q03,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q04,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q05,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q06,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q07,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q08,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q09,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q10,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL022-Q11,EXL022,AoS5,Music for dance,composer/genre (extract-level),high,house/EDM
+EXL023-Q01,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q02,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q03,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q04,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q05,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q06,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q07,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q08,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q09,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q10,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+EXL023-Q11,EXL023,AoS6,Music for small ensemble,composer/genre (extract-level),medium,Celtic folk; grouped by Exam Lab's own 'World focus' framing alongside the other AoS6 world-music extracts
+q01-bach-s1-prelude,q01-bach-s1-prelude,AoS1,Baroque music,composer/era,high,"J.S. Bach, Cello Suite No.1 BWV 1007, Prelude"

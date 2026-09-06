@@ -9,6 +9,16 @@ const LEVELLED_MELODY_CLIPS = (typeof melodyMasterLevelledClips !== "undefined" 
 const MANUAL_LEVELLED_MELODY_CLIPS = LEVELLED_MELODY_CLIPS.filter((clip) => clip?.manualLevelVariant === true);
 const ALL_MELODY_CLIPS = [...SOURCE_MELODY_CLIPS, ...MANUAL_LEVELLED_MELODY_CLIPS];
 const MELODIC_DEVICES_DATA_URL = "data/melody-master-melodic-devices-50.json";
+// Same map tools/check-aos-metadata.js validates, served as a static file —
+// no backend route needed. Fetched best-effort, once, so an answer-complete
+// payload can carry each question's CIE Area of Study code for concept-level
+// feedback (shared/js/concept-extractors.js's aosTraditionTier) without
+// concept-extractors.js itself needing to know how to load it (that file
+// stays a pure function over already-present fields — see its own header
+// comment). If this fetch fails or hasn't resolved yet by the time a
+// student answers, aosCode is simply omitted from that payload; nothing
+// about gameplay depends on it.
+const MELODY_QUESTION_AOS_MAP_URL = "/shared/data/question-aos-map.json";
 
 const DICTATION_LEVELS = [
   { id: "Foundation", index: 0 },
@@ -413,6 +423,25 @@ async function loadMelodicDeviceQuestions() {
   }
 
   return melodicDevicesLoadPromise;
+}
+
+let melodyAosMapLoadPromise = null;
+let melodyAosMapByQuestionId = null;
+
+function loadMelodyAosMap() {
+  if (!melodyAosMapLoadPromise) {
+    melodyAosMapLoadPromise = fetch(MELODY_QUESTION_AOS_MAP_URL, { cache: "no-store", headers: { Accept: "application/json" } })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        melodyAosMapByQuestionId = data?.questions || {};
+        return melodyAosMapByQuestionId;
+      })
+      .catch(() => {
+        melodyAosMapByQuestionId = {};
+        return melodyAosMapByQuestionId;
+      });
+  }
+  return melodyAosMapLoadPromise;
 }
 
 function getDeviceQuestionPool(levelName = getSelectedDeviceLevel()) {
@@ -1625,7 +1654,8 @@ function saveMelodyMasterProgress() {
           skill: "melodic-devices",
           category: result.category || "",
           selectedAnswer: result.selectedAnswer || "",
-          correctAnswer: result.correctAnswer || ""
+          correctAnswer: result.correctAnswer || "",
+          aosCode: result.aosCode || undefined
         }
       };
     }
@@ -1939,6 +1969,11 @@ function submitMelodicDeviceAnswer(choice = "") {
     selectedAnswer: selectedDeviceAnswer,
     correctAnswer: currentDeviceQuestion.correctAnswer,
     category: currentDeviceQuestion.category,
+    // Resolved from the map loadMelodyAosMap fetched at round start —
+    // omitted if that fetch hasn't resolved, same best-effort spirit as
+    // every other field here that depends on optional data (see
+    // MELODY_QUESTION_AOS_MAP_URL's own comment).
+    aosCode: melodyAosMapByQuestionId?.[currentDeviceQuestion.id]?.aos_code || undefined,
     shortComment: isCorrect
       ? "Secure melodic-device recognition."
       : (currentDeviceQuestion.feedback || `Listen again for ${currentDeviceQuestion.correctAnswer}.`)
@@ -3802,6 +3837,10 @@ async function startQuizRound() {
       if (startButton) startButton.disabled = false;
       return;
     }
+    // Best-effort, not awaited — see MELODY_QUESTION_AOS_MAP_URL's own
+    // comment. Kicked off here (round start) rather than at the moment of
+    // the first answer so it's very likely already resolved by then.
+    loadMelodyAosMap();
 
     if (startButton) startButton.disabled = false;
 
