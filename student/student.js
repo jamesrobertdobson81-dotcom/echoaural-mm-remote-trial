@@ -18,7 +18,9 @@
     feedbackPanel: document.getElementById('feedbackPanel'),
     liveAppPanel: document.getElementById('liveAppPanel'),
     liveAppFrame: document.getElementById('liveAppFrame'),
-    liveAppFrameLoading: document.getElementById('liveAppFrameLoading')
+    liveAppFrameLoading: document.getElementById('liveAppFrameLoading'),
+    outerQuizHeader: document.querySelector('.quiz-header'),
+    outerStatsRow: document.querySelector('.statsRow')
   };
 
   // Melody Master uses the same parent callback as Progress Mode when its
@@ -47,6 +49,34 @@
       els.liveAppPanel.style.removeProperty('padding');
       els.liveAppPanel.style.removeProperty('background');
     }
+  };
+
+  // Same pair of globals modules/progress-mode/script.js exposes for its
+  // own #appFrame, in the same shape — app-drivers.js's applyFocusMode
+  // already calls installRoundLabelFix/installRoundScoreFix on every
+  // driver-hosted iframe (see waitForLiveReady/waitForLiveAutoStartedQuestion
+  // below), which read window.parent.EAProgressModeGetRoundProgress/
+  // GetRoundScore to overwrite the embedded app's own "Question X of Y"/
+  // "Mark: X / Y" with the real round position. Without these defined here,
+  // that overwrite silently no-ops (the functions just don't exist on this
+  // page), leaving the embedded app's own sub-round counter showing
+  // alongside — never matching, e.g. "Question 1 of 3" for one slot of a
+  // melody-master dictation question, right underneath student-shell's own
+  // correct "Question 4 of 10" above the iframe. Reads currentState fresh
+  // each call, same as updateMixedSummary below computes the outer
+  // roundText/scoreText from, so both stay in lockstep.
+  window.EAProgressModeGetRoundProgress = function () {
+    const state = currentState || {};
+    const quiz = state.quiz || {};
+    const total = Number(quiz.totalQuestions || 0);
+    const current = Number(quiz.currentQuestionNumber || (state.question ? 1 : 0));
+    return { position: Math.max(0, current - 1), total };
+  };
+
+  window.EAProgressModeGetRoundScore = function () {
+    const state = currentState || {};
+    const student = (state.students || []).find((item) => item.id === studentId) || {};
+    return { correct: Number(student.cumulativeScore || 0), attempted: Number(student.cumulativeTotal || 0) };
   };
 
   const mixedEls = {
@@ -136,7 +166,6 @@
   let liveActiveSourceKey = '';
   let liveActiveDriver = null;
   let liveActiveLevelIndex = 0;
-  let liveRerollsThisSlot = 0;
   let liveCurrentSignature = null;
   let liveCurrentRevealedAt = null;
 
@@ -448,10 +477,26 @@
     return `/modules/melodic-intervals/${clean.replace(/^\.\//, '')}`;
   }
 
+  function setOuterRoundChromeHidden(hidden) {
+    // Same reasoning as Progress Mode's own #readyState: once a real
+    // question is showing in the driver-hosted iframe, its own "Question
+    // X of Y"/"Mark: X / Y" (now overwritten to the real round position —
+    // see EAProgressModeGetRoundProgress/GetRoundScore above) is the only
+    // one that should be visible. Left shown, this outer copy just
+    // duplicates it as a second, confusing counter sitting above the
+    // iframe. Only ever hidden for the live-app-panel case — the bespoke
+    // questionPanel/waitingPanel views have no embedded-app duplicate to
+    // step on, so they keep using this outer chrome as their one and only
+    // indicator, same as before.
+    if (els.outerQuizHeader) els.outerQuizHeader.classList.toggle('hidden', hidden);
+    if (els.outerStatsRow) els.outerStatsRow.classList.toggle('hidden', hidden);
+  }
+
   function setWaiting(message = '') {
     setModulePresentation('mixed');
     updateMixedSummary(currentState || {});
     teardownLiveIframe();
+    setOuterRoundChromeHidden(false);
     els.waitingPanel.classList.remove('hidden');
     els.questionPanel.classList.add('hidden');
     els.liveAppPanel.classList.add('hidden');
@@ -460,12 +505,14 @@
   }
 
   function showQuestionPanel() {
+    setOuterRoundChromeHidden(false);
     els.waitingPanel.classList.add('hidden');
     els.liveAppPanel.classList.add('hidden');
     els.questionPanel.classList.remove('hidden');
   }
 
   function showLiveAppPanel() {
+    setOuterRoundChromeHidden(true);
     els.waitingPanel.classList.add('hidden');
     els.questionPanel.classList.add('hidden');
     els.liveAppPanel.classList.remove('hidden');
@@ -504,7 +551,6 @@
     liveActiveSourceKey = '';
     liveActiveDriver = null;
     liveActiveLevelIndex = 0;
-    liveRerollsThisSlot = 0;
     liveCurrentSignature = null;
     liveCurrentRevealedAt = null;
     if (els.liveAppFrame.src) {
@@ -536,21 +582,6 @@
     } catch (_error) { /* cross-origin or not yet loaded */ }
   }
 
-  // Only resumes media pauseLiveFrameMedia itself already stopped mid-play
-  // (currentTime > 0) — never forces autoplay on media that was never
-  // started, which would just race the app's own pending autoplay timer.
-  function resumeLiveFrameMedia(doc) {
-    try {
-      doc.querySelectorAll('audio, video').forEach((media) => {
-        try {
-          if (media.paused && media.currentTime > 0) {
-            const playPromise = media.play();
-            if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
-          }
-        } catch (_error) { /* ignore */ }
-      });
-    } catch (_error) { /* ignore */ }
-  }
 
   // Namespaced separately from Progress Mode's own "progressmode:" keys —
   // Live Session's studentId (an "account-<id>" room participant, or an
@@ -562,21 +593,21 @@
     return `livesession:${studentId}:${sourceKey}`;
   }
 
-  const MAX_LIVE_DUPLICATE_REROLLS = 4;
-
   // Mirrors modules/progress-mode/script.js's loadCurrentSlotFrame/
   // waitForReady/waitForAutoStartedQuestion/confirmStartedThenPoll/
   // checkSignatureThenPoll/beginAnsweredPolling — the exact sequence
   // Progress Mode already uses for every one of these apps — simplified
   // for Live Session's needs: no empty-pool level-escalation-or-replace
   // retry (a teacher-run class round has one shared question per slot, not
-  // a personal queue to substitute within). Duplicate/cooldown rerolling
-  // IS kept: a driver can only pick a level, not an exact question, so
-  // without it the same student could see one question repeat within a
-  // round, or reappear in their very next Live Session with no spacing at
-  // all — shared/js/spaced-repetition.js (this cycle) and modules/
-  // progress-mode/store.js's SM-2 cooldown (future sessions) are the exact
-  // same two mechanisms Progress Mode already relies on for this.
+  // a personal queue to substitute within), and — unlike Progress Mode —
+  // no reroll on a duplicate/cooling-down signature either (see
+  // checkLiveSignatureThenPoll's own comment for why: reroll there means
+  // reloading the iframe, which re-triggers the app's own autoplay audibly
+  // every time, confirmed live as "several audio extracts" per question
+  // once today's testing had built up enough seen-history to make repeats
+  // common). Always accepts whatever the driver draws; still records it
+  // into the same seen-cycle/cooldown store, so a question is at least
+  // less likely to resurface too soon in this student's *next* session.
   function renderLiveIframeQuestion(state, question) {
     showLiveAppPanel();
     const runId = Number(state.questionRunId || 0);
@@ -589,7 +620,6 @@
     clearLiveDriverTimer();
     liveIframeRunId = runId;
     liveIframeAnswered = Boolean(state.student?.submitted);
-    liveRerollsThisSlot = 0;
     liveCurrentSignature = null;
     liveCurrentRevealedAt = null;
     els.feedbackPanel.classList.add('hidden');
@@ -706,47 +736,46 @@
     }, 50);
   }
 
-  // Same as Progress Mode's own checkSignatureThenPoll: mute first (a
-  // question that's about to be discarded as a repeat should never be
-  // heard at all, not just cut short), decide second.
+  // Deliberately does NOT reroll on a duplicate/cooling-down signature —
+  // tried that first (reloading the iframe to draw again), and confirmed
+  // live that it's audible: reloading re-triggers the target app's own
+  // autoplay every time, so a student rejecting even one repeat hears that
+  // app's clip start and get cut short, sometimes several times in a row
+  // while the exhausted pool keeps re-drawing the same handful of
+  // questions (this is what surfaced as "each question plays several
+  // audio extracts" once today's own testing had built up enough seen-
+  // history to make that common). Unlike Progress Mode's own reroll (a
+  // student's private queue, retried silently before anything is heard),
+  // a driver here can't be asked for a specific replacement question, only
+  // "start over" — which means "play its intro again" for every one of
+  // these apps. So this always accepts whatever the driver actually drew.
+  // Still records it into the same seen-cycle/cooldown store as before —
+  // no false promise of same-round dedup, but a question a class hears
+  // today genuinely is less likely to resurface too soon in a *future*
+  // session, which is the part this can actually deliver without a
+  // per-app audio contract to interrupt cleanly.
   function checkLiveSignatureThenPoll(doc, driver, runId) {
-    pauseLiveFrameMedia(doc);
-
     let signature = null;
     try { signature = driver.getSignature ? driver.getSignature(doc) : null; } catch (_error) { signature = null; }
 
-    if (signature && shouldRerollLiveSignature(signature)) {
-      liveRerollsThisSlot += 1;
-      loadLiveDriverFrame(runId);
-      return;
-    }
     if (signature) rememberLiveSlotSignature(signature);
     liveCurrentSignature = signature;
     liveCurrentRevealedAt = Date.now();
     els.liveAppFrameLoading.classList.add('hidden');
-    resumeLiveFrameMedia(doc);
     try { els.liveAppFrame.contentWindow && els.liveAppFrame.contentWindow.focus(); } catch (_error) { /* ignore */ }
     beginLiveAnsweredPolling(doc, driver, runId);
   }
 
-  function shouldRerollLiveSignature(signature) {
-    const SR = window.EchoAuralSpacedRepetition;
-    const Store = window.EAProgressModeStore;
-    const seenKey = liveSpacedRepKey(liveActiveSourceKey);
-    const alreadySeen = SR ? SR.getSeenIds(seenKey).indexOf(signature) !== -1 : false;
-    const coolingDown = Store ? Store.isSignatureCoolingDown(studentId, liveActiveSourceKey, signature) : false;
-
-    if ((alreadySeen || coolingDown) && liveRerollsThisSlot < MAX_LIVE_DUPLICATE_REROLLS) return true;
-    // Every candidate at this level has now been seen — the whole cycle is
-    // exhausted, not just this one question, so reset it (same fallback
-    // Progress Mode takes) rather than reroll forever.
-    if (alreadySeen && SR) SR.resetCycle(seenKey);
-    return false;
-  }
-
   function rememberLiveSlotSignature(signature) {
     const SR = window.EchoAuralSpacedRepetition;
-    if (SR) SR.markShown([signature], { key: liveSpacedRepKey(liveActiveSourceKey), idOf: (value) => value });
+    const seenKey = liveSpacedRepKey(liveActiveSourceKey);
+    // A source's pool is finite — once every candidate at this level has
+    // already been shown, keep accepting draws instead of quietly refusing
+    // to record anything further (SR.markShown no-ops past a full cycle
+    // otherwise). Reset first so the cycle starts fresh from here, mirroring
+    // Progress Mode's own exhausted-pool fallback.
+    if (SR && SR.getSeenIds(seenKey).indexOf(signature) !== -1) SR.resetCycle(seenKey);
+    if (SR) SR.markShown([signature], { key: seenKey, idOf: (value) => value });
   }
 
   function showLiveIframeUnavailable() {
