@@ -56,6 +56,9 @@ const QUESTION_LEVEL_LABELS = {
   securing: 'Securing',
   mastering: 'Mastering'
 };
+// Legacy fallback only — for the rare case a mixed launch reaches here with
+// no real module list at all (no dashboard preview, e.g. an old bookmarked
+// URL). Real launches always carry their own richer list in the URL.
 const DEFAULT_MIXED_MODULE_IDS = ['instrument-identifier', 'melodic-intervals'];
 
 function normaliseQuestionLevel(value) {
@@ -70,12 +73,23 @@ function numberFromParam(name, fallback, allowedValues = []) {
   return value;
 }
 
+// Was filtering every parsed id against DEFAULT_MIXED_MODULE_IDS — a
+// leftover from when "mixed" only ever meant those 2 apps. classroom-
+// server.js's own roomManager.normaliseMixedModuleIds() already validates
+// each id against the real catalogue (mixedCompatible + a registered
+// adapter) before it's trusted, so this client-side allowlist was doing
+// nothing but silently dropping every one of the question-set-builder's
+// other ~10 mixed-compatible apps — the dashboard's own real plan (e.g.
+// "ensemble-recognition,musical-language,texture-trainer,...") would
+// filter down to nothing, and this fell back to the hardcoded legacy
+// default below, collapsing an entire round onto whichever of those two
+// apps survived normaliseMixedModuleIds first. Just trim/dedupe/drop-
+// blanks here; the server remains the actual authority on what's valid.
 function parseMixedModuleIds(value = '') {
-  const allowed = new Set(DEFAULT_MIXED_MODULE_IDS);
   const parsed = String(value || '')
     .split(',')
     .map((moduleId) => moduleId.trim())
-    .filter((moduleId, index, all) => allowed.has(moduleId) && all.indexOf(moduleId) === index);
+    .filter((moduleId, index, all) => moduleId && all.indexOf(moduleId) === index);
   return parsed.length ? parsed : DEFAULT_MIXED_MODULE_IDS.slice();
 }
 
@@ -88,7 +102,12 @@ const dashboardLaunch = {
   quizLength: numberFromParam('quizLength', 3, [1, 3, 5, 10, 15]),
   maxListens: numberFromParam('maxListens', 4, [1, 2, 3, 4, 5, 6, 7, 8]),
   mixedModuleIds: parseMixedModuleIds(launchParams.get('mixedModules')),
-  classId: String(launchParams.get('classId') || '').trim()
+  classId: String(launchParams.get('classId') || '').trim(),
+  // Set by teacher-dashboard.js's submitTeacherLaunch() whenever the
+  // dashboard already built a question-set-builder preview (every non-
+  // Exam-Lab Live Session/homework launch) — see createSession() below,
+  // which is the only place this is actually used.
+  questionSetDraftId: String(launchParams.get('questionSetDraft') || '').trim()
 };
 
 if (dashboardLaunch.enabled) {
@@ -886,6 +905,17 @@ async function createSession() {
     };
     const mixedModuleIds = getEffectiveMixedModuleIds(sessionModuleId);
     if (mixedModuleIds) payload.mixedModuleIds = mixedModuleIds;
+    // The dashboard's own question-set-builder preview (moduleId/mixedModuleIds/
+    // classId above are only ever the dashboard's OWN pre-plan fallback,
+    // reconstructed from URL params) — this was parsed out of the URL at
+    // launch (see dashboardLaunch above) but never actually sent here, so
+    // classroom-server.js's /api/classroom/create never found a draft to
+    // build the room from and silently fell back to whatever this payload
+    // said instead, discarding the real planned question set. That's what
+    // let a mixed round collapse onto a single random app for its entire
+    // duration: the plan the teacher previewed was never the one actually
+    // used to build the room.
+    if (dashboardLaunch.questionSetDraftId) payload.questionSetDraftId = dashboardLaunch.questionSetDraftId;
     const response = await api('/api/classroom/create', payload);
     updateSessionCard(response);
     if (dashboardLaunch.enabled || sessionModuleId === 'exam-lab') {
