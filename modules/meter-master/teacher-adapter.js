@@ -10,6 +10,33 @@ module.exports = function createMeterMasterTeacherAdapter(context = {}) {
     return String(value || '').toLowerCase().replace(/[^a-z0-9/]+/g, ' ').replace(/\s+/g, ' ').trim();
   }
 
+  // Mirrors modules/meter-master/script.js's own deriveQuestionLevel() —
+  // level_override is a per-question review decision (74 of 116 questions
+  // carry one) and must win whenever set; the heuristic below is only the
+  // fallback for the rest, kept identical to the client-side app's so the
+  // dashboard's skill-picker and question-set-builder agree with what a
+  // student actually gets when a level is selected in Live Session.
+  const LEVEL_IDS = ['Foundation', 'Developing', 'Securing', 'Mastering'];
+  function deriveQuestionLevel(question) {
+    const override = String(question?.level_override || '').trim();
+    if (LEVEL_IDS.includes(override)) return override;
+
+    const mode = String(question?.mode || '');
+    const timeSignature = String(question?.time_signature || '');
+    const marks = Number(question?.marks || 1);
+    const usesScore = question?.requires_score === true || String(question?.requires_score || '').trim().toLowerCase() === 'true';
+
+    if (timeSignature === '5/4' || timeSignature === '12/8' || /Irregular|Rhythm and metre features|Explain notation/i.test(mode)) {
+      return 'Mastering';
+    }
+    if (usesScore) {
+      return mode === 'Skeleton-score completion' ? 'Developing' : 'Securing';
+    }
+    if (marks >= 2) return 'Securing';
+    if (/Pulse analysis|Beat-unit analysis|Discrimination|Regularity|Notation vocabulary/i.test(mode)) return 'Developing';
+    return 'Foundation';
+  }
+
   function display(value) {
     const text = String(value || '').trim();
     return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
@@ -49,7 +76,7 @@ module.exports = function createMeterMasterTeacherAdapter(context = {}) {
       fs.existsSync(resolveAudioPath(question.audio_path))
     )).map((question) => ({
       ...question,
-      level: '',
+      level: deriveQuestionLevel(question),
       musicalElement: 'Meter and rhythm',
       skillCode: /time signature/i.test(question.response_type || question.question) ? 'RHY.TIME_SIGNATURE' : 'RHY.METRE',
       skillName: /time signature/i.test(question.response_type || question.question) ? 'Time signature' : 'Metre classification'
@@ -79,6 +106,7 @@ module.exports = function createMeterMasterTeacherAdapter(context = {}) {
         moduleId: 'meter-master',
         moduleTitle: 'Meter Master',
         id: question.id,
+        level: question.level,
         index: Number(options.index || 0),
         title: `${question.id} · ${question.mode || 'Metre'}`,
         prompt: question.question || (isChoice ? 'Choose the best metre answer.' : 'Answer in your own words.'),

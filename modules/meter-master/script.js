@@ -193,6 +193,13 @@ function questionUsesScore(question) {
 }
 
 function deriveQuestionLevel(question) {
+  // level_override is a later, per-question review decision (74 of 116
+  // questions carry one) — it exists specifically to correct cases where
+  // the heuristic below gets a question's level wrong, so it must win
+  // whenever it's set rather than being silently computed over.
+  const override = String(question?.level_override || "").trim();
+  if (LEVELS.some((level) => level.id === override)) return override;
+
   const mode = String(question?.mode || "");
   const timeSignature = String(question?.time_signature || "");
   const marks = Number(question?.marks || 1);

@@ -171,6 +171,7 @@
     return {
       moduleId: 'texture-trainer',
       moduleTitle: 'Texture Trainer',
+      level: questionSystem.getQuestionLevel(normalisedQuestion),
       answerType: normalisedQuestion.responseType === 'multiple-choice' ? 'choice' : 'text',
       responseType: normalisedQuestion.responseType,
       choices: Array.isArray(normalisedQuestion.answerChoices) ? normalisedQuestion.answerChoices : [],

@@ -194,6 +194,7 @@
       choices,
       family: question.family || '',
       difficulty: question.difficulty || '',
+      level: question.level || '',
       type: question.type || '',
       maxMarks: 1,
       totalNotes: 1
