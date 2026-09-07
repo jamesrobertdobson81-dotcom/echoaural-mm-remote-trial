@@ -1191,6 +1191,31 @@
     try { els.appFrame.contentWindow && els.appFrame.contentWindow.focus(); } catch (err) {}
   }
 
+  // Every driver-backed app's own index.html has its own #answerCard (a
+  // richer right/wrong-plus-correct-answer breakdown) and/or #feedback (at
+  // minimum a "Correct"/"Not quite — the answer is X" line) — both hidden
+  // by focus mode's `.info-panel, aside.panel { display: none }` since
+  // that's the app's own RHS column, not this page's. Reading it here
+  // (still present in the DOM, just not painted) before the slot advances
+  // is what lets the RHS box below mirror it instead of just sitting on
+  // the idle area-bars view for the whole round. #answerCard first since
+  // it's the richer of the two where an app has both (e.g. meter-master
+  // clears #feedback and puts everything in #answerCard instead).
+  function extractDomAnswerDetail(doc) {
+    var cardText = "";
+    try {
+      var card = doc.getElementById("answerCard");
+      cardText = card ? (card.textContent || "").replace(/\s+/g, " ").trim() : "";
+    } catch (err) { cardText = ""; }
+    if (cardText) return { feedback: cardText };
+    var feedbackText = "";
+    try {
+      var feedbackEl = doc.getElementById("feedback");
+      feedbackText = feedbackEl ? (feedbackEl.textContent || "").replace(/\s+/g, " ").trim() : "";
+    } catch (err) { feedbackText = ""; }
+    return { feedback: feedbackText };
+  }
+
   function beginAnsweredPolling(doc, driver) {
     state.pollTimer = setInterval(function () {
       var answered;
@@ -1204,7 +1229,7 @@
         state.pollTimer = null;
         var correct = false;
         try { correct = !!driver.isCorrect(doc); } catch (err) { correct = false; }
-        advanceSlot(correct, false);
+        advanceSlot(correct, false, extractDomAnswerDetail(doc));
         return;
       }
 
@@ -1250,6 +1275,43 @@
     }, 90000);
   }
 
+  // RHS box, per question: replaces the idle area-bars view (renderDashboard)
+  // with what actually just happened — right/wrong, the student's own
+  // answer and the correct one where the source can tell us apart (only
+  // structure-spotter's real contract payload can, today — see
+  // acceptContractQuestion/handleContractMessage), otherwise the detail
+  // text scraped from the app's own (focus-mode-hidden) #answerCard/
+  // #feedback by extractDomAnswerDetail. Stays up until the next question
+  // is answered, or the round ends and finishRound()/renderSummary()
+  // replaces it with the round's bars again.
+  function renderAnswerFeedback(wasCorrect, payload) {
+    if (!els.answerCard) return;
+    var detail = payload || {};
+    var studentAnswer = detail.answerData !== undefined && detail.answerData !== null ? String(detail.answerData).trim() : "";
+    var modelAnswer = detail.modelAnswer !== undefined && detail.modelAnswer !== null ? String(detail.modelAnswer).trim() : "";
+    var feedbackText = String(detail.feedback || "").trim();
+
+    var html = "<div class=\"pm-answer-feedback " + (wasCorrect ? "is-correct" : "is-incorrect") + "\">" +
+      "<p class=\"pm-answer-feedback-status\">" + (wasCorrect ? "Correct" : "Not quite") + "</p>";
+    if (studentAnswer) {
+      html += "<p class=\"pm-answer-feedback-row\"><span>Your answer</span><strong>" + escapeHtml(studentAnswer) + "</strong></p>";
+    }
+    if (modelAnswer) {
+      html += "<p class=\"pm-answer-feedback-row\"><span>Correct answer</span><strong>" + escapeHtml(modelAnswer) + "</strong></p>";
+    }
+    // Only the DOM-scraped fallback path ever leaves both of the above
+    // blank while still having something worth showing — a source with a
+    // real payload but no useful detail text at all (rare — every driver
+    // is at minimum right/wrong-only) just shows the status line alone.
+    if (!studentAnswer && !modelAnswer && feedbackText) {
+      html += "<p class=\"pm-answer-feedback-detail\">" + escapeHtml(feedbackText) + "</p>";
+    } else if (feedbackText && feedbackText !== modelAnswer) {
+      html += "<p class=\"pm-answer-feedback-detail\">" + escapeHtml(feedbackText) + "</p>";
+    }
+    html += "</div>";
+    els.answerCard.innerHTML = html;
+  }
+
   function advanceSlot(wasCorrect, wasSkipped, payload) {
     if (state.slotResolved) return;
     state.slotResolved = true;
@@ -1257,6 +1319,8 @@
     var sourceKey = state.queue[state.position];
 
     if (!wasSkipped) {
+      renderAnswerFeedback(wasCorrect, payload);
+
       // Concept-level evidence (e.g. chord-identifier's inversion/extension
       // tier), when the app proactively reported it in its answer-complete
       // payload — the DOM-polling fallback path (beginAnsweredPolling) has

@@ -97,6 +97,8 @@
     sideModuleMain: document.getElementById('sideModuleMain'),
     sideModuleGradient: document.getElementById('sideModuleGradient'),
     waitingModuleIcon: document.getElementById('waitingModuleIcon'),
+    waitingModuleMain: document.getElementById('waitingModuleMain'),
+    waitingModuleGradient: document.getElementById('waitingModuleGradient'),
     centreModuleIcon: document.getElementById('centreModuleIcon'),
     centreModuleMain: document.getElementById('centreModuleMain'),
     centreModuleGradient: document.getElementById('centreModuleGradient'),
@@ -349,12 +351,20 @@
     if (moduleId === 'key-signature-sprint') {
       return { id: moduleId, title: 'Key Signatures', main: 'Key', gradient: 'Signatures', icon: '/assets/icons/modules/harmony-explorer.png', hint: 'Read the key signature and choose the matching key.' };
     }
+    // Reached before a question exists yet (the waiting screen always calls
+    // setModulePresentation('mixed') — see setWaiting()) and, in principle,
+    // for any moduleId this list doesn't recognise. Every real question
+    // always carries its own specific moduleId via its adapter's
+    // prepareQuestion(), so in practice this is the waiting screen's own
+    // "Live Session" brand, not a per-app fallback — it previously showed
+    // "Mixed Apps" with Progress Mode's icon, which made sense only when
+    // this file was Progress Mode's own renderer.
     return {
       id: 'mixed',
-      title: 'Mixed Apps',
-      main: 'Mixed',
-      gradient: 'Apps',
-      icon: '/assets/icons/dashboard/progress-mode.png',
+      title: 'Live Session',
+      main: 'Live',
+      gradient: 'Session',
+      icon: '/assets/icons/dashboard/join-live-session.png',
       hint: 'Your answer panel will update for each app question.'
     };
   }
@@ -377,6 +387,7 @@
 
     [
       [mixedEls.topbarModuleMain, mixedEls.topbarModuleGradient],
+      [mixedEls.waitingModuleMain, mixedEls.waitingModuleGradient],
       [mixedEls.centreModuleMain, mixedEls.centreModuleGradient],
       [mixedEls.answerModuleMain, mixedEls.answerModuleGradient]
     ].forEach(([mainEl, gradientEl]) => {

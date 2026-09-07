@@ -18,7 +18,13 @@ module.exports = function createCadenceCoachTeacherAdapter(context = {}) {
     vm.runInNewContext(fs.readFileSync(dataPath, 'utf8'), sandbox, { filename: dataPath, timeout: 1000 });
     cachedQuestions = (sandbox.window.EchoAuralCadenceQuestions || []).map((question) => ({
       ...question,
-      level: 'developing',
+      // Cadence identification is deliberately unlevelled — no per-question
+      // difficulty exists, and every question should be reachable at any
+      // requested level. Leaving level unset (not defaulting to a specific
+      // one) is what question-set-builder.js's filterCandidates()/
+      // atClassLevel() etc. actually treat as "matches every level" — a
+      // literal 'developing' here excluded these questions from every
+      // Foundation/Securing/Mastering-targeted classroom round.
       musicalElement: 'Harmony and tonality',
       skillCode: 'HAR.CADENCE',
       skillName: 'Cadence'

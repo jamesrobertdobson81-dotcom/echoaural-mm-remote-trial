@@ -465,6 +465,50 @@ body.pm-mm-score-expanded .pm-frame {
 }
 .pm-dashboard-link a { color: var(--blue); font-weight: 700; }
 
+/* RHS per-question feedback (renderAnswerFeedback in script.js) — replaces
+   the idle area-bars view between answering a question and the round
+   ending. Same translucent-tile language as .pm-streak-chip-item above,
+   tinted with --green/--red (from instrument-identifier/style.css, already
+   loaded in full — see index.html) the same way .answer-reveal.is-correct/
+   .is-wrong do. */
+.pm-answer-feedback {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, .04);
+}
+
+.pm-answer-feedback.is-correct { border-color: rgba(110, 231, 183, .32); }
+.pm-answer-feedback.is-incorrect { border-color: rgba(251, 113, 133, .32); }
+
+.pm-answer-feedback-status {
+  margin: 0 0 10px;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.pm-answer-feedback.is-correct .pm-answer-feedback-status { color: var(--green); }
+.pm-answer-feedback.is-incorrect .pm-answer-feedback-status { color: var(--red); }
+
+.pm-answer-feedback-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 6px;
+  font-size: .84rem;
+}
+.pm-answer-feedback-row span { color: var(--muted); }
+.pm-answer-feedback-row strong { color: var(--text); text-align: right; }
+
+.pm-answer-feedback-detail {
+  margin: 8px 0 0;
+  font-size: .82rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
 .pm-app-grid-empty {
   font-size: .85rem;
   color: var(--muted);

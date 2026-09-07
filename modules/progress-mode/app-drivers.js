@@ -62,21 +62,28 @@
     return !!nextButton && !nextButton.disabled;
   }
 
-  // Full marks reads "Correct"; partial marks reads "N of M marks" (see
-  // modules/musical-language/script.js). At least half marks counts as
-  // correct for Progress Mode's binary scoring — otherwise the Securing/
-  // Mastering typed-answer tier (the only place partial credit is possible
-  // here) would silently under-count real partial understanding as failure,
-  // exactly where a student is trying to clear the harder levels.
+  // #feedback is only ever cleared in modules/musical-language/script.js —
+  // renderFeedback() writes the real "Correct · N/M" / "Not quite · N/M"
+  // status into #answerCard .ml-feedback-status instead (same split as
+  // Structure Spotter's #answerCard .ss-feedback-status below, which
+  // ssIsCorrect already reads correctly). This means the #feedback-text
+  // branch this used to have was dead code that could only ever fall
+  // through to its final `return false` — every genuinely correct
+  // ScoreDecoder answer (MC or typed) was silently scored as wrong in both
+  // Progress Mode and Live Session. At least half marks counts as correct
+  // for Progress Mode's binary scoring — otherwise the Securing/Mastering
+  // typed-answer tier (the only place partial credit is possible here)
+  // would under-count real partial understanding as failure, exactly where
+  // a student is trying to clear the harder levels.
   function msLanguageIsCorrect(doc) {
     if (doc.querySelector("#answers .answer-button.incorrect")) return false;
-    var feedback = doc.getElementById("feedback");
-    if (!feedback) return true;
-    var text = feedback.textContent.trim();
-    if (text === "Correct") return true;
-    var match = /^(\d+(?:\.\d+)?) of (\d+(?:\.\d+)?) marks$/.exec(text);
+    if (doc.querySelector("#answers .answer-button.correct")) return true;
+    var status = doc.querySelector("#answerCard .ml-feedback-status");
+    if (!status) return true;
+    var text = (status.textContent || "").trim();
+    var match = /(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/.exec(text);
     if (match) return parseFloat(match[1]) >= parseFloat(match[2]) / 2;
-    return false;
+    return text.indexOf("Not quite") === -1;
   }
 
   // #questionKicker only ever shows "ELEMENT · SUBSKILL" (e.g. "TEMPO ·
@@ -742,6 +749,26 @@
   var LEVEL_VALUES = ["Foundation", "Developing", "Securing", "Mastering"];
   var LEVEL_VALUES_LOWER = ["foundation", "developing", "securing", "mastering"];
 
+  // harmony-explorer's two apps (key-signature-sprint, and era-explorer's
+  // "Context Coach" mode) predate the rest of the app's canonical
+  // Foundation/Developing/Securing/Mastering vocabulary and still use their
+  // own "foundation/developing/secure/exam" naming for their own URL params
+  // and radio values (cadence-coach shares that same UI convention, but has
+  // no per-question level data at all yet, so nothing here changes what it
+  // shows). A driver's own levelValues has two different jobs — matching
+  // against the canonical question.level the server sends (student.js's
+  // liveActiveLevelIndex), and feeding whatever value the embedded app
+  // itself expects — so it can't be the app-native array for one of those
+  // sources and canonical for the other; this translates canonical to
+  // app-native right where each driver actually talks to its own page,
+  // keeping levelValues itself canonical (and so correctly matchable).
+  function toHarmonyExplorerAppLevel(canonicalLevel) {
+    var level = String(canonicalLevel || "").toLowerCase();
+    if (level === "securing") return "secure";
+    if (level === "mastering") return "exam";
+    return level || "foundation";
+  }
+
   // Every driver belongs to exactly one of these main areas — this is what
   // Progress Mode now reports levels/feedback against, not individual
   // drivers/sub-apps. A driver's own `label` still identifies it, but only
@@ -1064,10 +1091,10 @@
       label: "Harmony Explorer · Key Signatures",
       area: "harmony",
       path: "../harmony-explorer/key-signature-sprint/index.html",
-      levelValues: ["foundation", "developing", "secure", "exam"],
+      levelValues: LEVEL_VALUES_LOWER,
       buildUrl: function (levelIndex) {
         var params = new URLSearchParams({
-          level: this.levelValues[levelIndex],
+          level: toHarmonyExplorerAppLevel(this.levelValues[levelIndex]),
           questions: "5",
           answers: "choice",
           autostart: "1"
@@ -1227,10 +1254,10 @@
       label: "ContextCoach · Composers",
       area: "context",
       path: "../../era-explorer/index.html",
-      levelValues: ["foundation", "developing", "secure", "exam"],
+      levelValues: LEVEL_VALUES_LOWER,
       configure: function (doc, levelIndex) {
         setRadio(doc, "ccSkill", "composer");
-        setRadio(doc, "ccLevel", this.levelValues[levelIndex]);
+        setRadio(doc, "ccLevel", toHarmonyExplorerAppLevel(this.levelValues[levelIndex]));
         setRadio(doc, "questionCount", "3");
       },
       startButtonId: "startButton",
@@ -1243,10 +1270,10 @@
       label: "ContextCoach · Periods",
       area: "context",
       path: "../../era-explorer/index.html",
-      levelValues: ["foundation", "developing", "secure", "exam"],
+      levelValues: LEVEL_VALUES_LOWER,
       configure: function (doc, levelIndex) {
         setRadio(doc, "ccSkill", "period");
-        setRadio(doc, "ccLevel", this.levelValues[levelIndex]);
+        setRadio(doc, "ccLevel", toHarmonyExplorerAppLevel(this.levelValues[levelIndex]));
         setRadio(doc, "questionCount", "3");
       },
       startButtonId: "startButton",
