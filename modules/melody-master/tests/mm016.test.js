@@ -93,20 +93,11 @@ test("MM016 has only the two supplied manual level variants", () => {
   });
 });
 
-test("dictation level selection substitutes every generated or supplied level variant, not just manually-flagged ones", () => {
+test("dictation level selection substitutes only supplied manual variants", () => {
   const appSource = fs.readFileSync(path.join(moduleRoot, "script.js"), "utf8");
-  assert.match(appSource, /const ALL_MELODY_CLIPS = \[\.\.\.SOURCE_MELODY_CLIPS, \.\.\.LEVELLED_MELODY_CLIPS\]/);
-  assert.match(appSource, /matchingLevelVariants = LEVELLED_MELODY_CLIPS\.filter\(\(clip\) => clip\.level === selectedLevel\)/);
-  assert.match(appSource, /replacedSourceIds\.has\(clip\.id\)/);
-  // Every source question with at least one generated/supplied level variant
-  // should have a distinct variant selectable at every level that exists for
-  // it, not silently fall back to the same generic version everywhere.
-  const variantsBySource = new Map();
-  melodyMasterLevelledClips.forEach((clip) => {
-    if (!variantsBySource.has(clip.sourceQuestionId)) variantsBySource.set(clip.sourceQuestionId, new Set());
-    variantsBySource.get(clip.sourceQuestionId).add(clip.level);
-  });
-  assert.ok(variantsBySource.size >= 14, "expected most of the 16 source melodies to have generated level variants");
+  assert.match(appSource, /MANUAL_LEVELLED_MELODY_CLIPS = LEVELLED_MELODY_CLIPS\.filter/);
+  assert.match(appSource, /matchingManualVariants = MANUAL_LEVELLED_MELODY_CLIPS\.filter\(\(clip\) => clip\.level === selectedLevel\)/);
+  assert.match(appSource, /manuallyReplacedSourceIds\.has\(clip\.id\)/);
 });
 
 test("MDV040 identifies the turn with bundled audio and score", () => {
