@@ -4,7 +4,7 @@ const vm = require('vm');
 const os = require('os');
 const crypto = require('crypto');
 const { RoomManager, DEFAULT_MAX_LISTENS } = require('./room-manager');
-const { getTeacherSession, getStudentSession } = require('../accounts/account-server');
+const { getTeacherSession, getStudentSession, setAccountCorsHeaders } = require('../accounts/account-server');
 const { getPool } = require('../db/pool');
 const { saveTeacherModeProgress } = require('./progress-recorder');
 const { createAdapters } = require('./adapters');
@@ -166,10 +166,17 @@ function getMp3DurationSeconds(filePath) {
 
 function sendJson(res, statusCode, payload) {
   const body = JSON.stringify(payload);
+  // No Access-Control-Allow-Origin here — the caller (handleApi) already set
+  // it via setAccountCorsHeaders before any response is written, reflecting
+  // the actual request origin. A wildcard '*' here used to win instead (Node
+  // merges res.writeHead's own header object over anything staged with
+  // res.setHeader, only when the same header name appears in both), which
+  // browsers silently reject for any fetch sent with credentials: 'include'
+  // (every account/classroom API call) — surfacing as a bare "Failed to
+  // fetch" with no server-visible request at all.
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
-    'Cache-Control': 'no-store',
-    'Access-Control-Allow-Origin': '*'
+    'Cache-Control': 'no-store'
   });
   res.end(body);
   return true;
@@ -440,12 +447,18 @@ function createClassroomServer(options = {}) {
   async function handleApi(req, res, parsedUrl) {
     try {
       const pathname = parsedUrl.pathname;
+      // Reflects the real request origin (+ Allow-Credentials) instead of a
+      // blanket '*', same allowlist account-server.js's API already relies
+      // on — required because every call here is sent with fetch's
+      // credentials: 'include' (see account-common.js's api() helper), and
+      // browsers reject credentialed responses carrying a wildcard origin.
+      setAccountCorsHeaders(req, res);
 
       if (req.method === 'OPTIONS') {
         res.writeHead(204, {
-          'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type'
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Credentials': 'true'
         });
         res.end();
         return true;

@@ -2299,6 +2299,7 @@ module.exports = {
   handleAccountApi,
   getTeacherSession,
   getStudentSession,
+  setAccountCorsHeaders,
   buildCanonicalSkillEvidence,
   canonicalSkillPriorities,
   canonicalSkillFeedback,
