@@ -836,11 +836,21 @@ class RoomManager {
 
     const activeModuleId = room.activeQuestion?.moduleId || room.questionModuleId || room.moduleId;
     const adapter = this.getAdapter(activeModuleId);
-    const adapterScoring = adapter.checkAnswer(room.question, payload.answer ?? payload.answers ?? '', {
-      ...payload,
-      activeQuestion: room.activeQuestion,
-      room
-    });
+    // Driver-hosted mixed questions (student/student.js's live iframe host,
+    // for any app without its own checkAnswer-friendly answer contract) are
+    // marked client-side by DOM inspection — modules/progress-mode/
+    // app-drivers.js's driver.isCorrect(doc), the exact same detection
+    // Progress Mode itself already trusts for its own scoring, with no
+    // independent server-side re-check there either. Binary, 1 mark per
+    // question, same as Progress Mode's own per-question scoring — never
+    // the embedded app's own internal marks scheme.
+    const adapterScoring = payload.driverReportedCorrect !== undefined
+      ? { awardedMarks: payload.driverReportedCorrect ? 1 : 0, maxMarks: 1, correct: Boolean(payload.driverReportedCorrect) }
+      : adapter.checkAnswer(room.question, payload.answer ?? payload.answers ?? '', {
+        ...payload,
+        activeQuestion: room.activeQuestion,
+        room
+      });
     const scoring = normaliseScoring(adapterScoring, { score: 0, total: room.totalMarks || 1 });
     const submission = {
       answer: payload.answer ?? '',

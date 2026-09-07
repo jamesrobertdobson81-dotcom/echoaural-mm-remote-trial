@@ -118,17 +118,21 @@
   let examLabZoom = 1;
   let examLabFeedbackKey = '';
 
-  // Live Session iframe host state — see renderLiveIframeQuestion/
-  // handleLiveFrameMessage below. Mirrors the same slot/ready/answered
-  // lifecycle modules/progress-mode/script.js already tracks for its own
-  // #appFrame, just keyed to this room's questionRunId instead of a PM
-  // practice-round slot.
+  // Live Session iframe host state. Reuses modules/progress-mode/
+  // app-drivers.js's DRIVERS — the same configure()-then-DOM-poll mechanism
+  // Progress Mode already relies on for every one of these apps — rather
+  // than the separate postMessage "contract-question-injection" scheme
+  // pm-registry.js's rendererBridgeCapability field advertises: in practice
+  // only Structure Spotter's own script.js actually implements the
+  // receiving side of that contract, so every other app just sat on its own
+  // ready screen forever behind "Loading question…". Trade-off accepted
+  // knowingly: a driver can only say "start this app at this LEVEL", not
+  // "load this exact question", so a mixed-round student sees a real
+  // question from the planned app/level, not necessarily the literal
+  // question the teacher's preview listed.
   let liveIframeRunId = null;
-  let liveIframeSlotId = '';
-  let liveIframeSource = null;
-  let liveIframeAppReady = false;
-  let liveIframeLoadTimer = null;
   let liveIframeAnswered = false;
+  let liveDriverTimer = null;
 
   const SILENT_AUDIO_DATA_URI = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
   const MI_NOTE_ASSET = '/modules/melody-master/assets/icons/notes/crotchet-sibelius.png';
@@ -461,39 +465,34 @@
     els.liveAppPanel.classList.remove('hidden');
   }
 
-  // ID-mode sources load an exact bank id; seed-mode sources load the exact
-  // deterministic seed used by their classroom adapter. Both are safe in
-  // the shared PM iframe once the registry declares question injection.
-  function getRegistrySource(moduleId, sourceKey) {
-    const registry = window.EchoAuralPMRegistry;
-    if (!registry || !moduleId) return null;
-    if (sourceKey) {
-      const exact = registry.get(sourceKey);
-      if (exact && exact.moduleId === moduleId) return exact;
-    }
-    const matches = registry.byModule(moduleId);
-    return matches && matches[0] ? matches[0] : null;
+  // A mixed round's plan carries an explicit sourceKey per question
+  // (question-set-builder.js — needed there since one module, e.g.
+  // musical-language or melody-master, can map to several DRIVERS entries).
+  // A single-app room's own adapter.serialiseQuestion() never had a reason
+  // to expose that field, so falls back to the registry's first (commonly
+  // only) source for that moduleId.
+  function resolveLiveSourceKey(question = {}) {
+    if (question.sourceKey) return question.sourceKey;
+    const matches = window.EchoAuralPMRegistry && question.moduleId
+      ? window.EchoAuralPMRegistry.byModule(question.moduleId)
+      : null;
+    return matches && matches[0] ? matches[0].sourceKey : '';
   }
 
   function shouldUseLiveIframe(question = {}) {
-    const source = getRegistrySource(question.moduleId, question.sourceKey);
-    return Boolean(source
-      && source.rendererBridgeCapability === 'contract-question-injection'
-      && (source.questionSelectionMode === 'id' || source.questionSelectionMode === 'seed'));
+    const sourceKey = resolveLiveSourceKey(question);
+    return Boolean(sourceKey && window.EAProgressModeDrivers && window.EAProgressModeDrivers[sourceKey]);
   }
 
-  function resolveLiveAppUrl(source) {
-    return new URL(source.appUrl, `${window.location.origin}/modules/progress-mode/`).pathname;
+  function clearLiveDriverTimer() {
+    if (liveDriverTimer) { window.clearInterval(liveDriverTimer); liveDriverTimer = null; }
   }
 
   function teardownLiveIframe() {
     if (els.liveAppPanel) window.EAProgressModeSetMmScoreExpanded(false);
-    if (!liveIframeRunId && !liveIframeSlotId) return;
+    clearLiveDriverTimer();
+    if (!liveIframeRunId) return;
     liveIframeRunId = null;
-    liveIframeSlotId = '';
-    liveIframeSource = null;
-    liveIframeAppReady = false;
-    if (liveIframeLoadTimer) { window.clearTimeout(liveIframeLoadTimer); liveIframeLoadTimer = null; }
     liveIframeAnswered = false;
     if (els.liveAppFrame.src) {
       els.liveAppFrame.src = 'about:blank';
@@ -501,6 +500,15 @@
     }
   }
 
+  // Mirrors modules/progress-mode/script.js's loadCurrentSlotFrame/
+  // waitForReady/waitForAutoStartedQuestion/confirmStartedThenPoll/
+  // beginAnsweredPolling — the exact sequence Progress Mode already uses
+  // for every one of these apps — simplified for Live Session's needs: no
+  // spaced-repetition dedup (question-set-builder.js already picked a
+  // distinct plan), no empty-pool level-escalation-or-replace retry (a
+  // teacher-run class round has one shared question per slot, not a
+  // personal queue to substitute within), just load → configure → wait for
+  // a real question → poll until answered.
   function renderLiveIframeQuestion(state, question) {
     showLiveAppPanel();
     const runId = Number(state.questionRunId || 0);
@@ -510,77 +518,146 @@
       return;
     }
 
+    clearLiveDriverTimer();
     liveIframeRunId = runId;
     liveIframeAnswered = Boolean(state.student?.submitted);
-    liveIframeAppReady = false;
-    liveIframeSource = getRegistrySource(question.moduleId, question.sourceKey);
-    liveIframeSlotId = `${roomCode}:${studentId}:${runId}`;
     els.feedbackPanel.classList.add('hidden');
     els.feedbackPanel.innerHTML = '';
     els.liveAppFrameLoading.textContent = 'Loading question…';
     els.liveAppFrameLoading.classList.remove('hidden');
 
-    const appUrl = resolveLiveAppUrl(liveIframeSource);
-    const query = new URLSearchParams({
+    const sourceKey = resolveLiveSourceKey(question);
+    const driver = window.EAProgressModeDrivers[sourceKey];
+    const levelIndex = Math.max(0, driver.levelValues.findIndex(
+      (value) => String(value).toLowerCase() === String(question.level || '').toLowerCase()
+    ));
+
+    // driver.path/buildUrl() return paths relative to /modules/progress-
+    // mode/ (the only page that has ever loaded these drivers before now),
+    // sometimes with their own query string already attached (buildUrl) —
+    // resolve against that same virtual base (not this page's own /student/
+    // location, which would silently walk to the wrong directory), keeping
+    // any query string intact rather than dropping it via .pathname alone.
+    const rawUrl = driver.buildUrl ? driver.buildUrl(levelIndex) : driver.path;
+    const resolvedUrl = new URL(rawUrl, `${window.location.origin}/modules/progress-mode/`);
+    const baseUrl = resolvedUrl.pathname + resolvedUrl.search;
+    const separator = resolvedUrl.search ? '&' : '?';
+    els.liveAppFrame.src = `${baseUrl}${separator}${new URLSearchParams({
+      _live: Date.now(),
       eaProgressHost: '1',
-      eaProgressSlot: liveIframeSlotId,
-      eaProgressSource: liveIframeSource.sourceKey,
-      eaProgressRoom: roomCode,
-      eaProgressRound: String(state.roundId || '')
-    });
-    els.liveAppFrame.src = `${appUrl}?${query.toString()}`;
-    // Some PM apps finish their own boot without emitting app-ready (or emit
-    // it before the host has attached the frame boundary). Give the real app
-    // one fallback request after iframe load so a valid mixed-round question
-    // cannot remain stuck behind the loading veil.
+      eaProgressSlot: `${roomCode}:${studentId}:${runId}`,
+      eaProgressSource: sourceKey
+    }).toString()}`;
+
     els.liveAppFrame.onload = () => {
-      if (liveIframeRunId !== runId || liveIframeAppReady) return;
-      liveIframeAppReady = true;
-      sendLiveLoadQuestion();
+      if (liveIframeRunId !== runId) return;
+      const doc = els.liveAppFrame.contentDocument;
+      if (!doc) return;
+      if (driver.autoStarts) {
+        waitForLiveAutoStartedQuestion(doc, driver, runId);
+      } else {
+        waitForLiveReady(doc, driver, levelIndex, runId);
+      }
     };
-    liveIframeLoadTimer = window.setTimeout(() => {
-      if (liveIframeRunId === runId && !liveIframeAppReady) {
-        liveIframeAppReady = true;
-        sendLiveLoadQuestion();
-      }
-      liveIframeLoadTimer = null;
-    }, 1200);
   }
 
-  function sendLiveLoadQuestion() {
-    if (!liveIframeAppReady || !liveIframeSlotId || !currentState || !currentState.question) return;
-    const frameWindow = els.liveAppFrame.contentWindow;
-    if (!frameWindow) return;
-    frameWindow.postMessage({
-      namespace: 'echoaural-progress',
-      version: 1,
-      contractVersion: 2,
-      type: 'teacher-load-question',
-      slotId: liveIframeSlotId,
-      sourceKey: liveIframeSource ? liveIframeSource.sourceKey : '',
-      roomId: roomCode,
-      roundId: String(currentState.roundId || ''),
-      questionId: String(currentState.question.id || ''),
-      payload: {
-        questionId: currentState.question.id,
-        questionData: currentState.question,
-        seed: currentState.question.seed || '',
-        level: currentState.question.level || '',
-        sourceKey: liveIframeSource ? liveIframeSource.sourceKey : ''
-      }
-    }, window.location.origin);
+  function liveFrameStillCurrent(doc, runId) {
+    return liveIframeRunId === runId && doc.defaultView && doc.defaultView === els.liveAppFrame.contentWindow;
   }
 
-  async function submitLiveIframeAnswer(payload = {}) {
+  function waitForLiveReady(doc, driver, levelIndex, runId) {
+    let attempts = 0;
+    let configured = false;
+    clearLiveDriverTimer();
+    liveDriverTimer = window.setInterval(() => {
+      attempts += 1;
+      if (!liveFrameStillCurrent(doc, runId)) { clearLiveDriverTimer(); return; }
+      if (window.EAProgressModeApplyFocusMode) window.EAProgressModeApplyFocusMode(doc);
+      const startButton = doc.getElementById(driver.startButtonId);
+      if (!startButton) {
+        if (attempts > 120) { clearLiveDriverTimer(); showLiveIframeUnavailable(); }
+        return;
+      }
+      if (!configured) {
+        if (typeof driver.configure === 'function') driver.configure(doc, levelIndex);
+        configured = true;
+      }
+      if (!startButton.disabled) {
+        clearLiveDriverTimer();
+        startButton.click();
+        confirmLiveStarted(doc, driver, runId);
+      } else if (attempts > 120) {
+        clearLiveDriverTimer();
+        showLiveIframeUnavailable();
+      }
+    }, 50);
+  }
+
+  function confirmLiveStarted(doc, driver, runId) {
+    let attempts = 0;
+    clearLiveDriverTimer();
+    liveDriverTimer = window.setInterval(() => {
+      attempts += 1;
+      if (!liveFrameStillCurrent(doc, runId)) { clearLiveDriverTimer(); return; }
+      const quizPanel = doc.querySelector('.quiz-panel');
+      const stillOnReadyScreen = !!quizPanel && quizPanel.classList.contains('is-ready');
+      if (!stillOnReadyScreen) {
+        clearLiveDriverTimer();
+        els.liveAppFrameLoading.classList.add('hidden');
+        beginLiveAnsweredPolling(doc, driver, runId);
+        return;
+      }
+      if (attempts > 60) { clearLiveDriverTimer(); showLiveIframeUnavailable(); }
+    }, 50);
+  }
+
+  function waitForLiveAutoStartedQuestion(doc, driver, runId) {
+    let attempts = 0;
+    clearLiveDriverTimer();
+    liveDriverTimer = window.setInterval(() => {
+      attempts += 1;
+      if (!liveFrameStillCurrent(doc, runId)) { clearLiveDriverTimer(); return; }
+      if (window.EAProgressModeApplyFocusMode) window.EAProgressModeApplyFocusMode(doc);
+      let hasQuestion = false;
+      try { hasQuestion = !!(driver.getSignature && driver.getSignature(doc)); } catch (_error) { /* not ready yet */ }
+      if (hasQuestion) {
+        clearLiveDriverTimer();
+        els.liveAppFrameLoading.classList.add('hidden');
+        beginLiveAnsweredPolling(doc, driver, runId);
+      } else if (attempts > 120) {
+        clearLiveDriverTimer();
+        showLiveIframeUnavailable();
+      }
+    }, 50);
+  }
+
+  function showLiveIframeUnavailable() {
+    els.liveAppFrameLoading.textContent = 'This question is not available right now — ask your teacher to move on.';
+    els.liveAppFrameLoading.classList.remove('hidden');
+  }
+
+  function beginLiveAnsweredPolling(doc, driver, runId) {
+    clearLiveDriverTimer();
+    liveDriverTimer = window.setInterval(() => {
+      if (!liveFrameStillCurrent(doc, runId)) { clearLiveDriverTimer(); return; }
+      let answered = false;
+      try { answered = driver.isAnswered(doc); } catch (_error) { answered = false; }
+      if (!answered) return;
+      clearLiveDriverTimer();
+      let correct = false;
+      try { correct = !!driver.isCorrect(doc); } catch (_error) { correct = false; }
+      submitLiveIframeAnswer(correct);
+    }, 200);
+  }
+
+  async function submitLiveIframeAnswer(correct) {
     if (liveIframeAnswered || !currentState || !currentState.question) return;
-    if (payload.questionId && String(payload.questionId) !== String(currentState.question.id || '')) return;
     liveIframeAnswered = true;
-    const answer = payload.answerData !== undefined && payload.answerData !== null ? String(payload.answerData) : '';
     try {
       const response = await api('/api/classroom/submit', {
         roomCode,
         studentId,
-        answer,
+        driverReportedCorrect: correct,
         questionId: currentState.question?.id,
         questionIndex: currentState.questionIndex,
         questionRunId: currentState.questionRunId,
@@ -595,34 +672,6 @@
       }
       els.feedbackPanel.classList.remove('hidden');
       els.feedbackPanel.innerHTML = `<p>${escapeHTML(error.message || 'Could not submit your answer. Ask your teacher to check.')}</p>`;
-    }
-  }
-
-  function handleLiveFrameMessage(event) {
-    if (!liveIframeSlotId || event.origin !== window.location.origin || event.source !== els.liveAppFrame.contentWindow) return;
-    const message = event.data || {};
-    if (message.namespace !== 'echoaural-progress' || message.version !== 1 || message.slotId !== liveIframeSlotId) return;
-
-    if (message.type === 'app-ready') {
-      liveIframeAppReady = true;
-      try {
-        const doc = els.liveAppFrame.contentDocument;
-        if (doc && window.EAProgressModeApplyFocusMode) window.EAProgressModeApplyFocusMode(doc);
-      } catch (_error) { /* not yet accessible — focus mode is cosmetic, safe to skip */ }
-      sendLiveLoadQuestion();
-      return;
-    }
-    if (message.type === 'question-ready') {
-      els.liveAppFrameLoading.classList.add('hidden');
-      return;
-    }
-    if (message.type === 'pool-empty') {
-      els.liveAppFrameLoading.textContent = 'This question is not available in the app right now — ask your teacher to move on.';
-      els.liveAppFrameLoading.classList.remove('hidden');
-      return;
-    }
-    if (message.type === 'answer-complete') {
-      submitLiveIframeAnswer(message.payload || {});
     }
   }
 
@@ -1390,7 +1439,6 @@
     els.enableAudioButton.addEventListener('click', unlockStudentAudio);
     els.manualPlayButton.addEventListener('click', () => playStudentQuestionAudio(currentState?.question || {}));
     els.submitButton.addEventListener('click', submitAnswer);
-    window.addEventListener('message', handleLiveFrameMessage);
     examEls.form.addEventListener('submit', submitExamLabAnswers);
     examEls.zoomIn.addEventListener('click', () => setExamLabZoom(examLabZoom + 0.15));
     examEls.zoomOut.addEventListener('click', () => setExamLabZoom(examLabZoom - 0.15));
