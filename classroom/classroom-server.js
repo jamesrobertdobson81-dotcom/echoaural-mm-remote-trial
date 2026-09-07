@@ -4,10 +4,13 @@ const vm = require('vm');
 const os = require('os');
 const crypto = require('crypto');
 const { RoomManager, DEFAULT_MAX_LISTENS } = require('./room-manager');
-const { getTeacherSession, getStudentSession, setAccountCorsHeaders } = require('../accounts/account-server');
+const { getTeacherSession, getStudentSession, setAccountCorsHeaders, buildCanonicalSkillEvidence } = require('../accounts/account-server');
 const { getPool } = require('../db/pool');
 const { saveTeacherModeProgress } = require('./progress-recorder');
 const { createAdapters } = require('./adapters');
+const { buildQuestionSet } = require('./question-set-builder');
+const { createClassEvidenceLoader } = require('./class-evidence');
+const { CONCEPT_SCOPED_MODULE_IDS, getConceptCatalogue } = require('./concept-catalogue');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -298,6 +301,19 @@ function createClassroomServer(options = {}) {
     defaultModuleId: 'melody-master'
   });
 
+  // Short-lived server-side hold for a previewed question set between a
+  // teacher clicking "Build preview" and actually launching the room —
+  // avoids re-sending the whole resolved question plan back from the
+  // client (and re-trusting whatever it says) on /api/classroom/create.
+  const questionSetDrafts = new Map();
+  const QUESTION_SET_DRAFT_TTL_MS = 30 * 60 * 1000;
+
+  function cleanupQuestionSetDrafts(now = Date.now()) {
+    for (const [draftId, draft] of questionSetDrafts.entries()) {
+      if (now - Number(draft.createdAt || 0) > QUESTION_SET_DRAFT_TTL_MS) questionSetDrafts.delete(draftId);
+    }
+  }
+
   function activeAccountSession(session) {
     if (!session || !['trial', 'active'].includes(session.licence_status)) return false;
     return !session.expires_at || new Date(session.expires_at).getTime() > Date.now();
@@ -341,14 +357,18 @@ function createClassroomServer(options = {}) {
   }
 
   async function requireExamLabTeacher(req, res, room) {
-    if (!isExamLabRoom(room)) return true;
+    // Generalised beyond Exam Lab: a class-scoped Live Session room (one
+    // launched against a specific class, via the question-set-builder
+    // draft flow below) is just as owner-restricted, even though its
+    // moduleId isn't 'exam-lab'.
+    if (!isExamLabRoom(room) && !room?.ownerTeacherId) return true;
     const teacher = await optionalTeacherSession(req);
     if (!teacher) {
-      sendJson(res, 401, { ok: false, error: 'Teacher login required for Exam Lab.' });
+      sendJson(res, 401, { ok: false, error: 'Teacher login required for this classroom.' });
       return false;
     }
     if (!room.ownerTeacherId || String(room.ownerTeacherId) !== String(teacher.id)) {
-      sendJson(res, 403, { ok: false, error: 'This Exam Lab room belongs to another teacher.' });
+      sendJson(res, 403, { ok: false, error: 'This classroom belongs to another teacher.' });
       return false;
     }
     return true;
@@ -373,29 +393,10 @@ function createClassroomServer(options = {}) {
     return accessTokensMatch(accessToken, participant.accessToken);
   }
 
-  async function resolveOwnedClass(teacher, classId) {
-    const requestedClassId = String(classId || '').trim();
-    if (!requestedClassId) return null;
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestedClassId)) {
-      const error = new Error('Choose a valid class.');
-      error.statusCode = 400;
-      throw error;
-    }
-    const result = await getPool().query(`
-      SELECT id, class_name
-      FROM classes
-      WHERE id = $1
-        AND teacher_id = $2
-        AND active = TRUE
-      LIMIT 1
-    `, [requestedClassId, teacher.id]);
-    if (!result.rows[0]) {
-      const error = new Error('That class is not available to this teacher account.');
-      error.statusCode = 403;
-      throw error;
-    }
-    return result.rows[0];
-  }
+  // Extracted to class-evidence.js so account-server.js's homework routes
+  // can build the identical "targeted" evidence Live Session rounds already
+  // use, without account-server.js depending on this file.
+  const { resolveOwnedClass, loadClassQuestionEvidence } = createClassEvidenceLoader({ getPool, buildCanonicalSkillEvidence });
 
   async function serveExamLabAsset(req, res, room, kind) {
     if (!room || !isExamLabRoom(room)) return sendJson(res, 404, { ok: false, error: 'Exam Lab room not found.' });
@@ -483,6 +484,50 @@ function createClassroomServer(options = {}) {
         });
       }
 
+      if (req.method === 'GET' && pathname === '/api/classroom/concepts') {
+        const moduleId = String(parsedUrl.searchParams.get('moduleId') || '').trim();
+        if (!CONCEPT_SCOPED_MODULE_IDS.includes(moduleId)) {
+          return sendJson(res, 400, { ok: false, error: 'That module does not support concept-based selection yet.' });
+        }
+        const adapter = roomManager.getAdapter(moduleId);
+        return sendJson(res, 200, {
+          ok: true,
+          moduleId,
+          concepts: getConceptCatalogue(adapter, moduleId, projectRoot)
+        });
+      }
+
+      if (req.method === 'POST' && pathname === '/api/classroom/question-set/preview') {
+        const teacher = await optionalTeacherSession(req);
+        if (!teacher) return sendJson(res, 401, { ok: false, error: 'Teacher login required to plan a class question set.' });
+        const body = await readJsonBody(req);
+        const spec = body.spec && typeof body.spec === 'object' ? body.spec : {};
+        const evidence = await loadClassQuestionEvidence(teacher, spec.classId);
+        const questionSet = buildQuestionSet(roomManager.questionCatalogue, {
+          ...spec,
+          recentQuestionIds: spec.avoidRecent === false ? [] : evidence.recentQuestionIds
+        }, evidence);
+        questionSet.spec.recentQuestionIds = [];
+        if (!questionSet.questionPlan.length) {
+          return sendJson(res, 400, { ok: false, error: 'No live-compatible questions matched those filters.', preview: questionSet.preview });
+        }
+        cleanupQuestionSetDrafts();
+        const draftId = crypto.randomBytes(18).toString('base64url');
+        questionSetDrafts.set(draftId, {
+          teacherId: teacher.id,
+          createdAt: Date.now(),
+          classId: questionSet.spec.classId,
+          questionSet
+        });
+        return sendJson(res, 200, {
+          ok: true,
+          draftId,
+          preview: questionSet.preview,
+          spec: questionSet.spec,
+          questionPlan: questionSet.questionPlan
+        });
+      }
+
       if (req.method === 'GET' && (pathname === '/api/classroom/exam-lab/score' || pathname === '/api/classroom/exam-lab/audio')) {
         const room = roomManager.getRoom(parsedUrl.searchParams.get('roomCode'));
         const kind = pathname.endsWith('/audio') ? 'audio' : 'score';
@@ -516,17 +561,29 @@ function createClassroomServer(options = {}) {
           || normalizePublicBaseUrl(process.env.PUBLIC_API_URL);
 
         const teacherAccount = await optionalTeacherSession(req);
-        const requestedModuleId = requestedClassroomModule(body, 'melody-master');
+        cleanupQuestionSetDrafts();
+        const draftId = String(body.questionSetDraftId || '').trim();
+        const draft = draftId ? questionSetDrafts.get(draftId) : null;
+        if (draftId && (!draft || !teacherAccount || String(draft.teacherId) !== String(teacherAccount.id))) {
+          return sendJson(res, 403, { ok: false, error: 'That planned question set has expired or belongs to another teacher.' });
+        }
+        const plannedModules = draft
+          ? Array.from(new Set(draft.questionSet.questionPlan.map((item) => item.moduleId)))
+          : [];
+        const requestedModuleId = draft
+          ? (plannedModules.length > 1 ? 'mixed' : plannedModules[0])
+          : requestedClassroomModule(body, 'melody-master');
         if (requestedModuleId === 'exam-lab' && !teacherAccount) {
           return sendJson(res, 401, { ok: false, error: 'Teacher login required to start Exam Lab.' });
         }
-        const selectedClass = requestedModuleId === 'exam-lab'
-          ? await resolveOwnedClass(teacherAccount, body.classId)
+        const requestedClassId = draft?.classId || body.classId;
+        const selectedClass = teacherAccount && requestedClassId
+          ? await resolveOwnedClass(teacherAccount, requestedClassId)
           : null;
         const room = roomManager.createRoom({
           moduleId: requestedModuleId,
           questionLevel: body.questionLevel,
-          mixedModuleIds: body.mixedModuleIds,
+          mixedModuleIds: plannedModules.length > 1 ? plannedModules : body.mixedModuleIds,
           baseUrl: frontendBase,
           apiBase,
           ownerTeacherId: teacherAccount?.id || null,
@@ -534,6 +591,7 @@ function createClassroomServer(options = {}) {
           classId: selectedClass?.id || null,
           className: selectedClass?.class_name || ''
         });
+        if (draft) roomManager.setQuestionSet(room, draft.questionSet);
 
         return sendJson(res, 200, {
           ok: true,
