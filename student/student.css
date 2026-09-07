@@ -621,6 +621,58 @@ body.mixed-classroom-student {
   overflow-x: hidden;
 }
 
+/* Match the Progress Mode left settings hero exactly: centred lockup,
+   112px module tile and the same vertical rhythm. The Live Sessions brand is
+   static here; only the centre question presentation changes by sub-app. */
+body.mixed-classroom-student .setup-panel .mixed-panel-hero.ii-panel-hero {
+  margin-bottom: 40px;
+  padding: 0 0 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+}
+body.mixed-classroom-student .mixed-panel-hero .ii-hero-lockup {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+}
+body.mixed-classroom-student .mixed-panel-hero .ii-hero-icon {
+  width: 112px;
+  height: 112px;
+  padding: 17px;
+  border-radius: 31px;
+  background: linear-gradient(135deg, #3fa6ff 0%, #2563eb 55%, #102a68 100%);
+}
+body.mixed-classroom-student .mixed-panel-hero .ii-hero-icon img {
+  width: 82px;
+  height: 82px;
+  filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(255,255,255,.16));
+}
+body.mixed-classroom-student .mixed-panel-hero .ii-title-lockup {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+body.mixed-classroom-student .mixed-panel-hero .ii-title-wave { display: none; }
+body.mixed-classroom-student .mixed-panel-hero .ii-title-text {
+  display: grid;
+  justify-items: center;
+  line-height: .96;
+  font-size: 2rem;
+}
+body.mixed-classroom-student .mixed-panel-hero .mixed-title-main { color: rgba(255,255,255,.96); }
+body.mixed-classroom-student .mixed-panel-hero .mixed-title-gradient {
+  background: linear-gradient(90deg, #3fa6ff, #a66bff, #ff5dba);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+body.mixed-classroom-student .mixed-panel-hero .mixed-panel-intro {
+  max-width: 25ch;
+  margin: 8px auto 0;
+}
+
 .mixed-classroom-app-shell {
   width: min(1440px, calc(100% - 28px));
   min-height: 100svh;
@@ -919,6 +971,20 @@ body[data-module="harmony-explorer"] {
 .mixed-audio-button {
   width: 100%;
   margin-top: 4px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 12px;
+  color: var(--text);
+  background: rgba(255, 255, 255, .055);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 28px rgba(0,0,0,.14);
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.mixed-audio-button:hover,
+.mixed-audio-button:focus-visible {
+  border-color: rgba(91, 200, 255, .72);
+  background: rgba(63, 166, 255, .12);
+  outline: none;
+  transform: translateY(-1px);
 }
 
 .quiz-header,
@@ -983,6 +1049,118 @@ body[data-module="harmony-explorer"] {
   padding: clamp(18px, 3vw, 28px);
   text-align: center;
 }
+
+/* Live Session iframe host — sized the same way Progress Mode sizes its
+   own #appFrame (modules/progress-mode/style.css's .pm-frame-wrap/.pm-frame),
+   just with an explicit height instead of inheriting one from a grid
+   ancestor, since student-shell.html's .quiz-panel isn't that grid. */
+.live-app-panel {
+  min-height: 520px;
+  height: 72vh;
+  max-height: 900px;
+}
+
+.live-app-frame-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  max-height: inherit;
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,.13);
+  background: rgba(2,8,23,.38);
+  overflow: hidden;
+}
+
+.live-app-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: rgba(2,8,23,.38);
+}
+
+.live-app-frame-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  font: 600 15px/1.4 inherit;
+  color: rgba(255,255,255,.82);
+  background: rgba(2,8,23,.72);
+  pointer-events: none;
+}
+
+.live-app-frame-loading.hidden {
+  display: none;
+}
+
+/* Melody Master dictation uses the PM score/notes artwork, which deliberately
+   grows beyond the normal centre tile while it is expanded.  The iframe tells
+   its host about that state through EAProgressModeSetMmScoreExpanded; make the
+   Live Session host provide the same full-viewport boundary PM provides. */
+.live-app-panel.mm-score-expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  width: 100vw;
+  height: 100vh;
+  min-height: 0;
+  max-height: none;
+  padding: 14px;
+  box-sizing: border-box;
+  background: rgba(2, 8, 23, .94);
+}
+
+/* The ordinary classroom panels intentionally clip their contents and use
+   backdrop-filter. Those styles create a containing block/stacking context
+   that would clip a fixed MM score, so remove them for the same duration PM
+   removes its panel containment. */
+body.mm-score-expanded {
+  overflow: hidden;
+}
+
+body.mm-score-expanded .three-panel-layout,
+body.mm-score-expanded .panel,
+body.mm-score-expanded .quiz-panel {
+  overflow: visible !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: none !important;
+  filter: none !important;
+  contain: none !important;
+  isolation: auto !important;
+}
+
+body.mm-score-expanded .quiz-panel {
+  z-index: 120 !important;
+}
+
+.live-app-panel.mm-score-expanded .live-app-frame-wrap,
+.live-app-panel.mm-score-expanded .live-app-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+}
+
+.live-app-panel.mm-score-expanded .live-app-frame-wrap {
+  border-radius: 0;
+  border-color: transparent;
+  box-shadow: none;
+  background: transparent;
+}
+
+.live-app-panel.mm-score-expanded .live-app-frame {
+  background: transparent;
+}
+
+/* In Live Sessions the teacher owns playback and question navigation; the
+   embedded PM app provides the answer controls only. */
+#manualPlayButton { display: none !important; }
 
 .console-orbit {
   position: absolute;
@@ -1535,4 +1713,45 @@ body[data-module="melodic-intervals"] .mixed-submit-button {
   border-radius: 15px;
   object-fit: cover;
   transform: none;
+}
+.mixed-generic-visual {
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  min-height: 110px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.mixed-generic-visual img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+}
+
+.mixed-key-signature-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 140px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  color: #111827;
+  background: repeating-linear-gradient(to bottom, #fff 0, #fff 18px, #667085 19px, #fff 20px);
+}
+
+.mixed-key-clef {
+  font-size: 5rem;
+  line-height: 1;
+}
+
+.mixed-key-accidentals {
+  max-width: 300px;
+  font-size: 2.6rem;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
 }

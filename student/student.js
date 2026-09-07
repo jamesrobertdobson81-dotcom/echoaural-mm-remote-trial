@@ -15,7 +15,38 @@
     audioStatus: document.getElementById('audioStatus'),
     answerArea: document.getElementById('answerArea'),
     submitButton: document.getElementById('submitButton'),
-    feedbackPanel: document.getElementById('feedbackPanel')
+    feedbackPanel: document.getElementById('feedbackPanel'),
+    liveAppPanel: document.getElementById('liveAppPanel'),
+    liveAppFrame: document.getElementById('liveAppFrame'),
+    liveAppFrameLoading: document.getElementById('liveAppFrameLoading')
+  };
+
+  // Melody Master uses the same parent callback as Progress Mode when its
+  // score/question artwork needs to extend beyond the centre tile. Live
+  // Sessions do not have PM's parent overlay, so provide the equivalent host
+  // boundary here and let the iframe occupy the full student viewport.
+  window.EAProgressModeSetMmScoreExpanded = function (expanded) {
+    if (!els.liveAppPanel) return;
+    const isExpanded = Boolean(expanded);
+    els.liveAppPanel.classList.toggle('mm-score-expanded', isExpanded);
+    document.body.classList.toggle('mm-score-expanded', isExpanded);
+    if (isExpanded) {
+      // Keep the Live Session nav visible above the expanded score, matching
+      // PM's top-anchor rather than covering the whole page from y=0.
+      const topbar = document.querySelector('.topbar');
+      const top = topbar ? Math.round(topbar.getBoundingClientRect().bottom) : 0;
+      els.liveAppPanel.style.top = `${top}px`;
+      els.liveAppPanel.style.bottom = '0px';
+      els.liveAppPanel.style.height = `calc(100vh - ${top}px)`;
+      els.liveAppPanel.style.padding = '0';
+      els.liveAppPanel.style.background = 'transparent';
+    } else {
+      els.liveAppPanel.style.removeProperty('top');
+      els.liveAppPanel.style.removeProperty('bottom');
+      els.liveAppPanel.style.removeProperty('height');
+      els.liveAppPanel.style.removeProperty('padding');
+      els.liveAppPanel.style.removeProperty('background');
+    }
   };
 
   const mixedEls = {
@@ -86,6 +117,18 @@
   let examLabRenderedRunId = null;
   let examLabZoom = 1;
   let examLabFeedbackKey = '';
+
+  // Live Session iframe host state — see renderLiveIframeQuestion/
+  // handleLiveFrameMessage below. Mirrors the same slot/ready/answered
+  // lifecycle modules/progress-mode/script.js already tracks for its own
+  // #appFrame, just keyed to this room's questionRunId instead of a PM
+  // practice-round slot.
+  let liveIframeRunId = null;
+  let liveIframeSlotId = '';
+  let liveIframeSource = null;
+  let liveIframeAppReady = false;
+  let liveIframeLoadTimer = null;
+  let liveIframeAnswered = false;
 
   const SILENT_AUDIO_DATA_URI = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
   const MI_NOTE_ASSET = '/modules/melody-master/assets/icons/notes/crotchet-sibelius.png';
@@ -209,6 +252,16 @@
   }
 
   function getModulePresentation(moduleId = 'mixed') {
+    if (moduleId === 'melody-master') {
+      return {
+        id: 'melody-master',
+        title: 'Melody Master',
+        main: 'Melody',
+        gradient: 'Master',
+        icon: '/assets/icons/modules/melody-master.png',
+        hint: 'Listen carefully, then enter or choose the melodic answer.'
+      };
+    }
     if (moduleId === 'instrument-identifier') {
       return {
         id: 'instrument-identifier',
@@ -239,6 +292,24 @@
         hint: 'Complete the private answer sheet, then submit when ready.'
       };
     }
+    if (moduleId === 'texture-trainer') {
+      return { id: moduleId, title: 'Texture Trainer', main: 'Texture', gradient: 'Trainer', icon: '/assets/icons/modules/texture-trainer.png', hint: 'Listen carefully, then describe or identify the musical texture.' };
+    }
+    if (moduleId === 'meter-master') {
+      return { id: moduleId, title: 'Meter Master', main: 'Meter', gradient: 'Master', icon: '/assets/icons/modules/meter-master.png', hint: 'Listen for the pulse and choose the best metre answer.' };
+    }
+    if (moduleId === 'cadence-coach') {
+      return { id: moduleId, title: 'Cadence Coach', main: 'Cadence', gradient: 'Coach', icon: '/assets/icons/modules/cadence-coach.png', hint: 'Listen to the ending and identify the cadence.' };
+    }
+    if (moduleId === 'musical-language') {
+      return { id: moduleId, title: 'ScoreDecoder Vocabulary', main: 'ScoreDecoder', gradient: 'Vocabulary', icon: '/modules/musical-language/assets/score-decoder-icon.png', hint: 'Identify or explain the musical term or marking.' };
+    }
+    if (moduleId === 'ensemble-recognition') {
+      return { id: moduleId, title: 'Ensemble Recognition', main: 'Ensemble', gradient: 'Recognition', icon: '/assets/icons/modules/instrument-identifier.png', hint: 'Listen to the performing forces and identify the ensemble.' };
+    }
+    if (moduleId === 'key-signature-sprint') {
+      return { id: moduleId, title: 'Key Signatures', main: 'Key', gradient: 'Signatures', icon: '/assets/icons/modules/harmony-explorer.png', hint: 'Read the key signature and choose the matching key.' };
+    }
     return {
       id: 'mixed',
       title: 'Mixed Apps',
@@ -262,12 +333,11 @@
     const presentation = getModulePresentation(moduleId);
     document.body.dataset.module = presentation.id;
 
-    [mixedEls.topbarModuleIcon, mixedEls.sideModuleIcon, mixedEls.waitingModuleIcon, mixedEls.centreModuleIcon, mixedEls.answerModuleIcon]
+    [mixedEls.topbarModuleIcon, mixedEls.waitingModuleIcon, mixedEls.centreModuleIcon, mixedEls.answerModuleIcon]
       .forEach((icon) => setImage(icon, presentation.icon));
 
     [
       [mixedEls.topbarModuleMain, mixedEls.topbarModuleGradient],
-      [mixedEls.sideModuleMain, mixedEls.sideModuleGradient],
       [mixedEls.centreModuleMain, mixedEls.centreModuleGradient],
       [mixedEls.answerModuleMain, mixedEls.answerModuleGradient]
     ].forEach(([mainEl, gradientEl]) => {
@@ -313,7 +383,7 @@
   }
 
   async function api(path, body = null, method = body ? 'POST' : 'GET') {
-    const options = { method, credentials: 'same-origin', headers: { Accept: 'application/json' } };
+    const options = { method, credentials: 'include', headers: { Accept: 'application/json' } };
     if (body) {
       options.headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(body);
@@ -323,7 +393,13 @@
     let data = {};
     try { data = text ? JSON.parse(text) : {}; }
     catch (_error) { throw new Error('The classroom server returned an unreadable response.'); }
-    if (!response.ok || data.ok === false) throw new Error(data.error || `Request failed (${response.status}).`);
+    if (!response.ok || data.ok === false) {
+      const error = new Error(data.error || `Request failed (${response.status}).`);
+      error.code = data.code || '';
+      error.state = data.state || null;
+      error.status = response.status;
+      throw error;
+    }
     return data;
   }
 
@@ -336,6 +412,10 @@
     if (moduleId === 'texture-trainer') return `/modules/texture-trainer/${raw.replace(/^\.\//, '')}`;
     if (moduleId === 'melody-master') return `/modules/melody-master/${raw.replace(/^\.\//, '')}`;
     if (moduleId === 'melodic-intervals') return `/modules/melodic-intervals/${raw.replace(/^\.\//, '')}`;
+    if (moduleId === 'cadence-coach') return `/modules/cadence-coach/${raw.replace(/^\.\//, '')}`;
+    if (moduleId === 'meter-master') return `/modules/meter-master/${raw.replace(/^\.\//, '')}`;
+    if (moduleId === 'musical-language') return `/modules/musical-language/${raw.replace(/^\.\//, '')}`;
+    if (moduleId === 'ensemble-recognition') return `/modules/ensemble-recognition/${raw.replace(/^\.\//, '')}`;
     return raw;
   }
 
@@ -361,15 +441,189 @@
   function setWaiting(message = '') {
     setModulePresentation('mixed');
     updateMixedSummary(currentState || {});
+    teardownLiveIframe();
     els.waitingPanel.classList.remove('hidden');
     els.questionPanel.classList.add('hidden');
+    els.liveAppPanel.classList.add('hidden');
     els.waitingTitle.textContent = 'Waiting…';
     els.waitingMessage.textContent = message || 'Wait for your teacher to start the question.';
   }
 
   function showQuestionPanel() {
     els.waitingPanel.classList.add('hidden');
+    els.liveAppPanel.classList.add('hidden');
     els.questionPanel.classList.remove('hidden');
+  }
+
+  function showLiveAppPanel() {
+    els.waitingPanel.classList.add('hidden');
+    els.questionPanel.classList.add('hidden');
+    els.liveAppPanel.classList.remove('hidden');
+  }
+
+  // ID-mode sources load an exact bank id; seed-mode sources load the exact
+  // deterministic seed used by their classroom adapter. Both are safe in
+  // the shared PM iframe once the registry declares question injection.
+  function getRegistrySource(moduleId, sourceKey) {
+    const registry = window.EchoAuralPMRegistry;
+    if (!registry || !moduleId) return null;
+    if (sourceKey) {
+      const exact = registry.get(sourceKey);
+      if (exact && exact.moduleId === moduleId) return exact;
+    }
+    const matches = registry.byModule(moduleId);
+    return matches && matches[0] ? matches[0] : null;
+  }
+
+  function shouldUseLiveIframe(question = {}) {
+    const source = getRegistrySource(question.moduleId, question.sourceKey);
+    return Boolean(source
+      && source.rendererBridgeCapability === 'contract-question-injection'
+      && (source.questionSelectionMode === 'id' || source.questionSelectionMode === 'seed'));
+  }
+
+  function resolveLiveAppUrl(source) {
+    return new URL(source.appUrl, `${window.location.origin}/modules/progress-mode/`).pathname;
+  }
+
+  function teardownLiveIframe() {
+    if (els.liveAppPanel) window.EAProgressModeSetMmScoreExpanded(false);
+    if (!liveIframeRunId && !liveIframeSlotId) return;
+    liveIframeRunId = null;
+    liveIframeSlotId = '';
+    liveIframeSource = null;
+    liveIframeAppReady = false;
+    if (liveIframeLoadTimer) { window.clearTimeout(liveIframeLoadTimer); liveIframeLoadTimer = null; }
+    liveIframeAnswered = false;
+    if (els.liveAppFrame.src) {
+      els.liveAppFrame.src = 'about:blank';
+      els.liveAppFrame.removeAttribute('src');
+    }
+  }
+
+  function renderLiveIframeQuestion(state, question) {
+    showLiveAppPanel();
+    const runId = Number(state.questionRunId || 0);
+
+    if (liveIframeRunId === runId) {
+      if (state.student?.submitted) liveIframeAnswered = true;
+      return;
+    }
+
+    liveIframeRunId = runId;
+    liveIframeAnswered = Boolean(state.student?.submitted);
+    liveIframeAppReady = false;
+    liveIframeSource = getRegistrySource(question.moduleId, question.sourceKey);
+    liveIframeSlotId = `${roomCode}:${studentId}:${runId}`;
+    els.feedbackPanel.classList.add('hidden');
+    els.feedbackPanel.innerHTML = '';
+    els.liveAppFrameLoading.textContent = 'Loading question…';
+    els.liveAppFrameLoading.classList.remove('hidden');
+
+    const appUrl = resolveLiveAppUrl(liveIframeSource);
+    const query = new URLSearchParams({
+      eaProgressHost: '1',
+      eaProgressSlot: liveIframeSlotId,
+      eaProgressSource: liveIframeSource.sourceKey,
+      eaProgressRoom: roomCode,
+      eaProgressRound: String(state.roundId || '')
+    });
+    els.liveAppFrame.src = `${appUrl}?${query.toString()}`;
+    // Some PM apps finish their own boot without emitting app-ready (or emit
+    // it before the host has attached the frame boundary). Give the real app
+    // one fallback request after iframe load so a valid mixed-round question
+    // cannot remain stuck behind the loading veil.
+    els.liveAppFrame.onload = () => {
+      if (liveIframeRunId !== runId || liveIframeAppReady) return;
+      liveIframeAppReady = true;
+      sendLiveLoadQuestion();
+    };
+    liveIframeLoadTimer = window.setTimeout(() => {
+      if (liveIframeRunId === runId && !liveIframeAppReady) {
+        liveIframeAppReady = true;
+        sendLiveLoadQuestion();
+      }
+      liveIframeLoadTimer = null;
+    }, 1200);
+  }
+
+  function sendLiveLoadQuestion() {
+    if (!liveIframeAppReady || !liveIframeSlotId || !currentState || !currentState.question) return;
+    const frameWindow = els.liveAppFrame.contentWindow;
+    if (!frameWindow) return;
+    frameWindow.postMessage({
+      namespace: 'echoaural-progress',
+      version: 1,
+      contractVersion: 2,
+      type: 'teacher-load-question',
+      slotId: liveIframeSlotId,
+      sourceKey: liveIframeSource ? liveIframeSource.sourceKey : '',
+      roomId: roomCode,
+      roundId: String(currentState.roundId || ''),
+      questionId: String(currentState.question.id || ''),
+      payload: {
+        questionId: currentState.question.id,
+        questionData: currentState.question,
+        seed: currentState.question.seed || '',
+        level: currentState.question.level || '',
+        sourceKey: liveIframeSource ? liveIframeSource.sourceKey : ''
+      }
+    }, window.location.origin);
+  }
+
+  async function submitLiveIframeAnswer(payload = {}) {
+    if (liveIframeAnswered || !currentState || !currentState.question) return;
+    if (payload.questionId && String(payload.questionId) !== String(currentState.question.id || '')) return;
+    liveIframeAnswered = true;
+    const answer = payload.answerData !== undefined && payload.answerData !== null ? String(payload.answerData) : '';
+    try {
+      const response = await api('/api/classroom/submit', {
+        roomCode,
+        studentId,
+        answer,
+        questionId: currentState.question?.id,
+        questionIndex: currentState.questionIndex,
+        questionRunId: currentState.questionRunId,
+        roundId: currentState.roundId
+      });
+      handleState(response.state);
+    } catch (error) {
+      liveIframeAnswered = false;
+      if (error.code === 'STALE_QUESTION' && error.state) {
+        handleState(error.state);
+        return;
+      }
+      els.feedbackPanel.classList.remove('hidden');
+      els.feedbackPanel.innerHTML = `<p>${escapeHTML(error.message || 'Could not submit your answer. Ask your teacher to check.')}</p>`;
+    }
+  }
+
+  function handleLiveFrameMessage(event) {
+    if (!liveIframeSlotId || event.origin !== window.location.origin || event.source !== els.liveAppFrame.contentWindow) return;
+    const message = event.data || {};
+    if (message.namespace !== 'echoaural-progress' || message.version !== 1 || message.slotId !== liveIframeSlotId) return;
+
+    if (message.type === 'app-ready') {
+      liveIframeAppReady = true;
+      try {
+        const doc = els.liveAppFrame.contentDocument;
+        if (doc && window.EAProgressModeApplyFocusMode) window.EAProgressModeApplyFocusMode(doc);
+      } catch (_error) { /* not yet accessible — focus mode is cosmetic, safe to skip */ }
+      sendLiveLoadQuestion();
+      return;
+    }
+    if (message.type === 'question-ready') {
+      els.liveAppFrameLoading.classList.add('hidden');
+      return;
+    }
+    if (message.type === 'pool-empty') {
+      els.liveAppFrameLoading.textContent = 'This question is not available in the app right now — ask your teacher to move on.';
+      els.liveAppFrameLoading.classList.remove('hidden');
+      return;
+    }
+    if (message.type === 'answer-complete') {
+      submitLiveIframeAnswer(message.payload || {});
+    }
   }
 
   async function unlockStudentAudio() {
@@ -519,6 +773,14 @@
   }
 
   function renderQuestionVisual(question = {}) {
+    if (question.keySignature) {
+      const count = Math.max(0, Number(question.keySignature.count || 0));
+      const accidental = question.keySignature.type === 'flat' ? '♭' : question.keySignature.type === 'sharp' ? '♯' : '';
+      return `<div class="mixed-key-signature-visual" role="img" aria-label="${escapeHTML(question.keySignature.displayLabel || 'Key signature')}"><span class="mixed-key-clef" aria-hidden="true">𝄞</span><span class="mixed-key-accidentals" aria-hidden="true">${Array.from({ length: count }, () => accidental).join(' ') || '—'}</span></div>`;
+    }
+    if (question.visual) {
+      return `<div class="mixed-generic-visual"><img src="${escapeHTML(question.visual)}" alt="${escapeHTML(question.visualAlt || '')}" /></div>`;
+    }
     if (question.moduleId !== 'melodic-intervals') return '';
     const data = getIntervalData();
     const startNote = data && typeof data.findNote === 'function' ? data.findNote(question.startNoteId) : null;
@@ -714,14 +976,26 @@
   }
 
   function renderQuestion(state) {
+    // A submission response can briefly omit the public question while the
+    // room state is being rebuilt. Do not tear down a working PM iframe and
+    // send the student back to the app's home screen during that transient
+    // poll gap.
+    if (!state.question && liveIframeRunId) return;
     const question = state.question || {};
     const moduleLabel = question.moduleTitle || state.moduleTitle || 'EchoAural';
     setModulePresentation(question.moduleId || state.questionModuleId || state.moduleId || 'mixed');
     updateMixedSummary(state);
-    showQuestionPanel();
     els.roomPill.textContent = `Room ${state.roomCode || roomCode}`;
     els.moduleEyebrow.textContent = String(moduleLabel).toUpperCase();
     els.questionModuleEyebrow.textContent = String(moduleLabel).toUpperCase();
+
+    if (shouldUseLiveIframe(question)) {
+      renderLiveIframeQuestion(state, question);
+      return;
+    }
+    teardownLiveIframe();
+
+    showQuestionPanel();
     els.questionTitle.textContent = question.title || question.id || 'Question';
     els.questionPrompt.textContent = question.prompt || question.question || 'Listen and answer.';
 
@@ -1026,30 +1300,25 @@
     els.roomPill.textContent = `Room ${state.roomCode || roomCode}`;
     els.moduleEyebrow.textContent = String(state.moduleTitle || 'EchoAural').toUpperCase();
 
-    if (state.moduleId === 'melody-master') {
-      const target = `/modules/melody-master/student-laptop.html?room=${encodeURIComponent(roomCode)}&name=${encodeURIComponent(studentName)}&student=${encodeURIComponent(studentId)}`;
-      window.location.replace(target);
-      return;
-    }
-
-    if (state.moduleId === 'instrument-identifier') {
-      const target = `/modules/instrument-identifier/student-classroom.html?room=${encodeURIComponent(roomCode)}&name=${encodeURIComponent(studentName)}&student=${encodeURIComponent(studentId)}`;
-      window.location.replace(target);
-      return;
-    }
-
-    if (state.moduleId === 'melodic-intervals') {
-      const target = `/modules/melodic-intervals/student-classroom.html?room=${encodeURIComponent(roomCode)}&name=${encodeURIComponent(studentName)}&student=${encodeURIComponent(studentId)}`;
-      window.location.replace(target);
-      return;
-    }
-
     const playbackId = state.playback && state.playback.id ? String(state.playback.id) : '';
     if (state.question) {
       const isNewPlayback = playbackId && playbackId !== lastPlaybackId;
       if (isNewPlayback) lastPlaybackId = playbackId;
       renderQuestion(state);
-      scheduleStudentAudio(state, Boolean(isNewPlayback));
+      // Live-iframe questions play their own audio from inside the real app
+      // (its own manual Play button — see modules/instrument-identifier/
+      // script.js's loadQuestionById, which never autoplays) rather than
+      // through this host's own studentAudio element/server-synced
+      // playback endpoint. Scheduling it here too would be pointless at
+      // best and, if a stale playbackId from a previous non-iframe
+      // question is still around, a real risk of audio bleeding from the
+      // wrong source. Note this is a real, deliberate behaviour change from
+      // the old bespoke renderer: the teacher dashboard's centrally-
+      // synchronized "everyone hears it together, N listens max" playback
+      // control does not reach into the iframe — each student can replay
+      // freely inside the embedded app instead. Worth revisiting, not
+      // silently patched over tonight.
+      if (!shouldUseLiveIframe(state.question)) scheduleStudentAudio(state, Boolean(isNewPlayback));
       return;
     }
 
@@ -1085,7 +1354,9 @@
         studentId,
         answer,
         questionId: currentState.question?.id,
-        questionIndex: currentState.questionIndex
+        questionIndex: currentState.questionIndex,
+        questionRunId: currentState.questionRunId,
+        roundId: currentState.roundId
       });
       submitted = true;
       handleState(response.state);
@@ -1094,7 +1365,16 @@
       els.submitButton.disabled = false;
       els.submitButton.textContent = 'Submit answer';
       els.feedbackPanel.classList.remove('hidden');
-      els.feedbackPanel.innerHTML = `<p>${escapeHTML(error.message || 'Could not submit your answer.')}</p>`;
+      if (error.code === 'STALE_QUESTION') {
+        // Not a real failure — the teacher moved on before this request
+        // landed. Refresh to the room's current question instead of
+        // showing a scary error for something the student didn't do wrong.
+        submitted = false;
+        els.feedbackPanel.innerHTML = '<p>That question moved on before your answer arrived — showing the current one.</p>';
+        if (error.state) handleState(error.state);
+      } else {
+        els.feedbackPanel.innerHTML = `<p>${escapeHTML(error.message || 'Could not submit your answer.')}</p>`;
+      }
     }
   }
 
@@ -1110,6 +1390,7 @@
     els.enableAudioButton.addEventListener('click', unlockStudentAudio);
     els.manualPlayButton.addEventListener('click', () => playStudentQuestionAudio(currentState?.question || {}));
     els.submitButton.addEventListener('click', submitAnswer);
+    window.addEventListener('message', handleLiveFrameMessage);
     examEls.form.addEventListener('submit', submitExamLabAnswers);
     examEls.zoomIn.addEventListener('click', () => setExamLabZoom(examLabZoom + 0.15));
     examEls.zoomOut.addEventListener('click', () => setExamLabZoom(examLabZoom - 0.15));

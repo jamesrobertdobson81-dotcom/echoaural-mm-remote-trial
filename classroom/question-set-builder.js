@@ -80,7 +80,13 @@ function filterCandidates(catalogue, spec) {
   return catalogue.all().filter((item) => {
     if (spec.moduleIds.length && !spec.moduleIds.includes(item.moduleId)) return false;
     if (spec.sourceKeys.length && !spec.sourceKeys.includes(item.sourceKey)) return false;
-    if (spec.moduleIds.length > 1 && !item.mixedCompatible) return false;
+    // Gated on "not exactly one specific app requested" rather than
+    // "more than one", so an empty moduleIds list (no restriction at all —
+    // e.g. a raw API caller, or a future 'any app' picker) still keeps
+    // non-mixed-safe renderers like exam-lab out, the same as an explicit
+    // multi-app list already did. Only a genuine single-app pick (launching
+    // that whole app directly, not truly mixing) skips this gate.
+    if (spec.moduleIds.length !== 1 && !item.mixedCompatible) return false;
     if (spec.musicalElements.length && !spec.musicalElements.includes(item.musicalElement)) return false;
     if (spec.skillCodes.length && !item.skillCodes.some((code) => spec.skillCodes.includes(code))) return false;
     if (spec.levels.length && item.level && !spec.levels.includes(item.level)) return false;
