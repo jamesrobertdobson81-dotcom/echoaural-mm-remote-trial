@@ -133,6 +133,12 @@
   let liveIframeRunId = null;
   let liveIframeAnswered = false;
   let liveDriverTimer = null;
+  let liveActiveSourceKey = '';
+  let liveActiveDriver = null;
+  let liveActiveLevelIndex = 0;
+  let liveRerollsThisSlot = 0;
+  let liveCurrentSignature = null;
+  let liveCurrentRevealedAt = null;
 
   const SILENT_AUDIO_DATA_URI = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
   const MI_NOTE_ASSET = '/modules/melody-master/assets/icons/notes/crotchet-sibelius.png';
@@ -492,23 +498,85 @@
     if (els.liveAppPanel) window.EAProgressModeSetMmScoreExpanded(false);
     clearLiveDriverTimer();
     if (!liveIframeRunId) return;
+    silenceCurrentLiveFrame();
     liveIframeRunId = null;
     liveIframeAnswered = false;
+    liveActiveSourceKey = '';
+    liveActiveDriver = null;
+    liveActiveLevelIndex = 0;
+    liveRerollsThisSlot = 0;
+    liveCurrentSignature = null;
+    liveCurrentRevealedAt = null;
     if (els.liveAppFrame.src) {
       els.liveAppFrame.src = 'about:blank';
       els.liveAppFrame.removeAttribute('src');
     }
   }
 
+  // Pauses whatever's playing in the CURRENT iframe document before it gets
+  // torn down by the next navigation. Same fix and reasoning as modules/
+  // progress-mode/script.js's silenceCurrentFrame/pauseFrameMedia:
+  // reassigning iframe.src doesn't tear down the previous document
+  // instantly, so a still-playing note can bleed audibly into the next
+  // navigation — most noticeable on apps that autoplay immediately, like
+  // Melodic Intervals (heard as "extra notes" beyond the two it should
+  // play). Called before every src reassignment below, reroll or not.
+  function pauseLiveFrameMedia(doc) {
+    try {
+      doc.querySelectorAll('audio, video').forEach((media) => {
+        try { if (!media.paused) media.pause(); } catch (_error) { /* ignore */ }
+      });
+    } catch (_error) { /* not accessible — nothing to silence */ }
+  }
+
+  function silenceCurrentLiveFrame() {
+    try {
+      const doc = els.liveAppFrame.contentDocument;
+      if (doc) pauseLiveFrameMedia(doc);
+    } catch (_error) { /* cross-origin or not yet loaded */ }
+  }
+
+  // Only resumes media pauseLiveFrameMedia itself already stopped mid-play
+  // (currentTime > 0) — never forces autoplay on media that was never
+  // started, which would just race the app's own pending autoplay timer.
+  function resumeLiveFrameMedia(doc) {
+    try {
+      doc.querySelectorAll('audio, video').forEach((media) => {
+        try {
+          if (media.paused && media.currentTime > 0) {
+            const playPromise = media.play();
+            if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+          }
+        } catch (_error) { /* ignore */ }
+      });
+    } catch (_error) { /* ignore */ }
+  }
+
+  // Namespaced separately from Progress Mode's own "progressmode:" keys —
+  // Live Session's studentId (an "account-<id>" room participant, or an
+  // ephemeral anonymous id for a guest join) is never the same string
+  // Progress Mode itself uses for a logged-in student, so sharing one
+  // key namespace wouldn't actually unify the two anyway; each gets its
+  // own honestly-scoped seen-question history instead.
+  function liveSpacedRepKey(sourceKey) {
+    return `livesession:${studentId}:${sourceKey}`;
+  }
+
+  const MAX_LIVE_DUPLICATE_REROLLS = 4;
+
   // Mirrors modules/progress-mode/script.js's loadCurrentSlotFrame/
   // waitForReady/waitForAutoStartedQuestion/confirmStartedThenPoll/
-  // beginAnsweredPolling — the exact sequence Progress Mode already uses
-  // for every one of these apps — simplified for Live Session's needs: no
-  // spaced-repetition dedup (question-set-builder.js already picked a
-  // distinct plan), no empty-pool level-escalation-or-replace retry (a
-  // teacher-run class round has one shared question per slot, not a
-  // personal queue to substitute within), just load → configure → wait for
-  // a real question → poll until answered.
+  // checkSignatureThenPoll/beginAnsweredPolling — the exact sequence
+  // Progress Mode already uses for every one of these apps — simplified
+  // for Live Session's needs: no empty-pool level-escalation-or-replace
+  // retry (a teacher-run class round has one shared question per slot, not
+  // a personal queue to substitute within). Duplicate/cooldown rerolling
+  // IS kept: a driver can only pick a level, not an exact question, so
+  // without it the same student could see one question repeat within a
+  // round, or reappear in their very next Live Session with no spacing at
+  // all — shared/js/spaced-repetition.js (this cycle) and modules/
+  // progress-mode/store.js's SM-2 cooldown (future sessions) are the exact
+  // same two mechanisms Progress Mode already relies on for this.
   function renderLiveIframeQuestion(state, question) {
     showLiveAppPanel();
     const runId = Number(state.questionRunId || 0);
@@ -521,16 +589,25 @@
     clearLiveDriverTimer();
     liveIframeRunId = runId;
     liveIframeAnswered = Boolean(state.student?.submitted);
+    liveRerollsThisSlot = 0;
+    liveCurrentSignature = null;
+    liveCurrentRevealedAt = null;
     els.feedbackPanel.classList.add('hidden');
     els.feedbackPanel.innerHTML = '';
-    els.liveAppFrameLoading.textContent = 'Loading question…';
-    els.liveAppFrameLoading.classList.remove('hidden');
 
-    const sourceKey = resolveLiveSourceKey(question);
-    const driver = window.EAProgressModeDrivers[sourceKey];
-    const levelIndex = Math.max(0, driver.levelValues.findIndex(
+    liveActiveSourceKey = resolveLiveSourceKey(question);
+    liveActiveDriver = window.EAProgressModeDrivers[liveActiveSourceKey];
+    liveActiveLevelIndex = Math.max(0, liveActiveDriver.levelValues.findIndex(
       (value) => String(value).toLowerCase() === String(question.level || '').toLowerCase()
     ));
+    loadLiveDriverFrame(runId);
+  }
+
+  function loadLiveDriverFrame(runId) {
+    const driver = liveActiveDriver;
+    silenceCurrentLiveFrame();
+    els.liveAppFrameLoading.textContent = 'Loading question…';
+    els.liveAppFrameLoading.classList.remove('hidden');
 
     // driver.path/buildUrl() return paths relative to /modules/progress-
     // mode/ (the only page that has ever loaded these drivers before now),
@@ -538,7 +615,7 @@
     // resolve against that same virtual base (not this page's own /student/
     // location, which would silently walk to the wrong directory), keeping
     // any query string intact rather than dropping it via .pathname alone.
-    const rawUrl = driver.buildUrl ? driver.buildUrl(levelIndex) : driver.path;
+    const rawUrl = driver.buildUrl ? driver.buildUrl(liveActiveLevelIndex) : driver.path;
     const resolvedUrl = new URL(rawUrl, `${window.location.origin}/modules/progress-mode/`);
     const baseUrl = resolvedUrl.pathname + resolvedUrl.search;
     const separator = resolvedUrl.search ? '&' : '?';
@@ -546,7 +623,7 @@
       _live: Date.now(),
       eaProgressHost: '1',
       eaProgressSlot: `${roomCode}:${studentId}:${runId}`,
-      eaProgressSource: sourceKey
+      eaProgressSource: liveActiveSourceKey
     }).toString()}`;
 
     els.liveAppFrame.onload = () => {
@@ -556,7 +633,7 @@
       if (driver.autoStarts) {
         waitForLiveAutoStartedQuestion(doc, driver, runId);
       } else {
-        waitForLiveReady(doc, driver, levelIndex, runId);
+        waitForLiveReady(doc, driver, liveActiveLevelIndex, runId);
       }
     };
   }
@@ -603,8 +680,7 @@
       const stillOnReadyScreen = !!quizPanel && quizPanel.classList.contains('is-ready');
       if (!stillOnReadyScreen) {
         clearLiveDriverTimer();
-        els.liveAppFrameLoading.classList.add('hidden');
-        beginLiveAnsweredPolling(doc, driver, runId);
+        checkLiveSignatureThenPoll(doc, driver, runId);
         return;
       }
       if (attempts > 60) { clearLiveDriverTimer(); showLiveIframeUnavailable(); }
@@ -622,13 +698,55 @@
       try { hasQuestion = !!(driver.getSignature && driver.getSignature(doc)); } catch (_error) { /* not ready yet */ }
       if (hasQuestion) {
         clearLiveDriverTimer();
-        els.liveAppFrameLoading.classList.add('hidden');
-        beginLiveAnsweredPolling(doc, driver, runId);
+        checkLiveSignatureThenPoll(doc, driver, runId);
       } else if (attempts > 120) {
         clearLiveDriverTimer();
         showLiveIframeUnavailable();
       }
     }, 50);
+  }
+
+  // Same as Progress Mode's own checkSignatureThenPoll: mute first (a
+  // question that's about to be discarded as a repeat should never be
+  // heard at all, not just cut short), decide second.
+  function checkLiveSignatureThenPoll(doc, driver, runId) {
+    pauseLiveFrameMedia(doc);
+
+    let signature = null;
+    try { signature = driver.getSignature ? driver.getSignature(doc) : null; } catch (_error) { signature = null; }
+
+    if (signature && shouldRerollLiveSignature(signature)) {
+      liveRerollsThisSlot += 1;
+      loadLiveDriverFrame(runId);
+      return;
+    }
+    if (signature) rememberLiveSlotSignature(signature);
+    liveCurrentSignature = signature;
+    liveCurrentRevealedAt = Date.now();
+    els.liveAppFrameLoading.classList.add('hidden');
+    resumeLiveFrameMedia(doc);
+    try { els.liveAppFrame.contentWindow && els.liveAppFrame.contentWindow.focus(); } catch (_error) { /* ignore */ }
+    beginLiveAnsweredPolling(doc, driver, runId);
+  }
+
+  function shouldRerollLiveSignature(signature) {
+    const SR = window.EchoAuralSpacedRepetition;
+    const Store = window.EAProgressModeStore;
+    const seenKey = liveSpacedRepKey(liveActiveSourceKey);
+    const alreadySeen = SR ? SR.getSeenIds(seenKey).indexOf(signature) !== -1 : false;
+    const coolingDown = Store ? Store.isSignatureCoolingDown(studentId, liveActiveSourceKey, signature) : false;
+
+    if ((alreadySeen || coolingDown) && liveRerollsThisSlot < MAX_LIVE_DUPLICATE_REROLLS) return true;
+    // Every candidate at this level has now been seen — the whole cycle is
+    // exhausted, not just this one question, so reset it (same fallback
+    // Progress Mode takes) rather than reroll forever.
+    if (alreadySeen && SR) SR.resetCycle(seenKey);
+    return false;
+  }
+
+  function rememberLiveSlotSignature(signature) {
+    const SR = window.EchoAuralSpacedRepetition;
+    if (SR) SR.markShown([signature], { key: liveSpacedRepKey(liveActiveSourceKey), idOf: (value) => value });
   }
 
   function showLiveIframeUnavailable() {
@@ -653,6 +771,13 @@
   async function submitLiveIframeAnswer(correct) {
     if (liveIframeAnswered || !currentState || !currentState.question) return;
     liveIframeAnswered = true;
+    // Feeds the exact same SM-2 cooldown schedule shouldRerollLiveSignature
+    // reads from, so a question answered here is genuinely spaced out over
+    // this student's future Live Sessions, not just skipped this once.
+    if (liveCurrentSignature && window.EAProgressModeStore) {
+      const responseTimeMs = liveCurrentRevealedAt ? Date.now() - liveCurrentRevealedAt : undefined;
+      window.EAProgressModeStore.recordQuestionOutcome(studentId, liveActiveSourceKey, liveCurrentSignature, correct, responseTimeMs);
+    }
     try {
       const response = await api('/api/classroom/submit', {
         roomCode,
