@@ -187,6 +187,13 @@
   </div>
 
   <script src="/shared/js/classroom-client.js"></script>
+  <!-- Same driver map + registry Live Session's student side uses, loaded here
+       only to detect whether the active question already plays its own audio
+       inside each student's live iframe -- see questionUsesLiveIframe() in
+       teacher.js, which skips this page's own auto-play for those questions
+       so the class doesn't hear the excerpt twice. -->
+  <script src="/shared/js/pm-registry.js"></script>
+  <script src="/modules/progress-mode/app-drivers.js"></script>
   <script src="/teacher/teacher.js?v=exam-lab-source-20260803"></script>
 </body>
 </html>

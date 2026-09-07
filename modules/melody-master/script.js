@@ -264,23 +264,15 @@ function buildRoundQuestionIndices(questionCount = DEFAULT_QUIZ_SETTINGS.questio
   const indexes = getDictationQuestionIndexes();
   const pool = indexes.length ? indexes : Array.from({ length: ALL_MELODY_CLIPS.length || 1 }, (_item, index) => index);
   const count = Math.max(1, Math.min(Number(questionCount) || DEFAULT_QUIZ_SETTINGS.questionCount, pool.length));
-  // TEMPORARY AUTHORING AID: newly appended MM dictation questions open first for checking.
-  const newestQuestionIndex = pool[pool.length - 1];
-  const remainingPool = pool.filter((index) => index !== newestQuestionIndex);
   const key = dictationSpacedRepetitionKey();
   const idOf = (index) => ALL_MELODY_CLIPS[index]?.id ?? index;
   const SR = window.EchoAuralSpacedRepetition;
-  const ordered = SR ? SR.orderByLeastRecentlyShown(remainingPool, { key, idOf }) : shuffleArray(remainingPool);
-  // Keep the same target melody from appearing twice in one round. The
-  // pinned newest-question slot's pitches count as already "used" so the
-  // rest of the round can't duplicate it either.
+  const ordered = SR ? SR.orderByLeastRecentlyShown(pool, { key, idOf }) : shuffleArray(pool);
   const pitchSignature = (index) => (ALL_MELODY_CLIPS[index]?.answerPitches || []).join(",");
-  const newestSignature = pitchSignature(newestQuestionIndex);
-  const candidates = ordered.filter((index) => pitchSignature(index) !== newestSignature || !newestSignature);
-  const deduped = SR?.dedupeByAnswer ? SR.dedupeByAnswer(candidates, count - 1, pitchSignature) : candidates;
-  const picked = deduped.slice(0, count - 1);
+  const deduped = SR?.dedupeByAnswer ? SR.dedupeByAnswer(ordered, count, pitchSignature) : ordered;
+  const picked = deduped.slice(0, count);
   SR?.markShown(picked, { key, idOf });
-  return [newestQuestionIndex, ...picked];
+  return picked;
 }
 
 function getRoundTotal() {

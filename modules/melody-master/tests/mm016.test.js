@@ -109,12 +109,6 @@ test("MDV040 identifies the turn with bundled audio and score", () => {
   assert.equal(fs.existsSync(path.resolve(moduleRoot, question.score)), true);
 });
 
-test("temporary authoring order pins the newest dictation source first", () => {
-  const appSource = fs.readFileSync(path.join(moduleRoot, "script.js"), "utf8");
-  assert.match(appSource, /const newestQuestionIndex = pool\[pool\.length - 1\]/);
-  assert.match(appSource, /return \[newestQuestionIndex, \.\.\.shuffleArray\(remainingPool\)\.slice\(0, count - 1\)\]/);
-});
-
 test("dragged MM notes keep ledger lines visible above and below the stave", () => {
   const appSource = fs.readFileSync(path.join(moduleRoot, "script.js"), "utf8");
   const styles = fs.readFileSync(path.join(moduleRoot, "style.css"), "utf8");

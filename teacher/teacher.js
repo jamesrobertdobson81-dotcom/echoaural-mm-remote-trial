@@ -212,6 +212,27 @@ function delay(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, Math.max(0, Number(ms) || 0)));
 }
 
+// Live Session now gives every driver-backed app its own iframe on each
+// student's device (see student.js's shouldUseLiveIframe), which plays that
+// app's audio itself the moment the question loads there. This page's own
+// playExcerpt() below predates that -- it was built for the older "teacher's
+// device is the only speaker in the room" model -- so for those questions it
+// is a second, unsynchronised copy of the same clip rather than a fallback.
+// Same resolution student.js's resolveLiveSourceKey() uses, so this agrees
+// with whatever student devices are actually about to do.
+function resolveQuestionSourceKey(question = {}) {
+  if (question.sourceKey) return question.sourceKey;
+  const matches = window.EchoAuralPMRegistry && question.moduleId
+    ? window.EchoAuralPMRegistry.byModule(question.moduleId)
+    : null;
+  return matches && matches[0] ? matches[0].sourceKey : '';
+}
+
+function questionUsesLiveIframe(question = {}) {
+  const sourceKey = resolveQuestionSourceKey(question);
+  return Boolean(sourceKey && window.EAProgressModeDrivers && window.EAProgressModeDrivers[sourceKey]);
+}
+
 function resolveAudioPath(question = {}) {
   const raw = String(question.audio || question.file || '').trim();
   if (!raw) return '';
@@ -529,7 +550,19 @@ function updatePrimaryButton(state = currentState) {
     return;
   }
 
-  if (quiz.listens >= quiz.maxListens) {
+  // A live-iframe question is already fully delivered the moment it loads —
+  // each student's own device plays it inside the embedded app, drawn by
+  // that app itself rather than pinned to this room's activeQuestion (see
+  // questionUsesLiveIframe() above). The "play it N times before advancing"
+  // gate below was built for the older shared-speaker model, where the
+  // catalogue's own question.audio genuinely was the one clip everyone was
+  // about to hear; for these questions it is often a different clip than
+  // whatever the app actually drew, so leaving the gate in place both
+  // strands Next Question behind a play count that can never be satisfied
+  // and offers a Replay button that plays the wrong extract.
+  const liveIframeQuestion = questionUsesLiveIframe(state?.question);
+
+  if (liveIframeQuestion || quiz.listens >= quiz.maxListens) {
     primaryAction = quiz.current >= quiz.total ? 'finish' : 'next';
     els.primaryQuizButton.textContent = quiz.current >= quiz.total
       ? (isExamLabMode(state) ? 'Finish Session' : 'Finish Quiz')
@@ -951,7 +984,9 @@ async function startQuiz() {
     const response = await api('/api/classroom/start', payload);
     renderState(response.state);
     updateTeacherStatus(response.state);
-    await playExcerpt({ leadInSeconds: selectedModuleId === 'melody-master' ? 2 : 1 });
+    if (!questionUsesLiveIframe(response.state?.question)) {
+      await playExcerpt({ leadInSeconds: selectedModuleId === 'melody-master' ? 2 : 1 });
+    }
   } catch (error) {
     setNotice(error.message || 'Could not start the quiz.', 'bad');
   }
@@ -965,7 +1000,9 @@ async function nextQuestion() {
     const response = await api('/api/classroom/next', { roomCode });
     renderState(response.state);
     updateTeacherStatus(response.state);
-    await playExcerpt({ leadInSeconds: selectedModuleId === 'melody-master' ? 2 : 1 });
+    if (!questionUsesLiveIframe(response.state?.question)) {
+      await playExcerpt({ leadInSeconds: selectedModuleId === 'melody-master' ? 2 : 1 });
+    }
   } catch (error) {
     setNotice(error.message || 'Could not start the next question.', 'bad');
   }
