@@ -869,10 +869,19 @@
         var selected = doc.querySelector('.ensemble-option[aria-checked="true"]');
         return !!selected && selected.classList.contains("correct");
       },
+      // A real per-question id (questionText's data-question-id, stamped by
+      // loadQuestion() in ensemble-recognition/script.js) beats the answer-
+      // choice text below when present — many different clips share the
+      // same small set of ensemble-size options (Duet/Pit Orchestra/String
+      // Quartet/Wind Ensemble etc.), so that text-only signature collided
+      // across genuinely different questions and let the same clip re-draw
+      // several times in one round before this existed.
       getSignature: function (doc) {
+        var prompt = doc.getElementById("questionText");
+        var questionId = prompt ? (prompt.dataset ? prompt.dataset.questionId : prompt.getAttribute("data-question-id")) : "";
+        if (questionId) return "id:" + questionId;
         var choices = textSignature(doc, ".ensemble-option");
         if (choices) return choices;
-        var prompt = doc.getElementById("questionText");
         return prompt ? (prompt.textContent || "").trim() : null;
       }
     },

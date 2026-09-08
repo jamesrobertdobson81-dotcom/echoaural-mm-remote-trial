@@ -563,9 +563,21 @@ function createClassroomServer(options = {}) {
         const teacherAccount = await optionalTeacherSession(req);
         cleanupQuestionSetDrafts();
         const draftId = String(body.questionSetDraftId || '').trim();
-        const draft = draftId ? questionSetDrafts.get(draftId) : null;
+        let draft = draftId ? questionSetDrafts.get(draftId) : null;
         if (draftId && (!draft || !teacherAccount || String(draft.teacherId) !== String(teacherAccount.id))) {
-          return sendJson(res, 403, { ok: false, error: 'That planned question set has expired or belongs to another teacher.' });
+          // questionSetDrafts is in-memory only (see its own comment above) —
+          // a server restart between "build preview" and "create" (e.g. a
+          // routine deploy landing while a teacher has the dashboard open)
+          // wipes every draft instantly, no TTL involved. That used to hard-
+          // block room creation entirely with a 403, which is a far worse
+          // outcome for a live classroom than falling back to the
+          // classId/questionLevel/mixedModuleIds this same request already
+          // carries as a plain (unplanned) room — the teacher loses the
+          // specific class-targeted plan for that one room, not the ability
+          // to teach at all. Logged so a burst of these after a deploy is at
+          // least visible somewhere.
+          console.warn(`[classroom] question set draft ${draftId || '(none)'} unavailable at room creation — falling back to an unplanned room. Reason: ${!draft ? 'not found (expired or server restarted)' : !teacherAccount ? 'no teacher session' : 'teacher mismatch'}.`);
+          draft = null;
         }
         const plannedModules = draft
           ? Array.from(new Set(draft.questionSet.questionPlan.map((item) => item.moduleId)))

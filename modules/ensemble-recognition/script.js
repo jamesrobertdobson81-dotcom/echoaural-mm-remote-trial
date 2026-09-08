@@ -529,6 +529,15 @@
     hasSubmitted = false;
     hasPlayedAudio = false;
     stopAudio();
+    // Read externally by Progress Mode/Live Session's driver
+    // (getSignature — see app-drivers.js) as a precise no-repeat
+    // fingerprint. Answer-choice text alone collides across many
+    // different clips that happen to share the same small set of
+    // ensemble-size options (e.g. "Duet · Pit Orchestra · String
+    // Quartet · Wind Ensemble"), which let the same clip re-draw
+    // several times in one round undetected — a real question id here
+    // never collides.
+    if (questionText) questionText.dataset.questionId = currentQuestion.id || "";
     setQuestionPrompt(currentQuestion.question, currentQuestion.marks);
     if (currentQuestion.responseType === "typed") {
       if (ensemblePanel) ensemblePanel.hidden = true;
