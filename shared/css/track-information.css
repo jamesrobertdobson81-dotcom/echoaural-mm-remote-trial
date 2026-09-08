@@ -4,6 +4,19 @@
   box-sizing: border-box;
   width: min(640px, calc(100% - 48px)) !important;
   min-width: 0;
+  /* This is the only rule several apps' own stylesheets rely on for
+     positioning (see this file's own header comment) — a couple of apps
+     (e.g. instrument-identifier's Devices sub-mode) layer a more specific
+     position:absolute + left:50% + transform override on top for their
+     own layout needs, but anything relying on this shared rule alone had
+     no centering mechanism at all: an explicit width with no margin just
+     sits at its container's start edge, whether that container is block,
+     grid (default justify-items:stretch), or flex. margin:auto centers a
+     width-constrained item correctly in all three, and doesn't conflict
+     with position:absolute overrides, which take the element out of
+     normal flow regardless. */
+  margin-left: auto !important;
+  margin-right: auto !important;
   height: 76px !important;
   min-height: 76px !important;
   max-height: 76px !important;
