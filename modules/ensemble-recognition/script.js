@@ -695,12 +695,19 @@
     consoleSkillIcon.src = checked ? (CONSOLE_SKILL_ICONS[checked.value] || DEFAULT_CONSOLE_ICON) : DEFAULT_CONSOLE_ICON;
   }
 
-  /** Start cannot begin until the user has explicitly picked both a skill and a level. */
+  /** Start cannot begin until the user has explicitly picked both a skill
+   *  and a level, AND the question pack has actually finished loading.
+   *  Live Session's driver picks skill/level programmatically (near-
+   *  instant), unlike a human — on a slow connection it can win the race
+   *  against the fetch below and click Start before questionBank has
+   *  anything in it, leaving the app stuck with no way to recover (see the
+   *  identical, confirmed bug this mirrors in meter-master/script.js). */
   function updateStartAvailability() {
     if (!startButton) return;
     const hasSkill = !!document.querySelector('input[name="ensSkill"]:checked');
     const hasLevel = !!document.querySelector('input[name="ensLevel"]:checked');
-    startButton.disabled = !(hasSkill && hasLevel);
+    const dataReady = questionBank.length > 0;
+    startButton.disabled = !(hasSkill && hasLevel && dataReady);
   }
 
   /** Centre-panel heading: "Learning" until a skill is chosen, then that
@@ -778,6 +785,11 @@
       questionBank = Array.isArray(pack.questions) ? pack.questions.filter(Core.validateQuestion) : [];
       if (!questionBank.length) throw new Error("No valid questions in pack.");
       if (setupMessage) setupMessage.textContent = `${questionBank.length} ensemble clips ready.`;
+      // Re-evaluate now data has actually arrived — skill/level may already
+      // have been selected (by a human, or Live Session's driver) while
+      // this fetch was still in flight, in which case updateStartAvailability
+      // would have correctly left the button disabled at the time.
+      updateStartAvailability();
     } catch (error) {
       if (setupMessage) setupMessage.textContent = `Could not load ensemble questions: ${error.message}`;
       startButton.disabled = true;

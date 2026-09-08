@@ -683,6 +683,20 @@
     return liveIframeRunId === runId && doc.defaultView && doc.defaultView === els.liveAppFrame.contentWindow;
   }
 
+  // These budgets (at the 50ms poll interval below) used to be 120/60
+  // attempts — 6s/3s. Confirmed live on production (not reproducible on a
+  // fast local connection) that this was tight enough for a real school
+  // network's load time — an app that was genuinely, correctly loading,
+  // just slower than localhost, could still get cut off with "This
+  // question is not available right now" before it ever got the chance to
+  // finish. Reports came in for two unrelated apps (Ensemble Recognition,
+  // Meter Master), which rules out anything specific to either one's own
+  // code — this is purely about how long the wait is. Widened well past
+  // what a normal load should ever need, while still eventually giving up
+  // rather than hanging forever if an app is genuinely broken.
+  const LIVE_DRIVER_READY_TIMEOUT_ATTEMPTS = 500; // 25s at 50ms/attempt
+  const LIVE_DRIVER_START_CONFIRM_TIMEOUT_ATTEMPTS = 400; // 20s at 50ms/attempt
+
   function waitForLiveReady(doc, driver, levelIndex, runId) {
     let attempts = 0;
     let configured = false;
@@ -693,7 +707,7 @@
       if (window.EAProgressModeApplyFocusMode) window.EAProgressModeApplyFocusMode(doc);
       const startButton = doc.getElementById(driver.startButtonId);
       if (!startButton) {
-        if (attempts > 120) { clearLiveDriverTimer(); showLiveIframeUnavailable(); }
+        if (attempts > LIVE_DRIVER_READY_TIMEOUT_ATTEMPTS) { clearLiveDriverTimer(); showLiveIframeUnavailable(); }
         return;
       }
       if (!configured) {
@@ -704,7 +718,7 @@
         clearLiveDriverTimer();
         startButton.click();
         confirmLiveStarted(doc, driver, runId);
-      } else if (attempts > 120) {
+      } else if (attempts > LIVE_DRIVER_READY_TIMEOUT_ATTEMPTS) {
         clearLiveDriverTimer();
         showLiveIframeUnavailable();
       }
@@ -724,7 +738,7 @@
         checkLiveSignatureThenPoll(doc, driver, runId);
         return;
       }
-      if (attempts > 60) { clearLiveDriverTimer(); showLiveIframeUnavailable(); }
+      if (attempts > LIVE_DRIVER_START_CONFIRM_TIMEOUT_ATTEMPTS) { clearLiveDriverTimer(); showLiveIframeUnavailable(); }
     }, 50);
   }
 
@@ -740,7 +754,7 @@
       if (hasQuestion) {
         clearLiveDriverTimer();
         checkLiveSignatureThenPoll(doc, driver, runId);
-      } else if (attempts > 120) {
+      } else if (attempts > LIVE_DRIVER_READY_TIMEOUT_ATTEMPTS) {
         clearLiveDriverTimer();
         showLiveIframeUnavailable();
       }

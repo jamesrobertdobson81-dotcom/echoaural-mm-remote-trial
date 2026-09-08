@@ -1132,11 +1132,24 @@ function syncConsoleSkillIcon() {
   consoleSkillIcon.parentElement?.classList.toggle("is-skill-icon", !!checked);
 }
 
-/** Start cannot begin until the user has explicitly picked both a skill and a level. */
+/** Start cannot begin until the user has explicitly picked both a skill and
+ *  a level, AND loadQuestions() has actually finished populating
+ *  allQuestions. Live Session's driver picks skill/level programmatically
+ *  (setRadio, near-instant) rather than at human reaction speed, so on a
+ *  slow connection it can win the race against the data fetch and click
+ *  Start before allQuestions has anything in it — startRound() then finds
+ *  0 questions, shows an inline error, and (critically) never hides
+ *  startButton or clears the ready state, leaving the app stuck on the
+ *  ready screen with no way to recover, since nothing re-triggers once the
+ *  fetch does finish moments later. init() already calls this again right
+ *  after `await loadQuestions()` resolves, so gating on data here is
+ *  enough — the button correctly flips to enabled at that point instead
+ *  of earlier. */
 function updateStartAvailability() {
   if (!startButton) return;
   const hasSkill = !!document.querySelector('input[name="meterSkill"]:checked');
-  startButton.disabled = !(hasSkill && levelChosen);
+  const dataReady = allQuestions.length > 0;
+  startButton.disabled = !(hasSkill && levelChosen && dataReady);
 }
 
 /** Centre-panel heading: "Learning" until a skill is chosen, then that
