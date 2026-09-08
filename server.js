@@ -6,6 +6,9 @@ const { URL } = require('url');
 const { createClassroomServer } = require('./classroom/classroom-server');
 const { handleAccountApi } = require('./accounts/account-server');
 const { createOnboardingServer } = require('./accounts/onboarding-server');
+const { alertOnError, installProcessHandlers } = require('./accounts/error-alert');
+
+installProcessHandlers();
 
 const PORT = Number(process.env.PORT || 3000);
 const PROJECT_ROOT = __dirname;
@@ -38,7 +41,7 @@ const server = http.createServer(async (req, res) => {
     }
     classroom.serveStatic(req, res, parsedUrl);
   } catch (error) {
-    console.error('[EchoAural server] Request failed:', error);
+    alertOnError(error, { label: 'Request failed', method: req.method, url: req.url });
     if (!res.headersSent) {
       const body = JSON.stringify({ ok: false, error: 'EchoAural service error.' });
       res.writeHead(500, {

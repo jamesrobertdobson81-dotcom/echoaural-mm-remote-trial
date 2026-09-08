@@ -217,4 +217,4 @@ async function sendWelcomeEmail({ projectRoot, teacherName, teacherEmail, teache
   return saveDevelopmentEmail({ projectRoot, recipient: teacherEmail, html: message.html, text: message.text });
 }
 
-module.exports = { sendWelcomeEmail };
+module.exports = { sendWelcomeEmail, sendWithResend };
