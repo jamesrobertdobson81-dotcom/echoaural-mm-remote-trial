@@ -11,8 +11,9 @@ const { buildQuestionSet } = require('../classroom/question-set-builder');
 const { createClassEvidenceLoader } = require('../classroom/class-evidence');
 const { questionIdsForConcepts, CONCEPT_SCOPED_MODULE_IDS } = require('../classroom/concept-catalogue');
 const { saveRoundPayload } = require('../classroom/progress-recorder');
-const { loadQuestionRatings, loadStudentSkillRatings } = require('../classroom/elo');
+const { loadQuestionRatings, loadStudentSkillRatings, recordEloOutcome, isRatableModule } = require('../classroom/elo');
 const { rankConceptsForTargeting } = require('../classroom/mastery');
+const pmRegistry = require('../shared/js/pm-registry.js');
 
 // Homework's own question-set plumbing — a second, independent
 // QuestionCatalogue/adapter set from classroom-server.js's (see classroom/
@@ -1959,11 +1960,9 @@ async function handleAccountApi(req, res, parsedUrl) {
     // source+signature" (see modules/progress-mode/store.js's
     // applyIncomingReviews) — no server-side merge logic needed.
     //
-    // Deliberately does not touch question_elo_ratings/student_skill_
-    // ratings (classroom/elo.js) — that adaptive-targeting system, and the
-    // homework/question-set-builder work that consumes it, isn't part of
-    // this codebase yet; Progress Mode's own cross-device sync doesn't
-    // need it.
+    // A pure read of already-recorded reviews, so it doesn't touch
+    // question_elo_ratings/student_skill_ratings itself — see the POST
+    // handler below for where a review's outcome actually reaches those.
     if (req.method === 'GET' && pathname === '/api/student/progress-mode-reviews') {
       const student = await requireStudent(req, res);
       if (!student) return true;
@@ -2052,6 +2051,33 @@ async function handleAccountApi(req, res, parsedUrl) {
             review.levelIndex, review.clientReviewId
           ]);
           saved += 1;
+
+          // Same adaptive-targeting signal classroom/progress-recorder.js's
+          // saveRoundPayload feeds from Live Session/Homework attempts —
+          // Progress Mode rounds never reach `attempts` at all (see this
+          // route's own header comment), so this is the only place a PM
+          // review's outcome reaches question_elo_ratings/
+          // student_skill_ratings. question_signature is only a real,
+          // stable question id for fixed-bank sources (isRatableModule) —
+          // confirmed the source shape for the 3 concept-scoped modules is
+          // {id: currentQuestion.id} feeding questionReady() with no
+          // separate signature, so signature === id there.
+          const source = pmRegistry.get(review.sourceKey);
+          const moduleId = source?.moduleId || '';
+          if (moduleId && isRatableModule(moduleId)) {
+            const metadata = getQuestionSkillMetadata(review.questionSignature);
+            const skillCode = metadata?.primary_skill_code;
+            if (skillCode) {
+              await recordEloOutcome(client, {
+                moduleId,
+                questionId: review.questionSignature,
+                teacherId: student.teacher_id,
+                studentId: student.id,
+                skillCode,
+                actualScore: review.correct ? 1 : 0
+              });
+            }
+          }
         }
         await client.query('COMMIT');
       } catch (error) {

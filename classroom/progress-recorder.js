@@ -2,6 +2,7 @@
 
 const { buildCumulativeResults } = require('./scoring');
 const { enrichAnswerData } = require('../shared/js/skill-metadata');
+const { recordEloOutcome, isRatableModule } = require('./elo');
 
 const MODULE_TITLES = {
   mixed: 'Mixed Apps',
@@ -352,6 +353,29 @@ async function saveRoundPayload(payload) {
         question.answerData,
         round.completed_at
       ]);
+
+      // Adaptive-targeting signal (classroom/mastery.js's approved design
+      // doc): every scored attempt updates both the question's difficulty
+      // rating and the student's per-skill ability rating. Skipped for
+      // procedurally-generated PM sources (isRatableModule) and for
+      // questions with no resolvable skillCode — see classroom/elo.js's
+      // own header comment for why. answerData already carries skillCode
+      // by this point for every caller of saveRoundPayload (both
+      // buildTeacherModeRoundPayload's answerData below and Homework's own
+      // completion route run it through enrichAnswerData first).
+      const attemptModuleId = question.moduleId || payload.moduleId;
+      const skillCode = question.answerData?.skillCode;
+      const maximumScore = Number(question.maximumScore);
+      if (skillCode && maximumScore > 0 && isRatableModule(attemptModuleId)) {
+        await recordEloOutcome(client, {
+          moduleId: attemptModuleId,
+          questionId: question.questionId,
+          teacherId: payload.teacherId,
+          studentId: payload.studentId,
+          skillCode,
+          actualScore: Number(question.score) / maximumScore
+        });
+      }
     }
 
     await client.query('COMMIT');

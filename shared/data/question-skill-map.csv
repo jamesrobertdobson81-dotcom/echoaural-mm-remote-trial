@@ -3150,3 +3150,253 @@ EXL010-Q06,CLIP-EXL010,Texture,TEX.TYPE,Texture type,TEX.ROLE,identify,Exam appl
 EXL010-Q07,CLIP-EXL010,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Exam application,,,,high,Tagged
 EXL010-Q08,CLIP-EXL010,Context and genre,CTX.PERIOD,Historical period,,identify,Exam application,,,,high,Tagged
 EXL010-Q09,CLIP-EXL010,Context and genre,CTX.PERIOD,Historical period,CTX.GENRE,identify,Exam application,,,,high,Tagged
+CC001,CLIP-B153DDB8C2C9,Harmony and tonality,HAR.CADENCE,Cadence,NOT.SCORE_READING,identify,Ungraded,,,,high,Review
+CC002,CLIP-E2B367491DE5,Harmony and tonality,HAR.CADENCE,Cadence,NOT.SCORE_READING,identify,Ungraded,,,,high,Review
+CC003,CLIP-BF7237A982E7,Harmony and tonality,HAR.CADENCE,Cadence,NOT.SCORE_READING,identify,Ungraded,,,,high,Review
+CC004,CLIP-CD5B4B0418FC,Harmony and tonality,HAR.CADENCE,Cadence,NOT.SCORE_READING,identify,Ungraded,,,,high,Review
+CC005,CLIP-7F82ACDB4444,Harmony and tonality,HAR.CADENCE,Cadence,NOT.SCORE_READING,identify,Ungraded,,,,high,Review
+CC006,CLIP-C8B09435B14E,Harmony and tonality,HAR.CADENCE,Cadence,NOT.SCORE_READING,identify,Ungraded,,,,high,Review
+CC007,CLIP-0091E9504940,Harmony and tonality,HAR.CADENCE,Cadence,NOT.SCORE_READING,identify,Ungraded,,,,high,Review
+ENS001,CLIP-5858DB2FCBB2,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Foundation,,,,high,Review
+ENS002,CLIP-8048E8D744F7,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Foundation,,,,high,Review
+ENS003,CLIP-C796EC823B67,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS004,CLIP-3AA325DED4FF,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS005,CLIP-9D991E2E24FB,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS006,CLIP-A2FE163FF2C6,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS007,CLIP-1A1E27A51B2E,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS008,CLIP-3407A91DEA46,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS009,CLIP-7E49F426CDE6,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS010,CLIP-F1E51972A233,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS011,CLIP-C1E7B4C7D88B,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS015,CLIP-6FDC6A4DF135,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS016,CLIP-57EEBD13CB39,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS018,CLIP-1C2D9CFC5B8B,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS020,CLIP-DEBE8719E678,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS021,CLIP-461324ABD76E,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS022,CLIP-2760FE49AFB0,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS023,CLIP-129FA08F02DA,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS024,CLIP-8982E0459881,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS025,CLIP-2731A928D114,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS026,CLIP-9BC4D5CB523F,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS027,CLIP-8C700BD40AF4,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS028,CLIP-FA7E0DB57376,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS029,CLIP-9098438F9B99,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS030,CLIP-4B0B49FB83AA,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS031,CLIP-5709623F4FEA,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS032,CLIP-673A2CB5C7A5,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS033,CLIP-CBB1216DBFBA,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS034,CLIP-06B6EE95259E,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS037,CLIP-3EE59C278A70,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS038,CLIP-5A247FD98399,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS040,CLIP-46AB1AC7035E,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS042,CLIP-04BC830AEDD8,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS043,CLIP-0E970C76DBBD,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS044,CLIP-F6DBC3607B78,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS046,CLIP-4B0C9B799477,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS047,CLIP-A0AFA32FB68A,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS048,CLIP-26165AC94A1A,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS049,CLIP-A1F073E9B003,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS050,CLIP-B5FB04CE9340,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS051,CLIP-74540FE7EAE8,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS052,CLIP-05BBF944AC0F,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS053,CLIP-1613498B7911,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Securing,,,,high,Review
+ENS054,CLIP-E99232A3A315,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Securing,,,,high,Review
+ENS055,CLIP-27C3C75BC9B6,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Securing,,,,high,Review
+ENS056,CLIP-07EB59813228,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS062,CLIP-17B0BA1B4216,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Foundation,,,,high,Review
+ENS063,CLIP-D6DCD188296D,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS064,CLIP-CBFBF17E1145,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS065,CLIP-B7BD47B63B19,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Mastering,,,,high,Review
+ENS066,CLIP-9E770F31EDD5,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Securing,,,,high,Review
+ENS067,CLIP-2BDA9D4373FB,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Securing,,,,high,Review
+ENS068,CLIP-3451CCCE2283,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Mastering,,,,high,Review
+ENS069,CLIP-C30503BEE572,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Securing,,,,high,Review
+ENS070,CLIP-251AF8C02083,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS071,CLIP-B566009C28C4,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS072,CLIP-35FB371CFA10,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS073,CLIP-CD577AA01AF2,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Securing,,,,high,Review
+ENS074,CLIP-4F78DD6F4997,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Securing,,,,high,Review
+ENS075,CLIP-EB3B4E80A024,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS076,CLIP-53DCA180C186,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS057,CLIP-AA01F10590D2,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Foundation,,,,high,Review
+ENS058,CLIP-37DD4D248F05,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Foundation,,,,high,Review
+ENS059,CLIP-D237FA14F91F,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS060,CLIP-C98DD1F1385B,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+ENS061,CLIP-A8605D6F8CE5,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+SS-BINARY-F,CLIP-D87E12BCF89C,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-BINARY-D,CLIP-D87E12BCF89C,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-BINARY-S,CLIP-D87E12BCF89C,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-TERNARY-F,CLIP-E25C1F230727,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-TERNARY-D,CLIP-E25C1F230727,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-TERNARY-S,CLIP-E25C1F230727,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-MINUET-F,CLIP-6E576ACE3A33,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-MINUET-D,CLIP-6E576ACE3A33,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-MINUET-S,CLIP-6E576ACE3A33,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-RONDO-F,CLIP-E0D9577EA702,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-RONDO-D,CLIP-E0D9577EA702,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-RONDO-S,CLIP-E0D9577EA702,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-RITORNELLO-F,CLIP-AC902AC71B0C,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-RITORNELLO-D,CLIP-AC902AC71B0C,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-RITORNELLO-S,CLIP-AC902AC71B0C,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-THEMEVAR-F,CLIP-8E7E9AD2F47F,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-THEMEVAR-D,CLIP-8E7E9AD2F47F,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-THEMEVAR-S,CLIP-8E7E9AD2F47F,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-SONATA-F,CLIP-98A61BB5B565,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-SONATA-D,CLIP-98A61BB5B565,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-SONATA-S,CLIP-98A61BB5B565,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-STROPHIC-F,CLIP-C78F9A46FB0A,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-STROPHIC-D,CLIP-C78F9A46FB0A,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-STROPHIC-S,CLIP-C78F9A46FB0A,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-THRUCOMP-F,CLIP-C5AAF1A798F6,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-THRUCOMP-D,CLIP-C5AAF1A798F6,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-THRUCOMP-S,CLIP-C5AAF1A798F6,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-POPSTRUCT-F,CLIP-B31278C757E5,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-POPSTRUCT-D,CLIP-B31278C757E5,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-POPSTRUCT-S,CLIP-B31278C757E5,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-EDMSTRUCT-F,CLIP-6BF20A7D7BBB,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-EDMSTRUCT-D,CLIP-6BF20A7D7BBB,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-EDMSTRUCT-S,CLIP-6BF20A7D7BBB,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-RAGASTRUCT-F,CLIP-9A92AE5E22FA,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-RAGASTRUCT-D,CLIP-9A92AE5E22FA,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-RAGASTRUCT-S,CLIP-9A92AE5E22FA,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-CADENZA-F,CLIP-46B56636111D,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-CADENZA-D,CLIP-46B56636111D,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-CADENZA-S,CLIP-46B56636111D,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-CODA-F,CLIP-3DF9B81529C2,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-CODA-D,CLIP-3DF9B81529C2,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-CODA-S,CLIP-3DF9B81529C2,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-EXPO-F,CLIP-6FEC7541E308,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-EXPO-D,CLIP-6FEC7541E308,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-EXPO-S,CLIP-6FEC7541E308,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-DEV-F,CLIP-D7FA11A2B82D,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-DEV-D,CLIP-D7FA11A2B82D,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-DEV-S,CLIP-D7FA11A2B82D,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-RECAP-F,CLIP-535F1D778F8F,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-RECAP-D,CLIP-535F1D778F8F,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-RECAP-S,CLIP-535F1D778F8F,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-FIRSTSUB-F,CLIP-BF289F1688B5,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-FIRSTSUB-D,CLIP-BF289F1688B5,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-FIRSTSUB-S,CLIP-BF289F1688B5,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-SECONDSUB-F,CLIP-DAE559FBE2B0,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-SECONDSUB-D,CLIP-DAE559FBE2B0,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-SECONDSUB-S,CLIP-DAE559FBE2B0,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-CODETTA-F,CLIP-9FEC83A65FEB,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-CODETTA-D,CLIP-9FEC83A65FEB,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-CODETTA-S,CLIP-9FEC83A65FEB,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-EPISODE-F,CLIP-424E2A9220AB,Structure and form,STR.FORM,Form and structure,,identify,Foundation,,,,high,Review
+SS-EPISODE-D,CLIP-424E2A9220AB,Structure and form,STR.FORM,Form and structure,,identify,Developing,,,,high,Review
+SS-EPISODE-S,CLIP-424E2A9220AB,Structure and form,STR.FORM,Form and structure,,identify,Securing,,,,high,Review
+SS-CHORUS-F,CLIP-03C5BB3258BD,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-CHORUS-D,CLIP-03C5BB3258BD,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-CHORUS-S,CLIP-03C5BB3258BD,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-BREAKDOWN-F,CLIP-E0A1DD16F013,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-BREAKDOWN-D,CLIP-E0A1DD16F013,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-BREAKDOWN-S,CLIP-E0A1DD16F013,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-BUILDUP-F,CLIP-135BD7D164B0,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-BUILDUP-D,CLIP-135BD7D164B0,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-BUILDUP-S,CLIP-135BD7D164B0,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-DROP-F,CLIP-0A700D244230,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-DROP-D,CLIP-0A700D244230,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-DROP-S,CLIP-0A700D244230,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-ALAP-F,CLIP-0AFE64DB6648,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-ALAP-D,CLIP-0AFE64DB6648,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-ALAP-S,CLIP-0AFE64DB6648,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-JOR-F,CLIP-2E14FE0FA150,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-JOR-D,CLIP-2E14FE0FA150,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-JOR-S,CLIP-2E14FE0FA150,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-GAT-F,CLIP-564B627073DD,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-GAT-D,CLIP-564B627073DD,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-GAT-S,CLIP-564B627073DD,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+SS-JHALA-F,CLIP-3FD779F41C1E,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Foundation,,,,high,Review
+SS-JHALA-D,CLIP-3FD779F41C1E,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Developing,,,,high,Review
+SS-JHALA-S,CLIP-3FD779F41C1E,Structure and form,STR.FORM,Form and structure,CTX.GENRE,identify,Securing,,,,high,Review
+ML-TEM-LARGO-F,CLIP-14183717EB75,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Foundation,,,,high,Review
+ML-TEM-LARGO-D,CLIP-14183717EB75,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-LARGO-S,CLIP-14183717EB75,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-ADAGIO-F,CLIP-6B5F6C4D8A91,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Foundation,,,,high,Review
+ML-TEM-ADAGIO-D,CLIP-6B5F6C4D8A91,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-ADAGIO-S,CLIP-6B5F6C4D8A91,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-ANDANTE-F,CLIP-45D363131DC4,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Foundation,,,,high,Review
+ML-TEM-ANDANTE-D,CLIP-45D363131DC4,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-ANDANTE-S,CLIP-45D363131DC4,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-MODERATO-F,CLIP-A5BFDCF4527B,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Foundation,,,,high,Review
+ML-TEM-MODERATO-D,CLIP-A5BFDCF4527B,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-MODERATO-S,CLIP-A5BFDCF4527B,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-ALLEGRETTO-D,CLIP-C1BFC1242BD1,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-ALLEGRETTO-S,CLIP-C1BFC1242BD1,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-ALLEGRO-F,CLIP-C23C5A480F28,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Foundation,,,,high,Review
+ML-TEM-ALLEGRO-D,CLIP-C23C5A480F28,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-ALLEGRO-S,CLIP-C23C5A480F28,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-VIVACE-D,CLIP-5590A541CBA6,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-VIVACE-S,CLIP-5590A541CBA6,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-PRESTO-D,CLIP-1E4AD889DAC0,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-PRESTO-S,CLIP-1E4AD889DAC0,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-PRESTISSIMO-S,CLIP-4B4F333ACA7A,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-ACCEL-F,CLIP-7E933DED8D87,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Foundation,,,,high,Review
+ML-TEM-ACCEL-D,CLIP-7E933DED8D87,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-ACCEL-S,CLIP-7E933DED8D87,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-RALL-F,CLIP-6BAA810CD477,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Foundation,,,,high,Review
+ML-TEM-RALL-D,CLIP-6BAA810CD477,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-RALL-S,CLIP-6BAA810CD477,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-RUBATO-S,CLIP-41E64A759C0F,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-DYN-PP-F,CLIP-104C6DC65687,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Foundation,,,,high,Review
+ML-DYN-PP-D,CLIP-104C6DC65687,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Developing,,,,high,Review
+ML-DYN-PP-S,CLIP-104C6DC65687,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Securing,,,,high,Review
+ML-DYN-P-F,CLIP-65763266E1D1,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Foundation,,,,high,Review
+ML-DYN-P-D,CLIP-65763266E1D1,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Developing,,,,high,Review
+ML-DYN-P-S,CLIP-65763266E1D1,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Securing,,,,high,Review
+ML-DYN-MP-F,CLIP-D0B0EF9FF771,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Foundation,,,,high,Review
+ML-DYN-MP-D,CLIP-D0B0EF9FF771,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Developing,,,,high,Review
+ML-DYN-MP-S,CLIP-D0B0EF9FF771,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Securing,,,,high,Review
+ML-DYN-MF-F,CLIP-8C300341CAE2,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Foundation,,,,high,Review
+ML-DYN-MF-D,CLIP-8C300341CAE2,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Developing,,,,high,Review
+ML-DYN-MF-S,CLIP-8C300341CAE2,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Securing,,,,high,Review
+ML-DYN-F-F,CLIP-2C473E2A2374,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Foundation,,,,high,Review
+ML-DYN-F-D,CLIP-2C473E2A2374,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Developing,,,,high,Review
+ML-DYN-F-S,CLIP-2C473E2A2374,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Securing,,,,high,Review
+ML-DYN-FF-F,CLIP-8675F9F069EA,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Foundation,,,,high,Review
+ML-DYN-FF-D,CLIP-8675F9F069EA,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Developing,,,,high,Review
+ML-DYN-FF-S,CLIP-8675F9F069EA,Dynamics and articulation,DYN.LEVEL,Dynamic level,,identify,Securing,,,,high,Review
+ML-DYN-CRESC-F,CLIP-FA9C44D4DC5C,Dynamics and articulation,DYN.CHANGE,Dynamic change,,identify,Foundation,,,,high,Review
+ML-DYN-CRESC-D,CLIP-FA9C44D4DC5C,Dynamics and articulation,DYN.CHANGE,Dynamic change,,identify,Developing,,,,high,Review
+ML-DYN-CRESC-S,CLIP-FA9C44D4DC5C,Dynamics and articulation,DYN.CHANGE,Dynamic change,,identify,Securing,,,,high,Review
+ML-DYN-DIM-F,CLIP-4AC0793404E1,Dynamics and articulation,DYN.CHANGE,Dynamic change,,identify,Foundation,,,,high,Review
+ML-DYN-DIM-D,CLIP-4AC0793404E1,Dynamics and articulation,DYN.CHANGE,Dynamic change,,identify,Developing,,,,high,Review
+ML-DYN-DIM-S,CLIP-4AC0793404E1,Dynamics and articulation,DYN.CHANGE,Dynamic change,,identify,Securing,,,,high,Review
+ML-ART-LEGATO-F,CLIP-31A7511F6462,Dynamics and articulation,ART.TYPE,Articulation,,identify,Foundation,,,,high,Review
+ML-ART-LEGATO-D,CLIP-31A7511F6462,Dynamics and articulation,ART.TYPE,Articulation,,identify,Developing,,,,high,Review
+ML-ART-LEGATO-S,CLIP-31A7511F6462,Dynamics and articulation,ART.TYPE,Articulation,,identify,Securing,,,,high,Review
+ML-ART-STACCATO-F,CLIP-A0FBDCA2DBA5,Dynamics and articulation,ART.TYPE,Articulation,,identify,Foundation,,,,high,Review
+ML-ART-STACCATO-D,CLIP-A0FBDCA2DBA5,Dynamics and articulation,ART.TYPE,Articulation,,identify,Developing,,,,high,Review
+ML-ART-STACCATO-S,CLIP-A0FBDCA2DBA5,Dynamics and articulation,ART.TYPE,Articulation,,identify,Securing,,,,high,Review
+ML-ART-ACCENT-D,CLIP-4F178EC27F1D,Dynamics and articulation,ART.TYPE,Articulation,,identify,Developing,,,,high,Review
+ML-ART-ACCENT-S,CLIP-4F178EC27F1D,Dynamics and articulation,ART.TYPE,Articulation,,identify,Securing,,,,high,Review
+ML-ART-SFZ-D,CLIP-D3E6D2DA99B4,Dynamics and articulation,ART.TYPE,Articulation,,identify,Developing,,,,high,Review
+ML-ART-SFZ-S,CLIP-D3E6D2DA99B4,Dynamics and articulation,ART.TYPE,Articulation,,identify,Securing,,,,high,Review
+ML-ORN-TRILL-D,CLIP-FBD796AAAAB1,Melody,MEL.ORNAMENT,Ornamentation,,identify,Developing,,,,high,Review
+ML-ORN-TRILL-S,CLIP-FBD796AAAAB1,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,high,Review
+ML-ORN-MORDENT-D,CLIP-749F5159F745,Melody,MEL.ORNAMENT,Ornamentation,,identify,Developing,,,,high,Review
+ML-ORN-MORDENT-S,CLIP-749F5159F745,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,high,Review
+ML-ORN-TURN-S,CLIP-A466E7F8A115,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,high,Review
+ML-ORN-APPOG-S,CLIP-01411B21F136,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,high,Review
+ML-ORN-ACCIA-S,CLIP-3CCCADF709D7,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,high,Review
+ML-ORN-TRILL-NAME-F,CLIP-63DBD0A6AEA4,Melody,MEL.ORNAMENT,Ornamentation,NOT.SCORE_READING,identify,Foundation,,,,high,Review
+ML-ORN-MORDENT-NAME-F,CLIP-AC7B189C967F,Melody,MEL.ORNAMENT,Ornamentation,NOT.SCORE_READING,identify,Foundation,,,,high,Review
+ML-ORN-TURN-NAME-F,CLIP-F971B4282D92,Melody,MEL.ORNAMENT,Ornamentation,NOT.SCORE_READING,identify,Foundation,,,,high,Review
+ML-ORN-APPOG-NAME-F,CLIP-1B813291C41E,Melody,MEL.ORNAMENT,Ornamentation,NOT.SCORE_READING,identify,Foundation,,,,high,Review
+ML-ORN-ACCIA-NAME-F,CLIP-461EDB3CC7CE,Melody,MEL.ORNAMENT,Ornamentation,NOT.SCORE_READING,identify,Foundation,,,,high,Review
+ML-ART-TENUTO-F,CLIP-EAB18C4D0B11,Dynamics and articulation,ART.TYPE,Articulation,,identify,Foundation,,,,high,Review
+ML-ART-TENUTO-D,CLIP-EAB18C4D0B11,Dynamics and articulation,ART.TYPE,Articulation,,identify,Developing,,,,high,Review
+ML-ART-TENUTO-S,CLIP-EAB18C4D0B11,Dynamics and articulation,ART.TYPE,Articulation,,identify,Securing,,,,high,Review
+ML-ART-MARCATO-F,CLIP-6473A47197E9,Dynamics and articulation,ART.TYPE,Articulation,,identify,Foundation,,,,high,Review
+ML-ART-MARCATO-D,CLIP-6473A47197E9,Dynamics and articulation,ART.TYPE,Articulation,,identify,Developing,,,,high,Review
+ML-ART-MARCATO-S,CLIP-6473A47197E9,Dynamics and articulation,ART.TYPE,Articulation,,identify,Securing,,,,high,Review
+ML-TEM-GRAVE-F,CLIP-321BBF43DFE9,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Foundation,,,,high,Review
+ML-TEM-GRAVE-D,CLIP-321BBF43DFE9,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-GRAVE-S,CLIP-321BBF43DFE9,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-TEM-LENTO-F,CLIP-7BD245542D39,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Foundation,,,,high,Review
+ML-TEM-LENTO-D,CLIP-7BD245542D39,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+ML-TEM-LENTO-S,CLIP-7BD245542D39,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Securing,,,,high,Review
+ML-ORN-PAUSE-F,CLIP-AE30B525C63D,Melody,MEL.ORNAMENT,Ornamentation,,identify,Foundation,,,,medium,Review
+ML-ORN-PAUSE-D,CLIP-AE30B525C63D,Melody,MEL.ORNAMENT,Ornamentation,,identify,Developing,,,,medium,Review
+ML-ORN-PAUSE-S,CLIP-AE30B525C63D,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,medium,Review
