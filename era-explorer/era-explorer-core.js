@@ -93,11 +93,13 @@
     ["nikolai rimsky korsakov", "Nikolai Rimsky-Korsakov"],
     ["rimsky korsakov", "Nikolai Rimsky-Korsakov"],
     ["bottesini", "Bottesini"],
+    ["giovanni bottesini", "Bottesini"],
     ["dushkin", "Dushkin"],
     ["glazunov", "Glazunov"],
     ["kuhlau", "Kuhlau"],
     ["von weber", "von Weber"],
-    ["weber", "von Weber"]
+    ["weber", "von Weber"],
+    ["carl maria von weber", "von Weber"]
   ]);
 
   const PERIOD_ORDER = CAMBRIDGE_PERIODS.slice();
@@ -343,17 +345,33 @@
     return COMPOSERS_WITH_ICONS.has(normaliseKey(composer));
   }
 
+  // A composer is excluded from ever being offered as a distractor when
+  // every clip attributed to them has been curated out of the "composer"
+  // question type (see curationTypeExcluded below) — e.g. stock-music
+  // credits like Kevin MacLeod or Josh Woodward, who aren't the kind of
+  // named composer this quiz is meant to test. curationTypeExcluded already
+  // keeps their own clips from being asked about directly; this keeps their
+  // names from turning up as a wrong-answer option on someone else's clip.
+  function composerExcludedFromDistractors(composer, pool, curation) {
+    if (!curation) return false;
+    const key = normaliseKey(composer);
+    const clips = pool.filter((item) => normaliseKey(normaliseComposer(item.composer)) === key);
+    if (!clips.length) return false;
+    return clips.every((item) => curationTypeExcluded(curation, item.id, "composer"));
+  }
+
   /**
    * Prefer composers from clearly different periods so students are not forced
    * to distinguish four composers from the same era by ear alone.
    * Prefer composers that already have portrait icons when available.
    */
-  function getComposerDistractors(clip, pool, random = Math.random) {
+  function getComposerDistractors(clip, pool, random = Math.random, curation = null) {
     const correct = normaliseComposer(clip?.composer);
     const correctKey = normaliseKey(correct);
     const correctPeriod = normalisePeriod(clip?.period);
     const candidates = uniqueValues(pool.map((item) => normaliseComposer(item.composer)))
       .filter((composer) => normaliseKey(composer) !== correctKey)
+      .filter((composer) => !composerExcludedFromDistractors(composer, pool, curation))
       .map((composer) => {
         const period = composerPrimaryPeriod(composer, pool);
         return {
@@ -466,7 +484,7 @@
     if (override) {
       options = shuffle(override, random);
     } else {
-      const distractors = getComposerDistractors(clip, pool, random);
+      const distractors = getComposerDistractors(clip, pool, random, curation);
       if (distractors.length < 3) return null;
       if (uniqueValues([correctAnswer, ...distractors]).length !== 4) return null;
       options = shuffle([correctAnswer, ...distractors], random);

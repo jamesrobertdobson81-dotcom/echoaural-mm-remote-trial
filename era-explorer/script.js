@@ -137,7 +137,16 @@ function getPeriodIconFileName(period) {
 }
 
 function getComposerIconFileName(composer) {
-  return COMPOSER_ICON_MAP[comparisonKey(composer)] || "";
+  // Curated option-override lists (context-coach-curation.json) sometimes
+  // spell a composer's full formal name (e.g. "Carl Maria von Weber",
+  // "Giovanni Bottesini") where the icon map — and the correct-answer path,
+  // via core.normaliseComposer — key off the shorter canonical form used
+  // elsewhere in the data ("von Weber", "Bottesini"). Running every lookup
+  // through the same alias resolution first means an override option gets
+  // its portrait exactly when the composer would if it were the correct
+  // answer, instead of only resolving for the specific string already on
+  // file.
+  return COMPOSER_ICON_MAP[comparisonKey(core.normaliseComposer(composer))] || "";
 }
 
 function showEraTileIconFallback(image) {

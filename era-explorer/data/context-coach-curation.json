@@ -443,10 +443,19 @@
     "CLIP-51070B8928DB": [],
     "CLIP-EXL001": [],
     "CLIP-EXL003": [],
+    "CLIP-EXL007": [
+      "composer"
+    ],
     "CLIP-EXL008": [],
     "CLIP-EXL010": [
       "composer",
       "period"
+    ],
+    "CLIP-EXL011": [
+      "composer"
+    ],
+    "CLIP-EXL012": [
+      "composer"
     ],
     "CLIP-NEWCC008": [],
     "CLIP-NEWCC011": [

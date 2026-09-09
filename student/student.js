@@ -182,6 +182,12 @@
   const INTERVAL_QUALITY_ORDER = ['Major', 'Minor', 'Perfect', 'Augmented', 'Diminished'];
   const INTERVAL_NUMBER_ORDER = ['Unison', '2nd', '3rd', '4th', '5th', '6th', '7th', 'Octave'];
   const INSTRUMENT_ICON_BASE_PATH = '/assets/icons/instruments/';
+  // Kept in sync with modules/instrument-identifier/script.js's
+  // INSTRUMENT_ICON_MAP (that file is the source of truth) — this copy had
+  // drifted: missing every world-instrument entry added since, plus wrong
+  // file extensions on guitar/voice entries (.svg here, but the real files
+  // on disk are .png), so those questions showed the fallback glyph
+  // instead of a real icon in Homework/mixed-round mode.
   const INSTRUMENT_ICON_MAP = {
     accordion: 'accordion.svg',
     violin: 'violin.svg',
@@ -209,11 +215,39 @@
     organ: 'organ.svg',
     harpsichord: 'harpsichord.svg',
     guitar: 'guitar.svg',
-    'acoustic guitar': 'acoustic-guitar.svg',
+    'acoustic guitar': 'acoustic-guitar.png',
     'classical guitar': 'guitar.svg',
-    'electric guitar': 'electric-guitar.svg',
+    'electric guitar': 'electric-guitar.png',
     'bass guitar': 'bass-guitar.svg',
     harp: 'harp.svg',
+    bandoneon: 'bandoneon.png',
+    bansuri: 'bansuri.png',
+    bongos: 'bongos.png',
+    claves: 'claves.png',
+    congas: 'congas.png',
+    cowbell: 'cowbell.png',
+    darbuka: 'darbuka.png',
+    dizi: 'dizi.png',
+    erhu: 'erhu.png',
+    guiro: 'guiro.png',
+    guzheng: 'guzheng.png',
+    maracas: 'maracas.png',
+    nay: 'nay.png',
+    oud: 'oud.png',
+    pipa: 'pipa.png',
+    qanun: 'qanun.png',
+    riqq: 'riqq.png',
+    sarangi: 'sarangi.png',
+    sitar: 'sitar.png',
+    sarod: 'sarod.png',
+    tanpura: 'tanpura.png',
+    tabla: 'tabla.png',
+    timbales: 'timbales.png',
+    yangqin: 'yangqin.png',
+    'steel pan drums': 'steel-pan-drums.png',
+    'steel pans': 'steel-pan-drums.png',
+    'steel drums': 'steel-pan-drums.png',
+    'electronic synth': 'synthesiser.png',
     timpani: 'timpani.svg',
     'kettle drums': 'timpani.svg',
     'bass drum': 'bass-drum.svg',
@@ -225,12 +259,12 @@
     glockenspiel: 'glockenspiel.svg',
     marimba: 'marimba.svg',
     vibraphone: 'vibraphone.svg',
-    voice: 'voice.svg',
-    soprano: 'voice.svg',
-    alto: 'voice.svg',
-    tenor: 'voice.svg',
-    bass: 'voice.svg',
-    choir: 'choir.svg'
+    voice: 'voice.png',
+    soprano: 'voice.png',
+    alto: 'voice.png',
+    tenor: 'voice.png',
+    bass: 'voice.png',
+    choir: 'voice.png'
   };
 
   function escapeHTML(value) {
