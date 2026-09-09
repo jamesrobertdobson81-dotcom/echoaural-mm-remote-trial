@@ -1,9 +1,35 @@
 'use strict';
 
+const path = require('path');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { getPool } = require('../db/pool');
 const { getQuestionSkillMetadata, enrichAnswerData } = require('../shared/js/skill-metadata');
+const { createAdapters } = require('../classroom/adapters');
+const { QuestionCatalogue } = require('../classroom/question-catalogue');
+const { buildQuestionSet } = require('../classroom/question-set-builder');
+const { createClassEvidenceLoader } = require('../classroom/class-evidence');
+const { questionIdsForConcepts, CONCEPT_SCOPED_MODULE_IDS } = require('../classroom/concept-catalogue');
+const { saveRoundPayload } = require('../classroom/progress-recorder');
+const { loadQuestionRatings, loadStudentSkillRatings } = require('../classroom/elo');
+const { rankConceptsForTargeting } = require('../classroom/mastery');
+
+// Homework's own question-set plumbing — a second, independent
+// QuestionCatalogue/adapter set from classroom-server.js's (see classroom/
+// adapters.js's own header comment for why two instances is fine: the
+// adapters are stateless, file-backed factories). Built once at require
+// time, same lifecycle as classroom-server.js's own roomManager.
+const HOMEWORK_PROJECT_ROOT = path.resolve(__dirname, '..');
+const homeworkCatalogue = new QuestionCatalogue(createAdapters(HOMEWORK_PROJECT_ROOT));
+const homeworkAdaptersById = new Map(homeworkCatalogue.adapters.map((adapter) => [adapter.id, adapter]));
+// buildCanonicalSkillEvidence is a hoisted function declaration further
+// down this same file — safe to reference here at module-init time.
+const { resolveOwnedClass, loadClassQuestionEvidence, loadConceptMasteryForStudents } = createClassEvidenceLoader({
+  getPool,
+  buildCanonicalSkillEvidence,
+  adaptersById: homeworkAdaptersById,
+  projectRoot: HOMEWORK_PROJECT_ROOT
+});
 
 const TEACHER_COOKIE = 'ea_teacher_session';
 const STUDENT_COOKIE = 'ea_student_session';
@@ -1202,6 +1228,178 @@ function buildExamLabSessions(allStudents, allRounds, allAttempts) {
   }).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
 }
 
+// ---------- Homework ----------
+
+function shuffleArray(items = []) {
+  const shuffled = items.slice();
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function mixedCompatibleHomeworkModuleIds() {
+  return homeworkCatalogue.modules().filter((module) => module.mixedCompatible).map((module) => module.id);
+}
+
+function homeworkModuleTitle(moduleId) {
+  if (moduleId === 'mixed') return 'Mixed Apps';
+  const module = homeworkCatalogue.modules().find((item) => item.id === moduleId);
+  return module?.title || moduleId;
+}
+
+function buildHomeworkRoundFeedback(score, maximumScore, questionCount) {
+  const value = maximumScore > 0 ? Math.round((score / maximumScore) * 100) : 0;
+  const suffix = `${questionCount} ${questionCount === 1 ? 'question' : 'questions'} completed for homework.`;
+  if (value >= 85) return `Excellent work. ${suffix}`;
+  if (value >= 70) return `Strong homework result. Review any missed answers. ${suffix}`;
+  if (value >= 50) return `Good effort — a few areas still need practice. ${suffix}`;
+  return `Keep practising this material. ${suffix}`;
+}
+
+// Builds the same {spec, questionPlan, preview} shape buildQuestionSet()
+// already produces for Live Sessions (classroom/question-set-builder.js),
+// from a teacher's homework selection. 'selected' resolves the teacher's
+// concept picks into real question ids first (classroom/concept-
+// catalogue.js), then reuses the existing 'teacher-picked' strategy —
+// see that module's own header comment for why this engine already exists.
+async function buildHomeworkQuestionSet(teacher, body = {}) {
+  const selectionMode = String(body.selectionMode || '').trim().toLowerCase();
+  if (!['mixed', 'targeted', 'app', 'selected'].includes(selectionMode)) {
+    const error = new Error('Choose a valid homework selection mode.');
+    error.statusCode = 400;
+    throw error;
+  }
+  const questionCount = Math.max(1, Math.min(30, Number(body.questionCount || 10) || 10));
+  const baseSpec = {
+    classId: String(body.classId || '').trim(),
+    questionCount,
+    maxListens: Number(body.maxListens || 4),
+    seed: `homework:${teacher.id}:${Date.now()}`
+  };
+
+  if (selectionMode === 'mixed') {
+    return buildQuestionSet(homeworkCatalogue, {
+      ...baseSpec,
+      strategy: 'balanced',
+      moduleIds: mixedCompatibleHomeworkModuleIds()
+    }, {});
+  }
+
+  if (selectionMode === 'targeted') {
+    // Real per-student targeting (classroom/mastery.js + classroom/elo.js) —
+    // unlike every other mode here, this builds a DIFFERENT question set per
+    // student rather than one shared set for the whole class, since homework
+    // is self-paced and async (no shared live queue to keep in sync, unlike
+    // a Live Session room). Falls back to the existing class-wide
+    // class-priorities strategy for any student with no concept-mastery
+    // signal yet (e.g. hasn't used Progress Mode) — same cold-start
+    // reasoning class-priorities itself already documents.
+    const studentIds = Array.isArray(body.rosterStudentIds) ? body.rosterStudentIds.map((id) => String(id)) : [];
+    const [evidence, masteryByStudent, questionRatings, skillRatingsByStudent] = await Promise.all([
+      loadClassQuestionEvidence(teacher, baseSpec.classId),
+      loadConceptMasteryForStudents(teacher.id, studentIds),
+      loadQuestionRatings(getPool),
+      loadStudentSkillRatings(getPool, studentIds)
+    ]);
+
+    const perStudent = {};
+    studentIds.forEach((studentId) => {
+      const mastery = masteryByStudent.get(studentId) || {};
+      const priorityConcepts = rankConceptsForTargeting(mastery);
+      const priorityQuestionKeys = new Set();
+      priorityConcepts.forEach((concept) => {
+        const adapter = homeworkAdaptersById.get(concept.moduleId);
+        if (!adapter) return;
+        questionIdsForConcepts(adapter, concept.moduleId, [concept.value], HOMEWORK_PROJECT_ROOT).forEach((questionId) => {
+          priorityQuestionKeys.add(`${concept.moduleId}:${questionId}`);
+        });
+      });
+      const hasOwnSignal = priorityQuestionKeys.size > 0;
+      perStudent[studentId] = buildQuestionSet(homeworkCatalogue, {
+        ...baseSpec,
+        strategy: hasOwnSignal ? 'adaptive-per-student' : 'class-priorities',
+        // "Avoid recently used" only makes sense scoped to what THIS
+        // student themselves recently did — evidence.recentQuestionIds is
+        // class-wide (any student's recent attempts), so applying it here
+        // could silently exclude a question this specific student's own
+        // priority concepts resolved to, just because a classmate happened
+        // to answer it recently. Only meaningful for the class-priorities
+        // fallback below, which already shares that same class-wide
+        // semantics everywhere else it's used.
+        recentQuestionIds: hasOwnSignal ? [] : evidence.recentQuestionIds,
+        avoidRecent: hasOwnSignal ? false : undefined,
+        seed: `${baseSpec.seed}:${studentId}`
+      }, hasOwnSignal
+        ? { ...evidence, priorityQuestionKeys, questionRatings, skillRatings: skillRatingsByStudent.get(studentId) || new Map() }
+        : evidence);
+    });
+
+    // Aggregate preview across the whole class (the API response shows one
+    // combined summary; each student's own question_set is stored/served
+    // separately — see GET /api/student/homework/:id).
+    const allPlans = Object.values(perStudent).flatMap((result) => result.questionPlan);
+    const distinctQuestions = new Map();
+    allPlans.forEach((item) => distinctQuestions.set(`${item.moduleId}:${item.questionId}`, item));
+    return {
+      isPerStudent: true,
+      perStudent,
+      questionPlan: allPlans,
+      preview: {
+        questionCount: baseSpec.questionCount,
+        studentsTargeted: studentIds.length,
+        distinctQuestionCount: distinctQuestions.size,
+        rationale: "Builds a different question set per student, targeting each student's own weak or overdue concepts (from their real Progress Mode history) at a difficulty matched to their current ability. Students with no concept-mastery signal yet fall back to the class's shared weak-skill priorities."
+      }
+    };
+  }
+
+  if (selectionMode === 'app') {
+    const moduleId = String(body.moduleId || '').trim();
+    const sourceKey = String(body.sourceKey || '').trim();
+    if (!homeworkAdaptersById.has(moduleId)) {
+      const error = new Error('Choose a valid app.');
+      error.statusCode = 400;
+      throw error;
+    }
+    return buildQuestionSet(homeworkCatalogue, {
+      ...baseSpec,
+      strategy: 'random',
+      moduleIds: [moduleId],
+      sourceKeys: sourceKey ? [sourceKey] : []
+    }, {});
+  }
+
+  // selected: teacher picks concept values per module; resolve each to real
+  // question ids in that module's live bank, shuffle and cap to the
+  // requested count, then hand off to the existing teacher-picked strategy.
+  const selections = Array.isArray(body.selectedConcepts) ? body.selectedConcepts : [];
+  const resolvedIds = [];
+  selections.forEach((selection) => {
+    const moduleId = String(selection?.moduleId || '').trim();
+    const concepts = Array.isArray(selection?.concepts) ? selection.concepts.map((value) => String(value || '')) : [];
+    if (!CONCEPT_SCOPED_MODULE_IDS.includes(moduleId) || !concepts.length) return;
+    const adapter = homeworkAdaptersById.get(moduleId);
+    if (!adapter) return;
+    questionIdsForConcepts(adapter, moduleId, concepts, HOMEWORK_PROJECT_ROOT).forEach((questionId) => {
+      resolvedIds.push({ questionId, moduleId });
+    });
+  });
+  if (!resolvedIds.length) {
+    const error = new Error('Choose at least one concept with matching questions.');
+    error.statusCode = 400;
+    throw error;
+  }
+  const selectedQuestions = shuffleArray(resolvedIds).slice(0, questionCount);
+  return buildQuestionSet(homeworkCatalogue, {
+    ...baseSpec,
+    strategy: 'teacher-picked',
+    questionCount: selectedQuestions.length,
+    selectedQuestions
+  }, {});
+}
+
 async function handleAccountApi(req, res, parsedUrl) {
   const pathname = parsedUrl.pathname;
   if (!pathname.startsWith('/api/auth/') && !pathname.startsWith('/api/teacher/') && !pathname.startsWith('/api/student/')) return false;
@@ -2284,6 +2482,240 @@ async function handleAccountApi(req, res, parsedUrl) {
       if (!result.rows[0]) return sendJson(res, 404, { ok: false, error: 'Student not found.' });
       await getPool().query(`DELETE FROM student_sessions WHERE student_id = $1`, [resetMatch[1]]);
       return sendJson(res, 200, { ok: true });
+    }
+
+    if (req.method === 'POST' && pathname === '/api/teacher/homework') {
+      const teacher = await requireTeacher(req, res);
+      if (!teacher) return true;
+      const body = await readJsonBody(req);
+      const title = cleanDisplayName(body.title || '').slice(0, 200) || 'Homework';
+      const selectedClass = await resolveOwnedClass(teacher, body.classId);
+      if (!selectedClass) return sendJson(res, 400, { ok: false, error: 'Choose a class for this homework.' });
+
+      let dueAt = null;
+      if (body.dueAt) {
+        const parsedDueAt = new Date(body.dueAt);
+        if (Number.isNaN(parsedDueAt.getTime())) return sendJson(res, 400, { ok: false, error: 'Enter a valid due date.' });
+        dueAt = parsedDueAt;
+      }
+
+      const selectionMode = String(body.selectionMode || '').trim().toLowerCase();
+
+      // Resolved up front (rather than inside buildHomeworkQuestionSet)
+      // because 'targeted' mode needs the roster to build each student's
+      // own question set BEFORE the assignment row exists — and every mode
+      // needs the same roster afterward to snapshot
+      // homework_assignment_students, so this also removes a duplicate query.
+      const rosterResult = await getPool().query(`
+        SELECT id FROM students WHERE class_id = $1 AND teacher_id = $2 AND active = TRUE
+      `, [selectedClass.id, teacher.id]);
+      const rosterStudentIds = rosterResult.rows.map((row) => row.id);
+
+      const questionSet = await buildHomeworkQuestionSet(teacher, { ...body, classId: selectedClass.id, rosterStudentIds });
+      if (!questionSet.questionPlan.length) {
+        return sendJson(res, 400, { ok: false, error: 'No questions matched those filters.', preview: questionSet.preview });
+      }
+
+      // Shared modes (mixed/app/selected) store one question_set array,
+      // identical for every student. 'targeted' stores a
+      // {[studentId]: questionPlan} map instead — see
+      // buildHomeworkQuestionSet's own comment for why per-student sets
+      // only make sense for this async, self-paced mode.
+      const storedQuestionSet = questionSet.isPerStudent
+        ? Object.fromEntries(Object.entries(questionSet.perStudent).map(([studentId, result]) => [studentId, result.questionPlan]))
+        : questionSet.questionPlan;
+      // Per-student sets can differ slightly in length per student (a
+      // thinner candidate pool for one student's priorities); the column
+      // stores the configured round length, not any one student's actual
+      // resolved count — same "configured vs actual" distinction
+      // classroom/progress-recorder.js's configuredQuestionCount already
+      // documents for Live Session rounds.
+      const configuredQuestionCount = questionSet.isPerStudent
+        ? Number(questionSet.preview.questionCount || 0)
+        : questionSet.questionPlan.length;
+
+      const client = await getPool().connect();
+      try {
+        await client.query('BEGIN');
+        const inserted = await client.query(`
+          INSERT INTO homework_assignments (teacher_id, class_id, title, selection_mode, question_set, question_count, due_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          RETURNING id, title, selection_mode, question_count, due_at, created_at
+        `, [teacher.id, selectedClass.id, title, selectionMode, JSON.stringify(storedQuestionSet), configuredQuestionCount, dueAt]);
+        const assignment = inserted.rows[0];
+
+        for (const studentId of rosterStudentIds) {
+          await client.query(`
+            INSERT INTO homework_assignment_students (assignment_id, student_id)
+            VALUES ($1, $2)
+            ON CONFLICT DO NOTHING
+          `, [assignment.id, studentId]);
+        }
+
+        await client.query('COMMIT');
+        return sendJson(res, 201, {
+          ok: true,
+          assignment: {
+            id: assignment.id,
+            title: assignment.title,
+            selectionMode: assignment.selection_mode,
+            questionCount: assignment.question_count,
+            dueAt: assignment.due_at,
+            createdAt: assignment.created_at,
+            classId: selectedClass.id,
+            className: selectedClass.class_name,
+            assignedCount: rosterStudentIds.length
+          },
+          preview: questionSet.preview
+        });
+      } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
+    }
+
+    if (req.method === 'GET' && pathname === '/api/teacher/homework') {
+      const teacher = await requireTeacher(req, res);
+      if (!teacher) return true;
+      const classId = String(parsedUrl.searchParams.get('classId') || '').trim();
+      if (classId) await resolveOwnedClass(teacher, classId);
+
+      const result = await getPool().query(`
+        SELECT
+          ha.id, ha.title, ha.selection_mode, ha.question_count, ha.due_at, ha.created_at, ha.class_id,
+          c.class_name,
+          (SELECT COUNT(*)::int FROM homework_assignment_students has WHERE has.assignment_id = ha.id) AS assigned_count,
+          (SELECT COUNT(DISTINCT r.student_id)::int FROM rounds r WHERE r.metadata->>'homeworkAssignmentId' = ha.id::text) AS completed_count
+        FROM homework_assignments ha
+        JOIN classes c ON c.id = ha.class_id
+        WHERE ha.teacher_id = $1 ${classId ? 'AND ha.class_id = $2' : ''}
+        ORDER BY ha.created_at DESC
+        LIMIT 100
+      `, classId ? [teacher.id, classId] : [teacher.id]);
+
+      return sendJson(res, 200, {
+        ok: true,
+        assignments: result.rows.map((row) => ({
+          id: row.id,
+          title: row.title,
+          selectionMode: row.selection_mode,
+          questionCount: row.question_count,
+          dueAt: row.due_at,
+          createdAt: row.created_at,
+          classId: row.class_id,
+          className: row.class_name,
+          assignedCount: row.assigned_count,
+          completedCount: row.completed_count
+        }))
+      });
+    }
+
+    const homeworkDetailMatch = pathname.match(/^\/api\/student\/homework\/([0-9a-f-]+)$/i);
+    if (req.method === 'GET' && homeworkDetailMatch) {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+      const result = await getPool().query(`
+        SELECT ha.id, ha.title, ha.due_at, ha.question_set
+        FROM homework_assignments ha
+        JOIN homework_assignment_students has ON has.assignment_id = ha.id
+        WHERE ha.id = $1 AND has.student_id = $2
+        LIMIT 1
+      `, [homeworkDetailMatch[1], student.id]);
+      const assignment = result.rows[0];
+      if (!assignment) return sendJson(res, 404, { ok: false, error: 'Homework not found.' });
+      // 'targeted' assignments store a { [studentId]: questionPlan } map
+      // (see db/homework-schema.sql's own comment) — every other mode
+      // stores one shared array. Resolve to this student's own slice
+      // either way.
+      const questionSet = Array.isArray(assignment.question_set)
+        ? assignment.question_set
+        : (assignment.question_set?.[student.id] || []);
+      return sendJson(res, 200, {
+        ok: true,
+        assignment: {
+          id: assignment.id,
+          title: assignment.title,
+          dueAt: assignment.due_at,
+          questions: questionSet.map((item) => ({
+            moduleId: item.moduleId,
+            sourceKey: item.sourceKey || '',
+            questionId: item.questionId,
+            // Only meaningful for the procedurally-generated PM sources
+            // (chord-identifier, key-signature-sprint, both ContextCoach
+            // sources — see shared/js/pm-registry.js's questionSelectionMode:
+            // "seed"): those have no fixed question bank to look up
+            // questionId in, so the module rebuilds the exact planned
+            // question from this seed instead. Harmless to send for
+            // id-mode sources too — they simply ignore it.
+            seed: item.seed || ''
+          }))
+        }
+      });
+    }
+
+    const homeworkCompleteMatch = pathname.match(/^\/api\/student\/homework\/([0-9a-f-]+)\/complete$/i);
+    if (req.method === 'POST' && homeworkCompleteMatch) {
+      const student = await requireStudent(req, res);
+      if (!student) return true;
+      const body = await readJsonBody(req);
+      const rawQuestions = Array.isArray(body.questions) ? body.questions : [];
+      if (!rawQuestions.length) return sendJson(res, 400, { ok: false, error: 'No answers were submitted.' });
+
+      const result = await getPool().query(`
+        SELECT ha.id, ha.teacher_id, ha.class_id, ha.question_count
+        FROM homework_assignments ha
+        JOIN homework_assignment_students has ON has.assignment_id = ha.id
+        WHERE ha.id = $1 AND has.student_id = $2
+        LIMIT 1
+      `, [homeworkCompleteMatch[1], student.id]);
+      const assignment = result.rows[0];
+      if (!assignment) return sendJson(res, 404, { ok: false, error: 'Homework not found.' });
+
+      const cleanedQuestions = rawQuestions.slice(0, 30).map((question) => ({
+        moduleId: String(question?.moduleId || '').trim(),
+        questionId: String(question?.questionId || '').trim().slice(0, 120),
+        score: Math.max(0, Number(question?.score) || 0),
+        maximumScore: Math.max(0, Number(question?.maximumScore) || 0),
+        feedback: String(question?.feedback || '').trim().slice(0, 1000),
+        answerData: question?.answerData && typeof question.answerData === 'object' ? question.answerData : {}
+      })).filter((question) => question.moduleId && question.questionId);
+      if (!cleanedQuestions.length) return sendJson(res, 400, { ok: false, error: 'No valid answers were submitted.' });
+
+      const moduleIds = new Set(cleanedQuestions.map((question) => question.moduleId));
+      const roundModuleId = moduleIds.size === 1 ? cleanedQuestions[0].moduleId : 'mixed';
+      const score = cleanedQuestions.reduce((sum, question) => sum + question.score, 0);
+      const maximumScore = cleanedQuestions.reduce((sum, question) => sum + question.maximumScore, 0);
+
+      const payload = {
+        teacherId: assignment.teacher_id,
+        studentId: student.id,
+        moduleId: roundModuleId,
+        moduleTitle: homeworkModuleTitle(roundModuleId),
+        score,
+        maximumScore,
+        questions: cleanedQuestions.map((question) => ({
+          moduleId: question.moduleId,
+          questionId: question.questionId,
+          score: question.score,
+          maximumScore: question.maximumScore,
+          feedback: question.feedback,
+          answerData: enrichAnswerData(question.questionId, question.answerData)
+        })),
+        roundFeedback: buildHomeworkRoundFeedback(score, maximumScore, cleanedQuestions.length),
+        metadata: {
+          source: 'homework',
+          homeworkAssignmentId: assignment.id,
+          classId: assignment.class_id,
+          configuredQuestionCount: Number(assignment.question_count || cleanedQuestions.length)
+        },
+        clientRoundId: `homework:${assignment.id}:${student.id}:${Date.now()}`
+      };
+
+      const saved = await saveRoundPayload(payload);
+      if (!saved.saved) return sendJson(res, 409, { ok: false, error: 'Could not save this homework round.' });
+      return sendJson(res, 200, { ok: true, roundId: saved.roundId, completedAt: saved.completedAt });
     }
 
     return false;

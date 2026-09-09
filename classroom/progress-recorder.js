@@ -405,5 +405,6 @@ async function saveTeacherModeProgress(room, roomManager) {
 
 module.exports = {
   buildTeacherModeRoundPayload,
-  saveTeacherModeProgress
+  saveTeacherModeProgress,
+  saveRoundPayload
 };

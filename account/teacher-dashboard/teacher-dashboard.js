@@ -2934,11 +2934,7 @@ els.learningFullBreakdownLink?.addEventListener("click", () => {
 });
 
 els.openLiveLaunchDialog.addEventListener("click", () => openTeacherLaunchDialog("live"));
-// Homework assignment's backend (/api/teacher/homework) doesn't exist in
-// production yet — opening the real dialog would let a teacher fill it in
-// and hit a raw "Request failed (404)" on submit. Same honest "coming
-// soon" placeholder as Reports/Assessments above until that ships.
-els.openHomeworkLaunchDialog.addEventListener("click", () => showTeacherToolPlaceholder("Homework assignment"));
+els.openHomeworkLaunchDialog.addEventListener("click", () => openTeacherLaunchDialog("homework"));
 els.closeTeacherLaunchDialog.addEventListener("click", closeTeacherLaunchDialog);
 els.cancelTeacherLaunch.addEventListener("click", closeTeacherLaunchDialog);
 els.teacherLaunchDialog.addEventListener("click", (event) => {
