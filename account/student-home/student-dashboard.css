@@ -731,7 +731,7 @@
    the teacher dashboard's element grid. Only engages once a 7th card is
    actually present, so this grid still behaves exactly as before anywhere
    it's reused with just 6. */
-.eahome-modules-grid:has(> :nth-child(7)) > :nth-child(7) {
+.eahome-modules-grid:has(> :nth-child(7)):not(:has(> :nth-child(8))) > :nth-child(7) {
   grid-column: 2;
 }
 
@@ -778,6 +778,8 @@
 .eahome-module-card[data-area="rhythm"] { --eh-area: #FFAA2B; }
 .eahome-module-card[data-area="context"] { --eh-area: #FF7AC8; }
 .eahome-module-card[data-area="structure"] { --eh-area: #FF5A36; }
+.eahome-module-card[data-area="dynamics-articulation"] { --eh-area: #5BC8FF; }
+.eahome-module-card[data-area="notation-exam"] { --eh-area: #8B9BB4; }
 
 .eahome-module-header {
   display: flex;

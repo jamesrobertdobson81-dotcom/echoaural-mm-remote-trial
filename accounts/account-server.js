@@ -23,6 +23,20 @@ const pmRegistry = require('../shared/js/pm-registry.js');
 const HOMEWORK_PROJECT_ROOT = path.resolve(__dirname, '..');
 const homeworkCatalogue = new QuestionCatalogue(createAdapters(HOMEWORK_PROJECT_ROOT));
 const homeworkAdaptersById = new Map(homeworkCatalogue.adapters.map((adapter) => [adapter.id, adapter]));
+
+// questionId -> its Progress Mode sourceKey, from the catalogue. The
+// per-element headline cards on both dashboards are fed by buildElement-
+// Evidence, but the per-sub-app detail popup (student-home.js's
+// elementDetailMarkup, teacher-dashboard.js's renderTeacherElementBreakdown)
+// still shows one row per PM sub-app — and a Live Session/Homework attempt
+// row only carries module_id, which for the 3 multi-sub-app modules
+// (melody-master, musical-language, era-explorer) isn't specific enough.
+const questionSourceKeyById = new Map(
+  homeworkCatalogue.all()
+    .filter((item) => item.sourceKey)
+    .map((item) => [String(item.questionId), String(item.sourceKey)])
+);
+
 // buildCanonicalSkillEvidence is a hoisted function declaration further
 // down this same file — safe to reference here at module-init time.
 const { resolveOwnedClass, loadClassQuestionEvidence, loadConceptMasteryForStudents } = createClassEvidenceLoader({
@@ -445,6 +459,7 @@ function buildCanonicalSkillEvidence(attempts = []) {
       score: 0,
       maximumScore: 0,
       questions: 0,
+      correctQuestions: 0,
       clipIds: new Set(),
       questionIds: new Set(),
       moduleIds: new Set(),
@@ -455,6 +470,7 @@ function buildCanonicalSkillEvidence(attempts = []) {
     current.score += Math.min(Math.max(0, progressNumber(attempt.score)), maximumScore);
     current.maximumScore += maximumScore;
     current.questions += 1;
+    if (progressNumber(attempt.score) >= maximumScore) current.correctQuestions += 1;
     if (answerData.clipId) current.clipIds.add(String(answerData.clipId));
     if (attempt.question_id) current.questionIds.add(String(attempt.question_id));
     if (attempt.module_id) current.moduleIds.add(String(attempt.module_id));
@@ -472,6 +488,7 @@ function buildCanonicalSkillEvidence(attempts = []) {
       maximumScore: Math.round(skill.maximumScore * 100) / 100,
       percentage: progressPercentage(skill.score, skill.maximumScore),
       questions: skill.questions,
+      correctQuestions: skill.correctQuestions,
       uniqueQuestions: skill.questionIds.size,
       uniqueClips: skill.clipIds.size,
       modules: skill.moduleIds.size,
@@ -480,6 +497,261 @@ function buildCanonicalSkillEvidence(attempts = []) {
       reliable: skill.questionIds.size >= 3 || skill.clipIds.size >= 2
     }))
     .sort((a, b) => b.questions - a.questions || a.skillName.localeCompare(b.skillName));
+}
+
+// Progress Mode reviews (progress_mode_reviews) never reach `attempts` at
+// all (see this file's own /api/student/progress-mode-reviews route
+// comment) — this is buildCanonicalSkillEvidence's counterpart for that
+// table, same shape output, so the two can merge directly by skillCode.
+// Already proven live: this is the exact lookup the Elo-recording hookup
+// on that same route uses.
+function buildSkillEvidenceFromReviews(reviewRows = []) {
+  const groups = new Map();
+
+  for (const row of reviewRows) {
+    const metadata = getQuestionSkillMetadata(row.question_signature);
+    const skillCode = String(metadata.primary_skill_code || '').trim();
+    if (!skillCode) continue;
+    const source = pmRegistry.get(row.source_key);
+    const moduleId = source?.moduleId || '';
+
+    const current = groups.get(skillCode) || {
+      skillCode,
+      skillName: String(metadata.primary_skill_name || skillCode).trim() || skillCode,
+      musicalElement: String(metadata.musical_element || '').trim(),
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      correctQuestions: 0,
+      clipIds: new Set(),
+      questionIds: new Set(),
+      moduleIds: new Set(),
+      learningStages: new Set(),
+      difficultyBands: new Set()
+    };
+
+    current.score += row.correct ? 1 : 0;
+    current.maximumScore += 1;
+    current.questions += 1;
+    if (row.correct) current.correctQuestions += 1;
+    if (metadata.clip_id) current.clipIds.add(String(metadata.clip_id));
+    if (row.question_signature) current.questionIds.add(String(row.question_signature));
+    if (moduleId) current.moduleIds.add(moduleId);
+    if (metadata.learning_stage) current.learningStages.add(String(metadata.learning_stage));
+    if (metadata.difficulty_band) current.difficultyBands.add(String(metadata.difficulty_band));
+    groups.set(skillCode, current);
+  }
+
+  return Array.from(groups.values())
+    .map((skill) => ({
+      skillCode: skill.skillCode,
+      skillName: skill.skillName,
+      musicalElement: skill.musicalElement,
+      score: Math.round(skill.score * 100) / 100,
+      maximumScore: Math.round(skill.maximumScore * 100) / 100,
+      percentage: progressPercentage(skill.score, skill.maximumScore),
+      questions: skill.questions,
+      correctQuestions: skill.correctQuestions,
+      uniqueQuestions: skill.questionIds.size,
+      uniqueClips: skill.clipIds.size,
+      modules: skill.moduleIds.size,
+      learningStages: Array.from(skill.learningStages),
+      difficultyBands: Array.from(skill.difficultyBands),
+      reliable: skill.questionIds.size >= 3 || skill.clipIds.size >= 2
+    }))
+    .sort((a, b) => b.questions - a.questions || a.skillName.localeCompare(b.skillName));
+}
+
+// Sums two or more buildCanonicalSkillEvidence/buildSkillEvidenceFromReviews
+// outputs by skillCode — both already share the same shape, so "Overall"
+// (every source combined, every question counted equally) is just this.
+function mergeSkillEvidence(...evidenceArrays) {
+  const groups = new Map();
+
+  evidenceArrays.forEach((evidence) => {
+    evidence.forEach((skill) => {
+      const current = groups.get(skill.skillCode) || {
+        skillCode: skill.skillCode,
+        skillName: skill.skillName,
+        musicalElement: skill.musicalElement,
+        score: 0,
+        maximumScore: 0,
+        questions: 0,
+        correctQuestions: 0,
+        uniqueQuestions: 0,
+        uniqueClips: 0,
+        modules: 0,
+        learningStages: new Set(),
+        difficultyBands: new Set()
+      };
+      current.score += skill.score;
+      current.maximumScore += skill.maximumScore;
+      current.questions += skill.questions;
+      current.correctQuestions += skill.correctQuestions;
+      current.uniqueQuestions += skill.uniqueQuestions;
+      current.uniqueClips += skill.uniqueClips;
+      current.modules = Math.max(current.modules, skill.modules);
+      skill.learningStages.forEach((stage) => current.learningStages.add(stage));
+      skill.difficultyBands.forEach((band) => current.difficultyBands.add(band));
+      groups.set(skill.skillCode, current);
+    });
+  });
+
+  return Array.from(groups.values())
+    .map((skill) => ({
+      ...skill,
+      score: Math.round(skill.score * 100) / 100,
+      maximumScore: Math.round(skill.maximumScore * 100) / 100,
+      percentage: progressPercentage(skill.score, skill.maximumScore),
+      learningStages: Array.from(skill.learningStages),
+      difficultyBands: Array.from(skill.difficultyBands),
+      reliable: skill.uniqueQuestions >= 3 || skill.uniqueClips >= 2
+    }))
+    .sort((a, b) => b.questions - a.questions || a.skillName.localeCompare(b.skillName));
+}
+
+// The 9 skill-taxonomy musical_element strings <-> Progress Mode's own 9
+// area keys (modules/progress-mode/app-drivers.js's AREA_ORDER). 1:1 by
+// design — kept aligned deliberately (see that file's AREA_ORDER comment)
+// so the dashboards' existing per-area cards can be fed straight from this
+// server-side breakdown instead of each re-aggregating client-side.
+const MUSICAL_ELEMENT_AREA_KEY = {
+  'Melody': 'melody',
+  'Texture': 'texture',
+  'Harmony and tonality': 'harmony',
+  'Instrumentation': 'instrumentation',
+  'Meter and rhythm': 'rhythm',
+  'Dynamics and articulation': 'dynamics-articulation',
+  'Context and genre': 'context',
+  'Structure and form': 'structure',
+  'Notation and exam application': 'notation-exam'
+};
+
+// Re-groups a buildCanonicalSkillEvidence-shaped array from per-skill (32
+// taxonomy codes) to per-element (the 9 broad musical_element categories) —
+// the grain both Progress Mode's own 9-area system and a student/teacher
+// actually want to see strengths/focus areas at. Keeps the ranked
+// contributing skills so a "focus" element can still name a specific skill,
+// not just the element, in its own next-step text.
+function buildElementEvidence(skills = []) {
+  const groups = new Map();
+
+  for (const skill of skills) {
+    const musicalElement = String(skill.musicalElement || '').trim();
+    if (!musicalElement) continue;
+
+    const current = groups.get(musicalElement) || {
+      musicalElement,
+      score: 0,
+      maximumScore: 0,
+      questions: 0,
+      correctQuestions: 0,
+      uniqueQuestions: 0,
+      uniqueClips: 0,
+      skills: []
+    };
+    current.score += skill.score;
+    current.maximumScore += skill.maximumScore;
+    current.questions += skill.questions;
+    current.correctQuestions += (skill.correctQuestions || 0);
+    current.uniqueQuestions += skill.uniqueQuestions;
+    current.uniqueClips += skill.uniqueClips;
+    current.skills.push(skill);
+    groups.set(musicalElement, current);
+  }
+
+  return Array.from(groups.values())
+    .map((element) => {
+      const rankedSkills = element.skills.slice().sort((a, b) => (
+        a.percentage - b.percentage || b.questions - a.questions
+      ));
+      const reliableSkills = rankedSkills.filter((skill) => skill.reliable);
+      return {
+        musicalElement: element.musicalElement,
+        areaKey: MUSICAL_ELEMENT_AREA_KEY[element.musicalElement] || '',
+        score: Math.round(element.score * 100) / 100,
+        maximumScore: Math.round(element.maximumScore * 100) / 100,
+        percentage: progressPercentage(element.score, element.maximumScore),
+        // Whole-question tallies (not marks sums) — the frontends blend
+        // these with Progress Mode's own flat correct/attempted counts, so
+        // a 2-mark question mustn't outweigh a 1-mark one.
+        questions: element.questions,
+        correctQuestions: element.correctQuestions,
+        uniqueQuestions: element.uniqueQuestions,
+        uniqueClips: element.uniqueClips,
+        skills: rankedSkills,
+        // The weakest reliable skill within this element — what a "focus
+        // area" next-step sentence actually names, rather than just the
+        // element as a whole.
+        focusSkill: reliableSkills[0] || null,
+        reliable: reliableSkills.length > 0
+      };
+    })
+    .sort((a, b) => b.questions - a.questions || a.musicalElement.localeCompare(b.musicalElement));
+}
+
+// canonicalSkillFeedback's counterpart at element grain — same strongest/
+// focus sentence shape, but naming an element plus (when available) the
+// specific weak skill within it, e.g. "...focus is Meter and rhythm
+// (specifically metre classification) at 54%."
+function elementFeedback(elements, audience = 'student') {
+  const { strongest, focus } = canonicalSkillPriorities(elements);
+  if (!strongest) return '';
+  const focusDetail = (skill) => skill?.focusSkill ? ` (specifically ${skill.focusSkill.skillName.toLowerCase()})` : '';
+  if (!focus || focus.musicalElement === strongest.musicalElement) {
+    const owner = audience === 'class' ? 'Class evidence' : 'Your evidence';
+    return ` ${owner} currently shows ${strongest.musicalElement.toLowerCase()} at ${strongest.percentage}%.`;
+  }
+  const owner = audience === 'class' ? 'The strongest evidenced class area' : 'Your strongest evidenced area';
+  const priority = audience === 'class' ? 'the next class focus area' : 'your next focus area';
+  return ` ${owner} is ${strongest.musicalElement.toLowerCase()} at ${strongest.percentage}%; ${priority} is ${focus.musicalElement.toLowerCase()}${focusDetail(focus)} at ${focus.percentage}%.`;
+}
+
+
+// Flat per-question tally by Progress Mode sourceKey (via
+// questionSourceKeyById), for the per-sub-app rows in the element detail
+// popups. `correct` counts full-mark questions, matching the flat scale
+// the dashboards' getCombinedSourceStats blends Progress Mode's own local
+// counts onto. Only used for the 3 multi-sub-app modules in practice.
+function buildBySourceKeyBreakdown(attempts = []) {
+  const groups = {};
+  for (const attempt of attempts) {
+    const sourceKey = questionSourceKeyById.get(String(attempt.question_id));
+    if (!sourceKey) continue;
+    const maximumScore = Math.max(0, progressNumber(attempt.maximum_score));
+    if (maximumScore <= 0) continue;
+    if (!groups[sourceKey]) groups[sourceKey] = { correct: 0, questions: 0 };
+    groups[sourceKey].questions += 1;
+    if (progressNumber(attempt.score) >= maximumScore) groups[sourceKey].correct += 1;
+  }
+  return groups;
+}
+
+// Progress Mode reviews tallied per sourceKey, area key attached — the
+// teacher element detail popup reads this as `progressMode.sources` (see
+// teacher-dashboard.js's classProgressModeAreaSummary / teacherElementTotals).
+// It had no server source after the per-source column was dropped from
+// progress_mode_summaries.
+function buildReviewSourceKeyBreakdown(reviewRows = []) {
+  const groups = new Map();
+  for (const row of reviewRows) {
+    const sourceKey = String(row.source_key || '');
+    if (!sourceKey) continue;
+    const source = pmRegistry.get(sourceKey);
+    if (!groups.has(sourceKey)) {
+      groups.set(sourceKey, {
+        sourceKey,
+        areaKey: MUSICAL_ELEMENT_AREA_KEY[source?.musicalElement] || '',
+        label: source?.subAppLabel || sourceKey,
+        correct: 0,
+        questions: 0
+      });
+    }
+    const entry = groups.get(sourceKey);
+    entry.questions += 1;
+    if (row.correct) entry.correct += 1;
+  }
+  return Array.from(groups.values());
 }
 
 function canonicalSkillPriorities(skills = []) {
@@ -604,6 +876,35 @@ function buildProgressCategories(allRounds, allAttempts) {
   };
 }
 
+// Strengths/focus areas by musical element, across every source a student
+// actually works in. Deliberately independent of buildProgressSummary's own
+// per-module machinery above (which assumes rounds/attempts) — Progress
+// Mode reviews have no "rounds" at all, so `progress` is built straight
+// from buildSkillEvidenceFromReviews. `overall` merges every source at the
+// skill grain (mergeSkillEvidence) before regrouping by element, so every
+// question counts equally regardless of where it came from, per the
+// confirmed "simple combined score" decision.
+function buildElementBreakdowns(allRounds, allAttempts, reviewRows = []) {
+  const quizzes = filterProgressBySource(allRounds, allAttempts, 'quizzes');
+  const homework = filterProgressBySource(allRounds, allAttempts, 'homework');
+
+  const quizSkills = buildCanonicalSkillEvidence(quizzes.attempts);
+  const homeworkSkills = buildCanonicalSkillEvidence(homework.attempts);
+  const reviewSkills = buildSkillEvidenceFromReviews(reviewRows);
+  // Not just quizSkills+homeworkSkills summed — some rounds fall outside
+  // both buckets (progressSource()'s 'progress'/'practice' fallbacks), so
+  // "overall" attempts evidence is computed from every attempt directly.
+  const allAttemptSkills = buildCanonicalSkillEvidence(allAttempts);
+  const overallSkills = mergeSkillEvidence(allAttemptSkills, reviewSkills);
+
+  return {
+    overall: buildElementEvidence(overallSkills),
+    progress: buildElementEvidence(reviewSkills),
+    quizzes: buildElementEvidence(quizSkills),
+    homework: buildElementEvidence(homeworkSkills)
+  };
+}
+
 function buildProgressSummary(allRounds, allAttempts) {
   const scoredRounds = allRounds;
   const scoredRoundIds = new Set(scoredRounds.map((round) => String(round.id)));
@@ -618,6 +919,11 @@ function buildProgressSummary(allRounds, allAttempts) {
     const score = rounds.reduce((sum, round) => sum + progressNumber(round.score), 0);
     const maximumScore = rounds.reduce((sum, round) => sum + progressNumber(round.maximum_score), 0);
     const questionCount = rounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
+    // Flat whole-question counts (not the marks sums above) — the element
+    // detail popups blend these with Progress Mode's own flat local counts.
+    const scoredModuleAttempts = attempts.filter((attempt) => scoredRoundIds.has(String(attempt.round_id)) && progressNumber(attempt.maximum_score) > 0);
+    const attemptedQuestionCount = scoredModuleAttempts.length;
+    const correctQuestionCount = scoredModuleAttempts.filter((attempt) => progressNumber(attempt.score) >= progressNumber(attempt.maximum_score)).length;
     const accuracy = progressPercentage(score, maximumScore);
     const skills = buildCanonicalSkillEvidence(
       scoredAttempts.filter((attempt) => attempt.module_id === moduleId)
@@ -721,6 +1027,8 @@ function buildProgressSummary(allRounds, allAttempts) {
       percentage: accuracy,
       rounds: rounds.length,
       questions: questionCount,
+      attemptedQuestionCount,
+      correctQuestionCount,
       level: progressLevel(accuracy, questionCount),
       strength,
       nextStep,
@@ -783,6 +1091,10 @@ function buildProgressSummary(allRounds, allAttempts) {
     },
     modules: moduleSummaries,
     skills,
+    // Per-sub-app whole-question tally for the element detail popups — see
+    // buildBySourceKeyBreakdown. Attempt data only; Progress Mode's own
+    // per-source counts are added client-side (getCombinedSourceStats).
+    bySourceKey: buildBySourceKeyBreakdown(scoredAttempts),
     recentRounds: scoredRounds.slice(0, 10).map((round) => ({
       id: round.id,
       moduleId: round.module_id,
@@ -811,7 +1123,7 @@ function buildProgressSummary(allRounds, allAttempts) {
 }
 
 async function loadStudentProgress(studentId) {
-  const [roundResult, attemptResult] = await Promise.all([
+  const [roundResult, attemptResult, reviewResult] = await Promise.all([
     getPool().query(`
       SELECT
         id,
@@ -843,13 +1155,27 @@ async function loadStudentProgress(studentId) {
       WHERE student_id = $1
       ORDER BY completed_at DESC, id DESC
       LIMIT 2000
-    `, [studentId])
+    `, [studentId]),
+    getPool().query(`
+      SELECT source_key, question_signature, correct, completed_at
+      FROM progress_mode_reviews
+      WHERE student_id = $1
+      ORDER BY completed_at DESC
+      LIMIT 2000
+    `, [studentId]).catch((error) => {
+      // Same additive-migration tolerance as loadConceptMasteryForStudents:
+      // an older database without this table yet degrades to "no Progress
+      // Mode evidence" rather than failing the whole progress request.
+      if (error?.code === '42P01') return { rows: [] };
+      throw error;
+    })
   ]);
 
   const combined = buildProgressSummary(roundResult.rows, attemptResult.rows);
   return {
     ...combined,
-    categories: buildProgressCategories(roundResult.rows, attemptResult.rows)
+    categories: buildProgressCategories(roundResult.rows, attemptResult.rows),
+    elements: buildElementBreakdowns(roundResult.rows, attemptResult.rows, reviewResult.rows)
   };
 }
 
@@ -932,7 +1258,7 @@ function buildClassModuleFeedback(moduleSummary) {
   return `${moduleSummary.title} needs focused class practice through short, repeated listening decisions.`;
 }
 
-function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
+function buildClassProgressSummary(allStudents, allRounds, allAttempts, reviewRows = []) {
   const scoredRounds = allRounds;
   const scoredRoundIds = new Set(scoredRounds.map((round) => String(round.id)));
   const scoredAttempts = allAttempts.filter((attempt) => scoredRoundIds.has(String(attempt.round_id)));
@@ -940,10 +1266,10 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
   const participatingIds = new Set(scoredRounds.map((round) => String(round.student_id)));
 
   const students = allStudents.map((student) => {
-    const progress = buildProgressSummary(
-      allRounds.filter((round) => String(round.student_id) === String(student.id)),
-      allAttempts.filter((attempt) => String(attempt.student_id) === String(student.id))
-    );
+    const studentRounds = allRounds.filter((round) => String(round.student_id) === String(student.id));
+    const studentAttempts = allAttempts.filter((attempt) => String(attempt.student_id) === String(student.id));
+    const studentReviews = reviewRows.filter((row) => String(row.student_id) === String(student.id));
+    const progress = buildProgressSummary(studentRounds, studentAttempts);
     return {
       id: student.id,
       username: student.username,
@@ -951,7 +1277,8 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
       active: student.active,
       createdAt: student.created_at,
       lastLoginAt: student.last_login_at,
-      ...progress.overall
+      ...progress.overall,
+      elements: buildElementBreakdowns(studentRounds, studentAttempts, studentReviews)
     };
   });
 
@@ -996,6 +1323,11 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
   const focusModule = startedModules.slice().sort((a, b) => a.percentage - b.percentage)[0] || null;
   const skills = buildCanonicalSkillEvidence(scoredAttempts);
   const skillPriorities = canonicalSkillPriorities(skills);
+  // Every source (Progress Mode + Live Session + Homework) combined, at
+  // element grain — see buildElementBreakdowns' own header comment for why
+  // Progress Mode needs its own reviewRows path rather than going through
+  // the rounds/attempts machinery above.
+  const classElements = buildElementBreakdowns(allRounds, scoredAttempts, reviewRows);
   const participatingActiveStudents = activeStudents.filter((student) => participatingIds.has(String(student.id))).length;
   const participation = activeStudents.length
     ? Math.round((participatingActiveStudents / activeStudents.length) * 100)
@@ -1019,7 +1351,7 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
     const evidence = participation < 100
       ? ` Results currently include ${participatingActiveStudents} of ${activeStudents.length} active students.`
       : '';
-    compiledFeedback = `${opening}${strongest}${focus}${canonicalSkillFeedback(skills, 'class')}${evidence}`;
+    compiledFeedback = `${opening}${strongest}${focus}${elementFeedback(classElements.overall, 'class')}${evidence}`;
   }
 
   return {
@@ -1042,6 +1374,8 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts) {
     },
     modules,
     skills,
+    elements: classElements,
+    bySourceKey: buildBySourceKeyBreakdown(scoredAttempts),
     students
   };
 }
@@ -2109,7 +2443,7 @@ async function handleAccountApi(req, res, parsedUrl) {
       const teacher = await requireTeacher(req, res);
       if (!teacher) return true;
 
-      const [studentResult, roundResult, attemptResult] = await Promise.all([
+      const [studentResult, roundResult, attemptResult, reviewResult] = await Promise.all([
         getPool().query(`
           SELECT s.id, s.username, s.display_name, s.active, s.created_at, s.last_login_at, s.class_id, c.class_name
           FROM students s
@@ -2148,13 +2482,23 @@ async function handleAccountApi(req, res, parsedUrl) {
           FROM attempts
           WHERE teacher_id = $1
           ORDER BY completed_at DESC, id DESC
-        `, [teacher.id])
+        `, [teacher.id]),
+        getPool().query(`
+          SELECT student_id, source_key, question_signature, correct, completed_at
+          FROM progress_mode_reviews
+          WHERE teacher_id = $1
+          ORDER BY completed_at DESC
+        `, [teacher.id]).catch((error) => {
+          if (error?.code === '42P01') return { rows: [] };
+          throw error;
+        })
       ]);
 
       const allStudents = studentResult.rows;
       const allRounds = roundResult.rows;
       const allAttempts = attemptResult.rows;
-      const combined = buildClassProgressSummary(allStudents, allRounds, allAttempts);
+      const allReviews = reviewResult.rows;
+      const combined = buildClassProgressSummary(allStudents, allRounds, allAttempts, allReviews);
 
       return sendJson(res, 200, {
         ok: true,
@@ -2172,22 +2516,39 @@ async function handleAccountApi(req, res, parsedUrl) {
       const teacher = await requireTeacher(req, res);
       if (!teacher) return true;
 
-      const result = await getPool().query(`
-        SELECT
-          s.id AS student_id,
-          s.username,
-          s.display_name,
-          pms.overall_level_label,
-          pms.rounds_completed,
-          pms.total_correct,
-          pms.total_questions,
-          pms.areas,
-          pms.updated_at
-        FROM students s
-        JOIN progress_mode_summaries pms ON pms.student_id = s.id
-        WHERE s.teacher_id = $1
-        ORDER BY LOWER(s.display_name), LOWER(s.username)
-      `, [teacher.id]);
+      const [result, reviewResult] = await Promise.all([
+        getPool().query(`
+          SELECT
+            s.id AS student_id,
+            s.username,
+            s.display_name,
+            pms.overall_level_label,
+            pms.rounds_completed,
+            pms.total_correct,
+            pms.total_questions,
+            pms.areas,
+            pms.updated_at
+          FROM students s
+          JOIN progress_mode_summaries pms ON pms.student_id = s.id
+          WHERE s.teacher_id = $1
+          ORDER BY LOWER(s.display_name), LOWER(s.username)
+        `, [teacher.id]),
+        getPool().query(`
+          SELECT student_id, source_key, correct
+          FROM progress_mode_reviews
+          WHERE teacher_id = $1
+        `, [teacher.id]).catch((error) => {
+          if (error?.code === '42P01') return { rows: [] };
+          throw error;
+        })
+      ]);
+
+      const reviewsByStudent = new Map();
+      reviewResult.rows.forEach((row) => {
+        const id = String(row.student_id);
+        if (!reviewsByStudent.has(id)) reviewsByStudent.set(id, []);
+        reviewsByStudent.get(id).push(row);
+      });
 
       return sendJson(res, 200, {
         ok: true,
@@ -2200,6 +2561,7 @@ async function handleAccountApi(req, res, parsedUrl) {
           totalCorrect: row.total_correct,
           totalQuestions: row.total_questions,
           areas: row.areas,
+          sources: buildReviewSourceKeyBreakdown(reviewsByStudent.get(String(row.student_id)) || []),
           updatedAt: row.updated_at
         }))
       });

@@ -1436,7 +1436,7 @@ function renderClassElementGrid() {
   if (!els.classElementGrid) return;
   const totals = teacherElementTotals(state.middleColumnProgress, state.middleColumnProgressMode, state.middleColumn.mode);
   state.middleColumnTotals = totals;
-  const areaKeys = ["melody", "texture", "harmony", "instrumentation", "rhythm", "context", "structure"];
+  const areaKeys = Object.keys(TEACHER_ELEMENT_LABELS);
   // Feedback statements only ever appear on a tile once a real student is
   // selected — a class-wide or whole-account tile is numbers only, per the
   // confirmed design (a blended group's "doing well/focus on" isn't a real
@@ -1719,8 +1719,10 @@ const TEACHER_ELEMENT_ICONS = {
   harmony: "/assets/icons/modules/harmony-explorer.png",
   instrumentation: "/assets/icons/modules/instrument-identifier.png",
   rhythm: "/assets/icons/modules/meter-master.png",
+  "dynamics-articulation": "/assets/icons/modules/score-decoder.png",
   context: "/assets/icons/modules/context-coach.png",
-  structure: "/assets/icons/modules/structure-spotter.png"
+  structure: "/assets/icons/modules/structure-spotter.png",
+  "notation-exam": "/assets/icons/dashboard/progress-mode.png"
 };
 
 const TEACHER_ELEMENT_LABELS = {
@@ -1729,8 +1731,10 @@ const TEACHER_ELEMENT_LABELS = {
   harmony: "Harmony",
   instrumentation: "Instrumentation",
   rhythm: "Meter",
+  "dynamics-articulation": "Dynamics & Articulation",
   context: "Context",
-  structure: "Structure"
+  structure: "Structure",
+  "notation-exam": "Notation & Exam Skills"
 };
 
 const TEACHER_MODULE_ELEMENTS = {
@@ -1750,9 +1754,9 @@ const TEACHER_MODULE_ELEMENTS = {
   "context-coach-composer": "context",
   "context-coach-period": "context",
   "exam-lab": "context",
-  "musical-language-articulation": "melody",
+  "musical-language-articulation": "dynamics-articulation",
   "musical-language-ornamentation": "melody",
-  "musical-language-dynamics": "texture",
+  "musical-language-dynamics": "dynamics-articulation",
   "musical-language-tempo": "rhythm",
   "musical-language": "melody",
   "structure-spotter": "structure"
@@ -1786,8 +1790,8 @@ const TEACHER_PM_SOURCE_MODULES = {
   "cadence-coach": "cadence-coach",
   "meter-master": "meter-master",
   "musical-language-ornamentation": "vocabulary-melody",
-  "musical-language-articulation": "vocabulary-melody",
-  "musical-language-dynamics": "vocabulary-texture",
+  "musical-language-articulation": "vocabulary-dynamics-articulation",
+  "musical-language-dynamics": "vocabulary-dynamics-articulation",
   "musical-language-tempo": "vocabulary-rhythm",
   "structure-spotter": "structure-spotter",
   "context-coach-composer": "context-coach-composer",
@@ -1856,7 +1860,7 @@ function mergeSourceKeyEvidence(totals, sourceKey, correct, questions, fallbackL
     return;
   }
   const vocabulary = displayModuleId === "vocabulary-melody"
-    || displayModuleId === "vocabulary-texture"
+    || displayModuleId === "vocabulary-dynamics-articulation"
     || displayModuleId === "vocabulary-rhythm";
   target.modules.push({
     categoryKey: "overall",
@@ -2121,6 +2125,38 @@ function teacherProgressNumber(value) {
 // placeholder sub-app rows below (Context Coach, Harmony apps, Vocabulary,
 // melodic-devices) are still seeded unconditionally so every filter shows
 // the same set of sub-apps, just with 0/0 evidence where nothing matches.
+// Per-area element rows for a scope, correctly scoped to whatever the
+// middle column is showing: one student's own `elements`, or the sum of
+// the in-scope students' per-student `elements` for a class / whole-account
+// view (the class route returns whole-account data with no server-side
+// class filter, so scoping is done here from the per-student breakdown).
+function teacherScopedElementRows(progress, scope) {
+  const rows = new Map();
+  const add = (list) => {
+    (list || []).forEach((el) => {
+      if (!el.areaKey) return;
+      const cur = rows.get(el.areaKey) || { areaKey: el.areaKey, correctQuestions: 0, questions: 0, focusSkill: null };
+      cur.correctQuestions += Number(el.correctQuestions || 0);
+      cur.questions += Number(el.questions || 0);
+      if (!cur.focusSkill && el.focusSkill) cur.focusSkill = el.focusSkill;
+      rows.set(el.areaKey, cur);
+    });
+  };
+  if (Array.isArray(progress?.students)) {
+    const classId = state.middleColumn.classId;
+    const inScope = classId
+      ? new Set(state.students.filter((s) => String(s.classId) === String(classId)).map((s) => String(s.id)))
+      : null;
+    progress.students.forEach((student) => {
+      if (inScope && !inScope.has(String(student.id))) return;
+      add(student.elements?.[scope]);
+    });
+  } else {
+    add(progress?.elements?.[scope]);
+  }
+  return rows;
+}
+
 function teacherElementTotals(progress, progressMode, modeFilter = "all") {
   const totals = new Map();
   Object.keys(TEACHER_ELEMENT_LABELS).forEach((areaKey) => totals.set(areaKey, {
@@ -2260,7 +2296,7 @@ function teacherElementTotals(progress, progressMode, modeFilter = "all") {
     });
   }
 
-  ["melody", "texture", "rhythm"].forEach((areaKey) => {
+  ["melody", "dynamics-articulation", "rhythm"].forEach((areaKey) => {
     const area = totals.get(areaKey);
     if (!area || area.modules.some((module) => module.moduleId === `vocabulary-${areaKey}`)) return;
     area.modules.push({
@@ -2345,7 +2381,7 @@ function teacherElementTotals(progress, progressMode, modeFilter = "all") {
       return;
     }
     const vocabulary = displayModuleId === "vocabulary-melody"
-      || displayModuleId === "vocabulary-texture"
+      || displayModuleId === "vocabulary-dynamics-articulation"
       || displayModuleId === "vocabulary-rhythm";
     target.modules.push({
       categoryKey: "overall",
@@ -2367,6 +2403,25 @@ function teacherElementTotals(progress, progressMode, modeFilter = "all") {
     target.score += correct;
     target.maximumScore += questions;
     target.questions += questions;
+  });
+
+  // Headline per-area correct/attempted now come straight from the server's
+  // single blended breakdown (accounts/account-server.js's
+  // buildElementBreakdowns — Progress Mode + Live Session + Homework, one
+  // skill-tagged pass), overriding whatever the per-source loops above
+  // accumulated. The loops still run only to populate each area's
+  // `modules[]` sub-app rows for the detail popup. `elements` is keyed by
+  // the same area keys as TEACHER_ELEMENT_LABELS.
+  const elementScope = modeFilter === "all" ? "overall" : modeFilter;
+  const elementRows = teacherScopedElementRows(progress, elementScope);
+  totals.forEach((target, areaKey) => {
+    const row = elementRows.get(areaKey);
+    const correctQuestions = row ? Number(row.correctQuestions || 0) : 0;
+    const questions = row ? Number(row.questions || 0) : 0;
+    target.score = correctQuestions;
+    target.maximumScore = questions;
+    target.questions = questions;
+    target.focusSkill = row?.focusSkill || null;
   });
 
   return totals;

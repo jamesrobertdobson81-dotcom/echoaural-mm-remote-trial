@@ -773,15 +773,23 @@
   // Progress Mode now reports levels/feedback against, not individual
   // drivers/sub-apps. A driver's own `label` still identifies it, but only
   // ever surfaces inside written feedback text, never as its own scored row.
-  var AREA_ORDER = ["melody", "texture", "harmony", "instrumentation", "rhythm", "context", "structure"];
+  // Kept aligned with shared/data/skill-taxonomy.csv's 9 musical_element
+  // categories (see accounts/account-server.js's buildElementEvidence) so a
+  // student/teacher's unified "by element" view and Progress Mode's own
+  // area system always describe the same 9 things. dynamics-articulation
+  // and notation-exam are the 2 added to reach that full 9 — see each
+  // area's own DRIVERS entries below for what actually populates them.
+  var AREA_ORDER = ["melody", "texture", "harmony", "instrumentation", "rhythm", "dynamics-articulation", "context", "structure", "notation-exam"];
   var AREA_LABELS = {
     melody: "Melody",
     texture: "Texture",
     harmony: "Harmony",
     instrumentation: "Instrumentation",
     rhythm: "Meter",
+    "dynamics-articulation": "Dynamics & Articulation",
     context: "Context",
-    structure: "Structure"
+    structure: "Structure",
+    "notation-exam": "Notation & Exam Skills"
   };
   // Coloured per-area app icons for the student dashboard Progress Mode
   // "Detailed feedback" tiles — falls back to Progress Mode's own icon for
@@ -792,8 +800,12 @@
     harmony: "/assets/icons/modules/harmony-explorer.png",
     instrumentation: "/assets/icons/modules/instrument-identifier.png",
     rhythm: "/assets/icons/modules/meter-master.png",
+    "dynamics-articulation": "/assets/icons/modules/score-decoder.png",
     context: "/assets/icons/modules/context-coach.png",
     structure: "/assets/icons/modules/structure-spotter.png"
+    // notation-exam: no dedicated Progress Mode source yet (see its DRIVERS
+    // comment below) — falls back to Progress Mode's own icon until one
+    // exists.
   };
 
   var DRIVERS = {
@@ -1161,7 +1173,7 @@
 
     "musical-language-articulation": {
       label: "Musical Language · Articulation",
-      area: "melody",
+      area: "dynamics-articulation",
       path: "../musical-language/index.html",
       levelValues: LEVEL_VALUES,
       configure: function (doc, levelIndex) {
@@ -1177,7 +1189,7 @@
 
     "musical-language-dynamics": {
       label: "Musical Language · Dynamics",
-      area: "texture",
+      area: "dynamics-articulation",
       path: "../musical-language/index.html",
       levelValues: LEVEL_VALUES,
       configure: function (doc, levelIndex) {

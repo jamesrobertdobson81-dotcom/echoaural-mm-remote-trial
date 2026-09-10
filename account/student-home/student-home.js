@@ -144,14 +144,15 @@ function getCombinedSourceStats(sourceKey, scope = "overall") {
     homeworkCorrect = Number(homeworkBySourceKey[sourceKey]?.correct || 0);
     homeworkQuestions = Number(homeworkBySourceKey[sourceKey]?.questions || 0);
   } else {
-    // correctQuestionCount/questions (both flat per-attempt counts, see
-    // account-server.js's moduleSummaries) — not score/maximumScore, which
-    // are marks sums and would let a multi-mark question outweigh a
-    // single-mark one once blended with Progress Mode's own flat pool below.
+    // correctQuestionCount/attemptedQuestionCount — flat whole-question
+    // counts (see account-server.js's moduleSummaries), not score/
+    // maximumScore, which are marks sums and would let a multi-mark
+    // question outweigh a single-mark one once blended with Progress
+    // Mode's own flat pool below.
     quizCorrect = Number(quizModule?.correctQuestionCount || 0);
-    quizQuestions = Number(quizModule?.questions || 0);
+    quizQuestions = Number(quizModule?.attemptedQuestionCount || 0);
     homeworkCorrect = Number(homeworkModule?.correctQuestionCount || 0);
-    homeworkQuestions = Number(homeworkModule?.questions || 0);
+    homeworkQuestions = Number(homeworkModule?.attemptedQuestionCount || 0);
   }
 
   let correct;
@@ -229,8 +230,8 @@ function getCombinedConceptStats(moduleId, scope = "overall") {
 // home: Melody (articulation + ornaments), Texture (dynamics), Rhythm
 // (tempo) — nothing currently maps to harmony/instrumentation/context.
 const VOCAB_SUB_APPS = {
-  melody: { label: "Music Vocabulary · Articulation & Ornaments", sourceKeys: ["musical-language-articulation", "musical-language-ornamentation"] },
-  texture: { label: "Music Vocabulary · Dynamics", sourceKeys: ["musical-language-dynamics"] },
+  melody: { label: "Music Vocabulary · Ornaments", sourceKeys: ["musical-language-ornamentation"] },
+  "dynamics-articulation": { label: "Music Vocabulary · Dynamics & Articulation", sourceKeys: ["musical-language-dynamics", "musical-language-articulation"] },
   rhythm: { label: "Music Vocabulary · Tempo", sourceKeys: ["musical-language-tempo"] }
 };
 const VOCAB_ICON = "/assets/icons/modules/score-decoder.png";
@@ -480,22 +481,31 @@ function getProgressModeSnapshot(scope = "overall") {
 
   const resolveConceptItem = makeConceptItemResolver(scope);
 
+  // The per-element correct/attempted counts — Progress Mode reviews + Live
+  // Session + Homework, all blended server-side from one skill-tagged pass
+  // (accounts/account-server.js's buildElementEvidence). Keyed by the same
+  // area keys as AreaOrder. Replaces the old client-side per-source
+  // summation, which silently showed 0 for Live Session/Homework because
+  // the server fields it depended on were never built.
+  const serverElements = {};
+  (state.progress?.elements?.[scope] || []).forEach((element) => {
+    if (element.areaKey) serverElements[element.areaKey] = element;
+  });
+
   let totalCorrect = 0;
   let totalQuestions = 0;
   const areas = AreaOrder.map((areaKey) => {
     const sources = areaToSources[areaKey];
-    // Combined PM + Live Session + Homework, per source — see
-    // getCombinedSourceStats. This is what makes the area paragraph below
-    // reflect real classroom evidence, not just solo Progress Mode practice.
+    // combinedStats still drives the per-area feedback paragraph below
+    // (Feedback.buildAreaFeedback) — unchanged. Only the headline
+    // correct/questions/percentage now come from serverElements.
     const combinedStats = {};
-    let correct = 0;
-    let questions = 0;
     sources.forEach((sourceKey) => {
-      const combined = getCombinedSourceStats(sourceKey, scope);
-      combinedStats[sourceKey] = combined;
-      correct += combined.correct;
-      questions += combined.questions;
+      combinedStats[sourceKey] = getCombinedSourceStats(sourceKey, scope);
     });
+    const el = serverElements[areaKey];
+    const correct = el ? Number(el.correctQuestions || 0) : 0;
+    const questions = el ? Number(el.questions || 0) : 0;
     totalCorrect += correct;
     totalQuestions += questions;
 
@@ -687,14 +697,10 @@ function renderEahomeHero(pm, viewKey = "overall") {
   const weakSummary = weak
     ? (weak.feedbackText || `Your ${weak.label} accuracy is ${weak.percentage}%. A focused round here will help most.`)
     : "";
-  // strongestAreas now picks by level first (see its own comment) — the
-  // number shown alongside it needs to be the SAME metric, or "Strongest in
-  // Texture (69%)" would still visibly contradict that area's own Mastering
-  // badge/progress bar elsewhere, which both read overallProgress (92%
-  // here), not raw all-time accuracy. Only meaningful on the PM-relevant
-  // scopes; quizzes/homework have no level concept, so they keep showing
-  // plain accuracy.
-  const strongestPct = strongest ? (showLevelBadge ? strongest.overallProgress : strongest.percentage) : 0;
+  // Blended accuracy — the same metric the area cards and the overall-
+  // progress ring now show, so "Strongest in Texture (69%)" lines up with
+  // that card's own headline number rather than contradicting it.
+  const strongestPct = strongest ? strongest.percentage : 0;
   const subtext = !pm.hasEvidence
     ? emptyText
     : weak
@@ -844,9 +850,15 @@ function buildCardSummary(sources, scope) {
 // Live-Session/Homework notion of "level" to attach one to).
 function renderEahomeModulesGrid(pm, viewKey = "overall") {
   if (!pm.areas.length) return emptyCategory(viewKey === "overall" ? "Complete a round to begin your record." : CATEGORY_CONFIG[viewKey].emptyFeedback);
+  // Every tab now shows blended accuracy (Progress Mode + Live Session +
+  // Homework) as the headline %, from the server's per-element breakdown —
+  // consistent across tabs and the number that actually conveys "strength".
+  // The Foundation->Mastering level badge (Progress-Mode-only, see
+  // getProgressModeSnapshot's own comment) still only rides along on the
+  // overall/progress tabs, carrying the level dimension separately.
   const showMastery = viewKey === "overall" || viewKey === "progress";
   return pm.areas.map((area) => {
-    const pct = showMastery ? area.overallProgress : area.percentage;
+    const pct = area.percentage;
     const badge = showMastery ? moduleStatusBadge(area) : null;
     // Real per-area summary, purpose-built to be short rather than a
     // shortened version of the longer prose used elsewhere (the hero, the
@@ -854,10 +866,14 @@ function renderEahomeModulesGrid(pm, viewKey = "overall") {
     // — all of which still use the full Feedback.buildAreaFeedback text via
     // area.feedbackText, untouched). See buildCardSummary above.
     const cardSummary = area.questions ? buildCardSummary(area.sources, viewKey) : null;
+    const qWord = area.questions === 1 ? "question" : "questions";
+    const genericSummary = pct >= 85
+      ? `Strong — ${pct}% across ${area.questions} ${qWord} so far.`
+      : pct >= 60
+        ? `Developing — ${pct}% across ${area.questions} ${qWord}. Keep practising.`
+        : `${pct}% across ${area.questions} ${qWord} — a good area to focus on.`;
     const summary = cardSummary
-      || (area.questions
-        ? `${pct}% so far — keep going to unlock personalised feedback here.`
-        : "Complete a round to start building feedback here.");
+      || (area.questions ? genericSummary : "Complete a round to start building feedback here.");
     return `
       <button class="eahome-module-card ${badge ? badge.cls : ""}" type="button" data-category-detail="${escapeHtml(viewKey)}" data-area="${escapeHtml(area.areaKey)}">
         <span class="eahome-module-header">

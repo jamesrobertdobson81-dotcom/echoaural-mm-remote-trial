@@ -444,11 +444,10 @@
   gap: 8px;
 }
 
-/* 7 areas in a 3-column grid: the 7th (Structure, the newest area) sits
-   alone in a 3rd row — centred in the middle column rather than pinned to
-   the left, so it reads as an intentional spotlight on the new area
-   instead of a leftover. */
-.teacher-dashboard-v5 .class-element-grid-v1 [data-class-element]:nth-child(7) {
+/* Exactly 7 items (no 8th): the lone 7th sits centred in the middle column
+   of its own row rather than pinned left. With the full 9 musical elements
+   the grid is a clean 3x3 and this rule stays dormant. */
+.teacher-dashboard-v5 .class-element-grid-v1:has(> [data-class-element]:nth-child(7)):not(:has(> [data-class-element]:nth-child(8))) > [data-class-element]:nth-child(7) {
   grid-column: 2;
 }
 
@@ -465,6 +464,8 @@
 .teacher-dashboard-v5 .class-element-card-v1[data-class-element="rhythm"] { --eh-area: #ffaa2b; }
 .teacher-dashboard-v5 .class-element-card-v1[data-class-element="context"] { --eh-area: #ff7ac8; }
 .teacher-dashboard-v5 .class-element-card-v1[data-class-element="structure"] { --eh-area: #ff5a36; }
+.teacher-dashboard-v5 .class-element-card-v1[data-class-element="dynamics-articulation"] { --eh-area: #5bc8ff; }
+.teacher-dashboard-v5 .class-element-card-v1[data-class-element="notation-exam"] { --eh-area: #8b9bb4; }
 
 .teacher-dashboard-v5 .class-element-card-v1 {
   min-width: 0;

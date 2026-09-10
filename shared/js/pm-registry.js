@@ -26,14 +26,20 @@
 })(typeof globalThis !== "undefined" ? globalThis : (typeof window !== "undefined" ? window : this), function createPMRegistry() {
   "use strict";
 
+  // Kept aligned with app-drivers.js's own AREA_ORDER/AREA_LABELS/AREA_ICONS
+  // (see that file's own header comment on why these are 9, matching
+  // shared/data/skill-taxonomy.csv's 9 musical_element categories).
   var AREAS = {
     melody: { label: "Melody", icon: "/assets/icons/modules/melody-master.png" },
     texture: { label: "Texture", icon: "/assets/icons/modules/texture-trainer.png" },
     harmony: { label: "Harmony", icon: "/assets/icons/modules/harmony-explorer.png" },
     instrumentation: { label: "Instrumentation", icon: "/assets/icons/modules/instrument-identifier.png" },
     rhythm: { label: "Meter", icon: "/assets/icons/modules/meter-master.png" },
+    "dynamics-articulation": { label: "Dynamics & Articulation", icon: "/assets/icons/modules/score-decoder.png" },
     context: { label: "Context", icon: "/assets/icons/modules/context-coach.png" },
     structure: { label: "Structure", icon: "/assets/icons/modules/structure-spotter.png" }
+    // notation-exam: no dedicated Progress Mode source yet — any future
+    // source for it falls back to the generic Progress Mode icon below.
   };
 
   var LEVEL_VALUES = ["Foundation", "Developing", "Securing", "Mastering"];
@@ -44,7 +50,11 @@
   var LEVEL_VALUES_SHORT = ["foundation", "developing", "secure", "exam"];
 
   function entry(sourceKey, moduleId, area, subAppLabel, appUrl, levelValues, hasClassroomAdapter, rendererBridgeCapability, questionSelectionMode, audioContract) {
-    var areaInfo = AREAS[area] || { label: area, icon: "/assets/icons/modules/progress-mode.png" };
+    // Pre-existing fallback path fixed here: the real file lives under
+    // assets/icons/dashboard/, not assets/icons/modules/. Only exercised by
+    // an area with no AREAS entry — currently just "notation-exam" — which
+    // has no source registered yet, so this was previously untested.
+    var areaInfo = AREAS[area] || { label: area, icon: "/assets/icons/dashboard/progress-mode.png" };
     return {
       sourceKey: sourceKey,
       moduleId: moduleId,
@@ -115,8 +125,8 @@
     entry("harmony-key-signatures", "key-signature-sprint", "harmony", "Harmony Explorer · Key Signatures", "../harmony-explorer/key-signature-sprint/index.html", LEVEL_VALUES_SHORT, true, "contract-question-injection", "seed"),
     entry("cadence-coach", "cadence-coach", "harmony", "Cadence Coach", "../cadence-coach/index.html", LEVEL_VALUES_SHORT, true, "contract-question-injection"),
     entry("musical-language-ornamentation", "musical-language", "melody", "Musical Language · Ornamentation", "../musical-language/index.html", LEVEL_VALUES, true, "contract-question-injection"),
-    entry("musical-language-articulation", "musical-language", "melody", "Musical Language · Articulation", "../musical-language/index.html", LEVEL_VALUES, true, "contract-question-injection"),
-    entry("musical-language-dynamics", "musical-language", "texture", "Musical Language · Dynamics", "../musical-language/index.html", LEVEL_VALUES, true, "contract-question-injection"),
+    entry("musical-language-articulation", "musical-language", "dynamics-articulation", "Musical Language · Articulation", "../musical-language/index.html", LEVEL_VALUES, true, "contract-question-injection"),
+    entry("musical-language-dynamics", "musical-language", "dynamics-articulation", "Musical Language · Dynamics", "../musical-language/index.html", LEVEL_VALUES, true, "contract-question-injection"),
     entry("musical-language-tempo", "musical-language", "rhythm", "Musical Language · Tempo", "../musical-language/index.html", LEVEL_VALUES, true, "contract-question-injection"),
     entry("structure-spotter", "structure-spotter", "structure", "Structure Spotter", "../structure-spotter/index.html", LEVEL_VALUES, true, "contract-question-injection"),
     entry("meter-master", "meter-master", "rhythm", "Meter Master", "../meter-master/index.html", LEVEL_VALUES, true, "contract-question-injection"),

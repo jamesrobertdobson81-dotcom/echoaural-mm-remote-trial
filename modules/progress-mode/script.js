@@ -451,10 +451,18 @@
   // rather than a per-slot probability, so the existing shuffle-and-cycle
   // machinery (guaranteed even coverage per cycle, no long unlucky
   // droughts) keeps working unchanged — buildQueueFromAreas just cycles
-  // through this expanded list instead of the plain 6-item AREA_ORDER.
+  // through this expanded list instead of the plain AREA_ORDER.
   // 2:1 for the five main areas vs. Context lands Context at 1/11 ≈ 9% of
   // all slots — a deliberate choice (not a bug), matching Context's real
   // exam weighting rather than the other five's.
+  //
+  // dynamics-articulation and notation-exam (added alongside the other 7 to
+  // match the full skill taxonomy — see AREA_ORDER's own comment) are
+  // DELIBERATELY NOT special-cased here yet: real CIE weighting for them
+  // hasn't been reviewed the way Context's was, so they default to the
+  // same 2-share as the five main areas rather than guessing. An area with
+  // no sources at all (notation-exam currently) is excluded outright below
+  // — zero real content, zero deck slots, not a weight-1 minor share.
   // Rebuilt fresh on every buildRoundQueue() call (below) rather than a
   // load-time constant, so an area's slot share can respond to how the
   // student is actually doing — not just sit at a fixed exam-weighting
@@ -476,17 +484,22 @@
     return AREA_TO_SOURCES[areaKey].some(function (sourceKey) { return !!Drivers[sourceKey].getSignature; });
   }
   function buildAreaCycleDeck() {
+    // An area with no registered sources at all (notation-exam, currently)
+    // cannot fill a round slot — excluded before the average is even
+    // computed, so it can't skew every other area's gap/bonus either.
+    var activeAreas = AREA_ORDER.filter(function (areaKey) { return AREA_TO_SOURCES[areaKey].length > 0; });
+
     var progress = {};
     var sum = 0;
-    AREA_ORDER.forEach(function (areaKey) {
+    activeAreas.forEach(function (areaKey) {
       var percentage = Store.getAreaOverallProgressPercentage(state.studentId, areaKey, areaTracksConcepts(areaKey));
       progress[areaKey] = percentage;
       sum += percentage;
     });
-    var average = sum / AREA_ORDER.length;
+    var average = sum / activeAreas.length;
 
     var deck = [];
-    AREA_ORDER.forEach(function (areaKey) {
+    activeAreas.forEach(function (areaKey) {
       var baseWeight = areaKey === "context" ? 1 : 2;
       var gap = Math.max(0, average - progress[areaKey]);
       // 25 points is "one level" on Store's own progress scale (see
