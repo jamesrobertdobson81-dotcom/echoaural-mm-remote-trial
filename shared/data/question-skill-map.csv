@@ -76,7 +76,6 @@ II009,CLIP-E2F0E2511B48,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS
 II010,CLIP-646DD279B656,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,,Solo,medium,Review
 II011,CLIP-7E20DA6BED3D,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical/Romantic transition,Sonata,Piano Accomp.,high,Tagged
 II012,CLIP-5E8544720EB7,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Securing,Classical/Romantic transition,Sonata,Piano Accomp.,high,Tagged
-II013,CLIP-1E08BC27E146,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical,Sonata,Piano Accomp.,high,Tagged
 II014,CLIP-D31D27BE6B6D,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical,Sonata,Piano Accomp.,high,Tagged
 II015,CLIP-880A1ABB030C,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Securing,Classical/Romantic transition,Concerto,Orchestral,high,Tagged
 II016,CLIP-8895B408801D,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical/Romantic transition,Concerto,Orchestral,high,Tagged
@@ -158,7 +157,6 @@ II091,CLIP-56E94FD0FE5C,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS
 II092,CLIP-3A43794AE92E,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Securing,Classical/Romantic transition,Sonata,Piano Accomp.,high,Tagged
 II093,CLIP-B05CEB45F720,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical/Romantic transition,Sonata,Piano Accomp.,high,Tagged
 II094,CLIP-DAB52A61FFC5,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical/Romantic transition,Sonata,Piano Accomp.,high,Tagged
-II095,CLIP-36541CB40FFF,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical/Romantic transition,Sonata,Piano Accomp.,high,Tagged
 II096,CLIP-2F181EF25D62,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical/Romantic transition,Sonata,Piano Accomp.,high,Tagged
 II097,CLIP-C5C878763FFD,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical/Romantic transition,Sonata,Piano Accomp.,high,Tagged
 II098,CLIP-6EF758CCCD7A,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Romantic,Sonata,Piano Accomp.,high,Tagged
@@ -191,10 +189,7 @@ II124,CLIP-57C047F8D75D,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS
 II125,CLIP-01042F72A584,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,medium,Review
 II126,CLIP-94B6BA022D2E,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,medium,Review
 II127,CLIP-D3D26F2B5D2D,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,medium,Review
-II128,CLIP-70308671E2D0,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,medium,Review
-II129,CLIP-36921F8C2C62,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,medium,Review
 II130,CLIP-07FD422E937F,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,medium,Review
-II131,CLIP-B0F9BC01503D,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,medium,Review
 II132,CLIP-5D06541EE76D,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical,Concerto,Orchestral,high,Tagged
 II133,CLIP-5E3697E97AF9,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical,Concerto,Orchestral,high,Tagged
 II134,CLIP-EDFBD8323161,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,Classical,Concerto,Orchestral,high,Tagged
@@ -212,9 +207,6 @@ II145,CLIP-9B48EF37C953,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS
 II146,CLIP-1441083271BE,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Securing,Classical,Concerto,Orchestral,high,Tagged
 II147,CLIP-42A26B1CE7F3,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Securing,Classical,Concerto,Orchestral,high,Tagged
 II148,CLIP-E5A7C974485B,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Securing,Classical,Concerto,Orchestral,high,Tagged
-II149,CLIP-988026B56804,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Securing,Classical,Concerto,Orchestral,high,Tagged
-II150,CLIP-0D7A12C7C8CA,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,,Piano Accomp.,medium,Review
-II151,CLIP-BBECBD99CDBA,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,,Piano Accomp.,medium,Review
 II152,CLIP-02851133C455,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Developing,,Concerto,Orchestral,medium,Review
 II153,CLIP-43BEEA988951,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Securing,,Concerto,Orchestral,medium,Review
 II154,CLIP-F168787183FF,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Securing,,Concerto,Orchestral,medium,Review
@@ -267,10 +259,8 @@ II200,CLIP-EF182646E68B,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS
 II201,CLIP-1DE00A9590AD,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,,Solo,medium,Review
 II202,CLIP-C81EA4E0BE39,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,,Solo,medium,Review
 II203,CLIP-7BB5B895D6A5,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,,Solo,medium,Review
-II204,CLIP-AFE19D7846DE,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,,Solo,medium,Review
 II205,CLIP-16D259CD4557,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,,Solo,medium,Review
 II206,CLIP-0C0FFC6D626D,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,,Solo,medium,Review
-II207,CLIP-6F84DEBB8645,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,,Solo,medium,Review
 II208,CLIP-3EAD4854A69E,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,,,Solo,medium,Review
 II209,CLIP-6E037A9F9829,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,,,Solo,medium,Review
 II210,CLIP-FB7E09009EAA,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,,,Solo,medium,Review
@@ -285,7 +275,6 @@ II218,CLIP-C7D3885C0D79,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS
 II219,CLIP-A89184FDB547,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,,Study,Solo,medium,Review
 II220,CLIP-1AE8537D18E1,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,,Study,Solo,medium,Review
 II221,CLIP-3ACFF6CE24F8,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,,Study,Solo,medium,Review
-II222,CLIP-CADC131A5680,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,,Study,Solo,medium,Review
 II223,CLIP-48E27688FE57,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,Sonata,Solo,high,Tagged
 II224,CLIP-60BB46F776B2,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,Sonata,Solo,high,Tagged
 II225,CLIP-4EE3AA2514D4,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Foundation,Baroque,Sonata,Solo,high,Tagged
@@ -332,7 +321,6 @@ II265,CLIP-4DFFD26408F6,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS
 II266,CLIP-E016419986E6,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Ungraded,,,Piano Accomp.,medium,Review
 II267,CLIP-EF2B91BC2380,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Ungraded,,,Piano Accomp.,medium,Review
 II268,CLIP-285328251AAC,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Ungraded,,,Harpsichord,medium,Review
-II269,CLIP-ED1B1A8FD1BA,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Ungraded,,,Harpsichord,medium,Review
 II270,CLIP-09D034989123,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Ungraded,,,Harpsichord,medium,Review
 II271,CLIP-BDE7DEA06D09,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Ungraded,,Prelude,Harpsichord,high,Review
 II272,CLIP-E17D3628F928,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Ungraded,,Prelude,Harpsichord,high,Review
@@ -346,44 +334,27 @@ II279,CLIP-024537C97304,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS
 II280,CLIP-E944B6147820,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,high,Review
 II281,CLIP-7A6D6357B1C2,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,high,Review
 II282,CLIP-4664C02F7F3E,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,high,Review
-II283,CLIP-B439D1684D97,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,high,Review
 II284,CLIP-45567A041FB9,Instrumentation,INS.INDIVIDUAL,Individual instrument,INS.FAMILY,identify,Mastering,,Concerto,Orchestral,high,Review
 MDV001,CLIP-DB60A216FFA5,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,Classical,Sonata,,high,Tagged
 MDV002,CLIP-C8F3D509ED88,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical,Sonata,,high,Tagged
-MDV003,CLIP-1A8F9076DD5C,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,Romantic,Suite,,high,Tagged
 MDV004,CLIP-7C123A03E607,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,Classical,Concerto,,high,Tagged
 MDV005,CLIP-BD93E63F6335,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,,,medium,Review
 MDV006,CLIP-142D6CB57300,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,Classical,Symphony,,high,Tagged
-MDV007,CLIP-E1972148B148,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical/Romantic transition,Symphony,,high,Tagged
 MDV008,CLIP-3D32DE59AFED,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,Classical/Romantic transition,Symphony,,high,Tagged
-MDV009,CLIP-C92386476B1B,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical/Romantic transition,Symphony,,high,Tagged
-MDV010,CLIP-EB2FD4AC0C5E,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical/Romantic transition,Symphony,,high,Tagged
 MDV011,CLIP-00851AB26D00,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical/Romantic transition,Symphony,,high,Tagged
-MDV012,CLIP-62148D3D4575,Melody,MEL.DEVICE,Melodic device,,identify,Securing,Classical/Romantic transition,Symphony,,high,Tagged
 MDV013,CLIP-EE384D8E31D6,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Symphony,,high,Tagged
-MDV014,CLIP-9526FE4CA91F,Melody,MEL.DEVICE,Melodic device,,identify,Securing,Romantic,Symphony,,high,Tagged
-MDV015,CLIP-3CC8E09A2CA9,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Symphony,,high,Tagged
 MDV016,CLIP-F62E655E26BE,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Symphony,,high,Tagged
-MDV017,CLIP-42C8FF439A0F,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,Chamber music,,medium,Review
 MDV018,CLIP-BCCB3D04C4A3,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,Chamber music,,medium,Review
-MDV019,CLIP-63216FED56DD,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,Chamber music,,medium,Review
 MDV020,CLIP-BC03D4079D36,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,Chamber music,,medium,Review
-MDV021,CLIP-C9727F6650BE,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Suite,,high,Tagged
-MDV022,CLIP-42580DC569B8,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Suite,,high,Tagged
 MDV023,CLIP-D39CE5A71344,Melody,MEL.DEVICE,Melodic device,,identify,Securing,Romantic,Suite,,high,Tagged
-MDV024,CLIP-4B14662FEA29,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Suite,,high,Tagged
 MDV025,CLIP-98EDF9E83533,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical,Chamber music,,high,Tagged
 MDV026,CLIP-6ABC5EA44AD5,Melody,MEL.DEVICE,Melodic device,,identify,Securing,Classical,Chamber music,,high,Tagged
 MDV027,CLIP-34C418A52540,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical,Chamber music,,high,Tagged
 MDV028,CLIP-AB85A6C4209C,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical,Chamber music,,high,Tagged
 MDV029,CLIP-6CC0D4E475C0,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Symphony,,high,Tagged
 MDV030,CLIP-0E13F9C57BD1,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Symphony,,high,Tagged
-MDV031,CLIP-6B1DB1D7609F,Melody,MEL.DEVICE,Melodic device,,identify,Securing,Romantic,Symphony,,high,Tagged
-MDV032,CLIP-5CE164B6E2E2,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Symphony,,high,Tagged
 MDV033,CLIP-F1385D4E5278,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical,Symphony,,high,Tagged
 MDV034,CLIP-58B3F86A4B02,Melody,MEL.DEVICE,Melodic device,,identify,Securing,Classical,Symphony,,high,Tagged
-MDV035,CLIP-FFDA358479EA,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical,Symphony,,high,Tagged
-MDV036,CLIP-9F64B39F2162,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Classical,Symphony,,high,Tagged
 MDV037,CLIP-235FF3C606AA,Melody,MEL.DEVICE,Melodic device,,identify,Securing,Romantic,Symphony,,high,Tagged
 MDV038,CLIP-51070B8928DB,Melody,MEL.DEVICE,Melodic device,,identify,Developing,Romantic,Symphony,,high,Tagged
 MDV039,CLIP-FFF2B5BC5FD3,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,Baroque,Suite,,high,Tagged
@@ -2784,45 +2755,21 @@ MI-S-899,CLIP-F754B6AF6E89,Melody,MEL.INTERVAL.QUALITY,Interval quality,MEL.INTE
 MI-S-900,CLIP-322AD3A66CD0,Melody,MEL.INTERVAL.QUALITY,Interval quality,MEL.INTERVAL.NUMBER,identify,Securing,,Generated ear-training interval,,high,Tagged
 MI-S-901,CLIP-98CFB28AD36A,Melody,MEL.INTERVAL.QUALITY,Interval quality,MEL.INTERVAL.NUMBER,identify,Securing,,Generated ear-training interval,,high,Tagged
 MI-S-902,CLIP-51FFEE4585B5,Melody,MEL.INTERVAL.QUALITY,Interval quality,MEL.INTERVAL.NUMBER,identify,Securing,,Generated ear-training interval,,high,Tagged
-MM001-M,CLIP-C5CE5CD99BD5,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Sonata,,high,Tagged
-MM002-M,CLIP-777ADE752C1B,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Sonata,,high,Tagged
-MM002-S,CLIP-777ADE752C1B,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Classical,Sonata,,high,Tagged
-MM003-M,CLIP-09909E131C8A,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Sonata,,high,Tagged
-MM003-S,CLIP-09909E131C8A,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Classical,Sonata,,high,Tagged
-MM004-F,CLIP-69C5DDBCA026,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Foundation,Romantic,Character piece,,high,Tagged
-MM004-M,CLIP-69C5DDBCA026,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,Character piece,,high,Tagged
-MM004-S,CLIP-69C5DDBCA026,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Romantic,Character piece,,high,Tagged
-MM005-F,CLIP-0BB3C0D30090,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Foundation,Romantic,,,medium,Review
-MM005-M,CLIP-0BB3C0D30090,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,,,medium,Review
-MM006-D,CLIP-0C3304CFE62F,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Developing,Romantic,Character piece,,high,Tagged
-MM006-F,CLIP-0C3304CFE62F,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Foundation,Romantic,Character piece,,high,Tagged
-MM006-M,CLIP-0C3304CFE62F,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,Character piece,,high,Tagged
-MM006-S,CLIP-0C3304CFE62F,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Romantic,Character piece,,high,Tagged
-MM007-D,CLIP-6F1A9E41BEF0,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Developing,Classical,,,medium,Review
-MM007-F,CLIP-6F1A9E41BEF0,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Foundation,Classical,,,medium,Review
-MM007-M,CLIP-6F1A9E41BEF0,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,,,medium,Review
-MM007-S,CLIP-6F1A9E41BEF0,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Classical,,,medium,Review
-MM008-D,CLIP-68BF4D7DE7B6,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Developing,Romantic,Suite,,high,Tagged
-MM008-F,CLIP-68BF4D7DE7B6,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Foundation,Romantic,Suite,,high,Tagged
-MM008-M,CLIP-68BF4D7DE7B6,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,Suite,,high,Tagged
-MM008-S,CLIP-68BF4D7DE7B6,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Romantic,Suite,,high,Tagged
-MM009-D,CLIP-C495715D0697,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Developing,Classical,Concerto,,high,Tagged
-MM009-M,CLIP-C495715D0697,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Concerto,,high,Tagged
-MM009-S,CLIP-C495715D0697,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Classical,Concerto,,high,Tagged
-MM010-M,CLIP-7F56E263BAF9,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Sonata,,high,Tagged
-MM010-S,CLIP-7F56E263BAF9,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Classical,Sonata,,high,Tagged
-MM011-D,CLIP-E31FBF63603D,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Developing,Classical,Concerto,,high,Tagged
-MM011-F,CLIP-E31FBF63603D,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Foundation,Classical,Concerto,,high,Tagged
-MM011-M,CLIP-E31FBF63603D,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Concerto,,high,Tagged
-MM011-S,CLIP-E31FBF63603D,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Classical,Concerto,,high,Tagged
-MM012-M,CLIP-91DCEFDCA8D1,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,,,medium,Review
-MM012-S,CLIP-91DCEFDCA8D1,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Romantic,,,medium,Review
-MM013-D,CLIP-E9076263DC43,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Developing,Classical,Symphony,,high,Tagged
-MM013-F,CLIP-E9076263DC43,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Foundation,Classical,Symphony,,high,Tagged
-MM013-M,CLIP-E9076263DC43,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Symphony,,high,Tagged
-MM013-S,CLIP-E9076263DC43,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Securing,Classical,Symphony,,high,Tagged
-MM014-M,CLIP-E625D2DA795B,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical/Romantic transition,Symphony,,high,Tagged
-MM015-M,CLIP-C2B9621C8A0C,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical/Romantic transition,Symphony,,high,Tagged
+MM001,CLIP-C5CE5CD99BD5,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Sonata,,high,Tagged
+MM002,CLIP-777ADE752C1B,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Sonata,,high,Tagged
+MM003,CLIP-09909E131C8A,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Sonata,,high,Tagged
+MM004,CLIP-69C5DDBCA026,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,Character piece,,high,Tagged
+MM005,CLIP-0BB3C0D30090,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,,,medium,Review
+MM006,CLIP-0C3304CFE62F,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,Character piece,,high,Tagged
+MM007,CLIP-6F1A9E41BEF0,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,,,medium,Review
+MM008,CLIP-68BF4D7DE7B6,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,Suite,,high,Tagged
+MM009,CLIP-C495715D0697,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Concerto,,high,Tagged
+MM010,CLIP-7F56E263BAF9,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Sonata,,high,Tagged
+MM011,CLIP-E31FBF63603D,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Concerto,,high,Tagged
+MM012,CLIP-91DCEFDCA8D1,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Romantic,,,medium,Review
+MM013,CLIP-E9076263DC43,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical,Symphony,,high,Tagged
+MM014,CLIP-E625D2DA795B,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical/Romantic transition,Symphony,,high,Tagged
+MM015,CLIP-C2B9621C8A0C,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,Classical/Romantic transition,Symphony,,high,Tagged
 MMX001,CLIP-29124C7DADF3,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
 MMX002,CLIP-F68147378C49,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
 MMX003,CLIP-3E7A1A5AD123,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
@@ -2830,26 +2777,20 @@ MMX004,CLIP-79C31EDA9AEB,Meter and rhythm,RHY.METRE,Metre classification,,identi
 MMX005,CLIP-E569843CFFD7,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
 MMX006,CLIP-B64DC5C2510C,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
 MMX007,CLIP-9DC05B1C27FE,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
-MMX008,CLIP-FDBCF4855926,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX009,CLIP-9B7DC191D548,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
-MMX010,CLIP-99D9878E6880,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
 MMX011,CLIP-DA2CA9B21FF6,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX012,CLIP-8EA1B2CF1363,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
-MMX013,CLIP-D2434668EF51,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX014,CLIP-238F53CC5FBB,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
 MMX015,CLIP-4B4FFFB4CD09,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Foundation,,,,high,Review
 MMX016,CLIP-7C3B0CFAF574,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX017,CLIP-9B1F20CC2E1B,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
 MMX018,CLIP-7AD88A237659,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
-MMX019,CLIP-347F6711471E,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
-MMX020,CLIP-F0336BD4EB38,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX021,CLIP-8123B5AC6606,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX022,CLIP-0EA7FBE3D8A6,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX023,CLIP-A86FDE40919E,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX024,CLIP-557B6C58C628,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX025,CLIP-FD63EA6336BC,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX026,CLIP-0B6C91D57E2C,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
-MMX027,CLIP-A75AC93CE860,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
 MMX028,CLIP-F5567E465C94,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
 MMX029,CLIP-62BACE7D6718,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
 MMX030,CLIP-1B33A5F2373F,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
@@ -2860,29 +2801,17 @@ MMX034,CLIP-79C31EDA9AEB,Meter and rhythm,RHY.METRE,Metre classification,,identi
 MMX035,CLIP-E569843CFFD7,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
 MMX036,CLIP-B64DC5C2510C,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
 MMX037,CLIP-9DC05B1C27FE,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
-MMX038,CLIP-FDBCF4855926,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
 MMX039,CLIP-9B7DC191D548,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
 MMX040,CLIP-99D9878E6880,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
 MMX041,CLIP-DA2CA9B21FF6,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
 MMX042,CLIP-8EA1B2CF1363,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
-MMX043,CLIP-D2434668EF51,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
 MMX044,CLIP-238F53CC5FBB,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
 MMX045,CLIP-4B4FFFB4CD09,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
-MMX046,CLIP-7C3B0CFAF574,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
-MMX047,CLIP-9B1F20CC2E1B,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
-MMX048,CLIP-7AD88A237659,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
 MMX049,CLIP-347F6711471E,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
-MMX050,CLIP-F0336BD4EB38,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
 MMX051,CLIP-8123B5AC6606,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
 MMX052,CLIP-0EA7FBE3D8A6,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
-MMX053,CLIP-A86FDE40919E,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
-MMX054,CLIP-557B6C58C628,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
-MMX055,CLIP-FD63EA6336BC,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
 MMX056,CLIP-0B6C91D57E2C,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
 MMX057,CLIP-A75AC93CE860,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Securing,,,,high,Review
-MMX058,CLIP-F5567E465C94,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
-MMX059,CLIP-62BACE7D6718,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
-MMX060,CLIP-1B33A5F2373F,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
 MMX061,CLIP-F8391FF107AE,Meter and rhythm,RHY.METRE,Metre classification,RHY.TIME_SIGNATURE,identify,Mastering,,,,high,Review
 TT001,CLIP-1207535F7422,Texture,TEX.TYPE,Texture type,,identify,Foundation,,,,medium,Review
 TT007,CLIP-63ADBD1F4739,Texture,TEX.TYPE,Texture type,,identify,Foundation,,Suite,,high,Review
@@ -3400,3 +3329,254 @@ ML-TEM-LENTO-S,CLIP-7BD245542D39,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Secu
 ML-ORN-PAUSE-F,CLIP-AE30B525C63D,Melody,MEL.ORNAMENT,Ornamentation,,identify,Foundation,,,,medium,Review
 ML-ORN-PAUSE-D,CLIP-AE30B525C63D,Melody,MEL.ORNAMENT,Ornamentation,,identify,Developing,,,,medium,Review
 ML-ORN-PAUSE-S,CLIP-AE30B525C63D,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,medium,Review
+MM016,CLIP-0034046491DC,Melody,MEL.DICTATION.PITCH,Melodic dictation pitch,,apply,Mastering,,,,medium,Review
+MDV040,CLIP-74802E095D2A,Melody,MEL.ORNAMENT,Ornamentation,,identify,Foundation,,,,high,Review
+MDV041,CLIP-7245130A5231,Melody,MEL.ORNAMENT,Ornamentation,,identify,Developing,,,,high,Review
+MDV042,CLIP-A20000EF6EBE,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV043,CLIP-1FE1A2F1B3AD,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV044,CLIP-93DA2362466F,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV045,CLIP-886A4F46FEDD,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV046,CLIP-FF37D8087570,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV047,CLIP-521FC39A40A3,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV048,CLIP-AA8D6C7AEE97,Melody,MEL.ORNAMENT,Ornamentation,,identify,Developing,,,,high,Review
+MDV049,CLIP-22CFF8432384,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV050,CLIP-BDC0777D093B,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV051,CLIP-6AE7B9348A71,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV052,CLIP-B56AE4631DF4,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV053,CLIP-F93B9869B1E1,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV054,CLIP-9C5436FDE10F,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV055,CLIP-B2AB3C043DC7,Melody,MEL.DEVICE,Melodic device,,identify,Mastering,,,,high,Review
+MDV056,CLIP-3747EB5AD36F,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV057,CLIP-0D0EAEADDA1D,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV058,CLIP-A44B27C63559,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV059,CLIP-A34367067F11,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV060,CLIP-807D92C95089,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV061,CLIP-EFAA40DE0F1D,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV062,CLIP-E2E08FB76F69,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV063,CLIP-3C08BE2DB992,Melody,MEL.DEVICE,Melodic device,,identify,Mastering,,,,high,Review
+MDV064,CLIP-402C0EED7FDB,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,medium,Review
+MDV065,CLIP-AC8BCB889D93,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV066,CLIP-5CE1109EA783,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,medium,Review
+MDV067,CLIP-861B7077D65B,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+MDV068,CLIP-D7958C916BC7,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV069,CLIP-E38678C6842E,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV070,CLIP-792595E73838,Meter and rhythm,RHY.TEMPO,Tempo,,identify,Developing,,,,high,Review
+MDV071,CLIP-769A37C292A9,Melody,MEL.DEVICE,Melodic device,,identify,Mastering,,,,high,Review
+MDV072,CLIP-88B2DA80BAE8,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV073,CLIP-E8750BFFF7BB,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,medium,Review
+MDV074,CLIP-04AFD9ACCEDC,Melody,MEL.DEVICE,Melodic device,,identify,Mastering,,,,high,Review
+MDV075,CLIP-18792EB28811,Melody,MEL.DEVICE,Melodic device,,identify,Mastering,,,,high,Review
+MDV076,CLIP-944BFB1B37D5,Melody,MEL.DEVICE,Melodic device,,identify,Mastering,,,,high,Review
+MDV077,CLIP-AAF7D8855753,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Developing,,,,high,Review
+MDV078,CLIP-99C17EA377DF,Melody,MEL.ORNAMENT,Ornamentation,,identify,Developing,,,,high,Review
+MDV079,CLIP-A7C514075CA7,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Developing,,,,high,Review
+MDV080,CLIP-462550CE605F,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,high,Review
+MDV081,CLIP-1C42D2350D33,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Developing,,,,high,Review
+MDV082,CLIP-8FEC4BE9E32C,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,high,Review
+MDV083,CLIP-A0BB6AA761CB,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Developing,,,,high,Review
+MDV084,CLIP-9EB8581FC3DF,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Securing,,,,high,Review
+MDV085,CLIP-D3CDAD95ACCA,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Securing,,,,high,Review
+MDV086,CLIP-37A6C222929A,Melody,MEL.ORNAMENT,Ornamentation,,identify,Mastering,,,,high,Review
+MDV087,CLIP-0ECCC3B06A53,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Securing,,,,high,Review
+MDV088,CLIP-00BCBFC5B8A5,Melody,MEL.ORNAMENT,Ornamentation,,identify,Developing,,,,high,Review
+MDV089,CLIP-D6A16CBF4ABE,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV090,CLIP-0DA57069EECA,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Securing,,,,high,Review
+MDV091,CLIP-FE1A25FC65E1,Melody,MEL.ORNAMENT,Ornamentation,,identify,Securing,,,,high,Review
+MDV092,CLIP-D88A60CB372A,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Mastering,,,,high,Review
+MDV093,CLIP-B6139356EA8F,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Securing,,,,high,Review
+MDV094,CLIP-E89EDACE109F,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Developing,,,,high,Review
+MDV095,CLIP-019B7841CEEA,Melody,MEL.DEVICE,Melodic device,,identify,Mastering,,,,high,Review
+MDV096,CLIP-6BE015224E0E,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Developing,,,,high,Review
+MDV097,CLIP-5BB494A9DC7F,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Securing,,,,high,Review
+MDV098,CLIP-427817BAE988,Harmony and tonality,HAR.TONALITY,Tonality and key,,identify,Mastering,,,,high,Review
+MDV099,CLIP-129800B63ACE,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,,,,high,Review
+MDV100,CLIP-4D9F8A52A59D,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV101,CLIP-73F057872F8C,Melody,MEL.DEVICE,Melodic device,,identify,Mastering,,,,high,Review
+MDV102,CLIP-63483E6EEB0B,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV106,CLIP-3FCD1974FF7B,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV112,CLIP-B3A7F25D5C5C,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV115,CLIP-B89FB41DC0B3,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,,,,high,Review
+MDV116,CLIP-B996E50F351C,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,,,,high,Review
+MDV117,CLIP-6C743B73D603,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV120,CLIP-4CF3C8B4E1D6,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV121,CLIP-07A8F47E8162,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,,,,high,Review
+MDV122,CLIP-5CF6A327B3B6,Melody,MEL.DEVICE,Melodic device,,identify,Foundation,,,,high,Review
+MDV123,CLIP-133F58B82DDA,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV124,CLIP-FC05F512666C,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV125,CLIP-99B8558AD0CF,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV126,CLIP-A78A8E8F5018,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV127,CLIP-B0394B7ED2C9,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV128,CLIP-8ED9ECAA3D90,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV129,CLIP-173C98D2490B,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MDV130,CLIP-3409F1B481B0,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV131,CLIP-3A2727A12322,Melody,MEL.DEVICE,Melodic device,,identify,Securing,,,,high,Review
+MDV132,CLIP-E82E5ABDE591,Melody,MEL.DEVICE,Melodic device,,identify,Developing,,,,high,Review
+MMX062,CLIP-82BABDCFF063,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX064,CLIP-CA63A59439E1,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX065,CLIP-8D5C69EF8C4C,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Securing,,,,high,Review
+MMX066,CLIP-CDA2909CB6CE,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX067,CLIP-3189EDD2ACCF,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX068,CLIP-A16CCF689758,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Mastering,,,,high,Review
+MMX069,CLIP-EA83EEF23C09,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX070,CLIP-6E92BFDB6031,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Mastering,,,,high,Review
+MMX071,CLIP-D412D038AF43,Meter and rhythm,RHY.DEVICE,Rhythmic device,,identify,Securing,,,,high,Review
+MMX072,CLIP-82FAA67EEC24,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX073,CLIP-2ED0AA1C8DF7,Meter and rhythm,RHY.PULSE,Pulse,,identify,Developing,,,,high,Review
+MMX074,CLIP-C9EDF5984C87,Meter and rhythm,RHY.PULSE,Pulse,,identify,Foundation,,,,high,Review
+MMX075,CLIP-C977746ABDDD,Meter and rhythm,RHY.PULSE,Pulse,,identify,Securing,,,,high,Review
+MMX076,CLIP-782FB0A7CE57,Meter and rhythm,RHY.PULSE,Pulse,,identify,Securing,,,,high,Review
+MMX077,CLIP-D0185087C772,Meter and rhythm,RHY.PULSE,Pulse,,identify,Securing,,,,high,Review
+MMX078,CLIP-C7D67E349373,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX079,CLIP-8E0DEE441340,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Mastering,,,,high,Review
+MMX080,CLIP-95D8BAC657AD,Meter and rhythm,RHY.PULSE,Pulse,,identify,Securing,,,,high,Review
+MMX081,CLIP-A5BCB6EF08F9,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX082,CLIP-2BD59F725288,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX083,CLIP-187AAD246542,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
+MMX084,CLIP-BD62FBC23B90,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX085,CLIP-79E591B95134,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX086,CLIP-447AC74ACD4C,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX087,CLIP-0239E312B1CB,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX088,CLIP-EF0C1ED0ED03,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX089,CLIP-95009ABC9789,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX090,CLIP-19CB94BCE42B,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX091,CLIP-2D00FE3C9312,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Securing,,,,high,Review
+MMX092,CLIP-37A1816966F3,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Mastering,,,,high,Review
+MMX093,CLIP-F9A771B3FC02,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX094,CLIP-626FED4B173A,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX095,CLIP-822C99B03A13,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX096,CLIP-F0D0E6F56065,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX097,CLIP-743338A49021,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX098,CLIP-A32B3B757FA2,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX099,CLIP-147D916DEC35,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX100,CLIP-D01FC57FA03F,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX101,CLIP-22A5A82DDB51,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX102,CLIP-4F050A717FC6,Meter and rhythm,RHY.DEVICE,Rhythmic device,CTX.GENRE,identify,Securing,,,,medium,Review
+MMX103,CLIP-1B1E89F9345B,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX104,CLIP-8FF58202B9F1,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX105,CLIP-F1A32C918D9D,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX106,CLIP-91AEC4882470,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX107,CLIP-522D050229C6,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX108,CLIP-E6F0C4DB02AD,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX109,CLIP-D1A9FC001437,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX110,CLIP-926268435652,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
+MMX111,CLIP-A3093E8D8839,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX112,CLIP-CD85A74A462C,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX113,CLIP-202872D2E458,Meter and rhythm,RHY.METRE,Metre classification,,identify,Mastering,,,,high,Review
+MMX114,CLIP-08CD571CC928,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX115,CLIP-E429DC50CDAB,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX116,CLIP-258DE21873FD,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX117,CLIP-CFA8040C1C9E,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX118,CLIP-0087E15103EC,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX119,CLIP-74AAEB0A088A,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX120,CLIP-75E24B5249BE,Meter and rhythm,RHY.METRE,Metre classification,,identify,Foundation,,,,high,Review
+MMX121,CLIP-B14F65697528,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Mastering,,,,high,Review
+MMX123,CLIP-2813E3C4AD10,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX150,CLIP-8FB4338FF7AD,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX151,CLIP-8D5350AB571E,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Securing,,,,high,Review
+MMX152,CLIP-0CE86298E8E5,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Mastering,,,,high,Review
+MMX153,CLIP-60AFE9441924,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Securing,,,,high,Review
+MMX154,CLIP-22CAA4D346C2,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX155,CLIP-05D559A6BE5C,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Mastering,,,,high,Review
+MMX156,CLIP-7AAEEB41C214,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX157,CLIP-FE0BF4B028B9,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX158,CLIP-CBF7A43AFA2A,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX159,CLIP-FF43FDC40897,Meter and rhythm,RHY.METRE,Metre classification,,identify,Developing,,,,high,Review
+MMX160,CLIP-6BC56FA2B167,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX161,CLIP-41392E1F8521,Meter and rhythm,RHY.METRE,Metre classification,,identify,Securing,,,,high,Review
+MMX162,CLIP-9188C30879EB,Meter and rhythm,RHY.METRE,Metre classification,CTX.GENRE,identify,Mastering,,,,high,Review
+TT147,CLIP-A4BCAD7154F2,Texture,TEX.TYPE,Texture type,,identify,Foundation,,,,high,Review
+TT148,CLIP-61B1531FBD8D,Texture,TEX.TYPE,Texture type,,identify,Foundation,,,,high,Review
+TT149,CLIP-EBAA9E060015,Texture,TEX.TYPE,Texture type,,identify,Foundation,,,,high,Review
+TT150,CLIP-281D262DB3AB,Texture,TEX.TYPE,Texture type,,identify,Securing,,,,high,Review
+TT151,CLIP-D56B8E912CFD,Texture,TEX.TYPE,Texture type,,identify,Developing,,,,high,Review
+TT152,CLIP-02D111A06EB5,Texture,TEX.TYPE,Texture type,,identify,Foundation,,,,high,Review
+TT168,CLIP-22033CC2D75D,Texture,TEX.TYPE,Texture type,,identify,Securing,,,,high,Review
+TT169,CLIP-1DC2AC288C21,Texture,TEX.TYPE,Texture type,,identify,Securing,,,,high,Review
+TT170,CLIP-5CDA6E209B48,Texture,TEX.TYPE,Texture type,,identify,Developing,,,,high,Review
+TT171,CLIP-B5718C50F20D,Texture,TEX.TYPE,Texture type,,identify,Developing,,,,high,Review
+TT172,CLIP-8A55BBBD692A,Texture,TEX.TYPE,Texture type,,identify,Developing,,,,high,Review
+TT173,CLIP-F76E6713CC56,Texture,TEX.TYPE,Texture type,,identify,Developing,,,,high,Review
+II285,CLIP-BD5311CB73A6,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II286,CLIP-8D1D79770C90,Context and genre,CTX.TECHNOLOGY,Music technology,,identify,Developing,,,,high,Review
+II287,CLIP-0AD0CEEA132F,Context and genre,CTX.TECHNOLOGY,Music technology,,identify,Mastering,,,,high,Review
+II288,CLIP-ACC199C0B270,Context and genre,CTX.TECHNOLOGY,Music technology,,identify,Mastering,,,,high,Review
+II289,CLIP-4B84E7572A98,Instrumentation,INS.FAMILY,Instrument family,CTX.TECHNOLOGY,identify,Mastering,,,,high,Review
+II291,CLIP-2ADB054F3F3F,Instrumentation,INS.FAMILY,Instrument family,,identify,Developing,,,,high,Review
+II292,CLIP-F11857368D8A,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II293,CLIP-0DCD7D463600,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II294,CLIP-FB0EE7327351,Context and genre,CTX.TECHNOLOGY,Music technology,,identify,Securing,,,,high,Review
+II295,CLIP-EB12141FE61B,Context and genre,CTX.TECHNOLOGY,Music technology,,identify,Securing,,,,high,Review
+II296,CLIP-FD60997D9577,Context and genre,CTX.TECHNOLOGY,Music technology,,identify,Mastering,,,,high,Review
+II297,CLIP-97F616827CCA,Context and genre,CTX.TECHNOLOGY,Music technology,,identify,Mastering,,,,high,Review
+II298,CLIP-1637BBD1B5A6,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II299,CLIP-DB4203FAD3BF,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II300,CLIP-9F744D6C29E7,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II301,CLIP-CAA0B503F313,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II302,CLIP-B60FE7E190B8,Instrumentation,INS.TECHNIQUE,Playing technique,,identify,Mastering,,,,high,Review
+II303,CLIP-5AB4B7D80DE4,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II305,CLIP-0FEA6F65229E,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II306,CLIP-5FC07E52E5F3,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II309,CLIP-8393D5F15CB6,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II311,CLIP-ACA218FC444B,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II312,CLIP-357400DCBC20,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II313,CLIP-7A328366AB92,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Mastering,,,,high,Review
+II314,CLIP-F9341F6C1EAC,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Mastering,,,,high,Review
+II315,CLIP-DAC8B38F0AB4,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II316,CLIP-297918EEC4EC,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Mastering,,,,high,Review
+II317,CLIP-DD2CD4996739,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II318,CLIP-DA2635DD5849,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Mastering,,,,high,Review
+II319,CLIP-1BC1F793BF03,Instrumentation,INS.FAMILY,Instrument family,,identify,Developing,,,,high,Review
+II322,CLIP-2112823D6FE7,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Mastering,,,,high,Review
+II323,CLIP-AB60AAEAD37C,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II324,CLIP-B2D1DAC1519E,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II191K,CLIP-016C95D89DFA,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II192K,CLIP-0024FF2C50EC,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II193K,CLIP-843210991A7E,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II195K,CLIP-E1877A931785,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II196K,CLIP-B47DD91F94E4,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II198K,CLIP-CE29BE459C36,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II265K,CLIP-4DFFD26408F6,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II271K,CLIP-BDE7DEA06D09,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II275B,CLIP-C327E52545C4,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II325,CLIP-CA71730879EA,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II326,CLIP-CFD3C0690593,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II327,CLIP-1BB0DB8CFB47,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II328,CLIP-800CA943C3D5,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II329,CLIP-8809D47B8F8B,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Foundation,,,,high,Review
+II330,CLIP-519E2F8E3393,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II331,CLIP-9D8A051E05A5,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II332,CLIP-10BFBCD08C0E,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II333,CLIP-FBAEB2CDC39C,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II334,CLIP-AA76D4FBA2B1,Instrumentation,INS.ENSEMBLE,Ensemble and performing forces,,identify,Developing,,,,high,Review
+II335,CLIP-26103F251290,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II336,CLIP-1D792379AA4C,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II337,CLIP-6C147A56B4A7,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II338,CLIP-8E565748AC1D,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II339,CLIP-518DC51D68C4,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II340,CLIP-5305D33F2C75,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Mastering,,,,high,Review
+II341,CLIP-5E6077ECC756,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Mastering,,,,high,Review
+II342,CLIP-711C91388A4D,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II343,CLIP-2F971635960E,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II344,CLIP-7559D007C053,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Foundation,,,,high,Review
+II376,CLIP-E749C30F8356,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II392,CLIP-5C7521350A35,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II396,CLIP-760B2E033830,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II397,CLIP-9AB3FC9E93DE,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II398,CLIP-BB7F612F380B,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II399,CLIP-D330A9D372E5,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II400,CLIP-48A3AAEC19FF,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II401,CLIP-349FD78D0E44,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II402,CLIP-8E866090832B,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II403,CLIP-0AE5C9AFCD02,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II404,CLIP-29A79DC3F9F5,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II405,CLIP-29828E993FA9,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II406,CLIP-B75B06F9D6DB,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II407,CLIP-7F4311C118B7,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Foundation,,,,high,Review
+II408,CLIP-7287210E7869,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Mastering,,,,high,Review
+II409,CLIP-00CCF449F295,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Mastering,,,,high,Review
+II410,CLIP-0C7E1BB9E777,Context and genre,CTX.GENRE,Genre and style,,identify,Securing,,,,medium,Review
+II411,CLIP-604059948BD5,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II412,CLIP-16C78F384823,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II413,CLIP-BA84825C6EB9,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Securing,,,,high,Review
+II414,CLIP-32A1A23256C3,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
+II320,CLIP-C4F395BD0710,Instrumentation,INS.INDIVIDUAL,Individual instrument,,identify,Developing,,,,high,Review
