@@ -741,6 +741,15 @@
   line-height: 1.5;
 }
 
+/* "Doing well: X. Focus on Y." — the specific strengths/focus read, moved
+   off the tile face. Leads the box; the generic level sentence below it
+   stays muted. */
+.teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-el-header-explainer-v1 p.pm-el-explainer-lead-v1 {
+  margin-bottom: 4px;
+  color: var(--td-text);
+  font-weight: 650;
+}
+
 .teacher-dashboard-v5 .teacher-element-breakdown-dialog-inner-v10 .pm-section-heading h3 {
   color: var(--td-text);
 }

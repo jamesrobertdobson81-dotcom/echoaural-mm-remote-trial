@@ -554,35 +554,14 @@
   text-transform: uppercase;
 }
 
-/* "Doing well: X & Y. Focus on Z." line (composeTileCardSummary) — only
-   ever rendered once a specific student is selected (see
-   renderClassElementGrid's hasStudentScope gate). Sits between the title
-   and the pct/bar/level group in DOM order and takes flex:1, so it's the
-   element that absorbs the tile's free vertical space rather than an
-   empty gap sitting above a cramped one-line caption. pct's own
-   margin-top:auto (unchanged) still correctly pins pct/bar/level to the
-   bottom either way: flex-grow resolves before auto margins, so once this
-   claims the free space there's none left for that margin to absorb —
-   pct/bar/level simply sit right after it, which is the same "bottom of
-   the tile" effect as the whole-class/no-feedback case. */
-.teacher-dashboard-v5 .class-element-card-feedback-v1 {
-  flex: 1 1 auto;
-  min-height: 0;
-  margin: 6px 0 0;
-  color: rgba(238, 242, 251, .88);
-  font-size: clamp(.72rem, 1.5vh, .92rem);
-  font-weight: 600;
-  line-height: 1.4;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
-}
+/* The tile face is numbers only (icon / title / pct / bar / level). The
+   "doing well / focus on" summary was moved into the "click to explore"
+   popup (renderTeacherElementBreakdown's explainer box) — it never fit the
+   tile without clipping behind the percentage. */
 
 @media (max-height: 760px) {
   .teacher-dashboard-v5 .class-element-card-title-v1 { margin-top: 3px; }
   .teacher-dashboard-v5 .class-element-card-bar-v1 { margin-top: 4px; }
-  .teacher-dashboard-v5 .class-element-card-feedback-v1 { -webkit-line-clamp: 3; }
 }
 
 /* Filter controls sitting above the tile grid: mode-button row + a second

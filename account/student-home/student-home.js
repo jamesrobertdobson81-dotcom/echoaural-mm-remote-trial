@@ -219,23 +219,6 @@ function getCombinedConceptStats(moduleId, scope = "overall") {
   return merged;
 }
 
-// An extra "Music Vocabulary" row for the element popup — the Musical
-// Language question sources (musical-language-*) are real marks the
-// student has earned, just excluded from the per-app loop above since
-// that bank has no menu icon of its own (see SUB_APP_TILE_ICONS note).
-// Surfaced here instead as one combined row per area, using the score
-// decoder icon (Score Decoder is Musical Language's own real product name
-// — see modules/musical-language/index.html) tinted with that element's
-// own accent colour. Three of the four Musical Language elements have a
-// home: Melody (articulation + ornaments), Texture (dynamics), Rhythm
-// (tempo) — nothing currently maps to harmony/instrumentation/context.
-const VOCAB_SUB_APPS = {
-  melody: { label: "Music Vocabulary · Ornaments", sourceKeys: ["musical-language-ornamentation"] },
-  "dynamics-articulation": { label: "Music Vocabulary · Dynamics & Articulation", sourceKeys: ["musical-language-dynamics", "musical-language-articulation"] },
-  rhythm: { label: "Music Vocabulary · Tempo", sourceKeys: ["musical-language-tempo"] }
-};
-const VOCAB_ICON = "/assets/icons/modules/score-decoder.png";
-
 // Condensed one-word labels for the sub-app rows — the full names
 // (Drivers[key].label, e.g. "Melody Master · Melodic Devices") are still
 // used elsewhere (recent evidence, etc); this is display-only for these
@@ -494,6 +477,7 @@ function getProgressModeSnapshot(scope = "overall") {
 
   let totalCorrect = 0;
   let totalQuestions = 0;
+  let weightedCurrentSum = 0;
   const areas = AreaOrder.map((areaKey) => {
     const sources = areaToSources[areaKey];
     // combinedStats still drives the per-area feedback paragraph below
@@ -508,6 +492,16 @@ function getProgressModeSnapshot(scope = "overall") {
     const questions = el ? Number(el.questions || 0) : 0;
     totalCorrect += correct;
     totalQuestions += questions;
+    // Recency-weighted "where are you now" (accounts/account-server.js's
+    // temporalFields) — the headline figure the card and hero should show,
+    // so a rough start months ago doesn't hold down a now-solid area. Falls
+    // back to the lifetime correct/questions ratio when there isn't enough
+    // history for a weighted read.
+    const currentPct = el && typeof el.currentPercentage === "number"
+      ? el.currentPercentage
+      : (questions ? Math.round((correct / questions) * 100) : 0);
+    const elementTrend = el && el.trend && el.trend.sampled ? el.trend : null;
+    weightedCurrentSum += currentPct * questions;
 
     // Level/overallProgress stay Progress-Mode-only, deliberately — level
     // advancement is gated on PM's own concept-tracking mechanism (see
@@ -517,7 +511,8 @@ function getProgressModeSnapshot(scope = "overall") {
     const areaState = snapshot.areas[areaKey];
     const tracksConcepts = sources.some((sourceKey) => Boolean(Drivers[sourceKey].getSignature));
     const overallProgress = Store.getAreaOverallProgressPercentage(studentId, areaKey, tracksConcepts);
-    const percentage = questions ? Math.round((correct / questions) * 100) : 0;
+    const percentage = currentPct;
+    const lifetimePercentage = questions ? Math.round((correct / questions) * 100) : 0;
 
     let feedbackText = "";
     if (Feedback && questions) {
@@ -533,6 +528,8 @@ function getProgressModeSnapshot(scope = "overall") {
       correct,
       questions,
       percentage,
+      lifetimePercentage,
+      trend: elementTrend,
       level: areaState.level,
       levelLabel: areaState.levelLabel,
       overallProgress,
@@ -564,7 +561,9 @@ function getProgressModeSnapshot(scope = "overall") {
   return {
     ready: true,
     hasEvidence,
-    percentage: hasEvidence ? Math.round((totalCorrect / totalQuestions) * 100) : 0,
+    // Questions-weighted mean of the per-area current (recency-weighted)
+    // figures, so the headline agrees with the cards below it.
+    percentage: hasEvidence ? Math.round(weightedCurrentSum / totalQuestions) : 0,
     correct: totalCorrect,
     questions: totalQuestions,
     rounds,
@@ -859,6 +858,10 @@ function renderEahomeModulesGrid(pm, viewKey = "overall") {
   const showMastery = viewKey === "overall" || viewKey === "progress";
   return pm.areas.map((area) => {
     const pct = area.percentage;
+    // ▲/▼ when the recent-vs-earlier read (server temporalFields) shows a
+    // clear move — a glance-level "which way is this going".
+    const trendMark = area.trend && area.trend.direction === "up" ? " ▲"
+      : area.trend && area.trend.direction === "down" ? " ▼" : "";
     const badge = showMastery ? moduleStatusBadge(area) : null;
     // Real per-area summary, purpose-built to be short rather than a
     // shortened version of the longer prose used elsewhere (the hero, the
@@ -880,7 +883,7 @@ function renderEahomeModulesGrid(pm, viewKey = "overall") {
           <span class="eahome-module-icon" aria-hidden="true"><img src="${escapeHtml(area.icon)}" alt="" /></span>
           <span class="eahome-module-title">${escapeHtml(area.label)}</span>
         </span>
-        <strong class="eahome-module-pct">${area.questions ? `${pct}%` : "—"}</strong>
+        <strong class="eahome-module-pct">${area.questions ? `${pct}%${trendMark}` : "—"}</strong>
         <span class="eahome-module-bar" aria-hidden="true"><i style="width:${area.questions ? pct : 0}%"></i></span>
         <p class="eahome-module-feedback">${escapeHtml(summary)}</p>
         ${badge ? `<span class="eahome-module-badge">${badge.label}</span>` : ""}
@@ -1270,20 +1273,21 @@ function renderEahomeDashboard(progress) {
 // restyle), and the "Teacher note" card (there is no real teacher-note
 // system in EchoAural at all; inventing one here would show a student a
 // fabricated message under their real teacher's name).
-// One musical element's real apps, each blending Progress Mode + Live
-// Session + Homework marks into a single per-app score — reuses the same
-// .pm-panel/.pm-area-row visual language as the "Performance by listening
-// area" list in snapshotDetailMarkup() below, just scoped to one
-// element's own apps instead of all six areas.
-// `scope`: same convention as getProgressModeSnapshot/getCombinedSourceStats
-// — "overall" (default) blends all three sources, "progress"/"quizzes"/
-// "homework" isolate just that one tab's own evidence.
+// One musical element's detail popup: the header ring/level from
+// getProgressModeSnapshot, then a "Performance by skill" list — one row per
+// taxonomy skill contributing to this element, from the server's single
+// blended breakdown (accounts/account-server.js's buildElementEvidence:
+// Progress Mode reviews + Live Session + Homework, one skill-tagged pass).
+// Reuses the same .pm-panel/.pm-el-row visual language as the "Performance
+// by listening area" list in snapshotDetailMarkup() below.
+// `scope`: same convention as getProgressModeSnapshot — "overall" (default)
+// blends all three sources, "progress"/"quizzes"/"homework" isolate just
+// that one tab's own evidence (state.progress.elements[scope]).
 function elementDetailMarkup(areaKey, scope = "overall") {
   const pm = getProgressModeSnapshot(scope);
   const area = pm.areas.find((entry) => entry.areaKey === areaKey);
   if (!area) return emptyCategory("No evidence for this element yet.");
 
-  const Drivers = window.EAProgressModeDrivers || {};
   const Feedback = window.EAProgressModeFeedback;
   // Same reliability tiers feedback.js itself gates written feedback on
   // (see its own EARLY_SIGNAL_MIN_QUESTIONS/FEEDBACK_MIN_QUESTIONS) — reused
@@ -1294,143 +1298,57 @@ function elementDetailMarkup(areaKey, scope = "overall") {
   const earlySignalMin = Feedback?.EARLY_SIGNAL_MIN_QUESTIONS ?? 3;
   const confidentMin = Feedback?.FEEDBACK_MIN_QUESTIONS ?? 8;
 
-  const subAppKeys = Object.keys(Drivers)
-    .filter((key) => Drivers[key].area === areaKey && (SUB_APP_ICONS[key] || SUB_APP_TILE_ICONS[key]));
-  const vocab = VOCAB_SUB_APPS[areaKey];
+  // One row per taxonomy skill contributing to this element, from the
+  // server's single blended breakdown (accounts/account-server.js's
+  // buildElementEvidence — Progress Mode reviews + Live Session + Homework,
+  // scoped to the active tab). Replaces the old per-sub-app rows, which
+  // depended on Progress Mode's client-side localStorage plus a 6-module
+  // server list and so sat unpopulated for most apps.
+  const serverElement = (state.progress?.elements?.[scope] || [])
+    .find((entry) => entry.areaKey === areaKey);
+  const skillCurrent = (skill) => (typeof skill.currentPercentage === "number" ? skill.currentPercentage : skill.percentage);
+  const skillRows = (serverElement?.skills || []).slice()
+    .sort((a, b) => (skillCurrent(a) - skillCurrent(b)) || (b.questions - a.questions));
 
-  const subApps = subAppKeys.map((sourceKey) => {
-    const combined = getCombinedSourceStats(sourceKey, scope);
-    const { correct, questions, percentage, quizModule, homeworkModule } = combined;
-    // Primary sentence, most-specific-available first:
-    // 1. Concept-level (e.g. "you recognise first inversion chords well,
-    //    but need to focus on extended chords") — only exists for the 5
-    //    modules with clean concept data (accounts/account-server.js's
-    //    byConcept); most sub-apps won't have this yet.
-    // 2. Sub-app-level (SOURCE_PHRASES via buildSourceFeedback) — always
-    //    available, names the actual skill rather than a bare percentage.
-    // 3. Generic percentage fallback, for a sub-app with too little sample
-    //    for either phrase bank yet.
-    // When the Live Session/Homework server also has its own hand-authored,
-    // data-derived sentence for this module (e.g. melody-master's
-    // pitch-vs-contour analysis), append it as a second sentence rather
-    // than discarding one or the other — scoped to whichever source(s) this
-    // tab is actually showing, not always quizModule regardless of scope
-    // (a real bug: homeworkModule's own feedback was never reachable here).
-    const serverModuleId = PM_REGISTRY?.get(sourceKey)?.moduleId || null;
-    const conceptStats = serverModuleId ? getCombinedConceptStats(serverModuleId, scope) : {};
-    const conceptFeedback = serverModuleId ? Feedback?.buildConceptFeedback(serverModuleId, conceptStats) : null;
-    const primary = conceptFeedback
-      || Feedback?.buildSourceFeedback(sourceKey, correct, questions)
-      || (questions
-        ? `${percentage}% accuracy across ${questions} mark${questions === 1 ? "" : "s"} so far.`
-        : "No attempts yet — complete a round to start building feedback here.");
-    const secondaryModule = scope === "homework" ? homeworkModule
-      : scope === "quizzes" ? quizModule
-      : scope === "progress" ? null
-      : (quizModule || homeworkModule);
-    const secondary = secondaryModule?.questions && secondaryModule.feedback ? ` ${secondaryModule.feedback}` : "";
-    const feedbackText = primary + secondary;
-    // True whenever the sentence above says something real rather than the
-    // generic "not enough yet" placeholder — concept-level feedback always
-    // counts (it has its own, separate sample-size gate), otherwise this
-    // sub-app's own mark count has to clear the same bar buildSourceFeedback
-    // itself requires before it stops returning the placeholder.
-    const hasRealSignal = Boolean(conceptFeedback) || questions >= earlySignalMin;
-    return {
-      sourceKey,
-      icon: SUB_APP_ICONS[sourceKey] || SUB_APP_TILE_ICONS[sourceKey],
-      isTile: Boolean(SUB_APP_TILE_ICONS[sourceKey]),
-      label: SUB_APP_SHORT_LABEL[sourceKey] || Drivers[sourceKey].label,
-      fullLabel: Drivers[sourceKey].label,
-      correct,
-      questions,
-      percentage,
-      feedbackText,
-      hasRealSignal
-    };
-  });
-
-  // Musical Language's topics now blend in Live Session evidence too (via
-  // the sourceKey-level breakdown — see getCombinedSourceStats), not just
-  // Progress Mode marks, now that classroom/progress-recorder.js tags each
-  // question with its specific topic instead of only the shared
-  // "musical-language" moduleId.
-  if (vocab) {
-    // Real, pre-existing gap fixed here: this row previously always showed
-    // a bare "X% accuracy across Y marks" string, regardless of how good
-    // or bad that score was — it never called the feedback system at all,
-    // unlike every other row above. Fixed by reusing buildAreaFeedback,
-    // which already knows how to turn a {sourceKey: stats} map into a real
-    // sentence (pairing a strength/weakness across 1-2 sources, or a solo
-    // sentence when there's only one) — exactly this row's own shape, just
-    // with 1-2 musical-language sourceKeys instead of a full area's worth.
-    const vocabCombinedStats = {};
-    vocab.sourceKeys.forEach((key) => { vocabCombinedStats[key] = getCombinedSourceStats(key, scope); });
-    const vocabCorrect = vocab.sourceKeys.reduce((sum, key) => sum + vocabCombinedStats[key].correct, 0);
-    const vocabQuestions = vocab.sourceKeys.reduce((sum, key) => sum + vocabCombinedStats[key].questions, 0);
-    const vocabPercentage = vocabQuestions ? Math.round((vocabCorrect / vocabQuestions) * 100) : 0;
-    const vocabFeedback = vocabQuestions && Feedback
-      ? Feedback.buildAreaFeedback(vocabCombinedStats, vocab.sourceKeys, "Vocabulary")
-      : "";
-    subApps.push({
-      sourceKey: "vocab-" + areaKey,
-      icon: VOCAB_ICON,
-      isTile: true,
-      label: "Vocabulary",
-      fullLabel: vocab.label,
-      correct: vocabCorrect,
-      questions: vocabQuestions,
-      percentage: vocabPercentage,
-      feedbackText: vocabFeedback
-        || (vocabQuestions
-          ? `${vocabPercentage}% accuracy across ${vocabQuestions} mark${vocabQuestions === 1 ? "" : "s"} so far.`
-          : "No attempts yet — complete a round to start building feedback here."),
-      hasRealSignal: vocabQuestions >= earlySignalMin
-    });
-  }
-
-  const subAppsHtml = subApps.length
-    ? subApps.map((app) => {
-        // The vocabulary icon (score-decoder.png) is a wide landscape image,
-        // unlike every other tile source (all square) — object-fit:contain
-        // would letterbox it down to a small centred blob with lots of flat
-        // tile showing around it, which is also why the gradient looked
-        // like it "wasn't there". pm-el-row-icon-vocab crops it to fill the
-        // tile instead, same as the square ones already do.
-        const iconHtml = app.isTile
-          ? `<span class="pm-el-row-icon pm-el-row-icon-tile${app.sourceKey.startsWith("vocab-") ? " pm-el-row-icon-vocab" : ""}"><img src="${escapeHtml(app.icon)}" alt="" /></span>`
-          : `<span class="pm-el-row-icon"><img src="${escapeHtml(app.icon)}" alt="" /></span>`;
-
-        // Three reliability tiers, matching exactly what the feedback
-        // sentence itself is willing to say (see hasRealSignal/confidentMin
-        // above) — a row's stats are never shown looking more (or less)
-        // certain than its own wording.
-        const notStarted = !app.hasRealSignal;
-        const showStats = app.hasRealSignal && app.questions > 0;
-        const tierTag = notStarted ? "Not started" : (app.questions >= confidentMin ? "" : "Early signs");
-        const statsHtml = showStats
+  const subAppsHtml = skillRows.length
+    ? skillRows.map((skill) => {
+        const questions = Number(skill.questions || 0);
+        const shownPct = Math.round(skillCurrent(skill));
+        // Same reliability tiers feedback.js gates buildSkillRowFeedback on,
+        // so a row's bar/percentage never reads more (or less) certain than
+        // its own sentence.
+        const hasRealSignal = Boolean(skill.reliable) || questions >= earlySignalMin;
+        const notStarted = !hasRealSignal;
+        const tierTag = notStarted ? "Not started" : (questions >= confidentMin ? "" : "Early signs");
+        // Concept-specific sentence ("you recognise homophonic texture well,
+        // but need to work on polyphonic") when the skill's concept
+        // breakdown has enough of a sample; the skill-grain trajectory
+        // sentence otherwise.
+        const rowFeedback = !Feedback ? ""
+          : (Feedback.buildConceptFeedback(skill.conceptModuleId, skill.concepts) || Feedback.buildSkillRowFeedback(skill));
+        const statsHtml = hasRealSignal
           ? `
-            <span class="pm-el-row-bar" aria-hidden="true"><i style="width:${app.percentage}%"></i></span>
-            <strong class="pm-el-row-pct">${app.percentage}%</strong>
-            <span class="pm-el-row-count">${app.questions} mark${app.questions === 1 ? "" : "s"}</span>
+            <span class="pm-el-row-bar" aria-hidden="true"><i style="width:${shownPct}%"></i></span>
+            <strong class="pm-el-row-pct">${shownPct}%</strong>
+            <span class="pm-el-row-count">${questions} question${questions === 1 ? "" : "s"}</span>
           `
-          : `<span class="pm-el-row-count pm-el-row-count-only">${app.questions ? `${app.questions} mark${app.questions === 1 ? "" : "s"} so far` : "No marks yet"}</span>`;
+          : `<span class="pm-el-row-count pm-el-row-count-only">${questions ? `${questions} question${questions === 1 ? "" : "s"} so far` : "No answers yet"}</span>`;
 
         return `
         <div class="pm-el-row${notStarted ? " pm-el-row-not-started" : ""}">
-          ${iconHtml}
+          <span class="pm-el-row-icon"><img src="${escapeHtml(area.icon)}" alt="" /></span>
           <div class="pm-el-row-body">
             <div class="pm-el-row-top">
-              <span class="pm-el-row-label" title="${escapeHtml(app.fullLabel)}">${escapeHtml(app.label)}</span>
+              <span class="pm-el-row-label" title="${escapeHtml(skill.skillName || "")}">${escapeHtml(skill.skillName || "")}</span>
               ${tierTag ? `<span class="pm-el-row-tag${notStarted ? " pm-el-row-tag-muted" : ""}">${tierTag}</span>` : ""}
               <span class="pm-el-row-stats">${statsHtml}</span>
             </div>
-            <p class="pm-el-row-feedback">${escapeHtml(app.feedbackText)}</p>
+            <p class="pm-el-row-feedback">${escapeHtml(rowFeedback)}</p>
           </div>
         </div>
       `;
       }).join("")
-    : `<p class="pm-callout-empty">No apps found for ${escapeHtml(area.label)}.</p>`;
+    : `<p class="pm-callout-empty">No skill evidence for ${escapeHtml(area.label)} yet.</p>`;
 
   // The header's summary line includes Progress Mode's own tracked level
   // for this area only when a level is actually meaningful for the active
@@ -1454,7 +1372,7 @@ function elementDetailMarkup(areaKey, scope = "overall") {
           ${showLevel ? `<span class="pm-el-level-pill">${escapeHtml(area.levelLabel)}</span>` : ""}
         </section>
         <section class="pm-panel">
-          <div class="pm-section-heading"><h3>Performance by app</h3></div>
+          <div class="pm-section-heading"><h3>Performance by skill</h3></div>
           <div class="pm-el-row-list" data-area="${escapeHtml(areaKey)}">${subAppsHtml}</div>
         </section>
       </div>

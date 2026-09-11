@@ -1437,25 +1437,27 @@ function renderClassElementGrid() {
   const totals = teacherElementTotals(state.middleColumnProgress, state.middleColumnProgressMode, state.middleColumn.mode);
   state.middleColumnTotals = totals;
   const areaKeys = Object.keys(TEACHER_ELEMENT_LABELS);
-  // Feedback statements only ever appear on a tile once a real student is
-  // selected — a class-wide or whole-account tile is numbers only, per the
-  // confirmed design (a blended group's "doing well/focus on" isn't a real
-  // statement about any one learner).
-  const hasStudentScope = Boolean(state.middleColumn.studentId);
 
   els.classElementGrid.innerHTML = areaKeys.map((areaKey) => {
     const area = totals.get(areaKey) || {};
     const questions = Number(area.maximumScore || area.questions || 0);
     const correct = Number(area.score || 0);
-    const percentage = questions ? Math.round((correct / questions) * 100) : 0;
+    const lifetimePct = questions ? Math.round((correct / questions) * 100) : 0;
+    // Single-student view leads with the recency-weighted current figure
+    // (teacherScopedElementRows) so a rough start doesn't hold the card
+    // down; class/whole-account keeps the lifetime blend.
+    const percentage = typeof area.currentPercentage === "number" ? Math.round(area.currentPercentage) : lifetimePct;
     const level = percentage >= 85 ? "Mastering" : percentage >= 70 ? "Securing" : percentage >= 50 ? "Developing" : "Foundation";
-    const cardSummary = hasStudentScope && questions ? composeTileCardSummary(area) : null;
+    const trendMark = area.trend && area.trend.sampled && area.trend.direction === "up" ? " ▲"
+      : area.trend && area.trend.sampled && area.trend.direction === "down" ? " ▼" : "";
+    // The tile is numbers only — icon, percentage, bar, level. The
+    // "doing well / focus on" summary lives in the "click to explore"
+    // popup (renderTeacherElementBreakdown), not squeezed onto the tile.
     return `
       <button type="button" class="class-element-card-v1 ${scoreClass(percentage, questions)}" data-class-element="${areaKey}" aria-label="View ${TEACHER_ELEMENT_LABELS[areaKey]} details">
         <span class="class-element-card-icon-v1"><img src="${TEACHER_ELEMENT_ICONS[areaKey]}" alt="" /></span>
         <strong class="class-element-card-title-v1">${TEACHER_ELEMENT_LABELS[areaKey]}</strong>
-        ${cardSummary ? `<p class="class-element-card-feedback-v1">${escapeHtml(cardSummary)}</p>` : ""}
-        <strong class="class-element-card-pct-v1">${questions ? `${percentage}%` : "—"}</strong>
+        <strong class="class-element-card-pct-v1">${questions ? `${percentage}%${trendMark}` : "—"}</strong>
         <span class="class-element-card-bar-v1" aria-hidden="true"><i style="width:${questions ? percentage : 0}%"></i></span>
         <small class="class-element-card-level-v1">${escapeHtml(level)}</small>
         <span class="class-element-card-explore-v1">Click to explore<span aria-hidden="true">›</span></span>
@@ -1904,6 +1906,12 @@ function thirdPersonVerbPhrase(phrase) {
   return words.join(" ");
 }
 
+// NOTE: composeSubAppFeedback and its helpers (teacherServerModuleId /
+// capitalise / isTeacherSubAppTileIcon) are unreferenced — the element
+// popup rows now use composeConceptFeedback (concept grain, below) with a
+// fall-back to feedback.js's buildSkillRowFeedback (skill grain). Kept for
+// a possible sub-app-grain fall-back tier; safe to delete otherwise.
+//
 // Teacher-facing counterpart to modules/progress-mode/feedback.js's own
 // buildSourceFeedback(sourceKey, correct, questions) — same SOURCE_PHRASES
 // bank, same tier thresholds/logic (loaded read-only from
@@ -1969,42 +1977,24 @@ function teacherServerModuleId(module) {
   return window.EchoAuralPMRegistry?.get(sourceKey)?.moduleId || null;
 }
 
-// Concept-level counterpart to student-home.js's getCombinedConceptStats —
-// but teacher-side only, so only half of it applies: a teacher can never
-// read a student's own Progress Mode localStorage (that lives on the
-// student's device, not here), so this only ever reflects Live Session/
-// Homework evidence (accounts/account-server.js's byConcept), scoped by
-// whichever mode filter (all/progress/quizzes/homework) is currently
-// active in the middle column.
-function teacherConceptStats(serverModuleId) {
-  if (!serverModuleId) return {};
-  const mode = state.middleColumn.mode;
-  const progress = state.middleColumnProgress;
-  if (mode === "progress") return {};
-  if (mode === "quizzes" || mode === "homework") return progress?.categories?.[mode]?.byConcept?.[serverModuleId] || {};
-  return progress?.byConcept?.[serverModuleId] || {};
-}
-
-// Concept-level counterpart to composeSubAppFeedback above — same third-
-// person restyling of modules/progress-mode/feedback.js's own
+// Third-person restyle of modules/progress-mode/feedback.js's own
 // buildConceptFeedback(moduleId, conceptStats) (which returns second-person
-// text, "You recognise root position chords...", unsuitable here for the
-// same reason composeSubAppFeedback's own comment explains), same
-// SOURCE_PHRASES-vs-CONCEPT_PHRASES relationship: one topic named per
-// sentence, but drawn from the finer concept-value bank
-// (CONCEPT_PHRASES[serverModuleId]) instead of the coarser per-app one when
-// that finer bank exists and has a reliable-enough sample. Returns null
-// (caller falls back to composeSubAppFeedback) whenever CONCEPT_PHRASES
-// doesn't cover this module, or nothing sampled yet reaches
-// EARLY_SIGNAL_MIN_QUESTIONS — mirrors buildConceptFeedback's own
-// null-on-insufficient-sample contract exactly.
-function composeConceptFeedback(module, studentName) {
+// "You recognise root position chords..."), naming one strength and one
+// focus concept in a sentence — e.g. "Ada has a secure grasp of homophonic
+// texture but must concentrate on recognising polyphonic textures".
+// `conceptStats` is the server's per-skill `concepts` map (accounts/
+// account-server.js's finaliseSkillConcepts: value -> {correct, questions,
+// percentage}, percentage already recency-weighted); `conceptModuleId`
+// picks the CONCEPT_PHRASES bank. Returns null (caller falls back to the
+// skill-grain sentence) when the bank doesn't cover the module or nothing
+// sampled reaches EARLY_SIGNAL_MIN_QUESTIONS — same contract as
+// buildConceptFeedback.
+function composeConceptFeedback(conceptModuleId, conceptStats, studentName) {
   const Feedback = window.EAProgressModeFeedback;
-  const serverModuleId = teacherServerModuleId(module);
-  const phrases = serverModuleId ? Feedback?.CONCEPT_PHRASES?.[serverModuleId] : null;
+  const phrases = conceptModuleId ? Feedback?.CONCEPT_PHRASES?.[conceptModuleId] : null;
   if (!phrases) return null;
 
-  const stats = teacherConceptStats(serverModuleId);
+  const stats = conceptStats || {};
   const earlyMin = Feedback.EARLY_SIGNAL_MIN_QUESTIONS ?? 3;
   const confidentMin = Feedback.FEEDBACK_MIN_QUESTIONS ?? 8;
   const strengthMin = Feedback.STRENGTH_THRESHOLD ?? 80;
@@ -2023,75 +2013,47 @@ function composeConceptFeedback(module, studentName) {
     .filter((key) => stats[key].percentage < weaknessMax)
     .sort((a, b) => stats[a].percentage - stats[b].percentage);
 
+  // Use the first name and keep one subject per sentence — "Ada Lovelace
+  // recognises X but Ada Lovelace needs Y" reads badly.
+  const name = String(studentName || "").trim().split(/\s+/)[0] || studentName || "This student";
   if (strengths.length && weaknesses.length) {
     const strong = phrases[strengths[0]];
     const weak = phrases[weaknesses[0]];
     return isEarly
-      ? `Early signs suggest ${studentName} ${thirdPersonVerbPhrase(strong.strength)}, but ${studentName} may want to start on ${weak.gap} — ${weak.focus} (${weak.label}).`
-      : `${studentName} ${thirdPersonVerbPhrase(strong.strength)}, but ${studentName} needs to work on ${weak.gap} — ${weak.focus} (${weak.label}).`;
+      ? `Early signs suggest ${name} ${thirdPersonVerbPhrase(strong.strength)} but may want to start on ${weak.gap} — ${weak.focus} (${weak.label}).`
+      : `${name} ${thirdPersonVerbPhrase(strong.strength)} but needs to work on ${weak.gap} — ${weak.focus} (${weak.label}).`;
   }
   if (strengths.length) {
     const strong = phrases[strengths[0]];
     return isEarly
-      ? `Early signs are good — so far ${studentName} ${thirdPersonVerbPhrase(strong.strength)}. To stay sharp, ${studentName} should ${strong.focus}.`
-      : `${studentName} ${thirdPersonVerbPhrase(strong.strength)} — to stay sharp, ${studentName} should ${strong.focus}.`;
+      ? `Early signs are good — so far ${name} ${thirdPersonVerbPhrase(strong.strength)}. To stay sharp, ${strong.focus}.`
+      : `${name} ${thirdPersonVerbPhrase(strong.strength)} — to stay sharp, ${strong.focus}.`;
   }
   if (weaknesses.length) {
     const weak = phrases[weaknesses[0]];
     return isEarly
-      ? `It's early, but ${studentName} may want to start on ${weak.gap} — ${studentName} should ${weak.focus} (${weak.label}).`
-      : `${studentName} needs to work on ${weak.gap} — ${studentName} should ${weak.focus} (${weak.label}).`;
+      ? `It's early, but ${name} may want to start on ${weak.gap} — ${weak.focus} (${weak.label}).`
+      : `${name} needs to work on ${weak.gap} — ${weak.focus} (${weak.label}).`;
   }
   const closest = pool.slice().sort((a, b) => stats[b].percentage - stats[a].percentage)[0];
   const closestPhrase = phrases[closest];
   return isEarly
-    ? `Too early to say for sure, but ${studentName} is showing steady signs with ${closestPhrase.label} so far. To keep improving, ${studentName} should ${closestPhrase.focus}.`
-    : `${studentName} is making steady progress with ${closestPhrase.label} — to keep improving, ${studentName} should ${closestPhrase.focus}.`;
+    ? `Too early to say for sure, but ${name} is showing steady signs with ${closestPhrase.label} so far. To keep improving, ${closestPhrase.focus}.`
+    : `${name} is making steady progress with ${closestPhrase.label} — to keep improving, ${closestPhrase.focus}.`;
 }
 
 // Teacher-dashboard counterpart to student-home.js's buildCardSummary() —
 // same "Doing well: X & Y. Focus on Z." shape (that function never used
-// first/second person to begin with, so no restyling is needed here, just
-// porting the same strongest/weakest selection logic AND the same concept-
-// value pooling: a module row covered by CONCEPT_PHRASES contributes its
-// individual concept values (e.g. "Homophonic"/"Polyphonic" instead of one
-// "Devices" item) so the tile face itself can name a specific skill, not
-// just a whole sub-app — operating on the area's already-scoped per-app
-// totals (teacherElementTotals' modules[]) rather than re-deriving PM-only
-// sources.
+// first/second person to begin with). Reads the area's already-scoped
+// per-skill rows (teacherElementTotals' `skills`, from the server's
+// buildElementEvidence) — one item per reliable taxonomy skill.
 function composeTileCardSummary(area) {
   const Feedback = window.EAProgressModeFeedback;
-  const earlyMin = Feedback?.EARLY_SIGNAL_MIN_QUESTIONS ?? 3;
   const weaknessMin = Feedback?.WEAKNESS_THRESHOLD ?? 60;
 
-  const items = [];
-  // Two module rows can share the same real serverModuleId (melody-master's
-  // "Melodic Dictation" and "Devices" rows both resolve to server moduleId
-  // "melody-master") — only query/pool that moduleId's concept stats once,
-  // same guard student-home.js's buildCardSummary uses for the same reason.
-  const moduleConceptItemCounts = new Map();
-  (area?.modules || []).forEach((module) => {
-    const serverModuleId = teacherServerModuleId(module);
-    const conceptPhrases = serverModuleId ? Feedback?.CONCEPT_PHRASES?.[serverModuleId] : null;
-    if (conceptPhrases) {
-      if (!moduleConceptItemCounts.has(serverModuleId)) {
-        const conceptStats = teacherConceptStats(serverModuleId);
-        let addedHere = 0;
-        Object.keys(conceptStats).forEach((conceptValue) => {
-          if (!conceptPhrases[conceptValue]) return;
-          const stat = conceptStats[conceptValue];
-          if (stat.questions < earlyMin) return;
-          items.push({ name: capitalise(conceptValue), percentage: stat.percentage });
-          addedHere += 1;
-        });
-        moduleConceptItemCounts.set(serverModuleId, addedHere);
-      }
-      if (moduleConceptItemCounts.get(serverModuleId) > 0) return;
-    }
-    if (Number(module.questions) >= earlyMin) {
-      items.push({ name: module.title, percentage: module.percentage });
-    }
-  });
+  const items = (area?.skills || [])
+    .filter((skill) => skill.reliable)
+    .map((skill) => ({ name: skill.skillName, percentage: Math.round(teacherSkillCurrent(skill)) }));
   if (!items.length) return null;
 
   items.sort((a, b) => b.percentage - a.percentage);
@@ -2131,30 +2093,90 @@ function teacherProgressNumber(value) {
 // view (the class route returns whole-account data with no server-side
 // class filter, so scoping is done here from the per-student breakdown).
 function teacherScopedElementRows(progress, scope) {
+  const Feedback = window.EAProgressModeFeedback;
   const rows = new Map();
-  const add = (list) => {
+  const add = (list, singleSource) => {
     (list || []).forEach((el) => {
       if (!el.areaKey) return;
-      const cur = rows.get(el.areaKey) || { areaKey: el.areaKey, correctQuestions: 0, questions: 0, focusSkill: null };
+      const cur = rows.get(el.areaKey)
+        || { areaKey: el.areaKey, correctQuestions: 0, questions: 0, focusSkill: null, skillMap: new Map() };
       cur.correctQuestions += Number(el.correctQuestions || 0);
       cur.questions += Number(el.questions || 0);
       if (!cur.focusSkill && el.focusSkill) cur.focusSkill = el.focusSkill;
+      // Recency-weighted "current" figure + trend only carry through for a
+      // single student (via /api/teacher/students/:id/progress, or a
+      // one-student class). Pooling a cohort's answer streams and
+      // recency-weighting that is not meaningful — a class/whole-account
+      // view keeps the lifetime blend.
+      if (singleSource) {
+        if (typeof el.currentPercentage === 'number') cur.currentPercentage = el.currentPercentage;
+        if (el.trend && el.trend.sampled) cur.trend = el.trend;
+      }
+      // Merge each element's contributing skills by skill code across every
+      // in-scope student. Percentage and reliability are recomputed from
+      // the summed score/marks, then feedback.js turns each into a
+      // "Performance by skill" row sentence.
+      (el.skills || []).forEach((skill) => {
+        if (!skill.skillCode) return;
+        const merged = cur.skillMap.get(skill.skillCode) || {
+          skillCode: skill.skillCode,
+          skillName: skill.skillName,
+          description: skill.description || '',
+          score: 0, maximumScore: 0, questions: 0, correctQuestions: 0, uniqueQuestions: 0, uniqueClips: 0
+        };
+        merged.score += Number(skill.score || 0);
+        merged.maximumScore += Number(skill.maximumScore || 0);
+        merged.questions += Number(skill.questions || 0);
+        merged.correctQuestions += Number(skill.correctQuestions || 0);
+        merged.uniqueQuestions += Number(skill.uniqueQuestions || 0);
+        merged.uniqueClips += Number(skill.uniqueClips || 0);
+        if (singleSource) {
+          if (typeof skill.currentPercentage === 'number') merged.currentPercentage = skill.currentPercentage;
+          if (skill.trend && skill.trend.sampled) merged.trend = skill.trend;
+          // Concept breakdown ("Homophonic" vs "Polyphonic", ...) — carried
+          // through only for a single student, same reasoning as the trend
+          // figure above.
+          if (skill.concepts && Object.keys(skill.concepts).length) {
+            merged.concepts = skill.concepts;
+            merged.conceptModuleId = skill.conceptModuleId || '';
+          }
+        }
+        cur.skillMap.set(skill.skillCode, merged);
+      });
       rows.set(el.areaKey, cur);
     });
   };
+  let lists;
   if (Array.isArray(progress?.students)) {
     const classId = state.middleColumn.classId;
     const inScope = classId
       ? new Set(state.students.filter((s) => String(s.classId) === String(classId)).map((s) => String(s.id)))
       : null;
-    progress.students.forEach((student) => {
-      if (inScope && !inScope.has(String(student.id))) return;
-      add(student.elements?.[scope]);
-    });
+    lists = progress.students
+      .filter((student) => !inScope || inScope.has(String(student.id)))
+      .map((student) => student.elements?.[scope]);
   } else {
-    add(progress?.elements?.[scope]);
+    lists = [progress?.elements?.[scope]];
   }
+  const singleSource = lists.length === 1;
+  lists.forEach((list) => add(list, singleSource));
+  rows.forEach((row) => {
+    row.skills = Array.from(row.skillMap.values()).map((skill) => {
+      const percentage = skill.maximumScore ? Math.round((skill.score / skill.maximumScore) * 100) : 0;
+      const reliable = skill.uniqueQuestions >= 3 || skill.uniqueClips >= 2;
+      const resolved = { ...skill, percentage, reliable };
+      resolved.feedback = Feedback ? Feedback.buildSkillRowFeedback(resolved) : '';
+      return resolved;
+    }).sort((a, b) => teacherSkillCurrent(a) - teacherSkillCurrent(b) || b.questions - a.questions);
+    delete row.skillMap;
+  });
   return rows;
+}
+
+// A skill/element's current (recency-weighted) figure where the single-
+// student path carried one through, else its lifetime percentage.
+function teacherSkillCurrent(entry) {
+  return typeof entry.currentPercentage === 'number' ? entry.currentPercentage : (Number(entry.percentage) || 0);
 }
 
 function teacherElementTotals(progress, progressMode, modeFilter = "all") {
@@ -2405,13 +2427,17 @@ function teacherElementTotals(progress, progressMode, modeFilter = "all") {
     target.questions += questions;
   });
 
-  // Headline per-area correct/attempted now come straight from the server's
-  // single blended breakdown (accounts/account-server.js's
-  // buildElementBreakdowns — Progress Mode + Live Session + Homework, one
-  // skill-tagged pass), overriding whatever the per-source loops above
-  // accumulated. The loops still run only to populate each area's
-  // `modules[]` sub-app rows for the detail popup. `elements` is keyed by
-  // the same area keys as TEACHER_ELEMENT_LABELS.
+  // Headline per-area correct/attempted AND the per-skill rows for the
+  // detail popup / tile face both come straight from the server's single
+  // blended breakdown (accounts/account-server.js's buildElementBreakdowns
+  // — Progress Mode + Live Session + Homework, one skill-tagged pass),
+  // overriding whatever the per-source loops above accumulated. `elements`
+  // is keyed by the same area keys as TEACHER_ELEMENT_LABELS.
+  //
+  // NOTE: the `modules[]` the loops above build is no longer rendered
+  // (renderTeacherElementBreakdown / composeTileCardSummary read `skills`
+  // now). It is left in place for a follow-up pass rather than ripped out
+  // here — nothing else consumes it.
   const elementScope = modeFilter === "all" ? "overall" : modeFilter;
   const elementRows = teacherScopedElementRows(progress, elementScope);
   totals.forEach((target, areaKey) => {
@@ -2422,6 +2448,10 @@ function teacherElementTotals(progress, progressMode, modeFilter = "all") {
     target.maximumScore = questions;
     target.questions = questions;
     target.focusSkill = row?.focusSkill || null;
+    target.skills = row?.skills || [];
+    // Present only for a single-student view (see teacherScopedElementRows).
+    target.currentPercentage = typeof row?.currentPercentage === "number" ? row.currentPercentage : null;
+    target.trend = row?.trend && row.trend.sampled ? row.trend : null;
   });
 
   return totals;
@@ -2465,47 +2495,50 @@ function renderTeacherElementBreakdown(areaKey, totals, studentContext = null) {
   const Feedback = window.EAProgressModeFeedback;
   const earlySignalMin = Feedback?.EARLY_SIGNAL_MIN_QUESTIONS ?? 3;
   const confidentMin = Feedback?.FEEDBACK_MIN_QUESTIONS ?? 8;
-  const area = totals.get(areaKey) || { modules: [] };
-  const percentage = area.maximumScore ? Math.round((area.score / area.maximumScore) * 100) : 0;
+  const area = totals.get(areaKey) || { skills: [] };
+  const lifetimePercentage = area.maximumScore ? Math.round((area.score / area.maximumScore) * 100) : 0;
+  const percentage = typeof area.currentPercentage === "number" ? Math.round(area.currentPercentage) : lifetimePercentage;
   const level = percentage >= 85 ? "Mastering" : percentage >= 70 ? "Securing" : percentage >= 50 ? "Developing" : "Foundation";
   const studentName = studentContext?.displayName || "";
 
-  const rowsHtml = area.modules.length
-    ? area.modules.map((module) => {
-        const questions = Number(module.questions || 0);
-        const notStarted = questions < earlySignalMin;
-        const showStats = !notStarted && questions > 0;
+  // One row per taxonomy skill that contributes to this element (server's
+  // elements[scope][i].skills, merged across the in-scope students by
+  // teacherScopedElementRows). Feedback sentences only when a single
+  // student is selected — a blended group's "doing well / focus on" isn't a
+  // real statement about any one learner.
+  const skillRows = area.skills || [];
+  const rowsHtml = skillRows.length
+    ? skillRows.map((skill) => {
+        const questions = Number(skill.questions || 0);
+        const hasSignal = Boolean(skill.reliable) || questions >= earlySignalMin;
+        const notStarted = !hasSignal;
         const tierTag = notStarted ? "Not started" : (questions >= confidentMin ? "" : "Early signs");
-        const isTile = isTeacherSubAppTileIcon(module.moduleId);
-        const iconHtml = isTile
-          ? `<span class="pm-el-row-icon pm-el-row-icon-tile${String(module.moduleId).startsWith("vocabulary-") ? " pm-el-row-icon-vocab" : ""}"><img src="${escapeHtml(module.icon || TEACHER_ELEMENT_ICONS[areaKey])}" alt="" /></span>`
-          : `<span class="pm-el-row-icon"><img src="${escapeHtml(module.icon || TEACHER_ELEMENT_ICONS[areaKey])}" alt="" /></span>`;
-        const rowLevel = showStats
-          ? (module.percentage >= 85 ? "Mastering" : module.percentage >= 70 ? "Securing" : module.percentage >= 50 ? "Developing" : "Foundation")
+        const shownPct = Math.round(teacherSkillCurrent(skill));
+        const rowLevel = hasSignal
+          ? (shownPct >= 85 ? "Mastering" : shownPct >= 70 ? "Securing" : shownPct >= 50 ? "Developing" : "Foundation")
           : "";
-        const statsHtml = showStats
+        const statsHtml = hasSignal
           ? `
-            <span class="pm-el-row-bar" aria-hidden="true"><i style="width:${module.percentage}%"></i></span>
-            <strong class="pm-el-row-pct">${module.percentage}%</strong>
-            <span class="pm-el-row-count">${questions} mark${questions === 1 ? "" : "s"}</span>
-            <span class="pm-el-row-status-v1 ${scoreClass(module.percentage, questions)}"><i aria-hidden="true"></i>${rowLevel}</span>
+            <span class="pm-el-row-bar" aria-hidden="true"><i style="width:${shownPct}%"></i></span>
+            <strong class="pm-el-row-pct">${shownPct}%</strong>
+            <span class="pm-el-row-count">${questions} question${questions === 1 ? "" : "s"}</span>
+            <span class="pm-el-row-status-v1 ${scoreClass(shownPct, questions)}"><i aria-hidden="true"></i>${rowLevel}</span>
           `
-          : `<span class="pm-el-row-count pm-el-row-count-only">${questions ? `${questions} mark${questions === 1 ? "" : "s"} so far` : "No marks yet"}</span>`;
-        // Concept-level feedback (e.g. "recognises homophonic textures well
-        // but must work on polyphonic texture recognition") whenever this
-        // module has concept data reliable enough to name a specific skill;
-        // falls back to the coarser per-app sentence otherwise — same
-        // preference order student-home.js's elementDetailMarkup already
-        // uses for the student's own dashboard.
+          : `<span class="pm-el-row-count pm-el-row-count-only">${questions ? `${questions} question${questions === 1 ? "" : "s"} so far` : "No answers yet"}</span>`;
+        // Concept-specific sentence ("secure on homophonic, focus on
+        // polyphonic") where the skill's concept breakdown has enough of a
+        // sample; the skill-grain trajectory sentence otherwise.
+        const rowFeedback = (studentContext && composeConceptFeedback(skill.conceptModuleId, skill.concepts, studentName))
+          || skill.feedback || "";
         const feedbackHtml = studentContext
-          ? `<p class="pm-el-row-feedback">${escapeHtml(composeConceptFeedback(module, studentName) || composeSubAppFeedback(module, studentName))}</p>`
+          ? `<p class="pm-el-row-feedback">${escapeHtml(rowFeedback)}</p>`
           : "";
         return `
           <div class="pm-el-row${notStarted ? " pm-el-row-not-started" : ""}">
-            ${iconHtml}
+            <span class="pm-el-row-icon"><img src="${escapeHtml(TEACHER_ELEMENT_ICONS[areaKey])}" alt="" /></span>
             <div class="pm-el-row-body">
               <div class="pm-el-row-top">
-                <span class="pm-el-row-label" title="${escapeHtml(module.title)}">${escapeHtml(module.title)}</span>
+                <span class="pm-el-row-label" title="${escapeHtml(skill.skillName || "")}">${escapeHtml(skill.skillName || "")}</span>
                 ${tierTag ? `<span class="pm-el-row-tag${notStarted ? " pm-el-row-tag-muted" : ""}">${tierTag}</span>` : ""}
                 <span class="pm-el-row-stats">${statsHtml}</span>
               </div>
@@ -2514,7 +2547,7 @@ function renderTeacherElementBreakdown(areaKey, totals, studentContext = null) {
           </div>
         `;
       }).join("")
-    : `<p class="pm-callout-empty">No apps found for this element.</p>`;
+    : `<p class="pm-callout-empty">No skill evidence for this element yet.</p>`;
 
   const headerStatsHtml = area.maximumScore
     ? `<span class="pm-el-header-pct">${percentage}% overall</span><span class="pm-el-header-sep" aria-hidden="true">·</span><span>${area.maximumScore} mark${area.maximumScore === 1 ? "" : "s"}</span>`
@@ -2528,8 +2561,12 @@ function renderTeacherElementBreakdown(areaKey, totals, studentContext = null) {
     Developing: `${whoText} ${studentName ? "is" : "are"} developing core ${elementLabelLower} skills but ${studentName ? "needs" : "need"} more support to secure them.`,
     Foundation: `${whoText} ${studentName ? "is" : "are"} just starting out with ${elementLabelLower}. Frequent, foundational practice will help most.`
   };
+  // "Doing well: X. Focus on Y." — the specific strengths/focus read for
+  // the selected student, moved here off the tile face. Leads the explainer
+  // box, with the generic level sentence as the muted follow-on.
+  const studentSummary = studentContext ? composeTileCardSummary(area) : null;
   const whatThisMeansHtml = area.maximumScore
-    ? `<div class="pm-el-header-explainer-v1"><span aria-hidden="true">💡</span><div><strong>What this means</strong><p>${escapeHtml(WHAT_THIS_MEANS[level] || "")}</p></div></div>`
+    ? `<div class="pm-el-header-explainer-v1"><span aria-hidden="true">💡</span><div><strong>What this means</strong>${studentSummary ? `<p class="pm-el-explainer-lead-v1">${escapeHtml(studentSummary)}</p>` : ""}<p>${escapeHtml(WHAT_THIS_MEANS[level] || "")}</p></div></div>`
     : "";
 
   detail.innerHTML = `
@@ -2545,7 +2582,7 @@ function renderTeacherElementBreakdown(areaKey, totals, studentContext = null) {
         </section>
         ${whatThisMeansHtml}
         <section class="pm-panel">
-          <div class="pm-section-heading"><h3>Performance by app</h3></div>
+          <div class="pm-section-heading"><h3>Performance by skill</h3></div>
           <div class="pm-el-row-list" data-area="${escapeHtml(areaKey)}">${rowsHtml}</div>
         </section>
       </div>
