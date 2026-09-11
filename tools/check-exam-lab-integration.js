@@ -320,7 +320,34 @@ const canonicalProgress = buildProgressSummary([{
 })));
 equal(canonicalProgress.skills[0].skillCode, 'RHY.METRE', 'Progress aggregation should group historical attempts by canonical skill.');
 equal(canonicalProgress.skills[0].uniqueQuestions, 3, 'Canonical skill evidence should count unique questions.');
-check(canonicalProgress.overall.compiledFeedback.includes('metre classification'), 'Compiled progress feedback should name a sufficiently evidenced canonical skill.');
+check(canonicalProgress.overall.compiledFeedback.includes('meter and rhythm'), 'Compiled progress feedback should name a sufficiently evidenced musical element (skill-map derived).');
+check(canonicalProgress.elements.overall.some((element) => element.musicalElement === 'Meter and rhythm' && element.reliable), 'Progress summary should expose the element breakdown the compiled sentence is built from.');
+
+// Concept-level breakdown: a skill's `concepts` map is resolved from the
+// real question bank (not the answer payload) and carries a recency-
+// weighted percentage per concept value — see finaliseSkillConcepts.
+const { createAdapters: buildAdapters } = require(path.join(root, 'classroom', 'adapters.js'));
+const { questionConceptValues: qcv } = require(path.join(root, 'classroom', 'concept-catalogue.js'));
+const meterBank = buildAdapters(root).find((a) => a.id === 'meter-master').getQuestions();
+const simpleIds = meterBank.filter((q) => qcv('meter-master', q, root).includes('Simple time')).slice(0, 10).map((q) => q.id);
+const compoundIds = meterBank.filter((q) => qcv('meter-master', q, root).includes('Compound time')).slice(0, 10).map((q) => q.id);
+check(simpleIds.length >= 8 && compoundIds.length >= 8, 'meter-master bank should have enough Simple/Compound time questions to exercise concept feedback.');
+const conceptRoundId = 'concept-round';
+const conceptAttempts = [
+  ...simpleIds.map((questionId, index) => ({ id: `s${index}`, round_id: conceptRoundId, module_id: 'meter-master', question_id: questionId, score: 1, maximum_score: 1, answer_data: {}, completed_at: completedAt })),
+  ...compoundIds.map((questionId, index) => ({ id: `c${index}`, round_id: conceptRoundId, module_id: 'meter-master', question_id: questionId, score: 0, maximum_score: 1, answer_data: {}, completed_at: completedAt }))
+];
+const conceptProgress = buildProgressSummary(
+  [{ id: conceptRoundId, module_id: 'meter-master', module_title: 'Meter Master', score: simpleIds.length, maximum_score: conceptAttempts.length, question_count: conceptAttempts.length, metadata: { source: 'teacher_mode' }, completed_at: completedAt }],
+  conceptAttempts
+);
+const metreSkill = conceptProgress.elements.overall
+  .find((element) => element.musicalElement === 'Meter and rhythm')
+  .skills.find((skill) => skill.skillCode === 'RHY.METRE');
+equal(metreSkill.conceptModuleId, 'meter-master', 'A skill fed by one bank should carry that bank as its conceptModuleId.');
+check(metreSkill.concepts['Simple time'] && metreSkill.concepts['Simple time'].percentage >= 90, 'All-correct concept should read as a strength.');
+check(metreSkill.concepts['Compound time'] && metreSkill.concepts['Compound time'].percentage <= 20, 'All-wrong concept should read as a weakness.');
+check(!('_conceptBuckets' in metreSkill), 'Internal _conceptBuckets must be stripped before the client.');
 
 const fakeAdapter = {
   id: 'fake-module',

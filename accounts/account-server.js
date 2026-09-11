@@ -9,11 +9,21 @@ const { createAdapters } = require('../classroom/adapters');
 const { QuestionCatalogue } = require('../classroom/question-catalogue');
 const { buildQuestionSet } = require('../classroom/question-set-builder');
 const { createClassEvidenceLoader } = require('../classroom/class-evidence');
-const { questionIdsForConcepts, CONCEPT_SCOPED_MODULE_IDS } = require('../classroom/concept-catalogue');
+const { questionIdsForConcepts, CONCEPT_SCOPED_MODULE_IDS, questionConceptValues } = require('../classroom/concept-catalogue');
 const { saveRoundPayload } = require('../classroom/progress-recorder');
 const { loadQuestionRatings, loadStudentSkillRatings, recordEloOutcome, isRatableModule } = require('../classroom/elo');
-const { rankConceptsForTargeting } = require('../classroom/mastery');
+const { rankConceptsForTargeting, recencyWeightedScore, computeTrend } = require('../classroom/mastery');
+const Feedback = require('../modules/progress-mode/feedback.js');
 const pmRegistry = require('../shared/js/pm-registry.js');
+
+// skill_code -> the taxonomy's own one-line "Recognise X by Y." — attached
+// to each skill in buildElementEvidence so the element-popup skill rows can
+// name what to practise (via feedback.js's buildSkillRowFeedback) without a
+// second per-skill phrase bank.
+const SKILL_DESCRIPTIONS = new Map(
+  (require('../shared/data/skill-taxonomy.json').skills || [])
+    .map((skill) => [skill.skill_code, skill.description || ''])
+);
 
 // Homework's own question-set plumbing — a second, independent
 // QuestionCatalogue/adapter set from classroom-server.js's (see classroom/
@@ -440,6 +450,146 @@ function progressPercentage(score, maximum) {
   return maximum > 0 ? Math.round((score / maximum) * 100) : 0;
 }
 
+// `outcomes` is the internal [{ at, value }] list a skill/element
+// accumulates (one entry per answered question, value = fractional marks in
+// [0, 1]). Returns the two temporal fields the dashboards actually show:
+// `currentPercentage` (recency-weighted "where are you now") and `trend`
+// (a conservative recent-vs-earlier movement read). Both from
+// classroom/mastery.js so the decay matches computeConceptMastery's.
+function temporalFields(outcomes = []) {
+  const ordered = outcomes
+    .slice()
+    .sort((a, b) => new Date(a.at || 0).getTime() - new Date(b.at || 0).getTime())
+    .map((entry) => entry.value);
+  return {
+    currentPercentage: recencyWeightedScore(ordered),
+    trend: computeTrend(ordered)
+  };
+}
+
+// Concats the internal outcome lists two evidence objects carry, for the
+// merge/regroup steps (buildElementEvidence, mergeSkillEvidence) — kept as
+// a named helper so the "strip `_outcomes` before it reaches the client"
+// rule has one obvious counterpart.
+function mergeOutcomes(a = [], b = []) {
+  return a.concat(b);
+}
+
+// Merges two skills' `_conceptBuckets` maps (Map<"moduleId::value", bucket>)
+// by summing the tallies and concatenating outcomes — the concept-grain
+// counterpart to mergeOutcomes, for "overall" (attempts + reviews).
+function mergeConceptBuckets(a, b) {
+  if (!a && !b) return null;
+  const merged = new Map();
+  const fold = (source) => {
+    if (!source) return;
+    for (const [key, bucket] of source.entries()) {
+      const target = merged.get(key)
+        || { value: bucket.value, moduleId: bucket.moduleId, score: 0, questions: 0, correctQuestions: 0, outcomes: [] };
+      target.score += bucket.score;
+      target.questions += bucket.questions;
+      target.correctQuestions += bucket.correctQuestions;
+      target.outcomes = target.outcomes.concat(bucket.outcomes || []);
+      merged.set(key, target);
+    }
+  };
+  fold(a);
+  fold(b);
+  return merged;
+}
+
+// buildCanonicalSkillEvidence/buildSkillEvidenceFromReviews/mergeSkillEvidence
+// carry a raw per-answer `_outcomes` list so the merge/regroup steps can
+// recompute temporal fields — internal only, dropped here before a skill
+// array (or a single strongest/focus skill) is put in an API response.
+function stripSkillInternals(skills) {
+  if (Array.isArray(skills)) return skills.map((skill) => stripSkillInternals(skill));
+  if (skills && typeof skills === 'object') {
+    const { _outcomes, _conceptBuckets, ...rest } = skills;
+    return rest;
+  }
+  return skills;
+}
+
+// moduleId -> Map<questionId, question>, lazily built from the same
+// adapters homework uses. Lets a concept reading ("Homophonic",
+// "Compound time", ...) be resolved for every answered question straight
+// from the bank — never from the student's own answer payload.
+const conceptQuestionIndex = new Map();
+function conceptQuestionsFor(moduleId) {
+  if (!conceptQuestionIndex.has(moduleId)) {
+    const adapter = homeworkAdaptersById.get(moduleId);
+    const questions = typeof adapter?.getQuestions === 'function' ? adapter.getQuestions() : [];
+    conceptQuestionIndex.set(moduleId, new Map(questions.map((question) => [String(question.id || ''), question])));
+  }
+  return conceptQuestionIndex.get(moduleId);
+}
+
+// The concept value(s) one answered question belongs to, filtered to
+// values that have real display copy in feedback.js's CONCEPT_PHRASES (so
+// the pool never contains a value the sentence builder can't name).
+function resolveQuestionConcepts(moduleId, questionId) {
+  const cleanModuleId = String(moduleId || '').trim();
+  const phrases = Feedback.CONCEPT_PHRASES && Feedback.CONCEPT_PHRASES[cleanModuleId];
+  if (!phrases) return [];
+  const question = conceptQuestionsFor(cleanModuleId).get(String(questionId || ''));
+  if (!question) return [];
+  return questionConceptValues(cleanModuleId, question, HOMEWORK_PROJECT_ROOT)
+    .filter((value) => phrases[value]);
+}
+
+// Folds one answered question's outcome into a skill's per-concept buckets
+// (`_conceptBuckets`: Map<"moduleId::value", bucket>). `value01` is the
+// fractional score in [0,1]. Concept feedback is per-question, so a
+// 2-mark question counts once here, not twice.
+function recordConceptOutcome(skill, moduleId, questionId, value01, at) {
+  const concepts = resolveQuestionConcepts(moduleId, questionId);
+  if (!concepts.length) return;
+  if (!skill._conceptBuckets) skill._conceptBuckets = new Map();
+  concepts.forEach((value) => {
+    const key = `${moduleId}::${value}`;
+    const bucket = skill._conceptBuckets.get(key)
+      || { value, moduleId: String(moduleId || ''), score: 0, questions: 0, correctQuestions: 0, outcomes: [] };
+    bucket.score += value01;
+    bucket.questions += 1;
+    if (value01 >= 1) bucket.correctQuestions += 1;
+    bucket.outcomes.push({ at, value: value01 });
+    skill._conceptBuckets.set(key, bucket);
+  });
+}
+
+// Turns a skill's raw `_conceptBuckets` into the `{ conceptModuleId,
+// concepts: { [value]: { correct, questions, percentage } } }` shape
+// feedback.js's buildConceptFeedback consumes — keeping only the dominant
+// module's concepts (a skill fed by two banks, e.g. ornaments from both
+// ScoreDecoder and Melody Master, would otherwise mix two phrase banks),
+// only values with enough of a sample to name (>= SKILL_CONCEPT_MIN), and
+// a recency-weighted percentage so the verdict reflects current ability.
+const SKILL_CONCEPT_MIN = 3;
+function finaliseSkillConcepts(conceptBuckets) {
+  if (!conceptBuckets || !conceptBuckets.size) return { conceptModuleId: '', concepts: {} };
+  const byModule = new Map();
+  for (const bucket of conceptBuckets.values()) {
+    byModule.set(bucket.moduleId, (byModule.get(bucket.moduleId) || 0) + bucket.questions);
+  }
+  const conceptModuleId = Array.from(byModule.entries()).sort((a, b) => b[1] - a[1])[0][0];
+  const concepts = {};
+  for (const bucket of conceptBuckets.values()) {
+    if (bucket.moduleId !== conceptModuleId || bucket.questions < SKILL_CONCEPT_MIN) continue;
+    const ordered = bucket.outcomes
+      .slice()
+      .sort((a, b) => new Date(a.at || 0).getTime() - new Date(b.at || 0).getTime())
+      .map((entry) => entry.value);
+    const currentPct = recencyWeightedScore(ordered);
+    concepts[bucket.value] = {
+      correct: bucket.correctQuestions,
+      questions: bucket.questions,
+      percentage: Number.isFinite(currentPct) ? currentPct : progressPercentage(bucket.score, bucket.questions)
+    };
+  }
+  return { conceptModuleId, concepts };
+}
+
 function buildCanonicalSkillEvidence(attempts = []) {
   const groups = new Map();
 
@@ -460,6 +610,7 @@ function buildCanonicalSkillEvidence(attempts = []) {
       maximumScore: 0,
       questions: 0,
       correctQuestions: 0,
+      outcomes: [],
       clipIds: new Set(),
       questionIds: new Set(),
       moduleIds: new Set(),
@@ -467,9 +618,12 @@ function buildCanonicalSkillEvidence(attempts = []) {
       difficultyBands: new Set()
     };
 
-    current.score += Math.min(Math.max(0, progressNumber(attempt.score)), maximumScore);
+    const awardedScore = Math.min(Math.max(0, progressNumber(attempt.score)), maximumScore);
+    current.score += awardedScore;
     current.maximumScore += maximumScore;
     current.questions += 1;
+    current.outcomes.push({ at: attempt.completed_at, value: awardedScore / maximumScore });
+    recordConceptOutcome(current, attempt.module_id, attempt.question_id, awardedScore / maximumScore, attempt.completed_at);
     if (progressNumber(attempt.score) >= maximumScore) current.correctQuestions += 1;
     if (answerData.clipId) current.clipIds.add(String(answerData.clipId));
     if (attempt.question_id) current.questionIds.add(String(attempt.question_id));
@@ -487,6 +641,9 @@ function buildCanonicalSkillEvidence(attempts = []) {
       score: Math.round(skill.score * 100) / 100,
       maximumScore: Math.round(skill.maximumScore * 100) / 100,
       percentage: progressPercentage(skill.score, skill.maximumScore),
+      ...temporalFields(skill.outcomes),
+      _outcomes: skill.outcomes,
+      _conceptBuckets: skill._conceptBuckets || null,
       questions: skill.questions,
       correctQuestions: skill.correctQuestions,
       uniqueQuestions: skill.questionIds.size,
@@ -523,6 +680,7 @@ function buildSkillEvidenceFromReviews(reviewRows = []) {
       maximumScore: 0,
       questions: 0,
       correctQuestions: 0,
+      outcomes: [],
       clipIds: new Set(),
       questionIds: new Set(),
       moduleIds: new Set(),
@@ -533,6 +691,8 @@ function buildSkillEvidenceFromReviews(reviewRows = []) {
     current.score += row.correct ? 1 : 0;
     current.maximumScore += 1;
     current.questions += 1;
+    current.outcomes.push({ at: row.completed_at, value: row.correct ? 1 : 0 });
+    recordConceptOutcome(current, moduleId, row.question_signature, row.correct ? 1 : 0, row.completed_at);
     if (row.correct) current.correctQuestions += 1;
     if (metadata.clip_id) current.clipIds.add(String(metadata.clip_id));
     if (row.question_signature) current.questionIds.add(String(row.question_signature));
@@ -550,6 +710,9 @@ function buildSkillEvidenceFromReviews(reviewRows = []) {
       score: Math.round(skill.score * 100) / 100,
       maximumScore: Math.round(skill.maximumScore * 100) / 100,
       percentage: progressPercentage(skill.score, skill.maximumScore),
+      ...temporalFields(skill.outcomes),
+      _outcomes: skill.outcomes,
+      _conceptBuckets: skill._conceptBuckets || null,
       questions: skill.questions,
       correctQuestions: skill.correctQuestions,
       uniqueQuestions: skill.questionIds.size,
@@ -581,6 +744,8 @@ function mergeSkillEvidence(...evidenceArrays) {
         uniqueQuestions: 0,
         uniqueClips: 0,
         modules: 0,
+        outcomes: [],
+        conceptBuckets: null,
         learningStages: new Set(),
         difficultyBands: new Set()
       };
@@ -591,6 +756,8 @@ function mergeSkillEvidence(...evidenceArrays) {
       current.uniqueQuestions += skill.uniqueQuestions;
       current.uniqueClips += skill.uniqueClips;
       current.modules = Math.max(current.modules, skill.modules);
+      current.outcomes = mergeOutcomes(current.outcomes, skill._outcomes || []);
+      current.conceptBuckets = mergeConceptBuckets(current.conceptBuckets, skill._conceptBuckets);
       skill.learningStages.forEach((stage) => current.learningStages.add(stage));
       skill.difficultyBands.forEach((band) => current.difficultyBands.add(band));
       groups.set(skill.skillCode, current);
@@ -598,11 +765,14 @@ function mergeSkillEvidence(...evidenceArrays) {
   });
 
   return Array.from(groups.values())
-    .map((skill) => ({
+    .map(({ outcomes, conceptBuckets, ...skill }) => ({
       ...skill,
       score: Math.round(skill.score * 100) / 100,
       maximumScore: Math.round(skill.maximumScore * 100) / 100,
       percentage: progressPercentage(skill.score, skill.maximumScore),
+      ...temporalFields(outcomes),
+      _outcomes: outcomes,
+      _conceptBuckets: conceptBuckets,
       learningStages: Array.from(skill.learningStages),
       difficultyBands: Array.from(skill.difficultyBands),
       reliable: skill.uniqueQuestions >= 3 || skill.uniqueClips >= 2
@@ -648,6 +818,7 @@ function buildElementEvidence(skills = []) {
       correctQuestions: 0,
       uniqueQuestions: 0,
       uniqueClips: 0,
+      outcomes: [],
       skills: []
     };
     current.score += skill.score;
@@ -656,15 +827,28 @@ function buildElementEvidence(skills = []) {
     current.correctQuestions += (skill.correctQuestions || 0);
     current.uniqueQuestions += skill.uniqueQuestions;
     current.uniqueClips += skill.uniqueClips;
+    current.outcomes = mergeOutcomes(current.outcomes, skill._outcomes || []);
     current.skills.push(skill);
     groups.set(musicalElement, current);
   }
 
   return Array.from(groups.values())
     .map((element) => {
+      // `_outcomes` / `_conceptBuckets` are internal (raw per-answer
+      // timestamps / per-concept tallies) — the computed fields are kept,
+      // the raw structures stripped before this reaches the client.
+      const finaliseSkill = (skill) => {
+        if (!skill) return null;
+        const { _outcomes, _conceptBuckets, ...rest } = skill;
+        return {
+          ...rest,
+          description: SKILL_DESCRIPTIONS.get(skill.skillCode) || '',
+          ...finaliseSkillConcepts(_conceptBuckets)
+        };
+      };
       const rankedSkills = element.skills.slice().sort((a, b) => (
-        a.percentage - b.percentage || b.questions - a.questions
-      ));
+        skillRank(a) - skillRank(b) || b.questions - a.questions
+      )).map(finaliseSkill);
       const reliableSkills = rankedSkills.filter((skill) => skill.reliable);
       return {
         musicalElement: element.musicalElement,
@@ -672,6 +856,11 @@ function buildElementEvidence(skills = []) {
         score: Math.round(element.score * 100) / 100,
         maximumScore: Math.round(element.maximumScore * 100) / 100,
         percentage: progressPercentage(element.score, element.maximumScore),
+        // "Where is this element now" — recency-weighted across every skill
+        // in it, plus a recent-vs-earlier movement read. `percentage` above
+        // stays the lifetime figure (total evidence); the dashboards lead
+        // with `currentPercentage` and fall back to it.
+        ...temporalFields(element.outcomes),
         // Whole-question tallies (not marks sums) — the frontends blend
         // these with Progress Mode's own flat correct/attempted counts, so
         // a 2-mark question mustn't outweigh a 1-mark one.
@@ -690,6 +879,14 @@ function buildElementEvidence(skills = []) {
     .sort((a, b) => b.questions - a.questions || a.musicalElement.localeCompare(b.musicalElement));
 }
 
+// Rank a skill/element for "strongest" / "focus" ordering by its current
+// (recency-weighted) figure where we have one, falling back to the
+// lifetime percentage — so "your next focus area" reflects where a student
+// is now, not an average dragged down by a rough start months ago.
+function skillRank(entry) {
+  return Number.isFinite(entry.currentPercentage) ? entry.currentPercentage : entry.percentage;
+}
+
 // canonicalSkillFeedback's counterpart at element grain — same strongest/
 // focus sentence shape, but naming an element plus (when available) the
 // specific weak skill within it, e.g. "...focus is Meter and rhythm
@@ -697,14 +894,30 @@ function buildElementEvidence(skills = []) {
 function elementFeedback(elements, audience = 'student') {
   const { strongest, focus } = canonicalSkillPriorities(elements);
   if (!strongest) return '';
-  const focusDetail = (skill) => skill?.focusSkill ? ` (specifically ${skill.focusSkill.skillName.toLowerCase()})` : '';
+  // Only name a specific skill within the focus element when that element
+  // actually splits into more than one reliable skill — otherwise
+  // "(specifically form and structure)" just restates "structure and form".
+  const focusDetail = (element) => {
+    if (!element?.focusSkill) return '';
+    const reliableWithin = (element.skills || []).filter((skill) => skill.reliable).length;
+    if (reliableWithin < 2) return '';
+    return ` (specifically ${element.focusSkill.skillName.toLowerCase()})`;
+  };
+  // Movement marker on the focus area only — a subtle "(improving)" /
+  // "(slipping)" so the sentence conveys direction, not just position.
+  const drift = (element) => {
+    if (!element?.trend?.sampled) return '';
+    if (element.trend.direction === 'up') return ' (improving)';
+    if (element.trend.direction === 'down') return ' (slipping)';
+    return '';
+  };
   if (!focus || focus.musicalElement === strongest.musicalElement) {
     const owner = audience === 'class' ? 'Class evidence' : 'Your evidence';
-    return ` ${owner} currently shows ${strongest.musicalElement.toLowerCase()} at ${strongest.percentage}%.`;
+    return ` ${owner} currently shows ${strongest.musicalElement.toLowerCase()} at ${skillRank(strongest)}%.`;
   }
   const owner = audience === 'class' ? 'The strongest evidenced class area' : 'Your strongest evidenced area';
   const priority = audience === 'class' ? 'the next class focus area' : 'your next focus area';
-  return ` ${owner} is ${strongest.musicalElement.toLowerCase()} at ${strongest.percentage}%; ${priority} is ${focus.musicalElement.toLowerCase()}${focusDetail(focus)} at ${focus.percentage}%.`;
+  return ` ${owner} is ${strongest.musicalElement.toLowerCase()} at ${skillRank(strongest)}%; ${priority} is ${focus.musicalElement.toLowerCase()}${focusDetail(focus)} at ${skillRank(focus)}%${drift(focus)}.`;
 }
 
 
@@ -758,12 +971,14 @@ function canonicalSkillPriorities(skills = []) {
   const reliable = skills.filter((skill) => skill.reliable);
   if (!reliable.length) return { strongest: null, focus: null };
 
+  // Ranked by the current (recency-weighted) figure where available — see
+  // skillRank — so priorities track where the student is now.
   const strongest = reliable.slice().sort((a, b) => (
-    b.percentage - a.percentage || b.questions - a.questions
+    skillRank(b) - skillRank(a) || b.questions - a.questions
   ))[0];
   const focus = reliable.length > 1
     ? reliable.slice().sort((a, b) => (
-      a.percentage - b.percentage || b.questions - a.questions
+      skillRank(a) - skillRank(b) || b.questions - a.questions
     ))[0]
     : null;
   return { strongest, focus };
@@ -905,10 +1120,16 @@ function buildElementBreakdowns(allRounds, allAttempts, reviewRows = []) {
   };
 }
 
-function buildProgressSummary(allRounds, allAttempts) {
+function buildProgressSummary(allRounds, allAttempts, reviewRows = []) {
   const scoredRounds = allRounds;
   const scoredRoundIds = new Set(scoredRounds.map((round) => String(round.id)));
   const scoredAttempts = allAttempts.filter((attempt) => scoredRoundIds.has(String(attempt.round_id)));
+  // Strengths/focus areas by musical element, across every source this
+  // student works in (attempts + Progress Mode reviews). The same breakdown
+  // loadStudentProgress/buildClassProgressSummary previously computed
+  // separately — folded in here so the compiled sentence below and the
+  // `elements` payload can never disagree.
+  const elementBreakdowns = buildElementBreakdowns(allRounds, allAttempts, reviewRows);
 
   const moduleSummaries = PROGRESS_MODULE_ORDER.map((moduleId) => {
     const definition = PROGRESS_MODULE_DEFINITIONS[moduleId];
@@ -925,9 +1146,9 @@ function buildProgressSummary(allRounds, allAttempts) {
     const attemptedQuestionCount = scoredModuleAttempts.length;
     const correctQuestionCount = scoredModuleAttempts.filter((attempt) => progressNumber(attempt.score) >= progressNumber(attempt.maximum_score)).length;
     const accuracy = progressPercentage(score, maximumScore);
-    const skills = buildCanonicalSkillEvidence(
+    const skills = stripSkillInternals(buildCanonicalSkillEvidence(
       scoredAttempts.filter((attempt) => attempt.module_id === moduleId)
-    );
+    ));
     const skillPriorities = canonicalSkillPriorities(skills);
     let feedback = 'Complete a round to start building personalised feedback.';
     let strength = 'No evidence yet';
@@ -1048,7 +1269,7 @@ function buildProgressSummary(allRounds, allAttempts) {
   const startedModules = moduleSummaries.filter((module) => module.questions > 0);
   const strongestModule = startedModules.slice().sort((a, b) => b.percentage - a.percentage)[0] || null;
   const focusModule = startedModules.slice().sort((a, b) => a.percentage - b.percentage)[0] || null;
-  const skills = buildCanonicalSkillEvidence(scoredAttempts);
+  const skills = stripSkillInternals(buildCanonicalSkillEvidence(scoredAttempts));
   const skillPriorities = canonicalSkillPriorities(skills);
   let compiledFeedback = 'Complete an EchoAural round while logged in to start the progress record.';
 
@@ -1066,7 +1287,7 @@ function buildProgressSummary(allRounds, allAttempts) {
     const focusText = focusModule
       ? ` The next priority is ${focusModule.title}: ${focusModule.nextStep}`
       : '';
-    compiledFeedback = `${opening}${strengthText}${focusText}${canonicalSkillFeedback(skills)}`;
+    compiledFeedback = `${opening}${strengthText}${focusText}${elementFeedback(elementBreakdowns.overall, 'student')}`;
   }
 
   const roundSourceById = new Map(
@@ -1091,6 +1312,7 @@ function buildProgressSummary(allRounds, allAttempts) {
     },
     modules: moduleSummaries,
     skills,
+    elements: elementBreakdowns,
     // Per-sub-app whole-question tally for the element detail popups — see
     // buildBySourceKeyBreakdown. Attempt data only; Progress Mode's own
     // per-source counts are added client-side (getCombinedSourceStats).
@@ -1171,11 +1393,13 @@ async function loadStudentProgress(studentId) {
     })
   ]);
 
-  const combined = buildProgressSummary(roundResult.rows, attemptResult.rows);
+  const combined = buildProgressSummary(roundResult.rows, attemptResult.rows, reviewResult.rows);
   return {
     ...combined,
-    categories: buildProgressCategories(roundResult.rows, attemptResult.rows),
-    elements: buildElementBreakdowns(roundResult.rows, attemptResult.rows, reviewResult.rows)
+    categories: buildProgressCategories(roundResult.rows, attemptResult.rows)
+    // `elements` comes from buildProgressSummary now (same buildElementBreakdowns
+    // call, threaded the review rows), so the compiled sentence and this
+    // payload are guaranteed to match.
   };
 }
 
@@ -1269,7 +1493,7 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts, reviewRo
     const studentRounds = allRounds.filter((round) => String(round.student_id) === String(student.id));
     const studentAttempts = allAttempts.filter((attempt) => String(attempt.student_id) === String(student.id));
     const studentReviews = reviewRows.filter((row) => String(row.student_id) === String(student.id));
-    const progress = buildProgressSummary(studentRounds, studentAttempts);
+    const progress = buildProgressSummary(studentRounds, studentAttempts, studentReviews);
     return {
       id: student.id,
       username: student.username,
@@ -1278,7 +1502,7 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts, reviewRo
       createdAt: student.created_at,
       lastLoginAt: student.last_login_at,
       ...progress.overall,
-      elements: buildElementBreakdowns(studentRounds, studentAttempts, studentReviews)
+      elements: progress.elements
     };
   });
 
@@ -1292,7 +1516,7 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts, reviewRo
     const questions = rounds.reduce((sum, round) => sum + Number(round.question_count || 0), 0);
     const studentCount = new Set(rounds.map((round) => String(round.student_id))).size;
     const value = progressPercentage(score, maximumScore);
-    const skills = buildCanonicalSkillEvidence(attempts);
+    const skills = stripSkillInternals(buildCanonicalSkillEvidence(attempts));
     const skillPriorities = canonicalSkillPriorities(skills);
     const summary = {
       moduleId,
@@ -1321,7 +1545,7 @@ function buildClassProgressSummary(allStudents, allRounds, allAttempts, reviewRo
   const startedModules = modules.filter((module) => module.questions > 0);
   const strongestModule = startedModules.slice().sort((a, b) => b.percentage - a.percentage)[0] || null;
   const focusModule = startedModules.slice().sort((a, b) => a.percentage - b.percentage)[0] || null;
-  const skills = buildCanonicalSkillEvidence(scoredAttempts);
+  const skills = stripSkillInternals(buildCanonicalSkillEvidence(scoredAttempts));
   const skillPriorities = canonicalSkillPriorities(skills);
   // Every source (Progress Mode + Live Session + Homework) combined, at
   // element grain — see buildElementBreakdowns' own header comment for why
