@@ -7,7 +7,8 @@ const {
   CONCEPT_SCOPED_MODULE_IDS,
   conceptFieldsFor,
   getConceptCatalogue,
-  questionIdsForConcepts
+  questionIdsForConcepts,
+  questionConceptValues
 } = require('../concept-catalogue');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
@@ -193,4 +194,38 @@ test('integration: real meter-master/texture-trainer/melody-master adapters prod
       assert.ok(item.label, `${moduleId}'s "${item.value}" concept has no display label`);
     });
   });
+});
+
+// --- Concept feedback coverage: the 8 modules whose CONCEPT_PHRASES bank
+// is fed server-side from the question bank (accounts/account-server.js's
+// resolveQuestionConcepts). Accuracy-critical, so asserted against the
+// real adapters, not fixtures. chord-identifier / key-signature-sprint are
+// deliberately excluded (procedural — concepts only exist post-seed).
+test('conceptFieldsFor: the 5 modules added for concept feedback resolve real concept values against their live banks', () => {
+  const { createAdapters } = require('../adapters');
+  const Feedback = require('../../modules/progress-mode/feedback.js');
+  const byId = new Map(createAdapters(PROJECT_ROOT).map((item) => [item.id, item]));
+
+  const expectations = {
+    'melodic-intervals': ['Perfect', 'Major', '2nd', '5th', 'ascending', 'descending'],
+    'instrument-identifier': ['Strings', 'Woodwind', 'Brass', 'Cello', 'Orchestral'],
+    'ensemble-recognition': ['Small ensembles', 'Large ensembles'],
+    'cadence-coach': ['Perfect', 'Imperfect', 'Major keys'],
+    'musical-language': ['Tempo words', 'Static dynamic markings', 'Continuity marks']
+  };
+
+  for (const [moduleId, wanted] of Object.entries(expectations)) {
+    const questions = byId.get(moduleId).getQuestions();
+    const phrases = Feedback.CONCEPT_PHRASES[moduleId] || {};
+    const seen = new Set();
+    for (const question of questions) {
+      for (const value of questionConceptValues(moduleId, question, PROJECT_ROOT)) {
+        // Every resolved value must have display copy — otherwise the
+        // sentence builder can't name it.
+        assert.ok(phrases[value], `${moduleId}: concept value "${value}" has no CONCEPT_PHRASES entry`);
+        seen.add(value);
+      }
+    }
+    wanted.forEach((value) => assert.ok(seen.has(value), `${moduleId}: expected concept "${value}" not found in the live bank`));
+  }
 });

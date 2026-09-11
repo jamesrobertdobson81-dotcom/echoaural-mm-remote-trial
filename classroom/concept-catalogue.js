@@ -56,6 +56,47 @@ function conceptFieldsFor(moduleId, question, projectRoot) {
       aosCode: aosEntry ? aosEntry.aos_code : undefined
     };
   }
+  // The banks below name the concept fields close enough to what
+  // shared/js/concept-extractors.js expects that a direct pass-through (or
+  // a one-line derive) is all that's needed — verified against the real
+  // question data in classroom/tests/concept-catalogue.test.js.
+  if (moduleId === 'melodic-intervals') {
+    return {
+      intervalLabel: question.intervalLabel,
+      intervalQuality: question.intervalQuality,
+      direction: question.direction,
+      keySignatureAccidentals: question.keySignatureAccidentals
+    };
+  }
+  if (moduleId === 'instrument-identifier') {
+    return {
+      family: question.family,
+      type: question.type,
+      instrument: question.instrument,
+      responseType: question.responseType
+    };
+  }
+  if (moduleId === 'ensemble-recognition') {
+    return {
+      category: question.category,
+      ensembleLabel: question.ensembleLabel
+    };
+  }
+  if (moduleId === 'cadence-coach') {
+    // `answer` is the cadence name ("Perfect"/"Imperfect"); `key` is
+    // "F major" / "A minor" — the extractor's chordKeyModeTier wants just
+    // "major" / "minor".
+    return {
+      cadenceType: question.answer,
+      keyMode: String(question.key || '').trim().split(/\s+/).pop()
+    };
+  }
+  if (moduleId === 'musical-language') {
+    return {
+      term: question.term,
+      termType: question.term_type
+    };
+  }
   return {};
 }
 
