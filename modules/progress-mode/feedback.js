@@ -1501,6 +1501,74 @@
     return parts.join(" ");
   }
 
+  // Row-level feedback for the "Performance by skill" list inside an
+  // element's detail popup — account/student-home/student-home.js's
+  // elementDetailMarkup and account/teacher-dashboard/teacher-dashboard.js's
+  // renderTeacherElementBreakdown both render one row per taxonomy skill
+  // that contributes to the element, built from the server's
+  // elements[scope][i].skills array (accounts/account-server.js's
+  // buildElementEvidence). `skill` = { skillName, description (the
+  // taxonomy's own "Recognise X by Y." line), percentage, questions,
+  // reliable }. Same EARLY_SIGNAL/FEEDBACK_MIN sample bars and
+  // STRENGTH/WEAKNESS thresholds as buildSourceFeedback below, so a skill
+  // row and the element's headline sentence can't disagree about whether
+  // it's a strength or a focus. Deliberately generic (no per-skill phrase
+  // bank): the taxonomy description carries the "what to practise" clause.
+  function buildSkillRowFeedback(skill) {
+    if (!skill) return "";
+    var name = String(skill.skillName || "This skill");
+    var questions = Number(skill.questions) || 0;
+    // `currentPercentage` (recency-weighted "where are you now", from
+    // accounts/account-server.js's temporalFields) is what a statement
+    // should lead with; `percentage` is the lifetime figure, used only as a
+    // fallback.
+    var pct = Math.round(
+      typeof skill.currentPercentage === "number" ? skill.currentPercentage : (Number(skill.percentage) || 0)
+    );
+    // The taxonomy description is a full "Recognise X by Y." sentence —
+    // appended verbatim as a "Practise: …" clause rather than reshaped into
+    // an imperative, which keeps it grammatical for every skill regardless
+    // of its leading verb.
+    var practise = skill.description ? " Practise: " + String(skill.description).trim() : "";
+
+    if (!skill.reliable || questions < EARLY_SIGNAL_MIN_QUESTIONS) {
+      return questions
+        ? name + ": only " + questions + " answer" + (questions === 1 ? "" : "s")
+          + " so far — a few more will show whether this is secure."
+        : name + ": no answers yet.";
+    }
+
+    // A clear recent-vs-earlier move (from temporalFields' `trend`) leads
+    // the sentence — direction of travel is the most motivating single fact.
+    // The verdict word tracks `pct` (the recency-weighted current figure the
+    // row also displays), while the movement clause names only where it rose
+    // from / fell from, so the sentence never states a second number that
+    // fights the one on screen.
+    var trend = skill.trend && skill.trend.sampled ? skill.trend : null;
+    if (trend && trend.direction === "up") {
+      if (pct >= STRENGTH_THRESHOLD) {
+        return name + " is up from " + trend.earlierPct + "% and now secure at " + pct + "%.";
+      }
+      var band = pct >= WEAKNESS_THRESHOLD ? "developing well" : "still a focus area";
+      return name + " is improving — " + pct + "% now, up from " + trend.earlierPct + "% — " + band + "." + practise;
+    }
+    if (trend && trend.direction === "down") {
+      return name + " has slipped to " + pct + "%, down from " + trend.earlierPct
+        + "% — worth revisiting." + practise;
+    }
+
+    // " so far" is a lighter hedge than a prefix and doesn't collide with
+    // the "Early signs" tier tag the row also shows for a 3-7 sample.
+    var hedge = questions < FEEDBACK_MIN_QUESTIONS ? " so far" : "";
+    if (pct >= STRENGTH_THRESHOLD) {
+      return name + " is secure at " + pct + "%" + hedge + ".";
+    }
+    if (pct >= WEAKNESS_THRESHOLD) {
+      return name + " is developing at " + pct + "%" + hedge + "." + practise;
+    }
+    return name + " needs focus at " + pct + "%" + hedge + "." + practise;
+  }
+
   // Single-source counterpart to buildAreaFeedback above, for the "one
   // element's real apps" popup (account/student-home/student-home.js's
   // elementDetailMarkup) — one sub-app at a time rather than pairing
@@ -1611,6 +1679,7 @@
     WEAKNESS_THRESHOLD: WEAKNESS_THRESHOLD,
     buildAreaFeedback: buildAreaFeedback,
     buildSourceFeedback: buildSourceFeedback,
+    buildSkillRowFeedback: buildSkillRowFeedback,
     buildConceptFeedback: buildConceptFeedback,
     pickTopConcept: pickTopConcept
   };

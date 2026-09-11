@@ -233,6 +233,117 @@ test("buildSourceFeedback: unknown sourceKey returns an empty string rather than
   assert.equal(Feedback.buildSourceFeedback("not-a-real-source", 9, 10), "");
 });
 
+test("buildSkillRowFeedback: secure band names the skill and percentage, no practise clause", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Metre classification", description: "Recognise simple, compound, regular and irregular metre.",
+    percentage: 90, questions: 12, reliable: true
+  });
+  assert.equal(text, "Metre classification is secure at 90%.");
+});
+
+test("buildSkillRowFeedback: developing band appends the taxonomy description verbatim as a practise clause", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Cadence", description: "Recognise and name a cadence.",
+    percentage: 68, questions: 12, reliable: true
+  });
+  assert.equal(text, "Cadence is developing at 68%. Practise: Recognise and name a cadence.");
+});
+
+test("buildSkillRowFeedback: focus band tells the student what to practise", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Tonality and key", description: "Recognise key, major/minor tonality or modality.",
+    percentage: 40, questions: 10, reliable: true
+  });
+  assert.equal(text, "Tonality and key needs focus at 40%. Practise: Recognise key, major/minor tonality or modality.");
+});
+
+test("buildSkillRowFeedback: 3-7 questions hedges with ' so far' (not colliding with the 'Early signs' row tag)", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Texture type", description: "Recognise and name musical texture.",
+    percentage: 85, questions: 4, reliable: true
+  });
+  assert.equal(text, "Texture type is secure at 85% so far.");
+  assert.doesNotMatch(text, /Early signs/);
+});
+
+test("buildSkillRowFeedback: below the reliability bar returns a 'need more answers' line, not a verdict", () => {
+  const Feedback = loadFeedback();
+  assert.equal(
+    Feedback.buildSkillRowFeedback({ skillName: "Ornamentation", percentage: 100, questions: 2, reliable: false }),
+    "Ornamentation: only 2 answers so far — a few more will show whether this is secure."
+  );
+  assert.equal(
+    Feedback.buildSkillRowFeedback({ skillName: "Ornamentation", percentage: 0, questions: 0, reliable: false }),
+    "Ornamentation: no answers yet."
+  );
+});
+
+test("buildSkillRowFeedback: missing description just drops the practise clause, no dangling punctuation", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Individual instrument", percentage: 55, questions: 20, reliable: true
+  });
+  assert.equal(text, "Individual instrument needs focus at 55%.");
+});
+
+test("buildSkillRowFeedback: null/undefined skill returns an empty string rather than throwing", () => {
+  const Feedback = loadFeedback();
+  assert.equal(Feedback.buildSkillRowFeedback(null), "");
+  assert.equal(Feedback.buildSkillRowFeedback(undefined), "");
+});
+
+test("buildSkillRowFeedback: leads with currentPercentage over the lifetime percentage", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Cadence", percentage: 55, currentPercentage: 84, questions: 20, reliable: true
+  });
+  assert.equal(text, "Cadence is secure at 84%.");
+});
+
+test("buildSkillRowFeedback: an upward trend names where it rose from, verdict tracks the current figure", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Cadence", description: "Recognise and name a cadence.",
+    percentage: 55, currentPercentage: 70, questions: 20, reliable: true,
+    trend: { sampled: true, direction: "up", earlierPct: 45, recentPct: 72, delta: 27 }
+  });
+  assert.equal(text, "Cadence is improving — 70% now, up from 45% — developing well. Practise: Recognise and name a cadence.");
+});
+
+test("buildSkillRowFeedback: an upward trend into the secure band drops the practise clause", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Interval quality", description: "Recognise the full quality and number of a melodic interval.",
+    percentage: 70, currentPercentage: 88, questions: 25, reliable: true,
+    trend: { sampled: true, direction: "up", earlierPct: 60, recentPct: 90, delta: 30 }
+  });
+  assert.equal(text, "Interval quality is up from 60% and now secure at 88%.");
+});
+
+test("buildSkillRowFeedback: a downward trend names the current figure and where it fell from", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Tonality and key", description: "Recognise key, major/minor tonality or modality.",
+    percentage: 75, currentPercentage: 58, questions: 22, reliable: true,
+    trend: { sampled: true, direction: "down", earlierPct: 82, recentPct: 55, delta: -27 }
+  });
+  assert.equal(text, "Tonality and key has slipped to 58%, down from 82% — worth revisiting. Practise: Recognise key, major/minor tonality or modality.");
+});
+
+test("buildSkillRowFeedback: a flat / unsampled trend falls back to the plain current-figure phrasing", () => {
+  const Feedback = loadFeedback();
+  const text = Feedback.buildSkillRowFeedback({
+    skillName: "Texture type", description: "Recognise and name musical texture.",
+    percentage: 66, currentPercentage: 64, questions: 30, reliable: true,
+    trend: { sampled: true, direction: "flat", earlierPct: 66, recentPct: 62, delta: -4 }
+  });
+  assert.equal(text, "Texture type is developing at 64%. Practise: Recognise and name musical texture.");
+});
+
 test("buildConceptFeedback: pairs the clearest strength and weakness across different dimensions of the same module", () => {
   const Feedback = loadFeedback();
   // "first inversion" (inversion dimension) vs "Extended chords" (extension
