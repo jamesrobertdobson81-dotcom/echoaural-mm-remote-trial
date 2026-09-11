@@ -135,6 +135,50 @@ function computeConceptMastery(reviewRows = [], adaptersById, projectRoot) {
 // then due, then weak, then everything else by dueScore — for callers that
 // just want "give me the top N concepts to target" (homework's targeted
 // mode, Suggested Intervention) rather than the full per-concept map.
+// "Where is this skill right now" — a percentage that weights the most
+// recent answer fully and halves the weight every RECENCY_HALF_LIFE_REVIEWS
+// answers back (same decay computeConceptMastery uses). `outcomes` is a
+// list of per-answer scores in [0, 1] (fractional marks are fine),
+// ORDERED OLDEST -> NEWEST. Returns null for an empty list.
+function recencyWeightedScore(outcomes = []) {
+  const values = outcomes.map((value) => Math.min(1, Math.max(0, Number(value) || 0)));
+  const total = values.length;
+  if (!total) return null;
+  let weighted = 0;
+  let weight = 0;
+  values.forEach((value, index) => {
+    const w = recencyWeight(total - 1 - index);
+    weighted += w * value;
+    weight += w;
+  });
+  return weight ? Math.round((weighted / weight) * 100) : null;
+}
+
+// A coarse "which way is this going" read: the mean of the most recent
+// third of answers vs the mean of everything before it. Deliberately
+// conservative — only speaks up (`sampled: true`) with at least
+// TREND_MIN_ANSWERS answers, a real earlier window, and a gap of at least
+// TREND_MIN_DELTA points; otherwise callers should just show the current
+// figure with no movement claim. `outcomes` ordered oldest -> newest, as
+// above.
+const TREND_MIN_ANSWERS = 8;
+const TREND_MIN_DELTA = 8;
+function computeTrend(outcomes = []) {
+  const values = outcomes.map((value) => Math.min(1, Math.max(0, Number(value) || 0)));
+  const total = values.length;
+  if (total < TREND_MIN_ANSWERS) return { sampled: false };
+  const recentCount = Math.max(3, Math.round(total / 3));
+  const recent = values.slice(total - recentCount);
+  const earlier = values.slice(0, total - recentCount);
+  if (earlier.length < 3) return { sampled: false };
+  const mean = (list) => list.reduce((sum, value) => sum + value, 0) / list.length;
+  const earlierPct = Math.round(mean(earlier) * 100);
+  const recentPct = Math.round(mean(recent) * 100);
+  const delta = recentPct - earlierPct;
+  const direction = delta >= TREND_MIN_DELTA ? 'up' : delta <= -TREND_MIN_DELTA ? 'down' : 'flat';
+  return { sampled: true, earlierPct, recentPct, delta, direction };
+}
+
 function rankConceptsForTargeting(conceptMastery) {
   return Object.values(conceptMastery)
     .filter((concept) => concept.needsWork)
@@ -150,5 +194,7 @@ function rankConceptsForTargeting(conceptMastery) {
 
 module.exports = {
   computeConceptMastery,
+  recencyWeightedScore,
+  computeTrend,
   rankConceptsForTargeting
 };

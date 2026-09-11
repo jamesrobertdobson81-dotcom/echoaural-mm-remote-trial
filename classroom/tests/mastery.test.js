@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { computeConceptMastery, rankConceptsForTargeting } = require('../mastery');
+const { computeConceptMastery, rankConceptsForTargeting, recencyWeightedScore, computeTrend } = require('../mastery');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
 
@@ -153,4 +153,37 @@ test('rankConceptsForTargeting: a concept that is both weak AND overdue ranks ab
   const weakIndex = ranked.findIndex((c) => c.value === 'Compound duple');
   const overdueOnlyIndex = ranked.findIndex((c) => c.value === 'Simple triple');
   assert.ok(weakIndex < overdueOnlyIndex, 'weak+overdue should rank ahead of overdue-only');
+});
+
+test('recencyWeightedScore: null for an empty list, weights the most recent answers hardest', () => {
+  assert.equal(recencyWeightedScore([]), null);
+  // 4 wrong then 6 right — lifetime 60%, but recent-weighted well above it.
+  const improving = recencyWeightedScore([0, 0, 0, 0, 1, 1, 1, 1, 1, 1]);
+  assert.ok(improving > 70, `expected > 70, got ${improving}`);
+  // reverse — recent-weighted well below the 60% lifetime.
+  const declining = recencyWeightedScore([1, 1, 1, 1, 1, 1, 0, 0, 0, 0]);
+  assert.ok(declining < 50, `expected < 50, got ${declining}`);
+});
+
+test('recencyWeightedScore: accepts fractional (part-mark) outcomes', () => {
+  const score = recencyWeightedScore([0.5, 0.5, 1, 1]);
+  assert.ok(score >= 75 && score <= 100);
+});
+
+test('computeTrend: not sampled below 8 answers or without a real earlier window', () => {
+  assert.deepEqual(computeTrend([1, 0, 1, 1]), { sampled: false });
+  assert.deepEqual(computeTrend([1, 1, 1, 1, 1, 1, 1]), { sampled: false });
+});
+
+test('computeTrend: flags a clear climb / slip / steady state', () => {
+  const up = computeTrend([0, 0, 0, 0, 1, 1, 1, 1, 1, 1]);
+  assert.equal(up.sampled, true);
+  assert.equal(up.direction, 'up');
+  assert.ok(up.recentPct > up.earlierPct);
+
+  const down = computeTrend([1, 1, 1, 1, 1, 1, 0, 0, 0, 0]);
+  assert.equal(down.direction, 'down');
+
+  const flat = computeTrend([1, 0, 1, 1, 0, 1, 1, 0, 1, 1]);
+  assert.equal(flat.direction, 'flat');
 });
