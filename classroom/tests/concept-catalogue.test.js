@@ -208,7 +208,15 @@ test('conceptFieldsFor: the 5 modules added for concept feedback resolve real co
 
   const expectations = {
     'melodic-intervals': ['Perfect', 'Major', '2nd', '5th', 'ascending', 'descending'],
-    'instrument-identifier': ['Strings', 'Woodwind', 'Brass', 'Cello', 'Orchestral'],
+    'instrument-identifier': [
+      'Strings', 'Woodwind', 'Brass', 'Cello', 'Orchestral',
+      // Examiner-documented confusion pairs (Cambridge IGCSE 0410 June 2022
+      // report) — thin in the live bank (1-2 clips each) but whitelisted
+      // deliberately, same exception cadence-coach's own comment documents.
+      'Sarangi', 'Sitar', 'Shakuhachi', 'Panpipes',
+      // Real `articulation` field (modules/instrument-identifier/clips.js).
+      'Pizzicato', 'Double Stop', 'Harmonics'
+    ],
     'ensemble-recognition': ['Small ensembles', 'Large ensembles'],
     'cadence-coach': ['Perfect', 'Imperfect', 'Major keys'],
     'musical-language': ['Tempo words', 'Static dynamic markings', 'Continuity marks']
@@ -228,4 +236,29 @@ test('conceptFieldsFor: the 5 modules added for concept feedback resolve real co
     }
     wanted.forEach((value) => assert.ok(seen.has(value), `${moduleId}: expected concept "${value}" not found in the live bank`));
   }
+});
+
+test('conceptFieldsFor: the exact clips behind the examiner-documented confusions resolve to the right concept', () => {
+  const { createAdapters } = require('../adapters');
+  const byId = new Map(createAdapters(PROJECT_ROOT).map((item) => [item.id, item]));
+  const questions = byId.get('instrument-identifier').getQuestions();
+  const byQid = new Map(questions.map((q) => [q.id, q]));
+
+  const expectSingleInstrument = (id, value) => {
+    const question = byQid.get(id);
+    assert.ok(question, `question ${id} no longer exists in the instrument-identifier bank`);
+    assert.ok(
+      questionConceptValues('instrument-identifier', question, PROJECT_ROOT).includes(value),
+      `${id} (instrument="${question.instrument}") should resolve to concept "${value}"`
+    );
+  };
+
+  expectSingleInstrument('II341', 'Sarangi');
+  expectSingleInstrument('II392', 'Sitar');
+  expectSingleInstrument('II414', 'Sitar');
+  expectSingleInstrument('II342', 'Shakuhachi');
+  expectSingleInstrument('II403', 'Shakuhachi');
+  expectSingleInstrument('II337', 'Panpipes');
+  expectSingleInstrument('II044', 'Pizzicato');
+  expectSingleInstrument('II053', 'Pizzicato');
 });

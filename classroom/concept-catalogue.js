@@ -73,7 +73,8 @@ function conceptFieldsFor(moduleId, question, projectRoot) {
       family: question.family,
       type: question.type,
       instrument: question.instrument,
-      responseType: question.responseType
+      responseType: question.responseType,
+      articulation: question.articulation
     };
   }
   if (moduleId === 'ensemble-recognition') {

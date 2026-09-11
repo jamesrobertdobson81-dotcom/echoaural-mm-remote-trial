@@ -301,10 +301,28 @@
         whitelist: new Set([
           "cello", "oboe", "clarinet", "violin", "flute", "trumpet", "recorder",
           "double bass", "viola", "erhu", "acoustic guitar",
-          "piano", "french horn", "bandoneon"
+          "piano", "french horn", "bandoneon",
+          // Below the 3+ clip bar the rest of this whitelist holds to (1-2
+          // clips each) — kept anyway, same deliberate exception
+          // cadence-coach's own whitelist comment documents for
+          // Plagal/Interrupted: each is a real, examiner-documented
+          // confusion pair (Cambridge IGCSE 0410 June 2022 Principal
+          // Examiner Report — "Erhu and sitar were commonly seen [as]
+          // incorrect answers" for sarangi; "mistaking pan-pipes for a
+          // Japanese flute" for shakuhachi), so the value is worth having
+          // ready even though it won't clear FEEDBACK_MIN_QUESTIONS until
+          // more clips exist.
+          "sarangi", "sitar", "shakuhachi", "panpipes"
         ])
       },
-      { field: "responseType", bucket: iiResponseTypeTier }
+      { field: "responseType", bucket: iiResponseTypeTier },
+      // Real `articulation` field already on some clips (see
+      // modules/instrument-identifier/clips.js) — Pizzicato is the same
+      // examiner-documented confusion pair as above ("a significant number
+      // of answers stating staccato were not awarded the mark" for a
+      // pizzicato passage). Double Stop/Harmonics are the same field,
+      // equally real, included for free.
+      { field: "articulation", whitelist: new Set(["Pizzicato", "Double Stop", "Harmonics"]) }
     ],
     "texture-trainer": [
       { fieldsBucket: textureConceptValue },
