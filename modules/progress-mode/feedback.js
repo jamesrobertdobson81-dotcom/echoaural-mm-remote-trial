@@ -546,9 +546,33 @@
       },
       "Erhu": {
         strength: "identify the erhu confidently",
-        gap: "telling the erhu apart from a Western bowed string instrument",
-        focus: "listen for its thin, nasal, sliding tone, produced on just two strings",
+        gap: "telling the erhu apart from the sarangi or sitar — a real, examiner-documented mix-up",
+        focus: "listen for its thin, nasal, continuously sliding tone, bowed on just two strings with no frets at all",
         label: "erhu"
+      },
+      "Sarangi": {
+        strength: "identify the sarangi confidently",
+        gap: "telling the sarangi's bowed, voice-like tone apart from the erhu's or sitar's",
+        focus: "listen for a bowed (not plucked), fretless instrument that closely imitates a singing voice, usually over a continuous drone",
+        label: "sarangi"
+      },
+      "Sitar": {
+        strength: "identify the sitar confidently",
+        gap: "telling the sitar's plucked, buzzing tone apart from the erhu's or sarangi's bowed sound",
+        focus: "listen for a plucked (not bowed) tone with a characteristic buzzing jangle from its sympathetic strings",
+        label: "sitar"
+      },
+      "Shakuhachi": {
+        strength: "identify the shakuhachi confidently",
+        gap: "telling the shakuhachi apart from panpipes — a real, examiner-documented mix-up",
+        focus: "listen for an end-blown bamboo flute with a breathy, airy tone and audible bends or slides between pitches",
+        label: "shakuhachi"
+      },
+      "Panpipes": {
+        strength: "identify panpipes confidently",
+        gap: "telling panpipes apart from the shakuhachi or another breathy flute",
+        focus: "listen for a set of separate tuned pipes (no finger-holes, no pitch bends) with an audible breath \"chiff\" at the start of each note",
+        label: "panpipes"
       },
       "Acoustic Guitar": {
         strength: "identify the acoustic guitar confidently",
@@ -591,6 +615,30 @@
         gap: "narrowing down a shortlist of similar-sounding instruments",
         focus: "eliminate the options from clearly different families first, then compare only the close, same-family choices",
         label: "standard multiple-choice instrument questions"
+      },
+      // Real `articulation`/technique field on some clips (modules/
+      // instrument-identifier/clips.js) — Pizzicato specifically is an
+      // examiner-documented confusion: candidates hear the short, detached
+      // sound a plucked string makes and answer "staccato" (a notated
+      // articulation), when the question is asking for the playing
+      // technique that produced it.
+      "Pizzicato": {
+        strength: "identify pizzicato playing confidently",
+        gap: "naming pizzicato as the playing technique rather than describing the sound as \"staccato\"",
+        focus: "if a string sound is short, dry and has no bow noise at all, it's plucked (pizzicato) — a technique, not an articulation marking",
+        label: "pizzicato playing"
+      },
+      "Double Stop": {
+        strength: "identify double stops confidently",
+        gap: "noticing when a single bowed instrument is playing two notes at once",
+        focus: "listen for one instrument sounding two clear pitches together, rather than assuming a second player has joined in",
+        label: "double stops"
+      },
+      "Harmonics": {
+        strength: "identify string harmonics confidently",
+        gap: "telling a harmonic's thin, bell-like tone apart from the instrument's normal sound",
+        focus: "listen for a pitch that's higher, purer and more bell-like than the string's normal tone, with none of its usual warmth",
+        label: "string harmonics"
       }
     },
     "texture-trainer": {
@@ -1087,43 +1135,43 @@
       "2nd": {
         strength: "recognise 2nds confidently",
         gap: "telling a 2nd apart from a unison or a 3rd",
-        focus: "listen for two clearly adjacent, slightly clashing notes — wider than a unison, narrower than a 3rd",
+        focus: "listen for two clearly adjacent, slightly clashing notes — wider than a unison, narrower than a 3rd. Anchor it to a tune: a minor 2nd is the tense two-note grind that opens the Jaws theme; a major 2nd is the gap between the first two notes of 'Happy Birthday'",
         label: "2nds"
       },
       "3rd": {
         strength: "recognise 3rds confidently",
         gap: "telling a 3rd apart from a 2nd or a 4th",
-        focus: "listen for the classic, consonant 'thirds' sound used to build most chords — wider than a 2nd, narrower than a 4th",
+        focus: "listen for the classic, consonant 'thirds' sound used to build most chords — wider than a 2nd, narrower than a 4th. Anchor it to a tune: a major 3rd opens 'Oh, when the saints go marching in'; a minor 3rd is the descending shape of the words 'Hey, Jude'",
         label: "3rds"
       },
       "4th": {
         strength: "recognise 4ths confidently",
         gap: "telling a 4th apart from a 3rd or a 5th",
-        focus: "listen for an open, slightly hollow sound — wider than a 3rd, not as wide open as a 5th",
+        focus: "listen for an open, slightly hollow sound — wider than a 3rd, not as wide open as a 5th. A perfect 4th (by far the most common) opens 'Here Comes the Bride' and 'Amazing Grace'; a rarer augmented 4th (the tritone) sounds stretched and unsettled instead — think 'Maria' from West Side Story or The Simpsons theme",
         label: "4ths"
       },
       "5th": {
         strength: "recognise 5ths confidently",
         gap: "telling a 5th apart from a 4th or a 6th",
-        focus: "listen for a very open, hollow sound with almost no tension — the classic 'power chord' interval",
+        focus: "listen for a very open, hollow sound with almost no tension — the classic 'power chord' interval, and the opening leap of 'Twinkle, Twinkle, Little Star'",
         label: "5ths"
       },
       "6th": {
         strength: "recognise 6ths confidently",
         gap: "telling a 6th apart from a 5th or a 7th",
-        focus: "listen for a wide but sweet, consonant leap — bigger than a 5th, without a 7th's tension",
+        focus: "listen for a wide but sweet, consonant leap — bigger than a 5th, without a 7th's tension. A minor 6th opens 'The Entertainer' and the 'Where do I begin' line from the Love Story theme",
         label: "6ths"
       },
       "7th": {
         strength: "recognise 7ths confidently",
         gap: "telling a 7th apart from a 6th or an octave",
-        focus: "listen for a wide, tense gap that's almost but not quite an octave, and wants to resolve inward",
+        focus: "listen for a wide, tense gap that's almost but not quite an octave, and wants to resolve inward. A minor 7th opens 'Somewhere' from West Side Story, on 'there's a place for us'",
         label: "7ths"
       },
       "Octave": {
         strength: "recognise octaves confidently",
         gap: "confirming two notes really are an octave apart, not just a wide 7th",
-        focus: "listen for the two notes sounding like the 'same' note at a different height, with none of a 7th's leftover tension",
+        focus: "listen for the two notes sounding like the 'same' note at a different height, with none of a 7th's leftover tension — the leap on 'some-where' in 'Somewhere Over the Rainbow'",
         label: "octaves"
       },
       "Perfect": {
@@ -1135,13 +1183,13 @@
       "Major": {
         strength: "recognise major intervals confidently",
         gap: "telling a major interval apart from its minor version",
-        focus: "listen for the brighter, slightly wider version of the interval compared to its minor counterpart",
+        focus: "listen for the brighter, slightly wider version of the interval compared to its minor counterpart — compare 'Oh, when the saints' (major 3rd) against 'Hey Jude' (minor 3rd) if you need a reference pair",
         label: "major intervals"
       },
       "Minor": {
         strength: "recognise minor intervals confidently",
         gap: "telling a minor interval apart from its major version",
-        focus: "listen for the darker, slightly narrower version of the interval compared to its major counterpart",
+        focus: "listen for the darker, slightly narrower version of the interval compared to its major counterpart — compare 'Hey Jude' (minor 3rd) against 'Oh, when the saints' (major 3rd) if you need a reference pair",
         label: "minor intervals"
       },
       "Augmented": {

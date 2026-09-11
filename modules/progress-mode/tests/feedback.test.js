@@ -468,6 +468,20 @@ test("buildConceptFeedback: instrument-identifier's new specific instrument dime
   assert.match(text, /oboe.*but you need to work on.*clarinet/i);
 });
 
+test("buildConceptFeedback: instrument-identifier names the erhu/sarangi/sitar mix-up documented in the Cambridge IGCSE 0410 June 2022 examiner report", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({ "Erhu": [9, 10], "Sarangi": [2, 10] });
+  const text = Feedback.buildConceptFeedback("instrument-identifier", conceptStats);
+  assert.match(text, /erhu.*but you need to work on.*sarangi.*erhu.*sitar/i);
+});
+
+test("buildConceptFeedback: instrument-identifier names the pizzicato/staccato mix-up documented in the same examiner report", () => {
+  const Feedback = loadFeedback();
+  const conceptStats = stats({ "Cello": [9, 10], "Pizzicato": [2, 10] });
+  const text = Feedback.buildConceptFeedback("instrument-identifier", conceptStats);
+  assert.match(text, /cello.*but you need to work on.*pizzicato.*staccato/i);
+});
+
 test("buildConceptFeedback: texture-trainer's new specificTextureTerm-only values produce real feedback", () => {
   const Feedback = loadFeedback();
   const conceptStats = stats({ "Drone": [9, 10], "Antiphonal": [2, 10] });
