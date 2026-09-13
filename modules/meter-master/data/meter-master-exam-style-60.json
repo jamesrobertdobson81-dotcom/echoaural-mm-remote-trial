@@ -12,7 +12,8 @@
     "MMX063-MMX100: 38 CIE (Cambridge IGCSE Music 0410)-style questions added 2026-08-12 from the \"GOOD MORNIN JIMMY WORK!\" real-audio candidate batch (meter-master-new-50.json), after user review (31 kept as-is, 7 edited per review notes; 11 dropped; 1 routed to Instrument Identifier as II376).",
     "2026-08-12 (second review pass, original MMX001-061 bank): user reviewed all 61 original exam-style questions via modules/meter-master/review.html. 17 dropped (MMX008,010,019,020,027,038,043,046,047,048,050,053,054,055,058,059,060). MMX029 converted from a 2-mark written 'describe the metre' question to a 1-mark multiple-choice 'how many beats are in each bar?' question (options 2/3/4/5, answer 5). 12 score-based questions (MMX032,033,034,035,036,039,041,044,045,049,051,056) standardised into the 'Skeleton-score completion' format (\"The time signature has been removed from the score. Write the missing time signature. (1)\", 4-option multiple choice, Pearson Edexcel board style, 1 mark) per review notes, and script.js's deriveQuestionLevel was updated so this specific score+mode combination now resolves to Developing (previously any score question was hard-coded to Securing). MMX040 (also score, also 'Rhythm and metre features' mode) was explicitly excluded from this conversion per its own review note (compound metre, kept in its original 2-mark written format).",
     "MMX106-MMX121, MMX123 (17 questions; MMX122 dropped, its MTR101 clip still used by kept MMX121) added 2026-08-20 from the THURSDAY TIME TO MOVE TO THE SEASIDE batch (meter-master-new-batch.json + a Compound triple/9/8 gap-filling addition), after user review via review-staging/meter-master-seaside.html. Reviewed difficulty tiers recorded as level_override (Foundation/Developing/Securing/Mastering, same convention as MMX003 etc.).",
-    "MMX150-MMX162 (13 questions) added 2026-08-21 from the FRIDAY JIMMY! batch (meter-master-new-batch.json), after user review via review-staging/meter-master-friday-jimmy.html. Reviewed difficulty tiers recorded as level_override, cross-checked against the live bank's own convention that Context-and-style (genre/dance-convention) questions are always Securing or Mastering, never Foundation/Developing: all 5 genre-confirmation questions in this batch (MMX151, MMX152, MMX153, MMX155, MMX162) landed at Securing/Mastering as expected, so no level adjustments were needed."
+    "MMX150-MMX162 (13 questions) added 2026-08-21 from the FRIDAY JIMMY! batch (meter-master-new-batch.json), after user review via review-staging/meter-master-friday-jimmy.html. Reviewed difficulty tiers recorded as level_override, cross-checked against the live bank's own convention that Context-and-style (genre/dance-convention) questions are always Securing or Mastering, never Foundation/Developing: all 5 genre-confirmation questions in this batch (MMX151, MMX152, MMX153, MMX155, MMX162) landed at Securing/Mastering as expected, so no level adjustments were needed.",
+    "2026-09-13 (third review pass, meter-master-new-questions batch): 12 new skeleton-score-completion questions (MMX163-MMX174, sourced from Bach WTC1 preludes, Handel suites, Chopin, Sousa and Tchaikovsky) added after user review via review-staging/meter-master-new-questions.html, reviewed level tiers recorded as level_override. Same review pass also re-approved fixed score crops for 7 already-live score questions (MMX032, MMX035, MMX039, MMX041, MMX044, MMX045, MMX051) — score_asset filenames unchanged, only the image files themselves were replaced with corrected crops (time signature redaction margin fixes)."
   ],
   "questions": [
     {
@@ -3536,6 +3537,376 @@
       "sourceNote": "Real recording: Beethoven, Symphony No. 3 'Eroica', Op. 55, III. Scherzo (Allegro vivace). Genre-confirmed metre — a scherzo movement is conventionally fast triple time by definition of the form, not an inferred by-ear claim.",
       "sourceProvider": "Musopen Collection hosted by Internet Archive (item MusopenCollectionAsFlac)",
       "licenceType": "Public Domain Mark 1.0"
+    },
+    {
+      "id": "MMX163",
+      "audio_id": "MTRN014",
+      "audio_path": "modules/meter-master/audio/MTRN014.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "2/2",
+        "2/4",
+        "3/4",
+        "4/4"
+      ],
+      "correct_answer": "3/4",
+      "accepted_answers": [
+        "3/4",
+        "three-four"
+      ],
+      "mark_scheme": "3/4. (1)",
+      "feedback": "The notation groups each bar according to simple triple metre.",
+      "requires_score": true,
+      "score_asset": "mmx163_score.png",
+      "score_instruction": "Opening 4 bars, both staves. CC0 Open Well-Tempered Clavier edition. Clef and key signature preserved; only the printed time signature removed.",
+      "score_url": "https://archive.org/details/bach-well-tempered-clavier-book-1",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Securing"
+    },
+    {
+      "id": "MMX164",
+      "audio_id": "MTRN015",
+      "audio_path": "modules/meter-master/audio/MTRN015.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "2/2",
+        "2/4",
+        "3/4",
+        "4/4"
+      ],
+      "correct_answer": "4/4",
+      "accepted_answers": [
+        "4/4",
+        "four-four"
+      ],
+      "mark_scheme": "4/4. (1)",
+      "feedback": "The notation groups each bar according to simple quadruple metre.",
+      "requires_score": true,
+      "score_asset": "mmx164_score.png",
+      "score_instruction": "Opening 2 bars (the widest this dense 4/4 prelude allows on one system), both staves. CC0 Open Well-Tempered Clavier edition. Clef and key signature preserved; only the printed time signature removed.",
+      "score_url": "https://archive.org/details/bach-well-tempered-clavier-book-1",
+      "time_signature": "4/4",
+      "metre_family": "Simple quadruple",
+      "level_override": "Securing"
+    },
+    {
+      "id": "MMX165",
+      "audio_id": "MTRN016",
+      "audio_path": "modules/meter-master/audio/MTRN016.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "2/2",
+        "2/4",
+        "3/4",
+        "4/4"
+      ],
+      "correct_answer": "4/4",
+      "accepted_answers": [
+        "4/4",
+        "four-four"
+      ],
+      "mark_scheme": "4/4. (1)",
+      "feedback": "The notation groups each bar according to simple quadruple metre.",
+      "requires_score": true,
+      "score_asset": "mmx165_score.png",
+      "score_instruction": "Opening 3 bars, both staves. CC0 Open Well-Tempered Clavier edition. Clef and key signature preserved; only the printed time signature removed.",
+      "score_url": "https://archive.org/details/bach-well-tempered-clavier-book-1",
+      "time_signature": "4/4",
+      "metre_family": "Simple quadruple",
+      "level_override": "Securing"
+    },
+    {
+      "id": "MMX166",
+      "audio_id": "MTRN017",
+      "audio_path": "modules/meter-master/audio/MTRN017.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "2/2",
+        "2/4",
+        "3/4",
+        "4/4"
+      ],
+      "correct_answer": "4/4",
+      "accepted_answers": [
+        "4/4",
+        "four-four"
+      ],
+      "mark_scheme": "4/4. (1)",
+      "feedback": "The notation groups each bar according to simple quadruple metre.",
+      "requires_score": true,
+      "score_asset": "mmx166_score.png",
+      "score_instruction": "Opening 2 bars, both staves. CC0 Open Well-Tempered Clavier edition. Clef and key signature preserved; only the printed time signature removed.",
+      "score_url": "https://archive.org/details/bach-well-tempered-clavier-book-1",
+      "time_signature": "4/4",
+      "metre_family": "Simple quadruple",
+      "level_override": "Securing"
+    },
+    {
+      "id": "MMX167",
+      "audio_id": "MTRN018",
+      "audio_path": "modules/meter-master/audio/MTRN018.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "3/4",
+        "4/4",
+        "6/8",
+        "12/8"
+      ],
+      "correct_answer": "6/8",
+      "accepted_answers": [
+        "6/8",
+        "six-eight"
+      ],
+      "mark_scheme": "6/8. (1)",
+      "feedback": "The notation groups each bar according to compound duple metre.",
+      "requires_score": true,
+      "score_asset": "mmx167_score.png",
+      "score_instruction": "Opening 4 bars, all 3 staves (flute + harpsichord RH/LH). Bach-Gesellschaft Ausgabe, Public Domain. Clefs and key signatures preserved; only the printed time signature removed from each staff.",
+      "score_url": "https://s9.imslp.org/files/imglnks/usimg/a/ae/IMSLP02240-Bach_-_BGA_-_BWV1031.pdf",
+      "time_signature": "6/8",
+      "metre_family": "Compound duple"
+    },
+    {
+      "id": "MMX168",
+      "audio_id": "MTRN019",
+      "audio_path": "modules/meter-master/audio/MTRN019.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "3/4",
+        "4/4",
+        "6/8",
+        "12/8"
+      ],
+      "correct_answer": "12/8",
+      "accepted_answers": [
+        "12/8",
+        "twelve-eight"
+      ],
+      "mark_scheme": "12/8. (1)",
+      "feedback": "The notation groups each bar according to compound quadruple metre.",
+      "requires_score": true,
+      "score_asset": "mmx168_score.png",
+      "score_instruction": "Opening 3 bars (this piece's dense arpeggiated figuration only allows 3 bars per system, not the usual 2-4 default upper end). Peters edition, Public Domain. Clef and key signature preserved; only the printed time signature removed.",
+      "score_url": "https://s9.imslp.org/files/imglnks/usimg/1/17/IMSLP102120-PMLP02633-Chopin_Klavierwerke_Band_3_Peters_Barcarolle_Op_60_scan.pdf",
+      "time_signature": "12/8",
+      "metre_family": "Compound quadruple"
+    },
+    {
+      "id": "MMX169",
+      "audio_id": "MTRN020",
+      "audio_path": "modules/meter-master/audio/MTRN020.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "3/4",
+        "4/4",
+        "6/8",
+        "12/8"
+      ],
+      "correct_answer": "6/8",
+      "accepted_answers": [
+        "6/8",
+        "six-eight"
+      ],
+      "mark_scheme": "6/8. (1)",
+      "feedback": "The notation groups each bar according to compound duple metre.",
+      "requires_score": true,
+      "score_asset": "mmx169_score.png",
+      "score_instruction": "Opening 4 bars, both staves. Handel-Gesellschaft critical edition, Public Domain. Clef and key signature preserved; only the printed time signature removed.",
+      "score_url": "https://s9.imslp.org/files/imglnks/usimg/b/bb/IMSLP397793-PMLP29692-Handel,_Georg_Friedrich-Werke_2_08_HWV_433_scan.pdf",
+      "time_signature": "6/8",
+      "metre_family": "Compound duple",
+      "level_override": "Securing"
+    },
+    {
+      "id": "MMX170",
+      "audio_id": "MTRN021",
+      "audio_path": "modules/meter-master/audio/MTRN021.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "3/4",
+        "4/4",
+        "6/8",
+        "12/8"
+      ],
+      "correct_answer": "12/8",
+      "accepted_answers": [
+        "12/8",
+        "twelve-eight"
+      ],
+      "mark_scheme": "12/8. (1)",
+      "feedback": "The notation groups each bar according to compound quadruple metre.",
+      "requires_score": true,
+      "score_asset": "mmx170_score.png",
+      "score_instruction": "Opening 3 bars, both staves. Handel-Gesellschaft critical edition, Public Domain. Clef and key signature preserved; only the printed time signature removed.",
+      "score_url": "https://s9.imslp.org/files/imglnks/usimg/6/6f/IMSLP397786-PMLP29679-Handel,_Georg_Friedrich-Werke_2_01_HWV_426_scan.pdf",
+      "time_signature": "12/8",
+      "metre_family": "Compound quadruple",
+      "level_override": "Securing"
+    },
+    {
+      "id": "MMX171",
+      "audio_id": "MTRN022",
+      "audio_path": "modules/meter-master/audio/MTRN022.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "3/4",
+        "4/4",
+        "6/8",
+        "12/8"
+      ],
+      "correct_answer": "6/8",
+      "accepted_answers": [
+        "6/8",
+        "six-eight"
+      ],
+      "mark_scheme": "6/8. (1)",
+      "feedback": "The notation groups each bar according to compound duple metre.",
+      "requires_score": true,
+      "score_asset": "mmx171_score.png",
+      "score_instruction": "Opening 3 bars including the repeat mark, both staves. 1888 first edition (Dover reprint), Public Domain. Clef preserved; only the printed time signature removed.",
+      "score_url": "https://s9.imslp.org/files/imglnks/usimg/c/c8/IMSLP14065-Sousa_-_Semper_Fidelis.pdf",
+      "time_signature": "6/8",
+      "metre_family": "Compound duple",
+      "level_override": "Securing"
+    },
+    {
+      "id": "MMX172",
+      "audio_id": "MTRN023",
+      "audio_path": "modules/meter-master/audio/MTRN023.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "3/4",
+        "4/4",
+        "6/8",
+        "12/8"
+      ],
+      "correct_answer": "6/8",
+      "accepted_answers": [
+        "6/8",
+        "six-eight"
+      ],
+      "mark_scheme": "6/8. (1)",
+      "feedback": "The notation groups each bar according to compound duple metre.",
+      "requires_score": true,
+      "score_asset": "mmx172_score.png",
+      "score_instruction": "Opening 4 bars, both staves, including the edition's own fingering numbers. 1894 Easy Piano edition, Public Domain. Clef preserved; only the printed time signature removed.",
+      "score_url": "https://s9.imslp.org/files/imglnks/usimg/e/e8/IMSLP272146-PMLP35911-JPSousa_The_Washington_Post_March_easypiano.pdf",
+      "time_signature": "6/8",
+      "metre_family": "Compound duple",
+      "level_override": "Securing"
+    },
+    {
+      "id": "MMX173",
+      "audio_id": "MTRN024",
+      "audio_path": "modules/meter-master/audio/MTRN024.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "2/2",
+        "2/4",
+        "3/4",
+        "4/4"
+      ],
+      "correct_answer": "3/4",
+      "accepted_answers": [
+        "3/4",
+        "three-four"
+      ],
+      "mark_scheme": "3/4. (1)",
+      "feedback": "The notation groups each bar according to simple triple metre.",
+      "requires_score": true,
+      "score_asset": "mmx173_score.png",
+      "score_instruction": "Opening 12 bars across both systems on the page — the left hand rests until bar 5, so a shorter excerpt hides the metre's waltz pattern entirely. Breitkopf & Härtel first edition (c.1860), Public Domain. Clef and key signature preserved; only the printed time signature removed.",
+      "score_url": "https://imslp.org/wiki/Waltzes,_Op.64_(Chopin,_Fr%C3%A9d%C3%A9ric)",
+      "time_signature": "3/4",
+      "metre_family": "Simple triple",
+      "level_override": "Securing"
+    },
+    {
+      "id": "MMX174",
+      "audio_id": "MTRN025",
+      "audio_path": "modules/meter-master/audio/MTRN025.mp3",
+      "mode": "Skeleton-score completion",
+      "board_style": "Pearson Edexcel",
+      "marks": 1,
+      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
+      "response_type": "multiple choice",
+      "app_control": "radio",
+      "options": [
+        "3/4",
+        "4/4",
+        "5/4",
+        "6/8"
+      ],
+      "correct_answer": "5/4",
+      "accepted_answers": [
+        "5/4",
+        "five-four"
+      ],
+      "mark_scheme": "5/4. (1)",
+      "feedback": "The notation groups each bar according to irregular quintuple (grouped 2+3) metre.",
+      "requires_score": true,
+      "score_asset": "mmx174_score.png",
+      "score_instruction": "Opening 12 bars across both systems of the Violin 1 orchestral part — longer than usual because Violin 1 rests for the first 3 bars (cello cue shown) before entering pizzicato at bar 4. Breitkopf & Härtel/Kalmus reprint, Public Domain. Clef and key signature preserved; only the printed time signature removed.",
+      "score_url": "https://imslp.org/wiki/Symphony_No.6,_Op.74_(Tchaikovsky,_Pyotr)",
+      "time_signature": "5/4",
+      "metre_family": "Irregular quintuple",
+      "level_override": "Securing"
     }
   ]
 }

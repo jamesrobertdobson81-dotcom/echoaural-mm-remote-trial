@@ -32,6 +32,29 @@
 .question-row.is-edit { border-left: 3px solid var(--gold); }
 .question-row.is-drop { border-left: 3px solid var(--red); opacity: .6; }
 
+.score-preview {
+  width: 100%;
+  margin: 4px 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+
+.score-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.score-preview .score-caption {
+  margin: 8px 0 0;
+  font-size: .7rem;
+  color: #334155;
+  text-align: center;
+}
+
 .choice-preview-label {
   display: block;
   font-size: .68rem;

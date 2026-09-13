@@ -8,6 +8,17 @@
   var config = window.EAReviewConfig || { appKey: "app", appLabel: "App", brandApp: "" };
   window.EAReviewShell.build(config);
 
+  // Cache-buster: the underlying score/audio files at these same relative paths get
+  // overwritten in place as fixes land, but browsers cache file:// resources by URL —
+  // an already-open tab can keep showing bytes from the first time it loaded a given
+  // path. Appending a fresh token to every asset URL on each page load forces a real
+  // re-fetch instead of a stale cached copy.
+  var CACHE_BUST = Date.now();
+  function cacheBust(url) {
+    if (!url) return url;
+    return url + (url.indexOf("?") === -1 ? "?" : "&") + "v=" + CACHE_BUST;
+  }
+
   var STORAGE_KEY = "echoaural.reviewStaging." + config.appKey + ".v1";
   var LEVELS = ["Foundation", "Developing", "Securing", "Mastering"];
 
@@ -36,6 +47,9 @@
     questionPrompt: document.getElementById("questionPrompt"),
     questionDetails: document.getElementById("questionDetails"),
     answerChoicePreview: document.getElementById("answerChoicePreview"),
+    scorePreview: document.getElementById("scorePreview"),
+    scoreImage: document.getElementById("scoreImage"),
+    scoreCaption: document.getElementById("scoreCaption"),
     playClipButton: document.getElementById("playClipButton"),
     audioStatus: document.getElementById("audioStatus"),
     audioPlayer: document.getElementById("audioPlayer"),
@@ -167,6 +181,21 @@
       '</div>';
   }
 
+  function renderScorePreview(question) {
+    if (!question.scoreAsset) {
+      els.scorePreview.hidden = true;
+      els.scoreImage.removeAttribute("src");
+      delete els.scoreImage.dataset.src;
+      return;
+    }
+    els.scorePreview.hidden = false;
+    if (els.scoreImage.dataset.src !== question.scoreAsset) {
+      els.scoreImage.src = cacheBust(question.scoreAsset);
+      els.scoreImage.dataset.src = question.scoreAsset;
+    }
+    els.scoreCaption.textContent = question.scoreCaption || "";
+  }
+
   function renderMarkscheme(question) {
     els.markschemeContent.innerHTML =
       '<p>' + escapeHtml(question.answer || "No marking guidance provided.") + '</p>';
@@ -217,7 +246,7 @@
 
     if (els.audioPlayer.dataset.questionId !== question.id) {
       els.audioPlayer.pause();
-      els.audioPlayer.src = question.audio;
+      els.audioPlayer.src = cacheBust(question.audio);
       els.audioPlayer.dataset.questionId = question.id;
       els.audioPlayer.load();
       els.fullDuration.textContent = question.clipDuration ? formatTime(question.clipDuration) : "—";
@@ -227,6 +256,7 @@
     els.clipEndInput.value = review.clipEnd;
 
     renderAnswerChoicePreview(question);
+    renderScorePreview(question);
     els.prevButton.disabled = state.activeIndex <= 0;
     els.nextButton.textContent = state.activeIndex >= list.length - 1 ? "Finish review" : "Next question";
     els.revealButton.textContent = state.revealed ? "Hide answer" : "Reveal answer";

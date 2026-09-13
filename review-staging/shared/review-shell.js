@@ -81,6 +81,11 @@
 
               <div id="answerChoicePreview" class="answer-choice-preview" aria-label="Answer options"></div>
 
+              <div id="scorePreview" class="score-preview" hidden>
+                <img id="scoreImage" alt="Score excerpt with time signature removed" />
+                <p id="scoreCaption" class="score-caption"></p>
+              </div>
+
               <div class="wave-tile" aria-hidden="true">
                 <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
               </div>
