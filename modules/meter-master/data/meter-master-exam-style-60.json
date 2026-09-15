@@ -13,7 +13,8 @@
     "2026-08-12 (second review pass, original MMX001-061 bank): user reviewed all 61 original exam-style questions via modules/meter-master/review.html. 17 dropped (MMX008,010,019,020,027,038,043,046,047,048,050,053,054,055,058,059,060). MMX029 converted from a 2-mark written 'describe the metre' question to a 1-mark multiple-choice 'how many beats are in each bar?' question (options 2/3/4/5, answer 5). 12 score-based questions (MMX032,033,034,035,036,039,041,044,045,049,051,056) standardised into the 'Skeleton-score completion' format (\"The time signature has been removed from the score. Write the missing time signature. (1)\", 4-option multiple choice, Pearson Edexcel board style, 1 mark) per review notes, and script.js's deriveQuestionLevel was updated so this specific score+mode combination now resolves to Developing (previously any score question was hard-coded to Securing). MMX040 (also score, also 'Rhythm and metre features' mode) was explicitly excluded from this conversion per its own review note (compound metre, kept in its original 2-mark written format).",
     "MMX106-MMX121, MMX123 (17 questions; MMX122 dropped, its MTR101 clip still used by kept MMX121) added 2026-08-20 from the THURSDAY TIME TO MOVE TO THE SEASIDE batch (meter-master-new-batch.json + a Compound triple/9/8 gap-filling addition), after user review via review-staging/meter-master-seaside.html. Reviewed difficulty tiers recorded as level_override (Foundation/Developing/Securing/Mastering, same convention as MMX003 etc.).",
     "MMX150-MMX162 (13 questions) added 2026-08-21 from the FRIDAY JIMMY! batch (meter-master-new-batch.json), after user review via review-staging/meter-master-friday-jimmy.html. Reviewed difficulty tiers recorded as level_override, cross-checked against the live bank's own convention that Context-and-style (genre/dance-convention) questions are always Securing or Mastering, never Foundation/Developing: all 5 genre-confirmation questions in this batch (MMX151, MMX152, MMX153, MMX155, MMX162) landed at Securing/Mastering as expected, so no level adjustments were needed.",
-    "2026-09-13 (third review pass, meter-master-new-questions batch): 12 new skeleton-score-completion questions (MMX163-MMX174, sourced from Bach WTC1 preludes, Handel suites, Chopin, Sousa and Tchaikovsky) added after user review via review-staging/meter-master-new-questions.html, reviewed level tiers recorded as level_override. Same review pass also re-approved fixed score crops for 7 already-live score questions (MMX032, MMX035, MMX039, MMX041, MMX044, MMX045, MMX051) — score_asset filenames unchanged, only the image files themselves were replaced with corrected crops (time signature redaction margin fixes)."
+    "2026-09-13 (third review pass, meter-master-new-questions batch): 12 new skeleton-score-completion questions (MMX163-MMX174, sourced from Bach WTC1 preludes, Handel suites, Chopin, Sousa and Tchaikovsky) added after user review via review-staging/meter-master-new-questions.html, reviewed level tiers recorded as level_override. Same review pass also re-approved fixed score crops for 7 already-live score questions (MMX032, MMX035, MMX039, MMX041, MMX044, MMX045, MMX051) — score_asset filenames unchanged, only the image files themselves were replaced with corrected crops (time signature redaction margin fixes).",
+    "2026-09-14 (fourth review pass): MMX034 and MMX036 dropped per user review (MMX034 blocked on sourcing a genuine full score for the Finale coda landmark; MMX036 blocked on cropping its full score to bars 5-12) — question data removed from the bank. Their audio/score asset files were left in place, not deleted, since MTR-numbered audio clips are shared with other question banks. MMX031/033/049/056 score images updated to their final manually-redacted versions (031: rejoined+redacted via the new Score Assembler tool, bars 11-18; 033: genuine Breitkopf full-score Scherzo; 049: genuine Eulenburg full-score Menuetto; 056: matches the already-correct 20s audio, no change needed there)."
   ],
   "questions": [
     {
@@ -794,36 +795,6 @@
       "metre_family": "Simple triple"
     },
     {
-      "id": "MMX034",
-      "audio_id": "MTR004",
-      "audio_path": "modules/meter-master/audio/MTR004.mp3",
-      "mode": "Skeleton-score completion",
-      "board_style": "Pearson Edexcel",
-      "marks": 1,
-      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
-      "response_type": "multiple choice",
-      "app_control": "radio",
-      "options": [
-        "2/2",
-        "2/4",
-        "3/4",
-        "4/4"
-      ],
-      "correct_answer": "2/4",
-      "accepted_answers": [
-        "2/4",
-        "two-four"
-      ],
-      "mark_scheme": "2/4. (1)",
-      "feedback": "The notation groups each bar according to simple duple metre.",
-      "requires_score": true,
-      "score_asset": "mmx034_score.png",
-      "score_instruction": "Use 2–4 bars that correspond as closely as possible to the existing audio cut. Use a public-domain edition from the linked score page. Preserve rhythmic grouping and barlines. Remove the signature but retain beaming, barlines and enough notes to show the beat grouping.",
-      "score_url": "https://imslp.org/wiki/Symphony_No.3%2C_Op.55_%28Beethoven%2C_Ludwig_van%29",
-      "time_signature": "2/4",
-      "metre_family": "Simple duple"
-    },
-    {
       "id": "MMX035",
       "audio_id": "MTR005",
       "audio_path": "modules/meter-master/audio/MTR005.mp3",
@@ -852,36 +823,6 @@
       "score_url": "https://imslp.org/wiki/Symphony_No.4%2C_Op.98_%28Brahms%2C_Johannes%29",
       "time_signature": "2/2",
       "metre_family": "Simple duple"
-    },
-    {
-      "id": "MMX036",
-      "audio_id": "MTR006",
-      "audio_path": "modules/meter-master/audio/MTR006.mp3",
-      "mode": "Skeleton-score completion",
-      "board_style": "Pearson Edexcel",
-      "marks": 1,
-      "question": "The time signature has been removed from the score. Write the missing time signature. (1)",
-      "response_type": "multiple choice",
-      "app_control": "radio",
-      "options": [
-        "3/4",
-        "4/4",
-        "6/8",
-        "12/8"
-      ],
-      "correct_answer": "6/8",
-      "accepted_answers": [
-        "6/8",
-        "six-eight"
-      ],
-      "mark_scheme": "6/8. (1)",
-      "feedback": "The notation groups each bar according to compound duple metre.",
-      "requires_score": true,
-      "score_asset": "mmx036_score.png",
-      "score_instruction": "Use 2–4 bars that correspond as closely as possible to the existing audio cut. Use a public-domain edition from the linked score page. Preserve rhythmic grouping and barlines. Remove only the printed time signature.",
-      "score_url": "https://imslp.org/wiki/Symphony_No.4%2C_Op.98_%28Brahms%2C_Johannes%29",
-      "time_signature": "6/8",
-      "metre_family": "Compound duple"
     },
     {
       "id": "MMX037",

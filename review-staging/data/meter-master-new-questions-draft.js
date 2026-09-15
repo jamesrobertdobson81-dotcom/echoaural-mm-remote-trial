@@ -1,13 +1,7 @@
 // AUTO-GENERATED DRAFT DATA — for review-staging only, not part of any live app.
-// Round 17: Per explicit instruction, notes on 'keep' decisions are no longer read/actioned —
-// only 'edit'-decision notes drive changes now. This round: MMX033 re-cropped from the correct
-// Scherzo movement (was showing the wrong material entirely); MMX031 trimmed to 12 bars and
-// joined into one line; MMX056's audio duration bug fixed (file was already 20s, review tool
-// was capping it at 14s); MMX036's full score rendered and handed to the manual redaction folder
-// (audio already staged); MMX049 finally unblocked — got past IMSLP's download gate for the
-// Eulenburg full score and handed the correct raw excerpt to the manual folder. MMX034 remains
-// genuinely blocked (see status) despite a real attempt this round. All 19 'keep' entries are
-// otherwise unchanged from Round 16 and are being merged into the live question bank now.
+// Round 19: MMX031 rejoined by James via the new Score Assembler tool — final content is bars
+// 11-18 (8 bars), not 7-18 as Round 17 had it; redacted and cropped clean. Everything else
+// unchanged from Round 18.
 window.EAReviewDraftQuestions = [
   {
     "id": "MMX163",
@@ -728,7 +722,7 @@ window.EAReviewDraftQuestions = [
     "marks": 1,
     "answer": "3/4 — The notation groups each bar according to simple triple metre.",
     "featureTag": "metre",
-    "status": "FIXED (candidate) — last 3 bars (19-21) removed and the 2 stacked lines joined into a single continuous line, per request. Now 12 bars (was 15). Reused the existing, already-approved time-signature redaction pixel-for-pixel — did not re-redact anything.",
+    "status": "FIXED (final) — James rejoined this using the new Score Assembler tool (confirmed the final content is bars 11-18 only, 8 bars — not 7-18 as an earlier round assumed), redacted it, and I cropped off a large blank margin above the stave left over from positioning in the assembler.",
     "level": "Developing",
     "levelIsDraft": true,
     "clipStart": 0,
@@ -736,7 +730,7 @@ window.EAReviewDraftQuestions = [
     "clipDuration": 14,
     "audio": "../modules/meter-master/audio/MTR001.mp3",
     "scoreAsset": "scores/meter-master-live-fixes/meter-master/mmx031_score.png",
-    "scoreCaption": "Beethoven, Symphony No.3 \"Eroica\" — Violin I, bars ~7-21 (cropped by James from the real part-book, 2 systems joined by Claude). No time signature glyph present in this excerpt (mid-movement, past the opening) — nothing to redact.",
+    "scoreCaption": "Beethoven, Symphony No.3 \"Eroica\" — Violin I, bars 11-18 (joined and redacted by James using the Score Assembler + Time Signature Redactor tools).",
     "final": {
       "_mergeTarget": "modules/meter-master/scores/mmx031_score.png",
       "_note": "Re-crop only. Merge = copy the staged PNG over the live file at _mergeTarget; no other JSON field changes (audio_id/audio_path stay MTR001, unchanged)."
@@ -792,7 +786,7 @@ window.EAReviewDraftQuestions = [
     "marks": 1,
     "answer": "3/4 — The notation groups each bar according to simple triple metre.",
     "featureTag": "metre",
-    "status": "FIXED (candidate) — re-sourced from the Violin 1 part-book, correct movement (III. Scherzo, Allegro vivace, not movement I). Shows the actual melody: opening 4 bars of the famous pp staccato theme. Time signature (3/4) redacted directly (this one is a straightforward re-crop from clean source, not a margin-precision dispute) — flag if you want it through the manual tool instead.",
+    "status": "FIXED (final) — manually redacted by James (genuine Breitkopf Gesamtausgabe orchestral score this time, replacing the wrong Liszt/Choe arrangement). Confirmed clean.",
     "level": "Developing",
     "levelIsDraft": false,
     "clipStart": 0,
@@ -1044,15 +1038,19 @@ window.EAReviewDraftQuestions = [
     "marks": 1,
     "answer": "3/4 — The notation groups each bar according to simple triple metre.",
     "featureTag": "metre",
-    "status": "NOT YET MERGED — but unblocked this round: got past IMSLP's countdown gate for file #06557 (Eulenburg full score, Public Domain) — it was a timed free-tier wait, not a hard bot-block. Downloaded the real 22-page full score, found the Menuetto (III, Allegretto), confirmed against MTR019's ID3 tag. Cropped bars 1-4, all 4 string parts, and placed UNREDACTED in SCORES FOR MANUAL REDACTION as MMX049_UNREDACTED_bars1-4.png for your redaction pass. Full PDF saved to the MISSING NINE folder too. Rights note: Eulenburg edition tagged Public Domain on its own IMSLP file page, but worth your own quick check before this goes live.",
+    "status": "FIXED (final) — manually redacted by James from the genuine Eulenburg full score (all 4 string parts, 9 bars, Menuetto). Confirmed clean.",
     "level": "Developing",
     "levelIsDraft": false,
     "clipStart": 0,
     "clipEnd": 14,
     "clipDuration": 14,
     "audio": "../modules/meter-master/audio/MTR019.mp3",
-    "scoreAsset": "../modules/meter-master/scores/mmx049_score.png",
-    "scoreCaption": "MMX049 (LIVE) — Simple triple, already in the app"
+    "scoreAsset": "scores/meter-master-live-fixes/meter-master/mmx049_score.png",
+    "scoreCaption": "MMX049 (LIVE) — Simple triple, already in the app",
+    "final": {
+      "_mergeTarget": "modules/meter-master/scores/mmx049_score.png",
+      "_note": "Re-crop only. Merge = copy the staged PNG over the live file at _mergeTarget; no other JSON field changes."
+    }
   },
   {
     "id": "MMX051",
